@@ -1,0 +1,2161 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f7fa" />
+    <title>Lokal DC</title>
+        <style>
+:root {
+  --cream: #f5f7fa;
+  --paper: #ffffff;
+  --ink: #111827;
+  --muted: #667587;
+  --line: #dce6ed;
+  --orange: #3a7ca5;
+  --orange-soft: #e0eef7;
+  --green: #1d4e6b;
+  --green-soft: #e0eef7;
+  --yellow: #78a9c7;
+  --pink: #6e9db8;
+  --navy: #111827;
+  --shadow: 0 10px 28px rgba(17, 24, 39, .09);
+  --radius: 22px;
+}
+
+* { box-sizing: border-box; }
+html { background: #e7edf2; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #e7edf2;
+  font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+button { border: 0; color: inherit; cursor: pointer; font: inherit; }
+button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.demo-stage { min-height: 100vh; }
+.demo-sidebar { display: none; }
+.app-shell {
+  position: relative;
+  width: min(100%, 620px);
+  min-height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--cream);
+  box-shadow: 0 0 45px rgba(50, 40, 30, .12);
+}
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.share-shortcut { padding: 8px 10px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+.header-icon { position: relative; padding: 5px; color: var(--orange); background: transparent; font-size: 14px; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+  padding: 10px 18px;
+  background: rgba(246, 240, 231, .92);
+  border-bottom: 1px solid rgba(231, 223, 212, .8);
+  backdrop-filter: blur(14px);
+}
+.brand { display: flex; align-items: center; gap: 10px; background: transparent; text-align: left; }
+.brand-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--paper);
+  background: var(--orange);
+  font-family: Georgia, serif;
+  font-size: 23px;
+  font-weight: 700;
+}
+.brand b { display: block; font-size: 15px; letter-spacing: 2px; }
+.brand small { display: block; margin-top: 2px; color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: 1.5px; }
+.icon-button { display: grid; place-items: center; padding: 0; background: transparent; }
+main { min-height: calc(100vh - 68px); padding-bottom: 92px; }
+.page { padding: 20px 18px 32px; animation: rise .25s ease; }
+@keyframes rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.eyebrow { margin: 0 0 5px; color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.6px; text-transform: uppercase; }
+h1, h2, h3, p { margin-top: 0; }
+h1, h2 { font-family: Georgia, serif; font-weight: 500; letter-spacing: -.6px; }
+h1 { margin-bottom: 9px; font-size: 37px; line-height: 1.02; }
+h2 { margin-bottom: 12px; font-size: 25px; line-height: 1.05; }
+h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
+.lede { max-width: 420px; margin-bottom: 19px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.section { margin-top: 27px; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.section-heading h2 { margin: 0; }
+.discover-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.discover-heading h1 { margin-bottom: 12px; font-size: 31px; }
+.filter-button { padding: 8px 11px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }
+.search-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 3px 11px rgba(42,57,52,.04); }
+.search-box span { color: var(--orange); font-family: Georgia, serif; font-size: 24px; line-height: .5; }
+.search-box input { width: 100%; border: 0; color: var(--ink); background: transparent; font: inherit; font-size: 12px; outline: 0; }
+.age-note { margin: 8px 0 11px; padding: 9px 11px; border-radius: 11px; color: var(--green); background: var(--green-soft); font-size: 11px; font-weight: 800; line-height: 1.35; }
+.mini-lists { display: flex; gap: 8px; overflow-x: auto; margin-top: 12px; padding-bottom: 2px; scrollbar-width: none; }
+.mini-lists button { flex: 0 0 142px; padding: 11px; border-radius: 14px; color: white; background: var(--green); text-align: left; }
+.mini-lists button:nth-child(2) { background: var(--navy); }.mini-lists button:nth-child(3) { background: var(--orange); }
+.mini-lists b, .mini-lists span { display: block; }.mini-lists b { font-size: 12px; }.mini-lists span { margin-top: 4px; font-size: 9px; opacity: .78; }
+.feed-section { margin-top: 22px; }
+.feed-label { margin-bottom: 3px; color: var(--green); font-size: 8px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
+.live-dot { color: var(--orange); font-size: 10px; font-weight: 900; text-transform: uppercase; }
+.text-button { color: var(--green); background: transparent; font-size: 12px; font-weight: 800; }
+.chips { display: flex; gap: 7px; overflow-x: auto; padding: 1px 1px 6px; scrollbar-width: none; }
+.chip, .filter-chip {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--green);
+  background: var(--paper);
+  font-size: 11px;
+  font-weight: 800;
+}
+.chip.active, .filter-chip.active { border-color: var(--green); color: white; background: var(--green); }
+
+.event-stack { display: grid; gap: 12px; }
+.event-row {
+  display: grid;
+  grid-template-columns: 98px 1fr;
+  min-height: 118px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper);
+  box-shadow: 0 3px 11px rgba(42,57,52,.045);
+  text-align: left;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.event-row:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.event-art { position: relative; display: flex; align-items: end; min-height: 118px; padding: 8px; overflow: hidden; color: white; background: var(--green); }
+.event-art:before, .hero-art:before {
+  position: absolute;
+  top: -25px;
+  right: -22px;
+  width: 95px;
+  height: 95px;
+  border: 12px solid rgba(255,255,255,.18);
+  border-radius: 50%;
+  content: "";
+}
+.event-art:after, .hero-art:after {
+  position: absolute;
+  right: 10px;
+  bottom: 18px;
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(255,255,255,.32);
+  border-radius: 50%;
+  content: "";
+}
+.cat-nightlife { background: linear-gradient(150deg, #344d73, #152b44); }
+.cat-music { background: linear-gradient(150deg, #cf714f, #eaa65b); }
+.cat-art { background: linear-gradient(150deg, #846894, #e2909a); }
+.cat-fitness { background: linear-gradient(150deg, #467e66, #183f3a); }
+.cat-food { background: linear-gradient(150deg, #e59840, #bb523d); }
+.art-label { position: relative; z-index: 1; font-size: 9px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+.event-copy { display: flex; flex-direction: column; justify-content: center; padding: 12px; }
+.event-meta { margin: 0 0 4px; color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+.event-copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.signal { display: flex; align-items: center; gap: 6px; margin-top: 9px; color: var(--green); font-size: 10px; font-weight: 800; }
+.avatars { display: flex; padding-left: 4px; }
+.avatar {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  margin-left: -5px;
+  place-items: center;
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  color: white;
+  background: var(--green);
+  font-size: 8px;
+  font-weight: 900;
+}
+.avatar:nth-child(2n) { background: var(--orange); }
+.avatar:nth-child(3n) { background: var(--navy); }
+.avatar-me { width: 40px; height: 40px; margin: 0; border-color: white; background: var(--navy); }
+
+.feature-card { position: relative; overflow: hidden; border-radius: 22px; color: white; background: var(--navy); text-align: left; }
+.feature-card .hero-art { min-height: 196px; padding: 20px; background: linear-gradient(145deg, rgba(34,60,82,.1), rgba(34,60,82,.8)), linear-gradient(135deg, #c97759, #233d53 67%); }
+.feature-card h3 { position: relative; z-index: 1; max-width: 260px; margin-top: 45px; font-family: Georgia, serif; font-size: 30px; font-weight: 500; }
+.feature-card p { position: relative; z-index: 1; margin: 0; font-size: 12px; opacity: .88; }
+.feature-signal { position: absolute; top: 16px; left: 16px; z-index: 2; padding: 7px 10px; border-radius: 999px; background: rgba(255,253,248,.95); color: var(--ink); font-size: 10px; font-weight: 900; }
+
+.bottom-nav {
+  position: fixed;
+  right: 10px;
+  bottom: 9px;
+  left: 10px;
+  z-index: 12;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: min(calc(100% - 20px), 600px);
+  height: 64px;
+  margin: 0 auto;
+  padding: 7px 8px 8px;
+  border: 1px solid rgba(231,223,212,.9);
+  border-radius: 19px;
+  background: rgba(255,254,250,.94);
+  box-shadow: 0 8px 24px rgba(42,57,52,.12);
+  backdrop-filter: blur(12px);
+}
+.nav-item { display: grid; justify-items: center; gap: 2px; color: #96a09b; background: transparent; font-size: 8px; }
+.nav-item.active { color: var(--green); }
+.nav-item svg { width: 21px; height: 21px; stroke-width: 2; }
+
+.modal-backdrop { position: fixed; inset: 0; z-index: 20; display: flex; align-items: end; justify-content: center; background: rgba(20,34,32,.45); animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.modal { position: relative; width: min(100%, 620px); max-height: 91vh; overflow-y: auto; border-radius: 25px 25px 0 0; background: var(--paper); animation: slide .28s ease; }
+@keyframes slide { from { transform: translateY(35px); } to { transform: translateY(0); } }
+.modal-close { position: absolute; top: 14px; right: 14px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; color: white; background: rgba(23,58,53,.58); font-size: 20px; }
+.detail-hero { position: relative; min-height: 210px; padding: 22px; color: white; }
+.detail-hero h1 { position: relative; z-index: 1; max-width: 360px; margin-top: 75px; font-size: 35px; }
+.detail-hero p { position: relative; z-index: 1; margin: 0; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.detail-body { padding: 20px 18px 30px; }
+.detail-actions { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 7px; margin: 16px 0; }
+.action, .primary, .secondary { padding: 11px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; }
+.action { color: var(--green); background: var(--green-soft); }
+.action.selected { color: white; background: var(--green); }
+.primary { color: white; background: var(--orange); }
+.secondary { color: var(--green); background: var(--green-soft); }
+.detail-description { color: var(--muted); font-family: Georgia, serif; font-size: 17px; line-height: 1.45; }
+.attendee-line { display: flex; align-items: center; gap: 9px; margin: 14px 0; font-size: 12px; font-weight: 800; }
+
+.map-page { padding: 0; }
+.map-top { padding: 18px; }
+.map-canvas {
+  position: relative;
+  min-height: calc(100vh - 232px);
+  overflow: hidden;
+  background: #dce6dc;
+}
+.map-canvas:before {
+  position: absolute;
+  inset: -50px;
+  opacity: .78;
+  background:
+    linear-gradient(118deg, transparent 0 19%, #f6f0e7 19% 23%, transparent 23% 100%),
+    linear-gradient(12deg, transparent 0 39%, #f6f0e7 39% 43%, transparent 43% 100%),
+    linear-gradient(98deg, transparent 0 59%, #f6f0e7 59% 63%, transparent 63% 100%),
+    linear-gradient(163deg, transparent 0 68%, #f6f0e7 68% 71%, transparent 71% 100%);
+  content: "";
+}
+.neighborhood { position: absolute; color: rgba(23,58,53,.5); font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+.pin { position: absolute; z-index: 2; display: grid; width: 38px; height: 38px; place-items: center; border: 3px solid white; border-radius: 50% 50% 50% 9px; color: white; background: var(--orange); box-shadow: 0 5px 10px rgba(48,61,57,.2); font-size: 11px; font-weight: 900; transform: rotate(-45deg); }
+.pin span { transform: rotate(45deg); }
+.pin.music { background: var(--orange); }.pin.nightlife { background: var(--navy); }.pin.art { background: #9e6f95; }.pin.fitness { background: var(--green); }.pin.food { background: #ca8c3c; }
+.map-card { position: absolute; right: 14px; bottom: 14px; left: 14px; z-index: 4; display: none; }
+.map-card.visible { display: block; }
+
+.tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: #ebe4d9; }
+.tab-button { padding: 10px; border-radius: 11px; color: var(--muted); background: transparent; font-size: 12px; font-weight: 900; }
+.tab-button.active { color: var(--green); background: var(--paper); box-shadow: 0 2px 5px rgba(40,50,45,.08); }
+.activity-card, .group-card, .stat-card { padding: 14px; border: 1px solid var(--line); border-radius: 17px; background: var(--paper); }
+.activity-card { display: flex; gap: 11px; }
+.activity-card + .activity-card { margin-top: 9px; }
+.activity-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.activity-card b { color: var(--ink); }
+.activity-time { display: block; margin-top: 4px; color: #a09c94; font-size: 10px; }
+.group-card { margin-top: 14px; }
+.group-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.group-icon { display: grid; width: 45px; height: 45px; place-items: center; border-radius: 15px; color: white; background: var(--navy); font-family: Georgia, serif; font-size: 22px; }
+.group-head div:nth-child(2) { flex: 1; }
+.group-head p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+.group-divider { margin-top: 24px; }
+.community-grid, .group-list { display: grid; gap: 8px; }
+.community-card { display: flex; align-items: center; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-align: left; }
+.community-card span:nth-child(2) { display: grid; flex: 1; gap: 2px; }.community-card small { color: var(--muted); font-size: 10px; }.community-card em { color: var(--orange); font-size: 10px; font-style: normal; font-weight: 800; }
+.group-access { padding: 5px 7px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 8px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+.group-access.private { color: #725b7f; background: #eee4f0; }
+.group-icon.run { background: var(--green); }.group-icon.book { background: #9e6f95; }.group-icon.art { background: var(--orange); }
+.social-tabs { margin-top: 13px; }
+.create-sheet { padding: 21px 18px 25px; }
+.create-sheet h2 { margin-bottom: 5px; font-size: 30px; }
+.create-sheet .lede { margin-bottom: 14px; }
+.group-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 13px; }
+.group-type { padding: 11px 7px; border: 1px solid var(--line); border-radius: 12px; color: var(--muted); background: var(--paper); font-size: 10px; font-weight: 900; }
+.group-type.selected { border-color: var(--green); color: white; background: var(--green); }
+.create-sheet input { width: 100%; margin-bottom: 9px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: var(--paper); font: inherit; font-size: 12px; }
+.group-detail { padding: 21px 18px 25px; }
+.group-detail h2 { margin-bottom: 4px; font-size: 29px; }
+.group-detail-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 9px 0 13px; }
+.detail-pill { padding: 6px 8px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 9px; font-weight: 900; }
+.group-description { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.group-detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 14px 0; }
+.member-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; padding: 10px; border-radius: 12px; background: #f8f5ef; }
+.member-line span { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; }
+.message-list { display: grid; gap: 7px; margin-top: 9px; }
+.message { max-width: 88%; padding: 9px 10px; border-radius: 12px 12px 12px 3px; color: var(--ink); background: var(--green-soft); font-size: 11px; line-height: 1.4; }
+.message.me { justify-self: end; border-radius: 12px 12px 3px 12px; color: white; background: var(--green); }
+.message small { display: block; margin-top: 3px; opacity: .68; font-size: 8px; font-weight: 900; }
+.message-compose { display: flex; gap: 7px; margin-top: 10px; }
+.message-compose input { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: var(--paper); font: inherit; font-size: 11px; }
+.interest-list { display: grid; gap: 7px; margin-top: 9px; }
+.interest-event { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px; border-radius: 12px; background: #f8f5ef; }
+.interest-event b, .interest-event small { display: block; }.interest-event b { font-size: 11px; }.interest-event small { margin-top: 3px; color: var(--muted); font-size: 9px; }
+.follow-list { display: grid; gap: 8px; }
+.follow-card { display: flex; align-items: center; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-align: left; }
+.follow-card span:nth-child(2) { display: grid; flex: 1; gap: 2px; }.follow-card small { color: var(--muted); font-size: 10px; }.follow-card em { color: var(--orange); font-size: 10px; font-style: normal; font-weight: 800; }
+.follow-button { padding: 6px 8px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 9px; font-weight: 900; }
+.follow-button.selected { color: white; background: var(--green); }
+.following-rail { display: flex; gap: 9px; overflow-x: auto; margin-bottom: 15px; padding: 2px 1px 6px; scrollbar-width: none; }
+.following-chip { display: grid; flex: 0 0 86px; justify-items: center; gap: 5px; padding: 10px 7px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-align: center; }
+.following-chip .group-icon { width: 36px; height: 36px; border-radius: 12px; font-size: 16px; }
+.following-chip b { font-size: 10px; line-height: 1.15; }.following-chip small { color: var(--orange); font-size: 8px; font-weight: 900; text-transform: uppercase; }
+.filter-sheet, .notification-sheet, .list-sheet, .invite-sheet { padding: 21px 18px 25px; }
+.filter-sheet h2, .notification-sheet h2, .list-sheet h2, .invite-sheet h2 { margin-bottom: 6px; font-size: 30px; }
+.filter-block { margin-top: 16px; }.filter-block .eyebrow { margin-bottom: 8px; }
+.filter-options { display: flex; flex-wrap: wrap; gap: 6px; }.filter-options button { padding: 8px 10px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }.filter-options button.selected { color: white; background: var(--green); }
+.notification-card { padding: 11px 0; border-bottom: 1px solid var(--line); }.notification-card b, .notification-card small { display: block; }.notification-card b { font-size: 12px; }.notification-card p { margin: 4px 0; color: var(--muted); font-size: 11px; line-height: 1.35; }.notification-card small { color: var(--orange); font-size: 9px; font-weight: 900; }
+.map-search { position: absolute; top: 12px; right: 12px; left: 12px; z-index: 5; display: flex; gap: 7px; padding: 9px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,254,250,.96); box-shadow: var(--shadow); }.map-search input { width: 100%; border: 0; background: transparent; font: inherit; font-size: 12px; outline: 0; }
+.bio { margin: -10px 0 17px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.lokal-score { display: inline-flex; margin-top: 5px; padding: 5px 7px; border-radius: 999px; color: #8b5b1f; background: #f7e4af; font-size: 9px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; }
+.stat-card { cursor: pointer; }
+.friend-request { display: flex; gap: 9px; align-items: center; margin-bottom: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); }.friend-request div:nth-child(2) { flex: 1; }.friend-request b, .friend-request small { display: block; }.friend-request small { margin-top: 3px; color: var(--muted); font-size: 9px; }.request-actions { display: flex; gap: 4px; }.request-actions button { padding: 6px; border-radius: 8px; color: var(--green); background: var(--green-soft); font-size: 9px; font-weight: 900; }
+.group-tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin: 13px 0; padding: 4px; border-radius: 12px; background: #ebe4d9; }.group-tabs button { padding: 8px 5px; border-radius: 9px; color: var(--muted); background: transparent; font-size: 10px; font-weight: 900; }.group-tabs button.selected { color: var(--green); background: var(--paper); }
+.social-search { margin: 11px 0 12px; }
+.search-empty { display: none; padding: 13px; border-radius: 13px; color: var(--muted); background: var(--paper); font-size: 12px; text-align: center; }
+.friend-profile { padding: 21px 18px 25px; }
+.friend-profile h2 { margin-bottom: 3px; font-size: 29px; }
+.friend-profile-head { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+.friend-profile-head .profile-avatar { flex: 0 0 auto; }
+.friend-profile-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+.friend-profile-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 20px; }
+.friend-feed { display: grid; gap: 8px; }
+.friend-feed-card { display: grid; grid-template-columns: 42px 1fr; gap: 10px; padding: 10px; border-radius: 13px; background: #f8f5ef; }
+.friend-feed-card h3 { margin: 1px 0 3px; font-size: 13px; }
+.friend-feed-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.35; }
+.ranking-intro { padding: 14px; border-radius: 17px; color: white; background: linear-gradient(145deg, #244f48, #173a35); }
+.ranking-intro .eyebrow { color: var(--yellow); }
+.ranking-intro h2 { margin-bottom: 7px; }
+.ranking-intro p:last-child { margin: 0; color: rgba(255,255,255,.75); font-size: 12px; line-height: 1.45; }
+.ranking-list { display: grid; gap: 9px; margin-top: 11px; }
+.ranking-card { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 3px 11px rgba(42,57,52,.045); }
+.rank-main { display: grid; grid-template-columns: 31px 1fr 45px; gap: 9px; width: 100%; align-items: center; padding: 12px; background: transparent; text-align: left; }
+.rank-number { color: var(--orange); font-family: Georgia, serif; font-size: 29px; }
+.rank-badge { color: var(--orange); font-size: 8px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
+.rank-copy h3 { margin: 4px 0 3px; font-size: 15px; }
+.rank-copy p { margin: 0; color: var(--muted); font-size: 10px; }
+.rank-copy small { display: block; margin-top: 6px; color: var(--green); font-size: 10px; font-weight: 800; }
+.rank-score { text-align: center; }
+.rank-score b { display: block; color: var(--green); font-family: Georgia, serif; font-size: 25px; line-height: 1; }
+.rank-score small { color: var(--muted); font-size: 8px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
+.rank-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 800; }
+.hype-button { padding: 6px 9px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }
+.hype-button.selected { color: white; background: var(--green); }
+.plan-intro { padding: 16px; border-radius: 19px; color: white; background: linear-gradient(145deg, #234f48, #173a35); }
+.plan-intro .eyebrow { color: var(--yellow); }
+.plan-intro h2 { margin-bottom: 7px; font-size: 29px; }
+.plan-intro p:last-child { margin: 0; color: rgba(255,255,255,.78); font-size: 13px; line-height: 1.5; }
+.plan-input { display: flex; gap: 7px; margin: 14px 0 11px; padding: 7px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); }
+.plan-input input { width: 100%; min-width: 0; border: 0; color: var(--ink); background: transparent; font: inherit; font-size: 12px; outline: 0; }
+.plan-input .primary { flex: 0 0 auto; }
+.anchor-picks { display: grid; gap: 8px; }
+.anchor-pick { display: flex; align-items: center; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-align: left; }
+.anchor-pick:hover { border-color: var(--green); }
+.anchor-time { display: grid; width: 45px; height: 45px; place-items: center; border-radius: 13px; color: var(--orange); background: var(--orange-soft); font-size: 10px; font-weight: 900; }
+.anchor-pick h3 { margin: 0 0 3px; }
+.anchor-pick p { margin: 0; color: var(--muted); font-size: 11px; }
+.itinerary { margin-top: 18px; }
+.itinerary-head { display: flex; justify-content: space-between; gap: 10px; align-items: start; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+.itinerary-head h2 { margin: 0; }
+.route-badge { padding: 6px 8px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; white-space: nowrap; }
+.plan-stop { display: grid; grid-template-columns: 48px 1fr; gap: 11px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+.stop-time { color: var(--orange); font-size: 11px; font-weight: 900; }
+.stop-card { padding: 13px; border-radius: 15px; background: var(--paper); box-shadow: 0 2px 0 rgba(23,58,53,.04); }
+.stop-card.anchor { color: white; background: var(--navy); }
+.stop-label { display: block; margin-bottom: 5px; color: var(--orange); font-size: 9px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+.stop-card.anchor .stop-label { color: var(--yellow); }
+.stop-card h3 { margin: 0 0 5px; font-size: 16px; }
+.stop-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.stop-card.anchor p { color: rgba(255,255,255,.78); }
+.stop-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.stop-action { color: var(--green); background: transparent; font-size: 10px; font-weight: 900; }
+.taste-strip { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 13px 0 21px; }
+.taste-strip b { margin-right: 3px; color: var(--orange); font-size: 10px; letter-spacing: .8px; text-transform: uppercase; }
+.taste-strip span { padding: 6px 8px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 800; }
+.anchor-summary { display: flex; align-items: center; gap: 11px; padding: 12px; border-radius: 16px; color: white; background: var(--navy); box-shadow: var(--shadow); }
+.anchor-summary .anchor-time { color: var(--navy); background: var(--yellow); }
+.anchor-summary h3 { margin: 0 0 3px; font-size: 17px; }
+.anchor-summary p { margin: 0; color: rgba(255,255,255,.72); font-size: 11px; }
+.anchor-summary .stop-label { color: var(--yellow); }
+.suggestion-section { margin-top: 23px; }
+.suggestion-heading { display: flex; align-items: end; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.suggestion-heading h2 { margin: 0; }
+.section-helper { margin: -3px 0 11px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.suggestion-grid { display: flex; gap: 9px; overflow-x: auto; padding: 1px 2px 11px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.suggestion-card { display: flex; min-height: 164px; flex: 0 0 208px; flex-direction: column; padding: 12px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); text-align: left; scroll-snap-align: start; transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
+.suggestion-card:hover { transform: translateY(-2px); box-shadow: 0 7px 18px rgba(42,57,52,.1); }
+.suggestion-card.selected { border: 2px solid var(--green); background: #f7fbf8; box-shadow: 0 6px 16px rgba(29,103,91,.12); }
+.suggestion-top, .suggestion-bottom { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.suggestion-type { color: var(--orange); font-size: 9px; font-weight: 900; letter-spacing: .9px; text-transform: uppercase; }
+.suggestion-time { color: var(--muted); font-size: 9px; font-weight: 900; }
+.suggestion-card h3 { margin: 11px 0 5px; font-size: 15px; }
+.suggestion-card p { margin: 0 0 10px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+.suggestion-bottom { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line); }
+.suggestion-bottom b { color: var(--green); font-size: 9px; line-height: 1.2; }
+.suggestion-bottom small { color: var(--muted); font-size: 8px; white-space: nowrap; }
+.suggestion-card.selected:after { display: block; margin-top: 8px; color: var(--green); content: "Added to route"; font-size: 9px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+.plan-summary { margin-top: 19px; padding: 15px; border-radius: 17px; background: var(--orange-soft); }
+.plan-summary .eyebrow { margin-bottom: 8px; }
+.route-line { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(141,76,59,.12); color: #7f493d; font-size: 11px; }
+.route-line span { color: #9d685b; font-weight: 800; white-space: nowrap; }
+.plan-summary .wide-button { margin-top: 11px; }
+.share-sheet { padding: 21px 18px 26px; }
+.share-sheet h2 { margin-bottom: 6px; font-size: 30px; }
+.share-group { display: flex; width: 100%; align-items: center; gap: 11px; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); text-align: left; }
+.share-group:hover { border-color: var(--green); background: #f8fbf8; }
+.share-group-copy { flex: 1; }
+.share-group-copy h3 { margin: 0 0 3px; }
+.share-group-copy p { margin: 0; color: var(--muted); font-size: 11px; }
+.share-arrow { color: var(--orange); font-size: 22px; }
+
+.profile-card { display: flex; gap: 13px; align-items: center; margin: 14px 0 20px; }
+.profile-avatar { display: grid; width: 74px; height: 74px; place-items: center; border-radius: 24px; color: white; background: var(--navy); font-family: Georgia, serif; font-size: 28px; }
+.profile-card p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.settings-sheet { padding: 21px 18px 25px; }
+.settings-sheet h2 { margin-bottom: 12px; font-size: 31px; }
+.settings-avatar { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+.settings-field { display: grid; gap: 5px; margin-top: 9px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
+.settings-field input, .account-fields input { padding: 11px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: var(--paper); font: inherit; font-size: 12px; }
+.settings-label { margin: 20px 0 0; color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+.settings-sheet .wide-button { margin-top: 18px; }
+.danger-button { width: 100%; padding: 12px; color: #a4564a; background: transparent; font-size: 11px; font-weight: 900; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; }
+.stat-card { text-align: center; }
+.stat-card b { display: block; color: var(--orange); font-family: Georgia, serif; font-size: 24px; }
+.stat-card small { color: var(--muted); font-size: 9px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
+.receipt { display: grid; grid-template-columns: auto 1fr; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.date-block { width: 38px; color: var(--orange); text-align: center; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+.date-block b { display: block; color: var(--ink); font-family: Georgia, serif; font-size: 22px; }
+.receipt h3 { margin: 1px 0 3px; }
+.receipt p { margin: 0; color: var(--muted); font-size: 11px; }
+
+.onboarding { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 18px; background: var(--cream); }
+.onboard-card { width: min(100%, 560px); }
+.onboard-logo { display: grid; width: 54px; height: 54px; margin-bottom: 34px; place-items: center; border-radius: 18px; color: white; background: var(--orange); font-family: Georgia, serif; font-size: 33px; font-weight: 700; }
+.step-count { color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.5px; }
+.select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 22px 0; }
+.select-tile { padding: 17px 12px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); text-align: left; font-size: 13px; font-weight: 800; }
+.select-tile.selected { border-color: var(--green); color: white; background: var(--green); }
+.wide-button { width: 100%; padding: 14px; border-radius: 14px; color: white; background: var(--orange); font-size: 13px; font-weight: 900; }
+.wide-button:disabled { opacity: .45; cursor: default; }
+.onboard-card .lede { font-size: 15px; }
+.intro-art { position: relative; display: grid; width: 100%; height: 205px; margin: 24px 0 20px; place-items: center; overflow: hidden; border-radius: 23px; color: white; background: linear-gradient(140deg, var(--orange), var(--navy)); }
+.intro-art:before, .intro-art:after { position: absolute; width: 190px; height: 190px; border: 22px solid rgba(255,255,255,.16); border-radius: 50%; content: ""; }.intro-art:before { top: -72px; right: -62px; }.intro-art:after { bottom: -104px; left: -60px; }
+.intro-art span { z-index: 1; font-family: Georgia, serif; font-size: 77px; font-weight: 800; }
+.account-fields { display: grid; gap: 9px; margin: 20px 0; }
+.account-fields small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+.birth-field { display: grid; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
+.preference-grid { max-height: 310px; overflow-y: auto; padding-right: 3px; }
+.contacts-art { display: grid; min-height: 130px; margin: 20px 0; place-items: center; border-radius: 19px; background: var(--green-soft); }
+.contacts-art .avatar { width: 47px; height: 47px; font-size: 12px; }
+.skip-button { width: 100%; margin-top: 8px; padding: 11px; color: var(--green); background: transparent; font-size: 12px; font-weight: 900; }
+#toast { position: fixed; right: 18px; bottom: 87px; left: 18px; z-index: 50; max-width: 430px; margin: 0 auto; padding: 12px 15px; border-radius: 12px; color: white; background: var(--ink); font-size: 12px; font-weight: 800; opacity: 0; pointer-events: none; transform: translateY(8px); transition: .2s ease; }
+#toast.show { opacity: 1; transform: translateY(0); }
+
+@media (min-width: 700px) {
+  .app-shell { margin: 16px auto; min-height: calc(100vh - 32px); border-radius: 24px; }
+  .bottom-nav { bottom: 25px; }
+  .modal { margin-bottom: 16px; border-radius: 25px; }
+}
+
+@media (min-width: 1040px) {
+  body { background: #e6ddd0; }
+  .demo-stage { display: grid; grid-template-columns: 330px 620px; justify-content: center; gap: 44px; padding: 24px 38px; }
+  .demo-sidebar { display: block; align-self: center; }
+  .demo-sidebar h1 { margin: 24px 0 15px; font-size: 54px; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 49px; font-size: 18px; letter-spacing: 3px; }
+  .sidebar-note { margin-top: 31px; padding: 17px; border-left: 3px solid var(--orange); background: rgba(255,253,248,.55); }
+  .sidebar-note p:last-child { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .sidebar-actions { display: flex; align-items: center; gap: 17px; margin-top: 20px; }
+  .app-shell { width: 620px; margin: 0; min-height: calc(100vh - 48px); border-radius: 25px; }
+  .bottom-nav { right: auto; left: calc(50% - 113px); bottom: 34px; width: 600px; }
+  .modal { margin-bottom: 24px; }
+}
+
+
+
+/* Round 2: palette, typography, and feature overrides */
+body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.app-shell { overflow-x: hidden; overflow-y: visible; padding-bottom: 78px; }
+.bottom-nav { position: fixed; }
+.header-icon { color: var(--green); }
+.header-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.header-icon i { position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--orange); }
+.following-chip { flex-basis: 190px; min-height: 186px; align-content: center; gap: 10px; }
+.following-chip .group-icon { width: 88px; height: 88px; border: 4px solid var(--orange-soft); border-radius: 50%; font-size: 30px; }
+.following-chip b { font-size: 14px; }.following-chip small { font-size: 9px; }
+.story-sheet { max-height: min(88vh, 760px); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; }
+.story-progress { display: flex; gap: 5px; margin: 0 36px 18px 0; }
+.story-progress span { flex: 1; height: 3px; border-radius: 9px; background: var(--line); }
+.story-progress span.active { background: var(--orange); }
+.story-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.story-heading .group-icon { width: 50px; height: 50px; flex: 0 0 50px; border-radius: 50%; }
+.story-controls { position: sticky; bottom: -25px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 16px -18px -25px; padding: 12px 18px 16px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 94%, transparent); }
+.story-controls small { color: var(--muted); font-weight: 800; white-space: nowrap; }
+.notification-card { width: 100%; background: transparent; text-align: left; }
+.request-notification { display: block; }
+.request-actions { margin-top: 8px; }
+.request-actions button:last-child { color: #a4564a; background: #f7e9e4; }
+.lokal-score { display: inline-flex; align-items: baseline; gap: 5px; padding: 7px 9px; border-radius: 12px; font-family: Georgia, serif; font-size: 24px; }
+.lokal-score small { font-size: 9px; letter-spacing: .6px; text-transform: uppercase; }
+.calendar { margin: 13px 0; padding: 11px; border-radius: 14px; background: #f8f5ef; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.calendar-grid button { padding: 7px 2px; border-radius: 7px; color: var(--ink); background: var(--paper); font-size: 10px; }
+.calendar-grid button.selected { color: white; background: var(--green); }
+.calendar-month + .calendar-month { margin-top: 14px; }
+.calendar-helper { margin: 0 0 12px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.autocomplete { display: grid; gap: 4px; margin: -5px 0 10px; padding: 6px; border-radius: 10px; background: #f8f5ef; }
+.autocomplete button { padding: 8px; border-radius: 8px; color: var(--green); background: var(--paper); text-align: left; font-size: 11px; font-weight: 800; }
+.autocomplete small { display: block; margin-top: 2px; color: var(--muted); font-weight: 500; }
+.selected-group-friends { display: flex; flex-wrap: wrap; gap: 5px; margin: -3px 0 10px; }
+.selected-group-friends span { padding: 6px 8px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }
+.options-button { display: block; margin: 15px auto 0; padding: 4px 12px; border-radius: 999px; color: var(--muted); background: #f2eee7; font-size: 14px; }
+.options-menu { position: fixed; right: 22px; bottom: 90px; z-index: 60; display: grid; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: var(--shadow); }
+.options-menu button { padding: 11px 15px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; font-weight: 800; }
+.options-menu button + button { border-top: 1px solid var(--line); color: #a4564a; }
+.group-detail { max-height: 84vh; overflow-y: auto; }
+.profile-card .text-button { display: block; margin-top: 5px; }
+.best-friends-list { display: grid; gap: 7px; margin-bottom: 20px; }
+.best-friend-row { display: grid; grid-template-columns: 18px 28px 1fr; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.best-friend-row > b { color: var(--orange); font-family: Georgia, serif; font-size: 18px; }
+.best-friend-row .avatar { width: 28px; height: 28px; }
+.best-friend-row span:last-child { display: grid; gap: 2px; }.best-friend-row strong { font-size: 12px; }.best-friend-row small { color: var(--muted); font-size: 10px; }
+.view-more-groups { display: block; margin: 9px auto 0; color: var(--green); font-weight: 900; }
+.see-more-public { display: block; margin: 10px auto 0; color: var(--green); font-weight: 900; }
+.public-directory { margin-top: 12px; }
+.sync-note { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -2px 0 12px; padding: 9px 11px; border: 1px solid rgba(34, 72, 61, .13); border-radius: 12px; color: var(--green); background: rgba(255, 255, 255, .48); font-size: 10px; font-weight: 800; line-height: 1.35; }
+.sync-note.loading { color: var(--muted); }
+.sync-note .text-button { flex: 0 0 auto; font-size: 10px; }
+.account-error { min-height: 16px; margin: 4px 0 0; color: #a4564a; font-size: 11px; font-weight: 800; line-height: 1.35; }
+.discover-search-results { display: grid; gap: 6px; margin: -3px 0 12px; }
+.discover-search-results .follow-card { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.feed-section.search-empty-feed::after { display: block; padding: 18px 4px; color: var(--muted); content: "No events or people match that search."; font-size: 12px; }
+.friend-directory-card { display: flex; padding: 0; overflow: hidden; }
+.friend-card-main { display: flex; flex: 1; align-items: center; gap: 10px; padding: 11px; background: transparent; text-align: left; }
+.friend-card-main span:last-child { display: grid; gap: 2px; }
+.friend-directory-card > .follow-button { align-self: stretch; min-width: 42px; border-left: 1px solid var(--line); border-radius: 0; }
+.invite-added-friend { width: 76px; font-size: 9px; line-height: 1.15; }
+.see-all-friends { display: block; margin: 10px auto 0; color: var(--green); font-weight: 900; }
+.message-empty { margin: 4px 0 2px; padding: 12px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); background: #fbf8f2; font-size: 11px; line-height: 1.45; }
+.event-message { max-width: 100%; }
+.message-event-link { display: grid; width: 100%; gap: 3px; margin-top: 5px; padding: 9px; border-radius: 10px; color: var(--ink); background: var(--paper); text-align: left; }
+.message-event-link b { font-size: 12px; }.message-event-link span { color: var(--muted); font-size: 10px; }.message-event-link em { margin-top: 3px; color: var(--green); font-size: 10px; font-style: normal; font-weight: 900; }
+.share-group-results { min-height: 52px; }
+.profile-stats { grid-template-columns: repeat(2, 1fr); }
+.managed-list { display: grid; gap: 8px; }
+.managed-list-row { display: grid; gap: 8px; padding: 11px; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); }
+.managed-list-row > span { display: grid; gap: 3px; }.managed-list-row b { font-size: 12px; }.managed-list-row small { color: var(--muted); font-size: 10px; }
+.managed-list-row > div { display: flex; flex-wrap: wrap; gap: 12px; }
+.managed-list-row .text-button { color: var(--green); font-size: 10px; font-weight: 900; }
+.managed-list-row .danger-text { color: #a4564a; }
+.private-group-members { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 8px 0 13px; }
+.private-group-member { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 7px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+.private-group-member .avatar { width: 26px; height: 26px; flex: 0 0 26px; font-size: 8px; }
+.private-group-member b { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.public-member-count { display: inline-flex; margin: 0 0 12px; padding: 6px 9px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 11px; font-weight: 900; }
+.social-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dm-inbox-button { display: grid; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; color: var(--green); background: var(--paper); place-items: center; font-size: 19px; font-weight: 900; }
+.direct-chat-list { display: grid; gap: 7px; margin-top: 12px; }
+.direct-chat-row { display: flex; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); text-align: left; }
+.direct-chat-row span:nth-child(2) { display: grid; flex: 1; min-width: 0; gap: 3px; }.direct-chat-row b { font-size: 12px; }.direct-chat-row small { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }.direct-chat-row em { color: var(--green); font-size: 22px; font-style: normal; }
+.direct-chat-messages { display: grid; gap: 7px; margin-top: 12px; }
+.community-card.pinned { border-color: var(--orange); box-shadow: 0 4px 12px rgba(242,105,69,.12); }
+.group-type-grid { grid-template-columns: repeat(2,1fr); }
+
+/* Ink & Steel visual system */
+h1, h2, .brand-mark, .search-box span, .feature-card h3, .group-icon, .profile-avatar, .stat-card b, .date-block b, .onboard-logo, .intro-art span, .rank-number, .rank-score b, .lokal-score, .best-friend-row > b {
+  font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.topbar { background: rgba(245, 247, 250, .94); border-bottom-color: rgba(220, 230, 237, .9); }
+.brand-mark, .wide-button, .primary { background: var(--ink); }
+.share-shortcut, .filter-button, .chip, .filter-chip, .action, .secondary, .detail-pill, .route-badge, .taste-strip span, .follow-button, .group-access, .public-member-count { border-radius: 9px; }
+.event-row, .following-chip, .community-card, .follow-card, .stat-card, .activity-card, .group-card, .managed-list-row, .friend-request, .anchor-pick, .suggestion-card, .share-group { border-radius: 12px; box-shadow: 0 3px 10px rgba(17, 24, 39, .035); }
+.event-art, .cat-music, .cat-food { background: linear-gradient(150deg, var(--green), var(--orange)); }
+.cat-nightlife { background: linear-gradient(150deg, var(--ink), var(--green)); }
+.cat-art { background: linear-gradient(150deg, #597c96, var(--orange)); }
+.cat-fitness { background: linear-gradient(150deg, var(--green), #356d8e); }
+.map-canvas { background: #d9e8f1; }
+.map-canvas:before {
+  background:
+    linear-gradient(118deg, transparent 0 19%, #f5f7fa 19% 23%, transparent 23% 100%),
+    linear-gradient(12deg, transparent 0 39%, #f5f7fa 39% 43%, transparent 43% 100%),
+    linear-gradient(98deg, transparent 0 59%, #f5f7fa 59% 63%, transparent 63% 100%),
+    linear-gradient(163deg, transparent 0 68%, #f5f7fa 68% 71%, transparent 71% 100%);
+}
+.tabs, .group-tabs { background: #e7edf2; }
+.member-line, .interest-event, .friend-feed-card, .calendar, .autocomplete { background: #edf4f8; }
+.message-empty { background: #f7fafc; }
+.ranking-intro, .plan-intro { background: linear-gradient(145deg, var(--green), var(--ink)); }
+.plan-summary { background: var(--orange-soft); }
+.route-line { border-top-color: rgba(58, 124, 165, .16); color: var(--green); }
+.route-line span { color: var(--orange); }
+.suggestion-card.selected, .share-group:hover { background: #f5f9fc; }
+.lokal-score { color: var(--green); background: var(--green-soft); }
+.options-button { background: #edf2f6; }
+.community-card.pinned { border-color: var(--orange); box-shadow: 0 4px 12px rgba(58, 124, 165, .14); }
+
+/* Exact Ink & Steel role mapping */
+h1, h2, h3, .brand b, .nav-item, .nav-item.active { color: #111827; }
+.brand-mark, .wide-button, .primary, .chip.active, .filter-chip.active, .action.selected, .group-type.selected, .message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected {
+  background: #111827;
+}
+.brand-mark, .wide-button, .primary, .chip.active, .filter-chip.active, .action.selected, .group-type.selected, .message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected { color: #fff; }
+.share-shortcut, .filter-button, .action, .secondary, .chip, .filter-chip, .detail-pill, .route-badge, .taste-strip span, .follow-button, .group-access, .public-member-count, .filter-options button, .request-actions button, .hype-button, .contacts-art {
+  color: #1d4e6b;
+  background: #e0eef7;
+}
+.eyebrow, .feed-label, .event-meta, .text-button, .live-dot, .community-card em, .follow-card em, .following-chip small, .notification-card small, .settings-label, .suggestion-type, .share-arrow, .date-block, .stop-time, .stop-label, .rank-number, .rank-badge, .best-friend-row > b {
+  color: #3a7ca5;
+}
+.event-row, .following-chip, .community-card, .follow-card, .stat-card, .activity-card, .group-card, .managed-list-row, .friend-request, .anchor-pick, .suggestion-card, .share-group, .search-box, .map-search, .private-group-member, .calendar-grid button, .message-event-link {
+  background: #ffffff;
+}
+.app-shell, .page, main, .onboarding { background: #f5f7fa; }
+.bottom-nav { background: rgba(255,255,255,.97); }
+.profile-avatar, .avatar-me, .group-icon { background: #111827; }
+.event-art, .cat-music, .cat-food, .cat-art, .cat-fitness { background: #111827; }
+.cat-nightlife { background: #111827; }
+.sync-note, .message, .selected-group-friends span, .calendar, .autocomplete, .member-line, .interest-event, .friend-feed-card, .message-empty { background: #f5f7fa; }
+.following-chip .group-icon { border-color: #e0eef7; }
+.event-row, .following-chip, .community-card, .follow-card, .stat-card, .activity-card, .group-card, .managed-list-row, .friend-request, .anchor-pick, .suggestion-card, .share-group, .search-box {
+  border-color: rgba(58, 124, 165, .13);
+}
+
+/* Final accent tuning */
+h1, h2, h3, .brand b { color: #326f91; }
+.nav-item { color: #111827; }
+.nav-item.active { color: #00e5a8; }
+.header-icon i, .story-progress span.active { background: #00e5a8; }
+.chip.active, .filter-chip.active { box-shadow: inset 0 -3px 0 #00e5a8; }
+.following-chip .group-icon, .community-card.pinned { border-color: rgba(0, 229, 168, .72); }
+.eyebrow, .feed-label, .event-meta, .text-button, .live-dot, .community-card em, .follow-card em, .following-chip small, .notification-card small, .settings-label, .suggestion-type, .share-arrow, .date-block, .stop-time, .stop-label, .rank-number, .rank-badge, .best-friend-row > b {
+  color: #5f9fc3;
+}
+.share-shortcut, .filter-button, .action, .secondary, .chip, .filter-chip, .detail-pill, .route-badge, .taste-strip span, .follow-button, .group-access, .public-member-count, .filter-options button, .request-actions button, .hype-button, .contacts-art {
+  color: #326f91;
+}
+
+/* Remove near-black navy surfaces */
+.brand-mark, .wide-button, .primary, .chip.active, .filter-chip.active, .action.selected, .group-type.selected, .message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
+.profile-avatar, .avatar-me, .group-icon, .event-art, .cat-music, .cat-food, .cat-art, .cat-fitness, .cat-nightlife,
+.feature-card, .stop-card.anchor, .anchor-summary {
+  background: #00c897;
+}
+.brand-mark, .wide-button, .primary, .chip.active, .filter-chip.active, .action.selected, .group-type.selected, .message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
+.profile-avatar, .avatar-me, .group-icon, .event-art, .cat-music, .cat-food, .cat-art, .cat-fitness, .cat-nightlife,
+.feature-card, .stop-card.anchor, .anchor-summary { color: #ffffff; }
+.share-shortcut, .filter-button, .action, .secondary, .chip, .filter-chip, .detail-pill, .route-badge, .taste-strip span, .follow-button, .group-access, .public-member-count, .filter-options button, .request-actions button, .hype-button, .contacts-art {
+  color: #008f6c;
+}
+.chip, .filter-chip {
+  border-color: #111827;
+  color: #111827;
+  background: #f5f7fa;
+}
+.chip.active, .filter-chip.active {
+  border-color: #111827;
+  color: #ffffff;
+  background: #00c897;
+}
+.map-canvas {
+  min-height: calc(100vh - 190px);
+  background: #e8f2f6;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.map-grid {
+  position: absolute;
+  inset: -25%;
+  opacity: .78;
+  background:
+    linear-gradient(28deg, transparent 0 31%, rgba(255,255,255,.9) 31.5% 33.5%, transparent 34% 100%),
+    linear-gradient(109deg, transparent 0 43%, rgba(255,255,255,.85) 43.5% 45%, transparent 45.5% 100%),
+    linear-gradient(165deg, transparent 0 54%, rgba(255,255,255,.78) 54.5% 56.5%, transparent 57% 100%),
+    linear-gradient(73deg, transparent 0 64%, rgba(255,255,255,.72) 64.5% 66%, transparent 66.5% 100%);
+  transform-origin: 50% 50%;
+  transition: transform .2s ease;
+}
+.map-gesture-hint {
+  position: absolute;
+  top: 76px;
+  left: 12px;
+  z-index: 6;
+  padding: 8px 10px;
+  border: 1px solid rgba(17,24,39,.1);
+  border-radius: 999px;
+  color: #008f6c;
+  background: rgba(255,255,255,.95);
+  box-shadow: var(--shadow);
+  font-size: 10px;
+  font-weight: 900;
+}
+.map-reset {
+  position: absolute;
+  top: 76px;
+  right: 12px;
+  z-index: 6;
+  padding: 8px 10px;
+  border: 1px solid rgba(17,24,39,.1);
+  border-radius: 999px;
+  color: #111827;
+  background: rgba(255,255,255,.95);
+  box-shadow: var(--shadow);
+  font-size: 10px;
+  font-weight: 900;
+}
+.map-canvas.dragging { cursor: grabbing; }
+.map-results-pill {
+  position: absolute;
+  left: 14px;
+  bottom: 156px;
+  z-index: 5;
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: #008f6c;
+  background: rgba(255,255,255,.95);
+  box-shadow: var(--shadow);
+  font-size: 10px;
+  font-weight: 900;
+}
+.map-empty {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  z-index: 5;
+  width: 230px;
+  padding: 14px;
+  border-radius: 14px;
+  color: var(--muted);
+  background: rgba(255,255,255,.95);
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+.pin {
+  transition: left .2s ease, top .2s ease, transform .15s ease, box-shadow .15s ease;
+}
+.pin:hover {
+  z-index: 8;
+  box-shadow: 0 9px 18px rgba(0, 200, 151, .28);
+  transform: rotate(-45deg) scale(1.08);
+}
+.neighborhood {
+  z-index: 1;
+  padding: 3px 5px;
+  border-radius: 7px;
+  color: rgba(17,24,39,.46);
+  background: rgba(245,247,250,.58);
+  transition: left .2s ease, top .2s ease;
+}
+.welcome-banner {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  z-index: 80;
+  padding: 11px 16px;
+  border: 1px solid rgba(0, 200, 151, .3);
+  border-radius: 999px;
+  color: #008f6c;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 8px 20px rgba(17, 24, 39, .1);
+  font-size: 13px;
+  font-weight: 900;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -10px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+.welcome-banner span {
+  color: #00c897;
+  font-size: 15px;
+  letter-spacing: .2px;
+}
+.welcome-banner.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Lokal logo from reference */
+.lokal-logo {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  overflow: hidden;
+  color: transparent;
+  background: linear-gradient(145deg, #32d274, #0fc983);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.24), 0 8px 20px rgba(0, 200, 151, .18);
+}
+.lokal-logo:before {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 29% 42%, rgba(203, 255, 227, .38) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 38% 42%, rgba(203, 255, 227, .55) 0 10%, transparent 10.5%),
+    radial-gradient(circle at 50% 41%, rgba(235, 255, 242, .72) 0 12%, transparent 12.5%),
+    radial-gradient(circle at 34% 58%, rgba(235, 255, 242, .76) 0 11%, transparent 11.5%),
+    radial-gradient(circle at 48% 68%, rgba(235, 255, 242, .65) 0 12%, transparent 12.5%),
+    radial-gradient(circle at 38% 76%, rgba(203, 255, 227, .38) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 71% 25%, rgba(7, 77, 55, .18) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 76% 67%, rgba(7, 77, 55, .20) 0 9%, transparent 9.5%);
+  content: "";
+}
+.lokal-logo:after {
+  position: absolute;
+  top: 49%;
+  left: 54%;
+  width: 32%;
+  height: 32%;
+  border: max(5px, .22em) solid #071827;
+  border-radius: 50%;
+  content: "";
+  transform: translate(-50%, -50%);
+}
+.lokal-logo > span {
+  position: absolute;
+  top: 50%;
+  left: 68%;
+  width: 27%;
+  height: 7%;
+  border-radius: 999px;
+  background: #071827;
+  transform: translateY(-50%);
+}
+.intro-art {
+  background: linear-gradient(145deg, #f5f7fa, #e6f9f1);
+}
+
+/* Text-only brand */
+.brand { gap: 0; }
+.brand b, .sidebar-brand b, .onboard-logo, .intro-art span {
+  color: #00c897;
+  background: transparent;
+  letter-spacing: 2px;
+}
+.onboard-logo {
+  width: auto;
+  height: auto;
+  margin-bottom: 28px;
+  font-size: 20px;
+}
+.intro-art span {
+  font-size: 38px;
+}
+.topbar .brand b {
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 2.8px;
+}
+.topbar .brand small {
+  margin-top: 4px;
+  font-size: 8px;
+}
+
+.profile-taste-chips {
+  flex-wrap: wrap;
+}
+.taste-limit {
+  display: inline-flex;
+  margin: 0 0 12px;
+  padding: 7px 10px;
+  border: 1px solid rgba(17,24,39,.14);
+  border-radius: 999px;
+  color: #008f6c;
+  background: #f5f7fa;
+  font-size: 10px;
+  font-weight: 900;
+}
+.taste-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: min(46vh, 420px);
+  margin-bottom: 16px;
+  padding: 2px 4px 8px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.taste-choice {
+  padding: 11px 10px;
+  border: 1px solid rgba(17,24,39,.18);
+  border-radius: 12px;
+  color: #111827;
+  background: #f5f7fa;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 900;
+}
+.taste-choice.selected {
+  border-color: #00e5a8;
+  color: #ffffff;
+  background: #00c897;
+  box-shadow: 0 6px 14px rgba(0, 200, 151, .18);
+}
+
+.active-filter-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 2px 0 18px;
+  padding: 11px;
+  border: 1px solid rgba(0, 200, 151, .2);
+  border-radius: 14px;
+  background: rgba(0, 200, 151, .08);
+}
+.active-filter-summary .eyebrow {
+  width: 100%;
+  margin-bottom: 2px;
+}
+.active-filter-summary span {
+  padding: 7px 9px;
+  border: 1px solid rgba(17,24,39,.16);
+  border-radius: 999px;
+  color: #008f6c;
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+
+    </style>
+  </head>
+  <body>
+    <div class="demo-stage">
+      <aside class="demo-sidebar">
+        <div class="sidebar-brand"><b>LOKAL</b></div>
+        <p class="eyebrow">DC event discovery</p>
+        <h1>Good plans,<br>closer to home.</h1>
+        <p class="lede">A social discovery app for the full landscape of what is happening around the city, including the things ticketing apps miss.</p>
+        <div class="sidebar-note">
+          <p class="eyebrow">90-second demo</p>
+          <p>Open <b>Skyline Social</b>, share it with <b>Friday crew</b>, then check notifications and your profile activity.</p>
+        </div>
+        <div class="sidebar-actions">
+          <button class="secondary" data-copy-link>Copy demo link</button>
+          <button class="text-button" data-restart>Restart walkthrough</button>
+        </div>
+      </aside>
+
+      <div class="app-shell">
+        <header class="topbar">
+          <button class="brand" data-route="home" aria-label="Lokal home">
+            <span><b>LOKAL</b><small>WASHINGTON, DC</small></span>
+          </button>
+          <div class="topbar-actions">
+            <button class="share-shortcut" data-add-friends-link>Add friends</button>
+            <button class="header-icon" aria-label="Notifications" data-notifications><span data-icon="bell"></span><i></i></button>
+            <button class="icon-button" id="profile-shortcut" data-route="profile" aria-label="Open profile">
+              <span class="avatar avatar-me">JM</span>
+            </button>
+          </div>
+        </header>
+
+        <main id="app"></main>
+
+        <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-route="home"><span data-icon="compass"></span><b>Discover</b></button>
+        <button class="nav-item" data-route="social"><span data-icon="people"></span><b>Social</b></button>
+          <button class="nav-item" data-route="profile"><span data-icon="user"></span><b>Profile</b></button>
+        </nav>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+        <script>
+const icons = {
+  compass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="m15.4 8.6-2.1 4.7-4.7 2.1 2.1-4.7 4.7-2.1Z"/></svg>',
+  map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18-6 3V6l6-3 6 3 6-3v15l-6 3-6-3Z"/><path d="M9 3v15M15 6v15"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/><path d="m19 17 .7 2.3L22 20l-2.3.7L19 23l-.7-2.3L16 20l2.3-.7L19 17Z"/></svg>',
+  people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 20v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 20v-1a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'
+};
+
+const demoEvents = [
+  { id: 1, title: "Jazz on the Hill", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Tonight, 7:30 PM", price: "$18", cat: "music", tag: "Live music", friends: ["AL"], desc: "A warm, unhurried set from DC's new guard of jazz players. The room is small, the sound is close, and you will want to get there before the first pour." },
+  { id: 2, title: "After Hours: New Forms", venue: "Transformer Gallery", area: "Logan Circle", time: "Tonight, 6:00 PM", price: "Free", cat: "art", tag: "Art opening", friends: [], desc: "A compact group show of vivid mixed-media work, with the artists in the room and a neighborhood wine bar waiting around the corner." },
+  { id: 3, title: "Sunset Miles", venue: "Meridian Hill Park", area: "U Street", time: "Tonight, 6:30 PM", price: "Free", cat: "fitness", tag: "Run club", friends: ["MR", "DV"], desc: "A friendly four-mile loop with no pace pressure. Stay after for the picnic blanket hang and a rotating neighborhood snack stop." },
+  { id: 4, title: "Skyline Social", venue: "The Viceroy Rooftop", area: "Logan Circle", time: "Friday, 8:00 PM", price: "$15", cat: "nightlife", tag: "Rooftop", friends: ["AL", "MR", "JS"], desc: "Golden hour turns into a low-key rooftop party with disco edits, a sharp little drinks menu, and just enough room to actually talk. A reliable Friday reset." },
+  { id: 5, title: "Little Food Market", venue: "The Roost Courtyard", area: "Shaw", time: "Saturday, 12:00 PM", price: "Free", cat: "food", tag: "Food pop-up", friends: ["DV"], desc: "Six DC makers, one sunny courtyard, and an excellent excuse to order something you have never tried before." },
+  { id: 6, title: "No Kings: Vinyl Night", venue: "The Crown & Crow", area: "Logan Circle", time: "Saturday, 9:00 PM", price: "$10", cat: "nightlife", tag: "DJ set", friends: [], desc: "A deep crate evening with soul, funk, and house selections in a room that always feels a little hidden." },
+  { id: 7, title: "Porchlight Sessions", venue: "The Atlantis", area: "U Street", time: "Sunday, 7:00 PM", price: "$22", cat: "music", tag: "Live music", friends: ["JS"], desc: "Three local songwriters trade songs and stories in an intimate Sunday night round." },
+  { id: 8, title: "Fresh Air Cinema", venue: "Alethia Tanner Park", area: "Shaw", time: "Sunday, 8:15 PM", price: "Free", cat: "art", tag: "Outdoor film", friends: ["AL", "DV"], desc: "Bring a blanket and settle in for a neighborhood screening under the string lights." },
+  { id: 9, title: "Portrait Gallery After Five", venue: "Smithsonian American Art Museum", area: "Penn Quarter", time: "Friday, 5:30 PM", price: "Free", cat: "art", tag: "Museum night", friends: ["JS"], desc: "A relaxed early evening at the museum with a gallery talk, a small bar, and enough time to wander before dinner." },
+  { id: 10, title: "Atlas Local Stage", venue: "Atlas Performing Arts Center", area: "H Street", time: "Saturday, 7:00 PM", price: "$20", cat: "music", tag: "Local showcase", friends: ["MR"], desc: "A three-act local showcase in a neighborhood theater that makes a good anchor for a Saturday on H Street." },
+  { id: 11, title: "Songbyrd Patio Set", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Saturday, 4:00 PM", price: "Free", cat: "music", tag: "Patio set", friends: ["AL", "DV"], desc: "An easy afternoon patio set with a short local lineup and room to stop by without making the whole day revolve around it." }
+];
+let events = [...demoEvents];
+const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules" };
+const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
+const tasteOptions = ["Live music", "Food", "Art", "Patios", "Sports", "Run clubs", "Comedy", "Rooftops", "Museums", "Markets", "Outdoor movies", "Theater", "Coffee", "Dancing", "Trivia", "Book clubs", "Wellness", "Volunteering", "Pop-ups", "Free events", "Low-key hangs", "New in town", "Wine bars", "Cocktail bars", "Jazz", "DJs", "Karaoke", "Festivals", "Street fairs", "Farmers markets", "Classes", "Networking", "Dating-friendly", "Family-friendly", "Dog-friendly", "Brunch", "Late night food", "Speakeasies", "Gallery openings", "History", "Parks", "Pickleball", "Yoga", "Board games", "LGBTQ+ events", "College events", "Professional mixers"];
+const state = { route: "home", socialTab: "groups", homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"] }, filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres", "Priya Lee"]), saved: new Set(), rsvps: new Set(), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "group-friday", type: "group", name: "Friday crew", from: "Ana", detail: "Ana invited you to join Friday crew.", time: "12 minutes ago" }, { id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const app = document.querySelector("#app");
+const modalRoot = document.querySelector("#modal-root");
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
+}
+
+function avatarStack(friends) {
+  if (!friends.length) return "";
+  return `<span class="avatars">${friends.map(f => `<span class="avatar">${f}</span>`).join("")}</span>`;
+}
+
+function eventVisualCategory(event) {
+  const map = { concerts: "music", "performing-arts": "art", festivals: "food", sports: "fitness", expos: "art", community: "food" };
+  return map[event.cat] || event.cat;
+}
+
+function eventRow(event) {
+  const signal = event.friends.length ? `<div class="signal">${avatarStack(event.friends)} ${event.friends.map(f => friendNames[f]).join(" + ")} ${event.friends.length === 1 ? "saved this" : "are going"}</div>` : "";
+  const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
+  const attachedGroup = event.id === 3 ? `<div class="signal">Hosted by public group: DC Run Club</div>` : event.id === 4 ? `<div class="signal">Join the Skyline Social event chat</div>` : "";
+  return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag}`.toLowerCase()}">
+    <span class="event-art cat-${eventVisualCategory(event)}"><span class="art-label">${event.tag}</span></span>
+    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p>${signal}${attachedGroup}</span>
+  </button>`;
+}
+
+function isHighlighted(event) { return [4, 5].includes(event.id); }
+
+function eventNumericPrice(event) {
+  if (event.price === "Free") return 0;
+  const match = String(event.price || "").match(/\$?(\d+(?:\.\d+)?)/);
+  return match ? Number(match[1]) : null;
+}
+
+function eventStartHour(event) {
+  if (event.startHour !== undefined && event.startHour !== null) return event.startHour;
+  const match = String(event.time || "").match(/(\d{1,2})(?::\d{2})?\s*(AM|PM)/i);
+  if (!match) return null;
+  let hour = Number(match[1]) % 12;
+  if (match[2].toUpperCase() === "PM") hour += 12;
+  return hour;
+}
+
+function eventStartSortValue(event) {
+  if (Number.isFinite(event.startSort)) return event.startSort;
+  const timeText = String(event.time || "");
+  const dayOrder = timeText.startsWith("Tonight") ? 0
+    : timeText.startsWith("Today") ? 0
+      : timeText.startsWith("Fri") ? 1
+        : timeText.startsWith("Sat") ? 2
+          : timeText.startsWith("Sun") ? 3
+            : 99;
+  const hour = eventStartHour(event);
+  return dayOrder * 24 * 60 * 60 * 1000 + (hour ?? 24) * 60 * 60 * 1000;
+}
+
+function sortEventsByStart(a, b) {
+  const startDelta = eventStartSortValue(a) - eventStartSortValue(b);
+  if (startDelta !== 0) return startDelta;
+  return String(a.title || "").localeCompare(String(b.title || ""));
+}
+
+function matchesTimeFilter(event, value) {
+  if (!value || value === "Any time") return true;
+  const hour = eventStartHour(event);
+  if (hour === null) return false;
+  if (value === "Morning") return hour >= 4 && hour < 12;
+  if (value === "Afternoon") return hour >= 12 && hour < 16;
+  if (value === "Evening") return hour >= 16 && hour < 21;
+  if (value === "Late night") return hour >= 21 || hour < 4;
+  return true;
+}
+
+function matchesFilter(event, filter, applyDiscoverFilters = true) {
+  const priceValue = eventNumericPrice(event);
+  if (state.age < 21 && event.cat === "nightlife") return false;
+  if (applyDiscoverFilters && state.highlightedOnly && !isHighlighted(event)) return false;
+  if (applyDiscoverFilters && state.filter.category && state.filter.category !== "All categories" && event.cat !== state.filter.category) return false;
+  if (applyDiscoverFilters && !matchesTimeFilter(event, state.filter.time)) return false;
+  if (applyDiscoverFilters && state.filter.price === "Free" && event.price !== "Free") return false;
+  if (applyDiscoverFilters && state.filter.price === "Under $20" && (priceValue === null || priceValue >= 20)) return false;
+  if (applyDiscoverFilters && state.filter.price === "Under $50" && (priceValue === null || priceValue >= 50)) return false;
+  if (applyDiscoverFilters && state.filter.date === "Today" && !event.time.startsWith("Tonight")) return false;
+  if (applyDiscoverFilters && state.filter.date === "This weekend" && event.time.startsWith("Tonight")) return false;
+  if (filter === "all" || filter === "for-you") return true;
+  if (filter === "nearby") return true;
+  if (filter === "weekend") return !event.time.startsWith("Tonight");
+  if (filter === "tonight") return event.time.startsWith("Tonight");
+  if (filter === "free") return event.price === "Free";
+  return event.cat === filter;
+}
+
+function filterChips(active, scope) {
+  const items = scope === "home"
+    ? [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["performing-arts", "Performing arts"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]]
+    : [["all", "All"], ["concerts", "Concerts"], ["performing-arts", "Arts"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+  return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
+}
+
+
+
+const supabaseConfig = {
+  url: "https://iglzcjtklryapmcpyoam.supabase.co",
+  publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH"
+};
+const demoAuthConfig = { useMockOtp: true, mockOtp: "123456" };
+
+function formatSupabaseTime(value) {
+  if (!value) return "Date to be announced";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }).format(date);
+}
+
+function formatSupabaseDate(value) {
+  if (!value) return "";
+  const date = new Date(`${value}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+}
+
+function normalizeSupabasePrice(value, isMinimum = false) {
+  if (value === null || value === undefined || value === "") return "Price unknown";
+  if (String(value).toLowerCase() === "free" || Number(value) === 0) return "Free";
+  const text = String(value);
+  const price = text.startsWith("$") ? text : `$${text}`;
+  return isMinimum ? `From ${price}` : price;
+}
+
+function normalizeSupabasePriceFromRow(row) {
+  if (row.price !== undefined && row.price !== null && row.price !== "") return normalizeSupabasePrice(row.price);
+  if (row.price_min !== undefined && row.price_min !== null && row.price_min !== "") {
+    if (row.price_max !== undefined && row.price_max !== null && row.price_max !== "" && Number(row.price_max) !== Number(row.price_min)) {
+      return `${normalizeSupabasePrice(row.price_min)}-${normalizeSupabasePrice(row.price_max).replace("$", "")}`;
+    }
+    return normalizeSupabasePrice(row.price_min, true);
+  }
+  return "Price unknown";
+}
+
+function cleanSupabaseDescription(value) {
+  const cleaned = String(value || "")
+    .replace(/^Sourced from predicthq\.com\s*-\s*/i, "")
+    .replace(/^Sourced from predicthq\.com\.?\s*/i, "")
+    .trim();
+  return cleaned || "More details are coming soon.";
+}
+
+function isAddressOnlyVenue(value) {
+  return /United States of America|Washington, DC 20|Street |Avenue |Road |Northwest|Northeast|Southwest|Southeast|^\d+\s/i.test(String(value || ""));
+}
+
+function rawPredictHqAddress(row) {
+  return row.raw_json?.geo?.address?.formatted_address || row.raw_json?.entities?.find(entity => entity.formatted_address)?.formatted_address || "";
+}
+
+function rawPredictHqVenueName(row) {
+  const entity = row.raw_json?.entities?.find(item => ["venue", "place"].includes(item.type) && item.name && !isAddressOnlyVenue(item.name));
+  return entity?.name || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
+}
+
+function inferVenueNameFromText(value) {
+  const text = String(value || "").replace(/^Sourced from predicthq\.com\s*-\s*/i, "");
+  const patterns = [
+    /\bat\s+([A-Z][A-Za-z0-9&'â€™.\- ]{2,70}?)(?:[.,!|]| for | with | featuring | in Washington| in D\.C\.|$)/,
+    /\b@\s*([A-Z][A-Za-z0-9&'â€™.\- ]{2,70}?)(?:[.,!|]|$)/,
+    /\|\s*([A-Z0-9][A-Za-z0-9&'â€™.\- ]{2,45}?)\s*(?:\||$)/
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    const candidate = match?.[1]?.trim();
+    if (candidate && !isAddressOnlyVenue(candidate) && !/hosted by|washington d\.?c\.?$/i.test(candidate)) return candidate;
+  }
+  return "";
+}
+
+function normalizeSupabaseVenue(row) {
+  const venue = row.venue_name || row.venue || row.location_name || "";
+  if (row.source === "predicthq" && isAddressOnlyVenue(venue)) return rawPredictHqVenueName(row) || "Location in description";
+  return venue || rawPredictHqVenueName(row) || "Location in description";
+}
+
+function normalizeSupabaseDescription(row) {
+  const description = cleanSupabaseDescription(row.description || row.desc);
+  const address = rawPredictHqAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
+  if (!address || description.includes(address)) return description;
+  return `${description}\n\nAddress: ${address}`;
+}
+
+function eventStartHourFromRow(row) {
+  const source = row.starts_at || row.start_time || row.start_at;
+  if (source) {
+    const date = new Date(source);
+    if (!Number.isNaN(date.getTime())) return Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hour12: false }).format(date)) % 24;
+  }
+  const timeText = String(row.time || "");
+  const match = timeText.match(/(\d{1,2})(?::\d{2})?\s*(AM|PM)/i);
+  if (!match) return null;
+  let hour = Number(match[1]) % 12;
+  if (match[2].toUpperCase() === "PM") hour += 12;
+  return hour;
+}
+
+function eventStartSortFromRow(row) {
+  const source = row.starts_at || row.start_time || row.start_at;
+  if (source) {
+    const date = new Date(source);
+    if (!Number.isNaN(date.getTime())) return date.getTime();
+  }
+  if (row.date) {
+    const hour = eventStartHourFromRow(row) || 0;
+    const date = new Date(`${row.date}T00:00:00`);
+    if (!Number.isNaN(date.getTime())) return date.getTime() + hour * 60 * 60 * 1000;
+  }
+  return Number.MAX_SAFE_INTEGER;
+}
+
+function startOfTodaySortValue() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today.getTime();
+}
+
+function isEventUpcoming(event) {
+  if (!Number.isFinite(event.startSort)) return true;
+  return event.hasPreciseStart ? event.startSort >= Date.now() : event.startSort >= startOfTodaySortValue();
+}
+
+function normalizePredictHqCategory(row) {
+  const predictHqCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
+  const tag = String(row.tag || "").toLowerCase();
+  const category = String(row.category || row.cat || "community").toLowerCase();
+  if (row.source === "predicthq" && predictHqCategories.has(tag)) return tag;
+  return category;
+}
+
+function normalizeSupabaseEvent(row, index) {
+  const category = normalizePredictHqCategory(row);
+  return {
+    id: 1000 + index,
+    sourceId: row.id,
+    source: row.source || "manual",
+    title: row.title || row.name || "Untitled Lokal event",
+    venue: normalizeSupabaseVenue(row),
+    area: row.neighborhood || row.area || row.location || "Washington, DC",
+    time: row.date && row.time ? `${formatSupabaseDate(row.date)}, ${String(row.time).trim()}` : row.time || formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date),
+    startHour: eventStartHourFromRow(row),
+    startSort: eventStartSortFromRow(row),
+    hasPreciseStart: Boolean(row.starts_at || row.start_time || row.start_at),
+    price: normalizeSupabasePriceFromRow(row),
+    cat: category,
+    tag: row.tag || row.category || "Local event",
+    friends: Array.isArray(row.friends) ? row.friends : [],
+    desc: normalizeSupabaseDescription(row)
+  };
+}
+
+async function syncSupabaseEvents(showToast = false) {
+  state.eventSync = { status: "loading", label: "Checking shared events..." };
+  if (state.route === "home") renderHome();
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&order=starts_at.asc.nullslast,date.asc.nullslast`, {
+      headers: { apikey: supabaseConfig.publishableKey }
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    const rows = await response.json();
+    if (rows.length) {
+      const normalized = rows.map(normalizeSupabaseEvent);
+      const upcoming = normalized.filter(isEventUpcoming);
+      events = upcoming.filter(event => event.source !== "predicthq" || event.venue !== "Location in description");
+      const hiddenCount = rows.length - events.length;
+      const shownLabel = `${events.length} upcoming event${events.length === 1 ? "" : "s"} shown`;
+      state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} older or incomplete row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };
+    } else {
+      events = [...demoEvents];
+      state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
+    }
+  } catch {
+    events = [...demoEvents];
+    state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
+  }
+  if (state.route === "home") renderHome();
+  if (showToast) toast(state.eventSync.label);
+}
+
+function formatSignupPhone(value) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  if (value.trim().startsWith("+") && digits.length >= 10) return `+${digits}`;
+  throw new Error("Enter a 10 digit phone number with area code.");
+}
+
+function formatDisplayPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  const local = digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : digits;
+  if (local.length !== 10) return value || "";
+  return `(${local.slice(0, 3)}) ${local.slice(3, 6)}-${local.slice(6)}`;
+}
+
+function calculateAge(birthdate) {
+  const birthday = new Date(`${birthdate}T12:00:00`);
+  const today = new Date();
+  let age = today.getFullYear() - birthday.getFullYear();
+  if (today < new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate())) age--;
+  return age;
+}
+
+function validateBirthday(birthdate) {
+  const birthday = new Date(`${birthdate}T12:00:00`);
+  const today = new Date();
+  if (!birthdate || Number.isNaN(birthday.getTime())) throw new Error("Enter a valid birthday.");
+  if (birthday >= today) throw new Error("Birthday must be a date in the past.");
+  if (calculateAge(birthdate) < 14) throw new Error("You must be at least 14 years old to use Lokal.");
+}
+
+function profileInitials(fullName) {
+  return fullName.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "L";
+}
+
+function updateProfileShortcut() {
+  const shortcut = document.querySelector("#profile-shortcut .avatar");
+  if (shortcut) shortcut.textContent = state.profile.initials;
+}
+
+function finalizeLokalProfile(profile) {
+  const saved = { ...profile, phone: formatDisplayPhone(profile.phone), age: calculateAge(profile.birthdate), initials: profileInitials(profile.fullName), bio: state.bio };
+  state.profile = saved;
+  state.age = saved.age;
+  localStorage.setItem("lokalProfile", JSON.stringify(saved));
+  updateProfileShortcut();
+}
+
+async function supabaseAuthRequest(path, body) {
+  const response = await fetch(`${supabaseConfig.url}/auth/v1/${path}`, {
+    method: "POST",
+    headers: {
+      apikey: supabaseConfig.publishableKey,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.msg || data.message || data.error_description || "Supabase could not complete that request.");
+  return data;
+}
+
+async function createLokalAccount({ fullName, phone, username, birthdate, password }) {
+  if (!fullName || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
+  if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
+  validateBirthday(birthdate);
+  const formattedPhone = formatSignupPhone(phone);
+  state.pendingSignupProfile = { fullName, phone: formattedPhone, username, birthdate };
+  state.pendingSignupPhone = formattedPhone;
+  if (demoAuthConfig.useMockOtp) return { demoOtp: true };
+  const data = await supabaseAuthRequest("signup", {
+    phone: formattedPhone,
+    password,
+    data: { full_name: fullName, username, birthdate }
+  });
+  return data;
+}
+
+async function checkPhoneSignupStatus() {
+  try {
+    const response = await fetch(`${supabaseConfig.url}/auth/v1/settings`, { headers: { apikey: supabaseConfig.publishableKey } });
+    const settings = await response.json();
+    state.phoneSignupEnabled = Boolean(settings?.external?.phone);
+  } catch {
+    state.phoneSignupEnabled = false;
+  }
+}
+
+async function verifyLokalPhone(token) {
+  if (!token.trim()) throw new Error("Enter the verification code.");
+  if (demoAuthConfig.useMockOtp) {
+    if (token.trim() !== demoAuthConfig.mockOtp) throw new Error("For demo profiles, use verification code 123456.");
+    finalizeLokalProfile(state.pendingSignupProfile);
+    return { demoOtp: true };
+  }
+  const data = await supabaseAuthRequest("verify", { phone: state.pendingSignupPhone, token: token.trim(), type: "sms" });
+  finalizeLokalProfile(state.pendingSignupProfile);
+  return data;
+}
+
+function renderHome() {
+  const filtered = events.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
+  app.innerHTML = `<section class="page">
+    <div class="discover-heading"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
+    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
+    <label class="search-box"><span>⌕</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
+    ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
+    <p class="eyebrow">Following</p><div class="following-rail">${followingStories.map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
+    <div class="chips">${filterChips(state.homeFilter, "home")}</div>
+    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Your feed</p><h2>What's happening</h2></div></div>
+    <div class="event-stack">${filtered.map(eventRow).join("")}</div></section>
+  </section>`;
+}
+
+const dcMapAreas = {
+  "Adams Morgan": { x: 24, y: 27 },
+  "U Street": { x: 42, y: 42 },
+  "Logan Circle": { x: 48, y: 57 },
+  "Shaw": { x: 60, y: 66 },
+  "Navy Yard": { x: 78, y: 83 },
+  "Penn Quarter": { x: 66, y: 54 },
+  "H Street": { x: 78, y: 44 },
+  "Washington, DC": { x: 50, y: 50 }
+};
+
+function eventMapPosition(event, index) {
+  const base = dcMapAreas[event.area] || dcMapAreas[event.venue] || dcMapAreas["Washington, DC"];
+  const jitter = ((event.sourceId || event.id || index) * 17) % 9 - 4;
+  return { x: base.x + jitter, y: base.y + (((event.id || index) * 11) % 9 - 4) };
+}
+
+function scaledMapPosition(position) {
+  const zoom = state.mapZoom;
+  return {
+    x: 50 + (position.x - state.mapCenter.x) * zoom,
+    y: 50 + (position.y - state.mapCenter.y) * zoom
+  };
+}
+
+function clampMapValue(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function setMapZoom(value) {
+  state.mapZoom = clampMapValue(Math.round(value * 100) / 100, 0.75, 2.75);
+}
+
+function panMap(deltaX, deltaY) {
+  const speed = 0.08 / state.mapZoom;
+  state.mapCenter = {
+    x: clampMapValue(state.mapCenter.x + deltaX * speed, 8, 92),
+    y: clampMapValue(state.mapCenter.y + deltaY * speed, 8, 92)
+  };
+}
+
+function mapSearchMatches(event) {
+  const query = state.mapSearch.trim().toLowerCase();
+  if (!query) return true;
+  return `${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag}`.toLowerCase().includes(query);
+}
+
+function applyMapSearch() {
+  const query = state.mapSearch.trim().toLowerCase();
+  if (!query) return;
+  const area = Object.entries(dcMapAreas).find(([name]) => name.toLowerCase().includes(query));
+  const event = events.find(item => mapSearchMatches(item));
+  if (area) state.mapCenter = area[1];
+  else if (event) state.mapCenter = eventMapPosition(event, 0);
+}
+
+function renderMap() {
+  const visibleEvents = events.filter(event => matchesFilter(event, state.mapFilter, false) && mapSearchMatches(event)).sort(sortEventsByStart);
+  const pins = visibleEvents.map((event, index) => {
+    const pos = scaledMapPosition(eventMapPosition(event, index));
+    return `<button class="pin ${event.cat}" data-map-event="${event.id}" style="left:${pos.x}%;top:${pos.y}%"><span>${index + 1}</span></button>`;
+  }).join("");
+  const labels = Object.entries(dcMapAreas).filter(([name]) => name !== "Washington, DC").map(([name, pos]) => {
+    const scaled = scaledMapPosition(pos);
+    return `<span class="neighborhood" style="top:${scaled.y}%;left:${scaled.x}%">${name}</span>`;
+  }).join("");
+  app.innerHTML = `<section class="map-page">
+    <div class="map-top"><div class="discover-heading"><div><p class="eyebrow">Near your location</p><h1>Map</h1></div><span class="route-badge">${state.mapZoom.toFixed(1)}x zoom</span></div><div class="chips">${filterChips(state.mapFilter, "map")}</div></div>
+    <div class="map-canvas" data-map-canvas>
+      <label class="map-search"><input data-map-search value="${escapeHtml(state.mapSearch)}" placeholder="Search area, venue, or event" aria-label="Search map"><button class="filter-button" data-map-area>Search area</button></label>
+      <div class="map-gesture-hint">Pinch to zoom / drag to move</div><button class="map-reset" data-map-zoom="reset" aria-label="Reset map">Reset</button>
+      <div class="map-grid" style="transform: scale(${state.mapZoom});"></div>
+      ${labels}
+      ${pins || `<p class="map-empty">No events match this map search.</p>`}
+      <div class="map-results-pill">${visibleEvents.length} event${visibleEvents.length === 1 ? "" : "s"} on map</div>
+      <div class="map-card" id="map-card"></div>
+    </div>
+  </section>`;
+}
+
+const followingStories = [
+  { icon: "S", name: "Songbyrd", type: "Venue", intro: "What's coming up at Songbyrd over the next few days.", eventIds: [1, 11] },
+  { icon: "D", name: "@dcafterdark", type: "Curator", intro: "A few things @dcafterdark thinks are worth leaving the house for this week.", eventIds: [4, 6, 7] },
+  { icon: "R", name: "DC Run Club", type: "Public group", intro: "Upcoming ways to run, meet people, and hang out with DC Run Club.", eventIds: [5, 8, 2] },
+  { icon: "M", name: "Smithsonian", type: "Venue", intro: "A Smithsonian event to catch over the next couple of days.", eventIds: [9] },
+  { icon: "E", name: "@eater_dc", type: "Curator", intro: "Food and drink suggestions from @eater_dc for the next few days.", eventIds: [2, 4, 8] },
+  { icon: "A", name: "Atlas", type: "Venue", intro: "What's coming up at Atlas over the next few days.", eventIds: [10] }
+];
+
+function openStory(index) {
+  const storyIndex = (Number(index) + followingStories.length) % followingStories.length;
+  const story = followingStories[storyIndex];
+  const storyEvents = story.eventIds.map(id => events.find(event => event.id === id)).filter(Boolean);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet story-sheet" role="dialog" aria-modal="true" aria-label="${story.name}" data-story-sheet="${storyIndex}">
+    <button class="modal-close" aria-label="Close ${story.name}">&times;</button>
+    <div class="story-progress">${followingStories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
+    <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.name}</h2></div><span class="group-icon">${story.icon}</span></div>
+    <p class="lede">${story.intro}</p>
+    <div class="event-stack">${storyEvents.map(eventRow).join("")}</div>
+    <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">← Previous</button><small>${storyIndex + 1} of ${followingStories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next →</button></div>
+  </section></div>`;
+}
+
+
+
+function activityCard(initials, copy, time) {
+  return `<div class="activity-card"><span class="avatar">${initials}</span><div><p>${copy}</p><span class="activity-time">${time}</span></div></div>`;
+}
+
+const friendDirectory = [
+  ["AL","Ana Lopez","@analopes","8 mutual friends"],
+  ["MR","Marcus Reed","@marcusdc","5 mutual friends"],
+  ["JS","Jules Kim","@julesk","6 mutual friends"],
+  ["DV","Dev Shah","@devaroundtown","3 mutual friends"],
+  ["ET","Elena Torres","@elenaarounddc","7 mutual friends"],
+  ["PL","Priya Lee","@priyaleedc","4 mutual friends"],
+  ["NW","Nia Williams","@nianights","2 mutual friends"],
+  ["CB","Chris Bennett","@chrisb","5 mutual friends"],
+  ["SK","Sofia Kim","@sofiak","3 mutual friends"]
+];
+
+const publicGroupMeta = {
+  "Skyline Social": { count: "12 members", note: "Single-event group / Friday", icon: "S", style: "run", description: "A public group for Skyline Social so interested people can coordinate before Friday." },
+  "DC Run Club": { count: "1.2k members", note: "Sunday route posted", icon: "R", style: "run", description: "A public community for DC runners to find routes, meetups, and post-run plans." },
+  "District Book Club": { count: "326 members", note: "Next meetup: June 8", icon: "B", style: "book", description: "A public group for upcoming reads, meetups, and book-friendly plans around DC." },
+  "DC Trivia Nights": { count: "684 members", note: "Three events this week", icon: "D", style: "art", description: "A public group for finding trivia nights and building teams around the city." },
+  "DC Pickleball Crew": { count: "948 members", note: "Beginner games this weekend", icon: "P", style: "run", description: "A public group for finding casual pickleball games and open courts around DC." },
+  "Capital Film Club": { count: "412 members", note: "Outdoor screenings + indies", icon: "F", style: "art", description: "A public group for film screenings, festivals, and low-key movie nights around the city." },
+  "Volunteer DC": { count: "2.3k members", note: "Five ways to help this week", icon: "V", style: "book", description: "A public group for finding local volunteer projects and meeting people while helping out." },
+  "H Street Food Walks": { count: "537 members", note: "New tasting route posted", icon: "H", style: "art", description: "A public group for casual food walks, new openings, and neighborhood recommendations." }
+};
+
+function publicDirectoryNames() {
+  return Object.keys(publicGroupMeta).filter(name => name !== "Skyline Social" && !state.joinedGroups.has(name) && !state.leftGroups.has(name));
+}
+
+function friendCard(friend, action = "profile") {
+  const button = action === "add" ? `<button class="follow-button adventure-add" data-add-adventure="${friend[1]}" aria-label="Add ${friend[1]}">+</button>` : action === "group" ? `<button class="follow-button invite-added-friend" data-invite-friend="${friend[1]}">Add to group</button>` : "";
+  return `<div class="follow-card friend-directory-card" data-friend-card data-search-text="${friend[1].toLowerCase()} ${friend[2].toLowerCase()}"><button class="friend-card-main" data-open-friend="${friend[1]}"><span class="avatar">${friend[0]}</span><span><b>${friend[1]}</b><small>${friend[2]}</small><em>${friend[3]}</em></span></button>${button}</div>`;
+}
+
+function userGroupNames() {
+  return ["Friday crew", "Culture club", ...Array.from(state.joinedGroups), ...state.newGroups.map(group => group.name)].filter((name, index, groups) => !state.leftGroups.has(name) && groups.indexOf(name) === index);
+}
+
+function friendInitials(name) {
+  if (name === "You") return "JM";
+  return friendDirectory.find(friend => friend[1] === name)?.[0] || name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function addFriendToPrivateGroup(group, name) {
+  if (!state.privateGroupMembers[group]) state.privateGroupMembers[group] = ["You"];
+  if (!state.privateGroupMembers[group].includes(name)) state.privateGroupMembers[group].push(name);
+}
+
+function removeGroupMembership(name) {
+  state.leftGroups.add(name);
+  state.joinedGroups.delete(name);
+  state.pinnedGroups.delete(name);
+  state.newGroups = state.newGroups.filter(group => group.name !== name);
+}
+
+function groupContent() {
+  const card = (name, type, detail, note, icon, style = "") => state.leftGroups.has(name) ? "" : `<button class="community-card ${state.pinnedGroups.has(name) ? "pinned" : ""}" data-group-card data-search-text="${name.toLowerCase()} ${type.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${style}">${icon}</span><span><b>${name}</b><small>${type} / ${type === "Private" && state.privateGroupMembers[name] ? `${state.privateGroupMembers[name].length} members` : detail}</small><em>${state.pinnedGroups.has(name) ? "Pinned / " : ""}${note}</em></span><span class="group-access ${type === "Private" ? "private" : ""}">${type === "Private" ? "•••" : "View"}</span></button>`;
+  const group = (name, type, detail, note, icon, style = "") => ({ name, type, detail, note, icon, style });
+  const renderGroup = item => card(item.name, item.type, item.detail, item.note, item.icon, item.style);
+  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => name !== "Skyline Social" && !state.leftGroups.has(name)).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
+  const baseGroups = [group("Friday crew","Private","6 members","Ready to start chatting","F"), ...state.newGroups.map(item => group(item.name,item.type,"Created just now","Invite people to get started",item.name[0].toUpperCase())), group("Culture club","Private","8 members","Ready to start chatting","C","art"), group("Skyline Social","Public","12 members","Single-event group / Friday","S","run"), ...joinedPublicGroups, group("Capitol picnic crew","Private","5 members","Last active Monday","P"), group("Gallery hopping","Private","4 members","Last active May 24","G","art"), group("Sunday coffee walk","Private","7 members","Last active May 18","S","run")];
+  const pinnedGroups = baseGroups.filter(item => state.pinnedGroups.has(item.name)).sort((a, b) => Number(a.type === "Public") - Number(b.type === "Public"));
+  const recentGroups = baseGroups.filter(item => !state.pinnedGroups.has(item.name) && !["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name));
+  const archivedGroups = baseGroups.filter(item => ["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name) && !state.pinnedGroups.has(item.name));
+  const moreGroups = state.showAllGroups ? archivedGroups.map(renderGroup).join("") : "";
+  const publicCatalog = publicDirectoryNames().slice(0, 3).map(name => { const meta = publicGroupMeta[name]; return card(name,"Public",meta.count,meta.note,meta.icon,meta.style); }).join("");
+  return `<label class="search-box social-search"><span>⌕</span><input data-group-search placeholder="Search private or public groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("")}${moreGroups}</div><button class="text-button view-more-groups" data-view-more-groups>${state.showAllGroups ? "Show fewer groups" : "View more groups"}</button><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">You have joined all suggested public groups.</p>`}</div><button class="text-button see-more-public" data-see-more-public-groups>See more public groups</button><p class="search-empty" data-group-empty>No groups match that search.</p>`;
+}
+
+function publicDirectoryCard(name) {
+  const meta = publicGroupMeta[name];
+  return `<button class="community-card" data-public-directory-card data-search-text="${`${name} ${meta.description}`.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${meta.style}">${meta.icon}</span><span><b>${name}</b><small>Public / ${meta.count}</small><em>${meta.note}</em></span><span class="group-access">View</span></button>`;
+}
+
+function openPublicGroupDirectory() {
+  const groups = publicDirectoryNames();
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="All public groups"><button class="modal-close" aria-label="Close public groups">&times;</button><p class="eyebrow">Explore groups</p><h2>Public groups</h2><label class="search-box social-search"><span>⌕</span><input data-public-group-search placeholder="Search public groups" aria-label="Search public groups"></label><div class="community-grid public-directory">${groups.map(publicDirectoryCard).join("")}</div><p class="search-empty" data-public-group-empty>No public groups match that search.</p></section></div>`;
+}
+
+function groupMessage(message) {
+  if (message.type === "event") {
+    const event = events.find(item => item.id === message.eventId);
+    return `<div class="message me event-message"><small>You shared an event / now</small><button class="message-event-link" data-event="${event.id}"><b>${event.title}</b><span>${event.time} / ${event.venue}</span><em>Open event →</em></button></div>`;
+  }
+  return `<div class="message me">${message.text}<small>You / now</small></div>`;
+}
+
+function openGroup(name) {
+  const publicMeta = publicGroupMeta[name];
+  const isPublic = Boolean(publicMeta);
+  const members = state.privateGroupMembers[name] || ["You", "Ana Lopez", "Marcus Reed"];
+  if (isPublic && !state.joinedGroups.has(name)) {
+    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} preview"><button class="modal-close" aria-label="Close group preview">&times;</button><p class="eyebrow">Public group</p><h2>${name}</h2><p class="group-description">${publicMeta.description}</p><p class="lede">${publicMeta.count}</p><button class="wide-button" data-join-group="${name}">Join group</button></section></div>`;
+    return;
+  }
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} group"><button class="modal-close" aria-label="Close group">&times;</button>
+    <p class="eyebrow">${isPublic ? "Public group" : "Group"}</p><h2>${name}</h2>
+    <p class="group-description">${isPublic ? publicMeta.description : "Our running thread for the next night out. Share ideas, keep tickets together, and see who is interested."}</p>
+    ${isPublic ? `<p class="public-member-count">${publicMeta.count}</p>` : ""}
+    ${isPublic ? "" : `<p class="eyebrow group-divider">People in this group</p><div class="private-group-members">${members.map(member => `<div class="private-group-member"><span class="avatar">${friendInitials(member)}</span><b>${member}</b></div>`).join("")}</div>`}
+    <div class="group-detail-actions"><button class="secondary" data-invite data-group-name="${name}">+ Invite people</button>${isPublic ? `<button class="secondary" data-schedule>+ Schedule event</button>` : `<button class="secondary" data-share-group-event="${name}">+ Share event</button>`}</div>
+    <p class="eyebrow group-divider">Messages</p><div class="message-list">${(state.groupMessages[name] || []).map(groupMessage).join("") || `<p class="message-empty">No messages yet. Share an event or start the conversation.</p>`}</div><div class="message-compose"><input data-message placeholder="Message the group" aria-label="Message the group"><button class="primary" data-send-message data-group-name="${name}">Send</button></div>
+    <p class="eyebrow group-divider">Events</p><div class="interest-list"><div class="interest-event"><span><b>Skyline Social</b><small>Friday / 4 people interested</small></span><button class="text-button" data-event="4">Open</button></div><div class="interest-event"><span><b>Fresh Air Cinema</b><small>Sunday / 3 people interested</small></span><button class="text-button" data-event="8">Open</button></div></div>
+    <button class="options-button" data-group-options="${name}">•••</button>
+  </section></div>`;
+}
+
+function openInvite(name = "Friday crew") {
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal invite-sheet" role="dialog" aria-modal="true" aria-label="Invite people"><button class="modal-close" aria-label="Close invite">&times;</button><button class="text-button" data-back-group="${name}">← Back to group</button><p class="eyebrow">Invite people</p><h2>Share ${name}.</h2><label class="settings-field">Invite URL<input value="https://lokal.app/join/${slug}" readonly></label><button class="wide-button" data-copy-invite>Copy invite link</button><label class="search-box social-search"><span>⌕</span><input data-invite-people-search data-group-name="${name}" placeholder="Search friends" aria-label="Search invite friends"></label><div class="autocomplete invite-autocomplete" data-invite-people-results hidden></div><div class="selected-group-friends" data-selected-invite-people></div></section></div>`;
+}
+
+function openCreateGroup() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal create-sheet" role="dialog" aria-modal="true" aria-label="Create a group"><button class="modal-close" aria-label="Close group creation">&times;</button>
+    <p class="eyebrow">New group</p><h2>Bring people together.</h2><p class="lede">Start a private crew or a public community.</p>
+    <div class="group-type-grid"><button class="group-type selected" data-group-type="private">Private crew</button><button class="group-type" data-group-type="public">Public group</button></div>
+    <input data-group-name placeholder="Group name" aria-label="Group name"><input data-create-friends placeholder="Add friends" aria-label="Add group friends"><div class="autocomplete" data-autocomplete hidden></div><div class="selected-group-friends" data-selected-group-friends></div>
+    <button class="wide-button" data-save-group>Create group</button>
+  </section></div>`;
+}
+
+function rankingContent() {
+  const ranking = [
+    { id: 4, score: 94, trend: "+12 this week", note: "3 friends are going", badge: "Friday favorite" },
+    { id: 8, score: 86, trend: "+8 this week", note: "Ana + Dev saved it", badge: "Free pick" },
+    { id: 3, score: 79, trend: "+6 this week", note: "2 friends are going", badge: "Neighborhood buzz" },
+    { id: 7, score: 71, trend: "+4 this week", note: "Jules saved it", badge: "Rising" }
+  ];
+  return `<div class="ranking-intro"><p class="eyebrow">Your circle's pulse</p><h2>Trending with friends</h2><p>Ranked by saves, RSVPs, and the plans your groups keep talking about.</p></div>
+  <div class="ranking-list">${ranking.map((item, index) => {
+    const event = events.find(e => e.id === item.id);
+    const hyped = state.hype.has(item.id);
+    return `<article class="ranking-card">
+      <button class="rank-main" data-event="${event.id}">
+        <span class="rank-number">${index + 1}</span>
+        <span class="rank-copy"><span class="rank-badge">${item.badge}</span><h3>${event.title}</h3><p>${event.time} / ${event.area}</p><small>${item.note}</small></span>
+        <span class="rank-score"><b>${item.score + (hyped ? 2 : 0)}</b><small>pulse</small></span>
+      </button>
+      <div class="rank-footer"><span>${item.trend}</span><button class="hype-button ${hyped ? "selected" : ""}" data-hype="${event.id}">${hyped ? "You're in" : "Want in"}</button></div>
+    </article>`;
+  }).join("")}</div>`;
+}
+
+function friendsContent() {
+  const myFriends = friendDirectory.filter(friend => state.friends.has(friend[1])).slice(0, 5);
+  const suggestions = friendDirectory.filter(friend => !state.friends.has(friend[1])).slice(0, 5);
+  return `<label class="search-box social-search"><span>⌕</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label>
+  <p class="eyebrow">My friends</p><div class="follow-list">${myFriends.map(friend => friendCard(friend)).join("")}</div><button class="text-button see-all-friends" data-see-all-friends>See all friends</button>
+  <p class="eyebrow group-divider">Find adventure partners</p><div class="follow-list">${suggestions.map(friend => friendCard(friend, "add")).join("") || `<p class="section-helper">You have added everyone suggested for now.</p>`}</div><p class="search-empty" data-friend-empty>No people match that search.</p>`;
+}
+
+function directMessageRow(name) {
+  const friend = friendDirectory.find(item => item[1] === name) || ["FR", name, "@lokalfriend", ""];
+  const messages = state.directMessages[name] || [];
+  const latest = messages[messages.length - 1];
+  return `<button class="direct-chat-row" data-open-direct-chat="${name}"><span class="avatar">${friend[0]}</span><span><b>${name}</b><small>${latest ? latest.text : "Start a conversation"}</small></span><em>›</em></button>`;
+}
+
+function openDirectInbox() {
+  const names = Array.from(new Set([...Object.keys(state.directMessages), ...Array.from(state.friends)])).filter(name => state.friends.has(name));
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Direct messages"><button class="modal-close" aria-label="Close messages">&times;</button><p class="eyebrow">Friends</p><h2>Messages</h2><div class="direct-chat-list">${names.map(directMessageRow).join("")}</div></section></div>`;
+}
+
+function openDirectChat(name) {
+  const messages = state.directMessages[name] || [];
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet direct-chat-sheet" role="dialog" aria-modal="true" aria-label="${name} chat"><button class="modal-close" aria-label="Close ${name} chat">&times;</button><button class="text-button" data-direct-inbox>← All messages</button><p class="eyebrow">Direct message</p><h2>${name}</h2><div class="direct-chat-messages">${messages.map(message => `<div class="message ${message.from === "You" ? "me" : ""}">${message.text}<small>${message.from} / now</small></div>`).join("") || `<p class="message-empty">No messages yet. Start the conversation.</p>`}</div><div class="message-compose"><input data-direct-message data-friend-name="${name}" placeholder="Message ${name}" aria-label="Message ${name}"><button class="primary" data-send-direct-message="${name}">Send</button></div></section></div>`;
+}
+
+function openAllFriends() {
+  const friends = friendDirectory.filter(friend => state.friends.has(friend[1]));
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="All friends"><button class="modal-close" aria-label="Close all friends">&times;</button><p class="eyebrow">Friends</p><h2>All friends</h2><div class="follow-list">${friends.map(friend => friendCard(friend)).join("")}</div></section></div>`;
+}
+
+function openFriend(name) {
+  const profile = { "Ana Lopez": ["AL","@analopes","New to DC / Live music + food"], "Marcus Reed": ["MR","@marcusdc","DC local / Fitness + markets"], "Dev Shah": ["DV","@devaroundtown","Exploring DC / Art + film"], "Jules Kim": ["JS","@julesk","DC local / Music + nightlife"], "Priya Lee": ["PL","@priyaleedc","New to DC / Food + art"] }[name] || ["FR","@lokalfriend","Washington, DC"];
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
+    <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">Friend profile</p><h2>${name}</h2><p>${profile[1]} / ${profile[2]}</p></div></div>
+    <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-invite-friend="${name}">Invite to group</button></div>
+    <p class="eyebrow">Recently went to</p><div class="friend-feed"><div class="friend-feed-card"><div class="date-block">May<b>24</b></div><div><h3>Flashband at Songbyrd</h3><p>Live music / Adams Morgan / with 3 friends</p></div></div><div class="friend-feed-card"><div class="date-block">May<b>18</b></div><div><h3>Open Streets DC</h3><p>Community / Shaw</p></div></div></div>
+    <p class="eyebrow group-divider">Saved for later</p><div class="interest-list"><div class="interest-event"><span><b>Skyline Social</b><small>Friday / Viceroy Rooftop</small></span><button class="text-button" data-event="4">Open</button></div><div class="interest-event"><span><b>Fresh Air Cinema</b><small>Sunday / Alethia Tanner Park</small></span><button class="text-button" data-event="8">Open</button></div></div>
+  </section></div>`;
+}
+
+function followingContent() {
+  const accounts = [["songbyrd","S","Songbyrd Music House","Venue","Concerts, DJ nights, and neighborhood picks"],["dcafterdark","D","@dcafterdark","Local curator","Late-night lists and weekend roundups"],["runclub","R","DC Run Club","Public group","Routes, meetups, and post-run coffee"],["smithsonian","M","Smithsonian After Hours","Venue collection","Museum events worth planning around"],["eaterdc","E","@eater_dc","Food curator","Pop-ups, openings, and neighborhood food guides"]];
+  return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues, public groups, and curators to shape what shows up in Discover.</p></div>
+  <div class="follow-list">${accounts.map(account => { const followed = state.follows.has(account[0]); return `<div class="follow-card"><span class="group-icon">${account[1]}</span><span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button ${followed ? "selected" : ""}" data-follow="${account[0]}">${followed ? "Following" : "Follow"}</button></div>`; }).join("")}</div>`;
+}
+
+function renderSocial() {
+  const socialContent = state.socialTab === "friends" ? friendsContent() : groupContent();
+  const isFriends = state.socialTab === "friends";
+  app.innerHTML = `<section class="page">
+    <p class="eyebrow">Social</p><div class="social-title-row"><h1>${isFriends ? "Friends" : "Groups"}</h1>${isFriends ? `<button class="dm-inbox-button" data-direct-inbox aria-label="Open direct messages">✎</button>` : ""}</div><p class="lede">${isFriends ? "Find people you know and open their profile before adding them." : "Keep event chats, friend crews, and public communities in one place."}</p>
+    ${isFriends ? "" : `<button class="wide-button" data-create-group>+ Create a group</button>`}
+    <div class="tabs social-tabs"><button class="tab-button ${state.socialTab === "groups" ? "active" : ""}" data-social-tab="groups">Groups</button><button class="tab-button ${state.socialTab === "friends" ? "active" : ""}" data-social-tab="friends">Friends</button></div>
+    <section class="section" id="social-content">${socialContent}</section>
+  </section>`;
+}
+
+
+
+function renderProfile() {
+  const tasteChips = state.tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("");
+  app.innerHTML = `<section class="page">
+    <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><span class="lokal-score">128 <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
+    <p class="bio">${escapeHtml(state.bio)}</p>
+    <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tasteChips}<button class="chip" data-edit-tastes>Edit</button></div>
+    <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="groups"><b>${userGroupNames().length}</b><small>Groups</small></button></div>
+    <p class="eyebrow">Best friends</p><div class="best-friends-list">${[["AL","Ana Lopez","18 shared activities"],["MR","Marcus Reed","14 shared activities"],["DV","Dev Shah","11 shared activities"],["JS","Jules Kim","9 shared activities"],["PL","Priya Lee","7 shared activities"]].map((friend,index) => `<div class="best-friend-row"><b>${index + 1}</b><span class="avatar">${friend[0]}</span><span><strong>${friend[1]}</strong><small>${friend[2]}</small></span></div>`).join("")}</div>
+    <p class="eyebrow">Your receipt</p><h2>Recently attended</h2>
+    <div class="receipt"><div class="date-block">May<b>24</b></div><div><h3>Flashband at Songbyrd</h3><p>Live music / Adams Morgan / with Ana + Dev</p></div></div>
+    <div class="receipt"><div class="date-block">May<b>18</b></div><div><h3>Open Streets DC</h3><p>Community / Shaw / with Marcus</p></div></div>
+    <div class="receipt"><div class="date-block">May<b>09</b></div><div><h3>After Dark at the Hirshhorn</h3><p>Art / The Mall / with Jules + 3 others</p></div></div>
+  </section>`;
+}
+
+function openTasteEditor() {
+  const selected = new Set(state.tastes);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Edit tastes"><button class="modal-close" aria-label="Close tastes">&times;</button>
+    <p class="eyebrow">Profile</p><h2>Edit tastes</h2><p class="lede">Pick up to 5 so Lokal can shape your feed without making it feel boxed in.</p>
+    <div class="taste-limit" data-taste-count>${selected.size}/5 selected</div>
+    <div class="taste-choice-grid">${tasteOptions.map(taste => `<button class="taste-choice ${selected.has(taste) ? "selected" : ""}" data-taste-choice="${escapeHtml(taste)}">${escapeHtml(taste)}</button>`).join("")}</div>
+    <button class="wide-button" data-save-tastes>Save tastes</button>
+  </section></div>`;
+}
+
+function openSettings() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Profile settings"><button class="modal-close" aria-label="Close settings">&times;</button>
+    <p class="eyebrow">Profile and account</p><h2>Settings</h2>
+    <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
+    <label class="settings-field">Name<input value="${escapeHtml(state.profile.fullName)}" readonly></label><label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label><label class="settings-field">Home city<input value="Washington, DC"></label><label class="settings-field">Age<input data-age-input type="number" min="13" max="120" value="${state.age}"></label><label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label><small class="section-helper">Ideas: where you're from, school, favorite activities, or what you like doing around the city.</small>
+    <p class="settings-label">Account settings</p>
+    <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label><label class="settings-field">Phone signup status<input value="${state.phoneSignupEnabled ? "Enabled in Supabase" : "Demo OTP active / Supabase phone disabled"}" readonly></label>
+    <p class="settings-label">More</p><button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Groups, messages, and event reminders</p></span></button><button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button><button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button><button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
+    <button class="wide-button" data-save-settings>Save changes</button><button class="danger-button" data-deactivate>Deactivate account</button>
+  </section></div>`;
+}
+
+function openSimpleSheet(title, body, action = "") {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${title}"><button class="modal-close" aria-label="Close ${title}">&times;</button><p class="eyebrow">Lokal</p><h2>${title}</h2><p class="lede">${body}</p>${action}</section></div>`;
+}
+
+function rollingCalendar() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 2);
+  const months = [];
+  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    let month = months.find(item => item.key === key);
+    if (!month) {
+      month = { key, label: date.toLocaleDateString("en-US", { month: "long", year: "numeric" }), days: [] };
+      months.push(month);
+    }
+    month.days.push({ iso: date.toISOString().slice(0, 10), label: date.getDate() });
+  }
+  return `<div class="calendar" data-calendar hidden><p class="calendar-helper">Choose any date from today through ${end.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.</p>${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
+}
+
+function activeFilterValue(label) {
+  const key = label.toLowerCase();
+  if (key === "highlight") return state.highlightedOnly ? "Highlighted only" : "All events";
+  return state.filter[key] || {
+    date: "Any date",
+    time: "Any time",
+    category: "All categories",
+    price: "Any price"
+  }[key];
+}
+
+function activeFilterSummary() {
+  const items = [];
+  if (state.homeFilter !== "all") items.push(`Feed: ${state.homeFilter}`);
+  if (state.filter.date && state.filter.date !== "Any date") items.push(`Date: ${state.filter.date}`);
+  if (state.filter.time && state.filter.time !== "Any time") items.push(`Time: ${state.filter.time}`);
+  if (state.highlightedOnly) items.push("Highlighted only");
+  if (state.filter.category && state.filter.category !== "All categories") items.push(`Category: ${state.filter.category}`);
+  if (state.filter.price && state.filter.price !== "Any price") items.push(`Price: ${state.filter.price}`);
+  return items.length ? items : ["No filters selected"];
+}
+
+function openFilters() {
+  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","festivals","performing-arts","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
+    <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
+}
+
+function openNotifications() {
+  const requests = state.pendingRequests.map(request => `<div class="notification-card request-notification"><b>${request.type === "group" ? `${request.from} invited you to ${request.name}` : `${request.from} sent you a friend request`}</b><p>${request.detail}</p><small>${request.time}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`).join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests}<button class="notification-card" data-notification-group="Culture club"><b>New message in Culture club</b><p>Jules shared a gallery opening for Thursday.</p><small>34 minutes ago</small></button><div class="notification-card"><b>Jazz on the Hill starts soon</b><p>Your saved event begins at 7:30 PM.</p><small>Tonight</small></div></section></div>`;
+}
+
+function profilePlanIds() {
+  return Array.from(new Set([1, 3, 5, ...state.rsvps])).filter(id => !state.removedPlans?.has(id));
+}
+
+function openProfileList(type) {
+  const plans = profilePlanIds();
+  const rows = type === "groups"
+    ? userGroupNames().map(name => `<div class="managed-list-row"><span><b>${name}</b><small>Group conversation</small></span><div><button class="text-button" data-open-group="${name}">Open conversation</button><button class="text-button danger-text" data-profile-leave-group="${name}">Leave group</button></div></div>`).join("")
+    : plans.map(id => { const event = events.find(item => item.id === id); return `<div class="managed-list-row"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`; }).join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${type[0].toUpperCase()+type.slice(1)}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
+}
+
+
+
+function openDetail(id) {
+  const e = events.find(event => event.id === Number(id));
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${e.title}">
+    <div class="detail-hero cat-${e.cat}"><button class="modal-close" aria-label="Close detail">&times;</button><p>${e.tag} / ${e.area}</p><h1>${e.title}</h1></div>
+    <div class="detail-body"><p class="event-meta">${e.time} / ${e.price}</p><h2>${e.venue}</h2>
+    ${e.friends.length ? `<div class="attendee-line">${avatarStack(e.friends)} ${e.friends.map(f => friendNames[f]).join(", ")} ${e.friends.length === 1 ? "saved this" : "are going"}</div>` : ""}
+    <p class="detail-description">${e.desc}</p>
+    <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved" : "Save"}</button><button class="action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going" : "RSVP"}</button><button class="primary" data-share="${e.id}">Share to group</button></div>
+    <button class="wide-button" data-ticket>Get tickets / details</button></div>
+  </section></div>`;
+}
+
+function openShareSheet(id) {
+  const e = events.find(event => event.id === Number(id));
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
+    <button class="modal-close" aria-label="Close sharing">&times;</button>
+    <p class="eyebrow">Send a plan</p><h2>Share ${e.title}</h2><p class="lede">Search for the group you want to send this event to.</p>
+    <label class="search-box social-search"><span>⌕</span><input data-share-group-search data-event-id="${e.id}" placeholder="Search your groups" aria-label="Search your groups"></label>
+    <div class="share-group-results" data-share-group-results><p class="section-helper">Start typing to find a group.</p></div>
+  </section></div>`;
+}
+
+
+
+function renderOnboarding() {
+  const steps = [
+    { type: "welcome", title: "Your city,<br>in motion.", text: "Find the things worth leaving the house for, and see what your friends are into." },
+    { type: "account", title: "Create your account.", text: "A few basics, then we'll get your feed started." },
+    { title: "What are you into?", text: "Pick as many as you like. You can fine-tune these any time.", options: ["Live music", "Restaurants", "Bars", "Coffee", "Art + museums", "Sports", "Fitness", "Markets", "Comedy", "Community", "Free events", "Nightlife"] },
+    { title: "Are you new to the city?", text: "This helps Lokal balance essentials with the under-the-radar picks.", options: ["Just moved here", "Still exploring", "DC local", "Visiting"] },
+    { type: "contacts", title: "Find your people.", text: "See what friends save, build groups, and make plans without starting a new group chat." }
+  ];
+  const s = steps[state.onboardStep];
+  const content = s.type === "welcome" ? `<div class="intro-art"><span>LOKAL</span></div><button class="wide-button" data-next>Get started</button>`
+    : s.type === "account" ? `<div class="account-fields"><input data-signup-full-name placeholder="Full name" aria-label="Full name" autocomplete="name"><input data-signup-phone placeholder="Phone number" type="tel" inputmode="numeric" aria-label="Phone number" autocomplete="tel"><input data-signup-username placeholder="Public username" aria-label="Public username" autocomplete="username"><label class="birth-field">Birthday<input data-signup-birthdate type="date" aria-label="Birthday" autocomplete="bday"></label><input data-signup-password placeholder="Create a password" type="password" aria-label="Create a password" autocomplete="new-password"><small>Birthday must be in the past and age 14+. Phone numbers use (xxx) xxx-xxxx format.</small><p class="account-error" data-account-error></p></div><button class="wide-button" data-create-account>Create account</button>`
+    : s.type === "contacts" ? `<div class="contacts-art">${avatarStack(["AL","MR","DV","JS"])}</div><button class="wide-button" data-next>Sync contacts</button><button class="skip-button" data-next>Maybe later</button>`
+    : `<div class="select-grid preference-grid">${s.options.map(o => `<button class="select-tile" data-select="${o}">${o}</button>`).join("")}</div><button class="wide-button" data-next disabled>Keep going</button>`;
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">${state.onboardStep === 0 ? "WELCOME TO LOKAL" : `STEP ${state.onboardStep} OF 4`}</p><h1>${s.title}</h1><p class="lede">${s.text}</p>${content}</section></div>`);
+}
+
+function renderPhoneVerification() {
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">VERIFY YOUR NUMBER</p><h1>${demoAuthConfig.useMockOtp ? "Demo verification." : "Check your messages."}</h1><p class="lede">${demoAuthConfig.useMockOtp ? `This shareable demo does not send texts. Use code <b>${demoAuthConfig.mockOtp}</b> for the mock profile tied to ${state.pendingSignupPhone}.` : `Enter the verification code sent to ${state.pendingSignupPhone}.`}</p><div class="account-fields"><input data-signup-code inputmode="numeric" autocomplete="one-time-code" placeholder="Verification code" aria-label="Verification code"><p class="account-error" data-account-error></p></div><button class="wide-button" data-verify-phone>Verify phone number</button></section></div>`);
+}
+
+function toast(message) {
+  const el = document.querySelector("#toast");
+  el.textContent = message; el.classList.add("show");
+  clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => el.classList.remove("show"), 1900);
+}
+
+function showWelcomeBanner() {
+  const existing = document.querySelector(".welcome-banner");
+  if (existing) existing.remove();
+  const firstName = state.profile.fullName.split(" ")[0] || "there";
+  document.body.insertAdjacentHTML("afterbegin", `<div class="welcome-banner">Keep Exploring, <span>${escapeHtml(firstName)}</span></div>`);
+  setTimeout(() => document.querySelector(".welcome-banner")?.classList.add("visible"), 30);
+  setTimeout(() => document.querySelector(".welcome-banner")?.classList.remove("visible"), 2100);
+  setTimeout(() => document.querySelector(".welcome-banner")?.remove(), 2600);
+}
+
+function setRoute(route) {
+  if (route === "map") route = "home";
+  state.route = route;
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
+  ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
+}
+
+
+
+document.addEventListener("click", async event => {
+  if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
+  const t = event.target.closest("button");
+  if (!t) return;
+  let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
+  const mark = () => { handled = true; };
+  if (t.dataset.route) { mark(); setRoute(t.dataset.route); }
+  if (t.dataset.homeFilter) { state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
+  if (t.dataset.event) { mark(); openDetail(t.dataset.event); }
+  if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
+  if (t.dataset.save) { const id = Number(t.dataset.save); state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id); openDetail(id); toast(state.saved.has(id) ? "Saved for later" : "Removed from saved"); }
+  if (t.dataset.rsvp) { const id = Number(t.dataset.rsvp); state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id); openDetail(id); toast(state.rsvps.has(id) ? "You are in" : "RSVP removed"); }
+  if (t.dataset.share) openShareSheet(t.dataset.share);
+  if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; openGroup(group); toast(`Event sent to ${group}`); }
+  if (t.dataset.copyLink !== undefined) { mark(); try { await navigator.clipboard?.writeText(location.href); } catch {} toast("Demo link copied"); }
+  if (t.dataset.addFriendsLink !== undefined) { mark(); openSimpleSheet("Add friends", "Share this link to invite someone to Lokal. After installing the app, they will be connected to your profile.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button>`); }
+  if (t.dataset.copyAppInvite !== undefined) { mark(); try { await navigator.clipboard?.writeText("https://lokal.app/join"); } catch {} toast("App invite link copied"); }
+  if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
+  if (t.dataset.notifications !== undefined) openNotifications();
+  if (t.dataset.moreFilters !== undefined) openFilters();
+  if (t.dataset.refreshEvents !== undefined) syncSupabaseEvents(true);
+  if (t.dataset.location !== undefined) toast("Location enabled for nearby events");
+  if (t.dataset.mapArea !== undefined) { mark(); const input = document.querySelector("[data-map-search]"); state.mapSearch = input?.value.trim() || ""; applyMapSearch(); renderMap(); toast(state.mapSearch ? `Showing ${state.mapSearch}` : "Showing all DC events"); }
+  if (t.dataset.mapZoom) { mark(); if (t.dataset.mapZoom === "reset") { state.mapZoom = 1; state.mapSearch = ""; state.mapCenter = { x: 50, y: 50 }; } renderMap(); }
+  if (t.dataset.createGroup !== undefined) openCreateGroup();
+  if (t.dataset.groupType) { state.groupType = t.dataset.groupType; document.querySelectorAll(".group-type").forEach(button => button.classList.toggle("selected", button.dataset.groupType === state.groupType)); }
+  if (t.dataset.saveGroup !== undefined) { const input = document.querySelector("[data-group-name]"); const name = input?.value.trim() || "New Lokal group"; const labels = { private: "Private", event: "Event chat", public: "Public" }; if (state.leftGroups.has(name)) { toast("Choose a different group name"); return; } state.newGroups.unshift({ name, type: labels[state.groupType] }); if (state.groupType === "private" && !state.privateGroupMembers[name]) state.privateGroupMembers[name] = ["You"]; modalRoot.innerHTML = ""; state.socialTab = "groups"; renderSocial(); toast(`${name} created`); }
+  if (t.dataset.openGroup) openGroup(t.dataset.openGroup);
+  if (t.dataset.openFriend) openFriend(t.dataset.openFriend);
+  if (t.dataset.invite !== undefined) openInvite(t.dataset.groupName);
+  if (t.dataset.backGroup) openGroup(t.dataset.backGroup);
+  if (t.dataset.copyInvite !== undefined) toast("Invite link copied");
+  if (t.dataset.addInvite !== undefined) { mark(); t.textContent = "Added"; t.classList.add("selected"); toast("Friend invited"); }
+  if (t.dataset.invitePeopleOption) { const group = t.dataset.groupName; addFriendToPrivateGroup(group, t.dataset.invitePeopleOption); if (state.route === "social") renderSocial(); const selected = document.querySelector("[data-selected-invite-people]"); const input = document.querySelector("[data-invite-people-search]"); if (selected && !selected.textContent.includes(t.dataset.invitePeopleOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.invitePeopleOption}</span>`); if (input) input.value = ""; const results = document.querySelector("[data-invite-people-results]"); if (results) { results.hidden = true; results.innerHTML = ""; } toast(`${t.dataset.invitePeopleOption} added to ${group}`); }
+  if (t.dataset.groupFriendOption) { const selected = document.querySelector("[data-selected-group-friends]"); const input = document.querySelector("[data-create-friends]"); if (selected && !selected.textContent.includes(t.dataset.groupFriendOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.groupFriendOption}</span>`); if (input) input.value = ""; const autocomplete = document.querySelector("[data-autocomplete]"); if (autocomplete) { autocomplete.hidden = true; autocomplete.innerHTML = ""; } toast(`${t.dataset.groupFriendOption} added to group`); }
+  if (t.dataset.addAdventure) { const name = t.dataset.addAdventure; state.friends.add(name); t.textContent = "Add to group"; t.setAttribute("aria-label", `Add ${name} to group`); t.dataset.inviteFriend = name; delete t.dataset.addAdventure; t.classList.add("selected"); toast(`${name} added as friend`); return; }
+  if (t.dataset.seeAllFriends !== undefined) openAllFriends();
+  if (t.dataset.viewMoreGroups !== undefined) { state.showAllGroups = !state.showAllGroups; renderSocial(); }
+  if (t.dataset.schedule !== undefined) { mark(); openSimpleSheet("Schedule an event", "Add an event for the group and let members know when it is happening.", `<label class="settings-field">Event name<input placeholder="Event name"></label><label class="settings-field">Date and time<input type="datetime-local"></label><button class="wide-button" data-confirm-schedule>Schedule event</button>`); }
+  if (t.dataset.confirmSchedule !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Event scheduled for the group"); }
+  if (t.dataset.shareGroupEvent !== undefined) { mark(); const group = t.dataset.shareGroupEvent; openSimpleSheet("Share an event", "Choose an event to send to this group.", `<div class="interest-list"><button class="interest-event" data-send-event="4" data-group-name="${group}"><span><b>Skyline Social</b><small>Friday / Viceroy Rooftop</small></span></button><button class="interest-event" data-send-event="8" data-group-name="${group}"><span><b>Fresh Air Cinema</b><small>Sunday / Alethia Tanner Park</small></span></button></div>`); }
+  if (t.dataset.sendEvent !== undefined) { mark(); const group = t.dataset.groupName; const eventId = Number(t.dataset.sendEvent); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Event added to group messages"); }
+  if (t.dataset.joinGroup) { if (state.leftGroups.has(t.dataset.joinGroup)) { toast("You left this group"); return; } state.joinedGroups.add(t.dataset.joinGroup); if (state.route === "social") renderSocial(); openGroup(t.dataset.joinGroup); toast("Group joined"); }
+  if (t.dataset.groupOptions) { modalRoot.innerHTML += `<div class="options-menu"><button data-pin-group="${t.dataset.groupOptions}">${state.pinnedGroups.has(t.dataset.groupOptions) ? "Unpin group" : "Pin group"}</button><button data-leave-group="${t.dataset.groupOptions}">Leave group</button></div>`; }
+  if (t.dataset.pinGroup) { state.pinnedGroups.has(t.dataset.pinGroup) ? state.pinnedGroups.delete(t.dataset.pinGroup) : state.pinnedGroups.add(t.dataset.pinGroup); modalRoot.innerHTML = ""; renderSocial(); toast("Group list updated"); }
+  if (t.dataset.leaveGroup) { removeGroupMembership(t.dataset.leaveGroup); modalRoot.innerHTML = ""; renderSocial(); toast("You left the group"); }
+  if (t.dataset.profileLeaveGroup) { removeGroupMembership(t.dataset.profileLeaveGroup); renderProfile(); openProfileList("groups"); toast(`Left ${t.dataset.profileLeaveGroup}`); }
+  if (t.dataset.seeMorePublicGroups !== undefined) openPublicGroupDirectory();
+  if (t.dataset.removePlan) { if (!state.removedPlans) state.removedPlans = new Set(); state.removedPlans.add(Number(t.dataset.removePlan)); state.rsvps.delete(Number(t.dataset.removePlan)); renderProfile(); openProfileList("plans"); toast("Plan removed"); }
+  if (t.dataset.groupView) { document.querySelectorAll("[data-group-view]").forEach(button => button.classList.toggle("selected", button.dataset.groupView === t.dataset.groupView)); document.querySelectorAll("[data-group-panel]").forEach(panel => panel.hidden = panel.dataset.groupPanel !== t.dataset.groupView); }
+  if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { state.groupMessages[group] = [{ type: "text", text: input.value.trim() }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
+  if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); renderSocial(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
+  if (t.dataset.friend !== undefined) toast("Friend connection settings");
+  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterValue === "Choose a date") document.querySelector("[data-calendar]").hidden = false; }
+  if (t.dataset.calendarDate) { document.querySelectorAll("[data-calendar-date]").forEach(day => day.classList.remove("selected")); t.classList.add("selected"); state.filter.date = t.dataset.calendarDate; }
+  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.profileList) openProfileList(t.dataset.profileList);
+  if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
+  if (t.dataset.tasteChoice) {
+    mark();
+    const selected = [...document.querySelectorAll("[data-taste-choice].selected")];
+    if (!t.classList.contains("selected") && selected.length >= 5) { toast("Choose up to 5 tastes"); return; }
+    t.classList.toggle("selected");
+    const count = document.querySelector("[data-taste-count]");
+    if (count) count.textContent = `${document.querySelectorAll("[data-taste-choice].selected").length}/5 selected`;
+  }
+  if (t.dataset.saveTastes !== undefined) {
+    mark();
+    const choices = [...document.querySelectorAll("[data-taste-choice].selected")].map(button => button.dataset.tasteChoice);
+    if (!choices.length) { toast("Pick at least one taste"); return; }
+    state.tastes = choices;
+    state.profile = { ...state.profile, tastes: choices };
+    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
+    modalRoot.innerHTML = "";
+    renderProfile();
+    toast("Tastes updated");
+  }
+  if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); openGroup(request.name); } else if (request?.type === "friend") { state.friends.add(request.name); openFriend(request.name); } toast("Request accepted"); }
+  if (t.dataset.declineRequest) { state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.declineRequest); openNotifications(); toast("Request declined"); }
+  if (t.dataset.notificationProfile !== undefined) { modalRoot.innerHTML = ""; setRoute("profile"); toast("Profile activity opened"); }
+  if (t.dataset.notificationGroup) { modalRoot.innerHTML = ""; openGroup(t.dataset.notificationGroup); toast(`Opened ${t.dataset.notificationGroup}`); }
+  if (t.dataset.story !== undefined) openStory(t.dataset.story);
+  if (t.dataset.storyPrev !== undefined) openStory(Number(t.dataset.storyPrev) - 1);
+  if (t.dataset.storyNext !== undefined) openStory(Number(t.dataset.storyNext) + 1);
+  if (t.dataset.directInbox !== undefined) { mark(); openDirectInbox(); }
+  if (t.dataset.openDirectChat) { mark(); openDirectChat(t.dataset.openDirectChat); }
+  if (t.dataset.messageFriend) { mark(); openDirectChat(t.dataset.messageFriend); }
+  if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text: input.value.trim() }]; openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
+  if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>⌕</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
+  if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
+  if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
+  if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
+  if (t.dataset.settingsPage) { mark(); const pages = { notifications:["Notification settings","Choose which updates you receive: group messages, invitations, friend requests, and event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."], faq:["FAQ","Find answers about accounts, groups, events, and Lokal scores."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); }
+  if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Deactivate account", "Your profile will be hidden until you sign back in.", `<button class="danger-button" data-confirm-deactivate>Confirm deactivation</button>`); }
+  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
+  if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
+  if (t.dataset.saveSettings !== undefined) { const input = document.querySelector("[data-age-input]"); const bio = document.querySelector("[data-bio-input]"); if (input) state.age = Math.max(13, Number(input.value) || 27); if (bio?.value.trim()) state.bio = bio.value.trim(); state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes }; localStorage.setItem("lokalProfile", JSON.stringify(state.profile)); modalRoot.innerHTML = ""; renderProfile(); toast(state.age < 21 ? "Profile updated. 21+ picks hidden." : "Profile updated"); }
+  if (t.dataset.ticket !== undefined) toast("External ticket link opened in the real app");
+  if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
+  if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
+  if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }
+  if (t.dataset.select) { t.classList.toggle("selected"); state.selections.add(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = false; }
+  if (t.dataset.createAccount !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { const result = await createLokalAccount({ fullName: card.querySelector("[data-signup-full-name]").value.trim(), phone: card.querySelector("[data-signup-phone]").value.trim(), username: card.querySelector("[data-signup-username]").value.trim(), birthdate: card.querySelector("[data-signup-birthdate]").value, password: card.querySelector("[data-signup-password]").value }); document.querySelector(".onboarding").remove(); if (result.access_token) { finalizeLokalProfile(state.pendingSignupProfile); state.onboardStep++; renderOnboarding(); toast("Account created"); } else { renderPhoneVerification(); } } catch (accountError) { error.textContent = accountError.message; t.disabled = false; } }
+  if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 5) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); } }
+  if (!handled && !t.disabled) toast("Action opened");
+});
+
+let storyTouchStart = null;
+modalRoot.addEventListener("touchstart", event => {
+  if (event.target.closest("[data-story-sheet]")) storyTouchStart = event.changedTouches[0].clientX;
+}, { passive: true });
+modalRoot.addEventListener("touchend", event => {
+  const sheet = event.target.closest("[data-story-sheet]");
+  if (!sheet || storyTouchStart === null) return;
+  const distance = event.changedTouches[0].clientX - storyTouchStart;
+  storyTouchStart = null;
+  if (Math.abs(distance) < 45) return;
+  openStory(Number(sheet.dataset.storySheet) + (distance < 0 ? 1 : -1));
+}, { passive: true });
+
+document.addEventListener("input", event => {
+  const input = event.target;
+  if (input.matches("[data-group-search]")) {
+    const query = input.value.trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll("[data-group-card]").forEach(card => { const match = card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
+    const empty = document.querySelector("[data-group-empty]"); if (empty) empty.style.display = visible ? "none" : "block";
+  }
+  if (input.matches("[data-public-group-search]")) {
+    const query = input.value.trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll("[data-public-directory-card]").forEach(card => { const match = card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
+    const empty = document.querySelector("[data-public-group-empty]"); if (empty) empty.style.display = visible ? "none" : "block";
+  }
+  if (input.matches("[data-friend-search]")) {
+    const query = input.value.trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll("[data-friend-card]").forEach(card => { const match = card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
+    const empty = document.querySelector("[data-friend-empty]"); if (empty) empty.style.display = visible ? "none" : "block";
+  }
+  if (input.matches("[data-create-friends]")) {
+    const query = input.value.trim().toLowerCase();
+    const autocomplete = document.querySelector("[data-autocomplete]");
+    const matches = query ? friendDirectory.filter(friend => friend[1].toLowerCase().includes(query) || friend[2].toLowerCase().includes(query)).slice(0, 5) : [];
+    autocomplete.hidden = !matches.length;
+    autocomplete.innerHTML = matches.map(friend => `<button data-group-friend-option="${friend[1]}">${friend[1]} <small>${friend[2]}</small></button>`).join("");
+  }
+  if (input.matches("[data-invite-people-search]")) {
+    const query = input.value.trim().toLowerCase();
+    const results = document.querySelector("[data-invite-people-results]");
+    const matches = query ? friendDirectory.filter(friend => friend[1].toLowerCase().includes(query) || friend[2].toLowerCase().includes(query)).slice(0, 5) : [];
+    results.hidden = !matches.length;
+    results.innerHTML = matches.map(friend => `<button data-invite-people-option="${friend[1]}" data-group-name="${input.dataset.groupName}">${friend[1]} <small>${friend[2]}</small></button>`).join("");
+  }
+  if (input.matches("[data-discover-search]")) {
+    const query = input.value.trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll("#app .feed-event, #app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
+    const people = [["AL","Ana Lopez","@analopes"],["MR","Marcus Reed","@marcusdc"],["DV","Dev Shah","@devaroundtown"],["JS","Jules Kim","@julesk"],["PL","Priya Lee","@priyaleedc"]].filter(person => `${person[1]} ${person[2]}`.toLowerCase().includes(query));
+    const results = document.querySelector("[data-discover-results]");
+    if (results) { results.hidden = !query || !people.length; results.innerHTML = people.map(person => `<button class="follow-card" data-open-friend="${person[1]}"><span class="avatar">${person[0]}</span><span><b>${person[1]}</b><small>${person[2]}</small></span></button>`).join(""); }
+    const feed = document.querySelector(".feed-section");
+    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && people.length === 0);
+  }
+  if (input.matches("[data-share-group-search]")) {
+    const query = input.value.trim().toLowerCase();
+    const eventId = input.dataset.eventId;
+    const groups = ["Friday crew", "Culture club", "Skyline Social", ...state.newGroups.map(group => group.name)].filter(name => !state.leftGroups.has(name) && name.toLowerCase().includes(query));
+    const results = document.querySelector("[data-share-group-results]");
+    results.innerHTML = !query ? `<p class="section-helper">Start typing to find a group.</p>` : groups.length ? groups.map(name => `<button class="share-group" data-group-share="${name}" data-event-id="${eventId}"><span class="group-icon">${name[0]}</span><span class="share-group-copy"><h3>${name}</h3><p>Send event link to group messages</p></span><span class="share-arrow">+</span></button>`).join("") : `<p class="section-helper">No groups match that search.</p>`;
+  }
+  if (input.matches("[data-friend-group-search]")) {
+    const query = input.value.trim().toLowerCase();
+    const friend = input.dataset.friendName;
+    const groups = userGroupNames().filter(name => name.toLowerCase().includes(query));
+    const results = document.querySelector("[data-friend-group-results]");
+    results.innerHTML = !query ? `<p class="section-helper">Start typing to find a group.</p>` : groups.length ? groups.map(name => `<button class="share-group" data-confirm-invite-group="${name}" data-friend-name="${friend}"><span class="group-icon">${name[0]}</span><span class="share-group-copy"><h3>${name}</h3><p>Add ${friend} to this group</p></span><span class="share-arrow">+</span></button>`).join("") : `<p class="section-helper">No groups match that search.</p>`;
+  }
+  if (input.matches("[data-map-search]")) {
+    state.mapSearch = input.value;
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Enter" && event.target.matches("[data-map-search]")) {
+    state.mapSearch = event.target.value.trim();
+    applyMapSearch();
+    renderMap();
+    toast(state.mapSearch ? `Showing ${state.mapSearch}` : "Showing all DC events");
+  }
+});
+
+const activeMapPointers = new Map();
+let mapDragStart = null;
+let mapPinchStart = null;
+
+function mapPointerDistance() {
+  const points = [...activeMapPointers.values()];
+  if (points.length < 2) return 0;
+  return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+}
+
+document.addEventListener("pointerdown", event => {
+  const canvas = event.target.closest("[data-map-canvas]");
+  if (!canvas || event.target.closest("input, button")) return;
+  event.preventDefault();
+  try { canvas.setPointerCapture(event.pointerId); } catch {}
+  activeMapPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  if (activeMapPointers.size >= 2) {
+    mapPinchStart = { distance: mapPointerDistance(), zoom: state.mapZoom };
+    mapDragStart = null;
+    return;
+  }
+  mapDragStart = { x: event.clientX, y: event.clientY };
+  canvas.classList.add("dragging");
+});
+document.addEventListener("pointermove", event => {
+  if (!activeMapPointers.has(event.pointerId)) return;
+  event.preventDefault();
+  activeMapPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  const canvas = document.querySelector("[data-map-canvas]");
+  if (activeMapPointers.size >= 2 && mapPinchStart?.distance) {
+    const distance = mapPointerDistance();
+    setMapZoom(mapPinchStart.zoom * (distance / mapPinchStart.distance));
+    renderMap();
+    return;
+  }
+  if (!mapDragStart) return;
+  const deltaX = mapDragStart.x - event.clientX;
+  const deltaY = mapDragStart.y - event.clientY;
+  mapDragStart = { x: event.clientX, y: event.clientY };
+  panMap(deltaX, deltaY);
+  renderMap();
+  canvas?.classList.add("dragging");
+});
+function endMapPointer(event) {
+  if (event.pointerId !== undefined) activeMapPointers.delete(event.pointerId);
+  mapPinchStart = activeMapPointers.size >= 2 ? { distance: mapPointerDistance(), zoom: state.mapZoom } : null;
+  mapDragStart = activeMapPointers.size === 1 ? [...activeMapPointers.values()][0] : null;
+  if (activeMapPointers.size === 0) mapDragStart = null;
+  document.querySelector("[data-map-canvas]")?.classList.remove("dragging");
+}
+document.addEventListener("pointerup", endMapPointer);
+document.addEventListener("pointercancel", endMapPointer);
+document.addEventListener("wheel", event => {
+  const canvas = event.target.closest("[data-map-canvas]");
+  if (!canvas || event.target.closest("input")) return;
+  event.preventDefault();
+  if (event.ctrlKey) {
+    setMapZoom(state.mapZoom - event.deltaY * 0.006);
+  } else {
+    panMap(event.deltaX, event.deltaY);
+  }
+  renderMap();
+}, { passive: false });
+
+document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
+setRoute("home");
+if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
+syncSupabaseEvents();
+updateProfileShortcut();
+checkPhoneSignupStatus();
+showWelcomeBanner();
+
+
+    </script>
+  </body>
+</html>
+
+
+
