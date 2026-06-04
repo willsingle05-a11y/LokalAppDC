@@ -194,7 +194,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
   left: 10px;
   z-index: 12;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   width: min(calc(100% - 20px), 600px);
   height: 64px;
   margin: 0 auto;
@@ -485,7 +485,8 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 /* Round 2: palette, typography, and feature overrides */
 body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .app-shell { overflow-x: hidden; overflow-y: visible; padding-bottom: 78px; }
-.bottom-nav { position: fixed; }
+.bottom-nav { position: fixed; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.nav-item { min-width: 0; }
 .header-icon { color: var(--green); }
 .header-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
 .header-icon i { position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--orange); }
@@ -623,6 +624,20 @@ h1, h2, h3, .brand b, .nav-item, .nav-item.active { color: #111827; }
 .profile-avatar, .avatar-me, .group-icon { background: #111827; }
 .event-art, .cat-music, .cat-food, .cat-art, .cat-fitness { background: #111827; }
 .cat-nightlife { background: #111827; }
+.event-art {
+  background-position: center;
+  background-size: cover;
+}
+.event-art:before,
+.event-art:after {
+  display: none;
+}
+.art-label {
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, .55);
+  backdrop-filter: blur(6px);
+}
 .sync-note, .message, .selected-group-friends span, .calendar, .autocomplete, .member-line, .interest-event, .friend-feed-card, .message-empty { background: #f5f7fa; }
 .following-chip .group-icon { border-color: #e0eef7; }
 .event-row, .following-chip, .community-card, .follow-card, .stat-card, .activity-card, .group-card, .managed-list-row, .friend-request, .anchor-pick, .suggestion-card, .share-group, .search-box {
@@ -784,6 +799,23 @@ h1, h2, h3, .brand b { color: #326f91; }
   opacity: 1;
   transform: translate(-50%, 0);
 }
+
+.receipt {
+  width: 100%;
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  margin-bottom: 9px;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--paper);
+  text-align: left;
+}
+.receipt h3 { margin-bottom: 3px; }
+.receipt p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.35; }
+.attended-button { margin-bottom: 8px; }
+.attended-button.selected { background: #00c897; color: #fff; }
 
 /* Lokal logo from reference */
 .lokal-logo {
@@ -999,7 +1031,12 @@ let events = [...demoEvents];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
 const tasteOptions = ["Live music", "Food", "Art", "Patios", "Sports", "Run clubs", "Comedy", "Rooftops", "Museums", "Markets", "Outdoor movies", "Theater", "Coffee", "Dancing", "Trivia", "Book clubs", "Wellness", "Volunteering", "Pop-ups", "Free events", "Low-key hangs", "New in town", "Wine bars", "Cocktail bars", "Jazz", "DJs", "Karaoke", "Festivals", "Street fairs", "Farmers markets", "Classes", "Networking", "Dating-friendly", "Family-friendly", "Dog-friendly", "Brunch", "Late night food", "Speakeasies", "Gallery openings", "History", "Parks", "Pickleball", "Yoga", "Board games", "LGBTQ+ events", "College events", "Professional mixers"];
-const state = { route: "home", socialTab: "groups", homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"] }, filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres", "Priya Lee"]), saved: new Set(), rsvps: new Set(), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "group-friday", type: "group", name: "Friday crew", from: "Ana", detail: "Ana invited you to join Friday crew.", time: "12 minutes ago" }, { id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const defaultReceipts = [
+  { id: "receipt-songbyrd", title: "Flashband at Songbyrd", time: "May 24, 8:00 PM", venue: "Songbyrd Music House", price: "$18", cat: "concerts", desc: "A saved memory from a local show. Receipts will work the same way for future events once you mark that you went.", friends: ["AL", "DV"], attendedAt: new Date("2026-05-24T20:00:00").getTime() },
+  { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
+  { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
+];
+const state = { route: "home", socialTab: "groups", homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"] }, filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres", "Priya Lee"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "group-friday", type: "group", name: "Friday crew", from: "Ana", detail: "Ana invited you to join Friday crew.", time: "12 minutes ago" }, { id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 
@@ -1017,12 +1054,32 @@ function eventVisualCategory(event) {
   return map[event.cat] || event.cat;
 }
 
+function genericEventArt(event) {
+  const art = {
+    concerts: { label: "Live stage", color: "#00c897", icon: "M 20 70 C 38 36 62 36 80 70 M 34 42 L 34 22 L 62 30 L 62 52 M 30 78 L 70 78" },
+    "performing-arts": { label: "Curtain call", color: "#5f9fc3", icon: "M 22 28 Q 50 12 78 28 L 70 76 Q 50 64 30 76 Z M 36 39 Q 50 48 64 39" },
+    sports: { label: "Game day", color: "#00e5a8", icon: "M 50 18 A 32 32 0 1 1 49 18 M 22 50 H 78 M 50 18 C 36 36 36 64 50 82 M 50 18 C 64 36 64 64 50 82" },
+    festivals: { label: "Festival lights", color: "#3a7ca5", icon: "M 18 36 C 34 22 66 22 82 36 M 24 48 H 76 M 30 48 V 78 M 70 48 V 78 M 39 35 V 78 M 61 35 V 78" },
+    community: { label: "Around town", color: "#00c897", icon: "M 24 76 V 34 H 48 V 76 M 52 76 V 24 H 76 V 76 M 31 44 H 41 M 59 34 H 69 M 59 47 H 69" },
+    expos: { label: "Show floor", color: "#5f9fc3", icon: "M 22 28 H 78 V 76 H 22 Z M 30 40 H 70 M 30 52 H 70 M 30 64 H 54" }
+  };
+  const item = art[event.cat] || art.community;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='${item.color}'/><circle cx='74' cy='20' r='18' fill='rgba(255,255,255,.16)'/><circle cx='25' cy='74' r='24' fill='rgba(255,255,255,.14)'/><path d='${item.icon}' fill='none' stroke='white' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+function eventArtImage(event) {
+  if (event.image) return `url("${String(event.image).replace(/"/g, "%22")}")`;
+  return genericEventArt(event);
+}
+
 function eventRow(event) {
   const signal = event.friends.length ? `<div class="signal">${avatarStack(event.friends)} ${event.friends.map(f => friendNames[f]).join(" + ")} ${event.friends.length === 1 ? "saved this" : "are going"}</div>` : "";
   const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
   const attachedGroup = event.id === 3 ? `<div class="signal">Hosted by public group: DC Run Club</div>` : event.id === 4 ? `<div class="signal">Join the Skyline Social event chat</div>` : "";
+  const image = eventArtImage(event);
   return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag}`.toLowerCase()}">
-    <span class="event-art cat-${eventVisualCategory(event)}"><span class="art-label">${event.tag}</span></span>
+    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};"><span class="art-label">${event.tag}</span></span>
     <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p>${signal}${attachedGroup}</span>
   </button>`;
 }
@@ -1057,6 +1114,46 @@ function eventStartSortValue(event) {
   return dayOrder * 24 * 60 * 60 * 1000 + (hour ?? 24) * 60 * 60 * 1000;
 }
 
+function eventDateValue(event) {
+  if (event.startDate) {
+    const date = new Date(`${event.startDate}T00:00:00`);
+    if (!Number.isNaN(date.getTime())) return date;
+  }
+  if (Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER) {
+    const date = new Date(event.startSort);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+  return null;
+}
+
+function sameCalendarDate(a, b) {
+  return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+function matchesDateFilter(event, value) {
+  if (!value || value === "Any date") return true;
+  const eventDate = eventDateValue(event);
+  if (!eventDate) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (value === "Today") return sameCalendarDate(eventDate, today);
+  if (value === "This week") {
+    const weekEnd = new Date(today);
+    weekEnd.setDate(today.getDate() + 6);
+    return eventDate >= today && eventDate <= weekEnd;
+  }
+  if (value === "This weekend") {
+    const saturday = new Date(today);
+    saturday.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7));
+    const sunday = new Date(saturday);
+    sunday.setDate(saturday.getDate() + 1);
+    return sameCalendarDate(eventDate, saturday) || sameCalendarDate(eventDate, sunday);
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return event.startDate === value || sameCalendarDate(eventDate, new Date(`${value}T00:00:00`));
+  return true;
+}
+
 function sortEventsByStart(a, b) {
   const startDelta = eventStartSortValue(a) - eventStartSortValue(b);
   if (startDelta !== 0) return startDelta;
@@ -1079,12 +1176,11 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (state.age < 21 && event.cat === "nightlife") return false;
   if (applyDiscoverFilters && state.highlightedOnly && !isHighlighted(event)) return false;
   if (applyDiscoverFilters && state.filter.category && state.filter.category !== "All categories" && event.cat !== state.filter.category) return false;
+  if (applyDiscoverFilters && !matchesDateFilter(event, state.filter.date)) return false;
   if (applyDiscoverFilters && !matchesTimeFilter(event, state.filter.time)) return false;
   if (applyDiscoverFilters && state.filter.price === "Free" && event.price !== "Free") return false;
   if (applyDiscoverFilters && state.filter.price === "Under $20" && (priceValue === null || priceValue >= 20)) return false;
   if (applyDiscoverFilters && state.filter.price === "Under $50" && (priceValue === null || priceValue >= 50)) return false;
-  if (applyDiscoverFilters && state.filter.date === "Today" && !event.time.startsWith("Tonight")) return false;
-  if (applyDiscoverFilters && state.filter.date === "This weekend" && event.time.startsWith("Tonight")) return false;
   if (filter === "all" || filter === "for-you") return true;
   if (filter === "nearby") return true;
   if (filter === "weekend") return !event.time.startsWith("Tonight");
@@ -1143,27 +1239,36 @@ function normalizeSupabasePriceFromRow(row) {
 
 function cleanSupabaseDescription(value) {
   const cleaned = String(value || "")
-    .replace(/^Sourced from predicthq\.com\s*-\s*/i, "")
-    .replace(/^Sourced from predicthq\.com\.?\s*/i, "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\.?\s*/i, "")
+    .replace(/\s*Sourced from [\w.-]+(?:\.com)?\.?\s*/ig, " ")
     .trim();
   return cleaned || "More details are coming soon.";
+}
+
+function cleanImportedText(value) {
+  return String(value || "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\.?\s*/i, "")
+    .replace(/\s*Sourced from [\w.-]+(?:\.com)?\.?\s*/ig, " ")
+    .trim();
 }
 
 function isAddressOnlyVenue(value) {
   return /United States of America|Washington, DC 20|Street |Avenue |Road |Northwest|Northeast|Southwest|Southeast|^\d+\s/i.test(String(value || ""));
 }
 
-function rawPredictHqAddress(row) {
+function rawEventApiAddress(row) {
   return row.raw_json?.geo?.address?.formatted_address || row.raw_json?.entities?.find(entity => entity.formatted_address)?.formatted_address || "";
 }
 
-function rawPredictHqVenueName(row) {
+function rawEventApiVenueName(row) {
   const entity = row.raw_json?.entities?.find(item => ["venue", "place"].includes(item.type) && item.name && !isAddressOnlyVenue(item.name));
   return entity?.name || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
 }
 
 function inferVenueNameFromText(value) {
-  const text = String(value || "").replace(/^Sourced from predicthq\.com\s*-\s*/i, "");
+  const text = cleanImportedText(value);
   const patterns = [
     /\bat\s+([A-Z][A-Za-z0-9&'â€™.\- ]{2,70}?)(?:[.,!|]| for | with | featuring | in Washington| in D\.C\.|$)/,
     /\b@\s*([A-Z][A-Za-z0-9&'â€™.\- ]{2,70}?)(?:[.,!|]|$)/,
@@ -1178,14 +1283,14 @@ function inferVenueNameFromText(value) {
 }
 
 function normalizeSupabaseVenue(row) {
-  const venue = row.venue_name || row.venue || row.location_name || "";
-  if (row.source === "predicthq" && isAddressOnlyVenue(venue)) return rawPredictHqVenueName(row) || "Location in description";
-  return venue || rawPredictHqVenueName(row) || "Location in description";
+  const venue = cleanImportedText(row.venue_name || row.venue || row.location_name || "");
+  if (row.source !== "manual" && isAddressOnlyVenue(venue)) return rawEventApiVenueName(row) || "Location in description";
+  return venue || rawEventApiVenueName(row) || "Location in description";
 }
 
 function normalizeSupabaseDescription(row) {
   const description = cleanSupabaseDescription(row.description || row.desc);
-  const address = rawPredictHqAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
+  const address = rawEventApiAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
   if (!address || description.includes(address)) return description;
   return `${description}\n\nAddress: ${address}`;
 }
@@ -1229,16 +1334,16 @@ function isEventUpcoming(event) {
   return event.hasPreciseStart ? event.startSort >= Date.now() : event.startSort >= startOfTodaySortValue();
 }
 
-function normalizePredictHqCategory(row) {
-  const predictHqCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
+function normalizeImportedCategory(row) {
+  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
   const tag = String(row.tag || "").toLowerCase();
   const category = String(row.category || row.cat || "community").toLowerCase();
-  if (row.source === "predicthq" && predictHqCategories.has(tag)) return tag;
+  if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   return category;
 }
 
 function normalizeSupabaseEvent(row, index) {
-  const category = normalizePredictHqCategory(row);
+  const category = normalizeImportedCategory(row);
   return {
     id: 1000 + index,
     sourceId: row.id,
@@ -1247,12 +1352,14 @@ function normalizeSupabaseEvent(row, index) {
     venue: normalizeSupabaseVenue(row),
     area: row.neighborhood || row.area || row.location || "Washington, DC",
     time: row.date && row.time ? `${formatSupabaseDate(row.date)}, ${String(row.time).trim()}` : row.time || formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date),
+    startDate: row.date || "",
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
     hasPreciseStart: Boolean(row.starts_at || row.start_time || row.start_at),
     price: normalizeSupabasePriceFromRow(row),
     cat: category,
     tag: row.tag || row.category || "Local event",
+    image: row.image_url || row.image || row.raw_json?.image_url || row.raw_json?.images?.[0]?.url || row.raw_json?.images?.[0] || "",
     friends: Array.isArray(row.friends) ? row.friends : [],
     desc: normalizeSupabaseDescription(row)
   };
@@ -1270,7 +1377,7 @@ async function syncSupabaseEvents(showToast = false) {
     if (rows.length) {
       const normalized = rows.map(normalizeSupabaseEvent);
       const upcoming = normalized.filter(isEventUpcoming);
-      events = upcoming.filter(event => event.source !== "predicthq" || event.venue !== "Location in description");
+      events = upcoming.filter(event => event.source === "manual" || event.venue !== "Location in description");
       const hiddenCount = rows.length - events.length;
       const shownLabel = `${events.length} upcoming event${events.length === 1 ? "" : "s"} shown`;
       state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} older or incomplete row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };
@@ -1711,18 +1818,76 @@ function renderSocial() {
 
 function renderProfile() {
   const tasteChips = state.tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("");
+  const receipts = profileReceipts();
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><span class="lokal-score">128 <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><span class="lokal-score">${lokalScore()} <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(state.bio)}</p>
     <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tasteChips}<button class="chip" data-edit-tastes>Edit</button></div>
     <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="groups"><b>${userGroupNames().length}</b><small>Groups</small></button></div>
-    <p class="eyebrow">Best friends</p><div class="best-friends-list">${[["AL","Ana Lopez","18 shared activities"],["MR","Marcus Reed","14 shared activities"],["DV","Dev Shah","11 shared activities"],["JS","Jules Kim","9 shared activities"],["PL","Priya Lee","7 shared activities"]].map((friend,index) => `<div class="best-friend-row"><b>${index + 1}</b><span class="avatar">${friend[0]}</span><span><strong>${friend[1]}</strong><small>${friend[2]}</small></span></div>`).join("")}</div>
+    <p class="eyebrow">Best friends</p><div class="best-friends-list">${bestFriendsList().map((friend,index) => `<div class="best-friend-row"><b>${index + 1}</b><span class="avatar">${friend.initials}</span><span><strong>${friend.name}</strong><small>${friend.score} shared activit${friend.score === 1 ? "y" : "ies"}</small></span></div>`).join("")}</div>
     <p class="eyebrow">Your receipt</p><h2>Recently attended</h2>
-    <div class="receipt"><div class="date-block">May<b>24</b></div><div><h3>Flashband at Songbyrd</h3><p>Live music / Adams Morgan / with Ana + Dev</p></div></div>
-    <div class="receipt"><div class="date-block">May<b>18</b></div><div><h3>Open Streets DC</h3><p>Community / Shaw / with Marcus</p></div></div>
-    <div class="receipt"><div class="date-block">May<b>09</b></div><div><h3>After Dark at the Hirshhorn</h3><p>Art / The Mall / with Jules + 3 others</p></div></div>
+    <div class="receipt-list">${receipts.map(receiptRow).join("") || `<p class="section-helper">Mark an event as attended and it will show here.</p>`}</div>
   </section>`;
+}
+
+function fullFriendName(initials) {
+  return ({ AL: "Ana Lopez", MR: "Marcus Reed", DV: "Dev Shah", JS: "Jules Kim", PL: "Priya Lee" }[initials] || friendNames[initials] || initials);
+}
+
+function lokalScore() {
+  return 100 + profileReceipts().length * 12 + state.rsvps.size * 2 + state.saved.size;
+}
+
+function profileReceipts() {
+  const stored = state.receipts || [];
+  const attendedRows = Array.from(state.attended || []).map(id => {
+    const event = events.find(item => item.id === Number(id));
+    if (!event) return null;
+    return { id: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  }).filter(Boolean);
+  return [...stored, ...attendedRows]
+    .filter((receipt, index, all) => all.findIndex(item => String(item.id) === String(receipt.id)) === index)
+    .sort((a, b) => (b.attendedAt || 0) - (a.attendedAt || 0));
+}
+
+function receiptRow(receipt) {
+  const date = receipt.attendedAt ? new Date(receipt.attendedAt) : new Date();
+  const month = date.toLocaleDateString("en-US", { month: "short" });
+  const day = date.toLocaleDateString("en-US", { day: "2-digit" });
+  const people = receipt.friends?.length ? `with ${receipt.friends.map(fullFriendName).join(" + ")}` : "solo plan";
+  return `<button class="receipt" data-receipt-event="${receipt.id}"><div class="date-block">${month}<b>${day}</b></div><div><h3>${escapeHtml(receipt.title)}</h3><p>${escapeHtml(receipt.cat)} / ${escapeHtml(receipt.venue)} / ${escapeHtml(people)}</p></div></button>`;
+}
+
+function bestFriendsList() {
+  const base = { "Ana Lopez": 18, "Marcus Reed": 14, "Dev Shah": 11, "Jules Kim": 9, "Priya Lee": 7 };
+  profileReceipts().forEach(receipt => (receipt.friends || []).forEach(initials => {
+    const name = fullFriendName(initials);
+    base[name] = (base[name] || 0) + 1;
+  }));
+  return Object.entries(base)
+    .map(([name, score]) => ({ name, score, initials: friendInitials(name) }))
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .slice(0, 5);
+}
+
+function markEventAttended(id) {
+  const event = events.find(item => item.id === Number(id));
+  if (!event) return;
+  state.attended.add(event.id);
+  state.rsvps.delete(event.id);
+  const receipt = { id: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  state.receipts = [receipt, ...(state.receipts || []).filter(item => Number(item.id) !== Number(event.id))];
+  localStorage.setItem("lokalAttended", JSON.stringify(Array.from(state.attended)));
+  localStorage.setItem("lokalReceipts", JSON.stringify(state.receipts));
+}
+
+function openReceipt(id) {
+  const receipt = profileReceipts().find(item => String(item.id) === String(id));
+  const event = events.find(item => item.id === Number(id)) || receipt;
+  const people = receipt?.friends?.length ? receipt.friends.map(fullFriendName).join(", ") : "Just you";
+  const eventButton = events.some(item => item.id === Number(id)) ? `<button class="wide-button" data-event="${event.id}">Open event details</button>` : "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(event.time || "")} / ${escapeHtml(event.price || "")}</p><h3>${escapeHtml(event.venue || "")}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
 }
 
 function openTasteEditor() {
@@ -1766,7 +1931,8 @@ function rollingCalendar() {
     }
     month.days.push({ iso: date.toISOString().slice(0, 10), label: date.getDate() });
   }
-  return `<div class="calendar" data-calendar hidden><p class="calendar-helper">Choose any date from today through ${end.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.</p>${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
+  const chosenDate = /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "") ? state.filter.date : "";
+  return `<div class="calendar" data-calendar ${chosenDate ? "" : "hidden"}><p class="calendar-helper">Choose any date from today through ${end.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.</p>${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${day.iso === chosenDate ? "selected" : ""}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
 }
 
 function activeFilterValue(label) {
@@ -1795,7 +1961,7 @@ function openFilters() {
   const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","festivals","performing-arts","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
-    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
+    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
 }
 
 function openNotifications() {
@@ -1815,8 +1981,6 @@ function openProfileList(type) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${type[0].toUpperCase()+type.slice(1)}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
 }
 
-
-
 function openDetail(id) {
   const e = events.find(event => event.id === Number(id));
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${e.title}">
@@ -1825,6 +1989,7 @@ function openDetail(id) {
     ${e.friends.length ? `<div class="attendee-line">${avatarStack(e.friends)} ${e.friends.map(f => friendNames[f]).join(", ")} ${e.friends.length === 1 ? "saved this" : "are going"}</div>` : ""}
     <p class="detail-description">${e.desc}</p>
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved" : "Save"}</button><button class="action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going" : "RSVP"}</button><button class="primary" data-share="${e.id}">Share to group</button></div>
+    <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
     <button class="wide-button" data-ticket>Get tickets / details</button></div>
   </section></div>`;
 }
@@ -1899,6 +2064,8 @@ document.addEventListener("click", async event => {
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.save) { const id = Number(t.dataset.save); state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id); openDetail(id); toast(state.saved.has(id) ? "Saved for later" : "Removed from saved"); }
   if (t.dataset.rsvp) { const id = Number(t.dataset.rsvp); state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id); openDetail(id); toast(state.rsvps.has(id) ? "You are in" : "RSVP removed"); }
+  if (t.dataset.attended) { mark(); markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast("Receipt, score, and best friends updated"); }
+  if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
   if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; openGroup(group); toast(`Event sent to ${group}`); }
   if (t.dataset.copyLink !== undefined) { mark(); try { await navigator.clipboard?.writeText(location.href); } catch {} toast("Demo link copied"); }
@@ -1940,9 +2107,9 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { state.groupMessages[group] = [{ type: "text", text: input.value.trim() }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); renderSocial(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
-  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterValue === "Choose a date") document.querySelector("[data-calendar]").hidden = false; }
+  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") state.filter.date = t.dataset.filterValue; if (t.dataset.filterValue === "Choose a date") document.querySelector("[data-calendar]").hidden = false; }
   if (t.dataset.calendarDate) { document.querySelectorAll("[data-calendar-date]").forEach(day => day.classList.remove("selected")); t.classList.add("selected"); state.filter.date = t.dataset.calendarDate; }
-  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || ""))) state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {

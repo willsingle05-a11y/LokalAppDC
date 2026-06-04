@@ -39,27 +39,36 @@ function normalizeSupabasePriceFromRow(row) {
 
 function cleanSupabaseDescription(value) {
   const cleaned = String(value || "")
-    .replace(/^Sourced from predicthq\.com\s*-\s*/i, "")
-    .replace(/^Sourced from predicthq\.com\.?\s*/i, "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\.?\s*/i, "")
+    .replace(/\s*Sourced from [\w.-]+(?:\.com)?\.?\s*/ig, " ")
     .trim();
   return cleaned || "More details are coming soon.";
+}
+
+function cleanImportedText(value) {
+  return String(value || "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
+    .replace(/^Sourced from [\w.-]+(?:\.com)?\.?\s*/i, "")
+    .replace(/\s*Sourced from [\w.-]+(?:\.com)?\.?\s*/ig, " ")
+    .trim();
 }
 
 function isAddressOnlyVenue(value) {
   return /United States of America|Washington, DC 20|Street |Avenue |Road |Northwest|Northeast|Southwest|Southeast|^\d+\s/i.test(String(value || ""));
 }
 
-function rawPredictHqAddress(row) {
+function rawEventApiAddress(row) {
   return row.raw_json?.geo?.address?.formatted_address || row.raw_json?.entities?.find(entity => entity.formatted_address)?.formatted_address || "";
 }
 
-function rawPredictHqVenueName(row) {
+function rawEventApiVenueName(row) {
   const entity = row.raw_json?.entities?.find(item => ["venue", "place"].includes(item.type) && item.name && !isAddressOnlyVenue(item.name));
   return entity?.name || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
 }
 
 function inferVenueNameFromText(value) {
-  const text = String(value || "").replace(/^Sourced from predicthq\.com\s*-\s*/i, "");
+  const text = cleanImportedText(value);
   const patterns = [
     /\bat\s+([A-Z][A-Za-z0-9&'’.\- ]{2,70}?)(?:[.,!|]| for | with | featuring | in Washington| in D\.C\.|$)/,
     /\b@\s*([A-Z][A-Za-z0-9&'’.\- ]{2,70}?)(?:[.,!|]|$)/,
@@ -74,14 +83,14 @@ function inferVenueNameFromText(value) {
 }
 
 function normalizeSupabaseVenue(row) {
-  const venue = row.venue_name || row.venue || row.location_name || "";
-  if (row.source === "predicthq" && isAddressOnlyVenue(venue)) return rawPredictHqVenueName(row) || "Location in description";
-  return venue || rawPredictHqVenueName(row) || "Location in description";
+  const venue = cleanImportedText(row.venue_name || row.venue || row.location_name || "");
+  if (row.source !== "manual" && isAddressOnlyVenue(venue)) return rawEventApiVenueName(row) || "Location in description";
+  return venue || rawEventApiVenueName(row) || "Location in description";
 }
 
 function normalizeSupabaseDescription(row) {
   const description = cleanSupabaseDescription(row.description || row.desc);
-  const address = rawPredictHqAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
+  const address = rawEventApiAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
   if (!address || description.includes(address)) return description;
   return `${description}\n\nAddress: ${address}`;
 }
@@ -125,16 +134,16 @@ function isEventUpcoming(event) {
   return event.hasPreciseStart ? event.startSort >= Date.now() : event.startSort >= startOfTodaySortValue();
 }
 
-function normalizePredictHqCategory(row) {
-  const predictHqCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
+function normalizeImportedCategory(row) {
+  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
   const tag = String(row.tag || "").toLowerCase();
   const category = String(row.category || row.cat || "community").toLowerCase();
-  if (row.source === "predicthq" && predictHqCategories.has(tag)) return tag;
+  if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   return category;
 }
 
 function normalizeSupabaseEvent(row, index) {
-  const category = normalizePredictHqCategory(row);
+  const category = normalizeImportedCategory(row);
   return {
     id: 1000 + index,
     sourceId: row.id,
@@ -143,12 +152,14 @@ function normalizeSupabaseEvent(row, index) {
     venue: normalizeSupabaseVenue(row),
     area: row.neighborhood || row.area || row.location || "Washington, DC",
     time: row.date && row.time ? `${formatSupabaseDate(row.date)}, ${String(row.time).trim()}` : row.time || formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date),
+    startDate: row.date || "",
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
     hasPreciseStart: Boolean(row.starts_at || row.start_time || row.start_at),
     price: normalizeSupabasePriceFromRow(row),
     cat: category,
     tag: row.tag || row.category || "Local event",
+    image: row.image_url || row.image || row.raw_json?.image_url || row.raw_json?.images?.[0]?.url || row.raw_json?.images?.[0] || "",
     friends: Array.isArray(row.friends) ? row.friends : [],
     desc: normalizeSupabaseDescription(row)
   };
@@ -166,7 +177,7 @@ async function syncSupabaseEvents(showToast = false) {
     if (rows.length) {
       const normalized = rows.map(normalizeSupabaseEvent);
       const upcoming = normalized.filter(isEventUpcoming);
-      events = upcoming.filter(event => event.source !== "predicthq" || event.venue !== "Location in description");
+      events = upcoming.filter(event => event.source === "manual" || event.venue !== "Location in description");
       const hiddenCount = rows.length - events.length;
       const shownLabel = `${events.length} upcoming event${events.length === 1 ? "" : "s"} shown`;
       state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} older or incomplete row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };

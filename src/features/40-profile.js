@@ -1,17 +1,75 @@
-﻿function renderProfile() {
+function renderProfile() {
   const tasteChips = state.tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("");
+  const receipts = profileReceipts();
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><span class="lokal-score">128 <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><span class="lokal-score">${lokalScore()} <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(state.bio)}</p>
     <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tasteChips}<button class="chip" data-edit-tastes>Edit</button></div>
     <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="groups"><b>${userGroupNames().length}</b><small>Groups</small></button></div>
-    <p class="eyebrow">Best friends</p><div class="best-friends-list">${[["AL","Ana Lopez","18 shared activities"],["MR","Marcus Reed","14 shared activities"],["DV","Dev Shah","11 shared activities"],["JS","Jules Kim","9 shared activities"],["PL","Priya Lee","7 shared activities"]].map((friend,index) => `<div class="best-friend-row"><b>${index + 1}</b><span class="avatar">${friend[0]}</span><span><strong>${friend[1]}</strong><small>${friend[2]}</small></span></div>`).join("")}</div>
+    <p class="eyebrow">Best friends</p><div class="best-friends-list">${bestFriendsList().map((friend,index) => `<div class="best-friend-row"><b>${index + 1}</b><span class="avatar">${friend.initials}</span><span><strong>${friend.name}</strong><small>${friend.score} shared activit${friend.score === 1 ? "y" : "ies"}</small></span></div>`).join("")}</div>
     <p class="eyebrow">Your receipt</p><h2>Recently attended</h2>
-    <div class="receipt"><div class="date-block">May<b>24</b></div><div><h3>Flashband at Songbyrd</h3><p>Live music / Adams Morgan / with Ana + Dev</p></div></div>
-    <div class="receipt"><div class="date-block">May<b>18</b></div><div><h3>Open Streets DC</h3><p>Community / Shaw / with Marcus</p></div></div>
-    <div class="receipt"><div class="date-block">May<b>09</b></div><div><h3>After Dark at the Hirshhorn</h3><p>Art / The Mall / with Jules + 3 others</p></div></div>
+    <div class="receipt-list">${receipts.map(receiptRow).join("") || `<p class="section-helper">Mark an event as attended and it will show here.</p>`}</div>
   </section>`;
+}
+
+function fullFriendName(initials) {
+  return ({ AL: "Ana Lopez", MR: "Marcus Reed", DV: "Dev Shah", JS: "Jules Kim", PL: "Priya Lee" }[initials] || friendNames[initials] || initials);
+}
+
+function lokalScore() {
+  return 100 + profileReceipts().length * 12 + state.rsvps.size * 2 + state.saved.size;
+}
+
+function profileReceipts() {
+  const stored = state.receipts || [];
+  const attendedRows = Array.from(state.attended || []).map(id => {
+    const event = events.find(item => item.id === Number(id));
+    if (!event) return null;
+    return { id: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  }).filter(Boolean);
+  return [...stored, ...attendedRows]
+    .filter((receipt, index, all) => all.findIndex(item => String(item.id) === String(receipt.id)) === index)
+    .sort((a, b) => (b.attendedAt || 0) - (a.attendedAt || 0));
+}
+
+function receiptRow(receipt) {
+  const date = receipt.attendedAt ? new Date(receipt.attendedAt) : new Date();
+  const month = date.toLocaleDateString("en-US", { month: "short" });
+  const day = date.toLocaleDateString("en-US", { day: "2-digit" });
+  const people = receipt.friends?.length ? `with ${receipt.friends.map(fullFriendName).join(" + ")}` : "solo plan";
+  return `<button class="receipt" data-receipt-event="${receipt.id}"><div class="date-block">${month}<b>${day}</b></div><div><h3>${escapeHtml(receipt.title)}</h3><p>${escapeHtml(receipt.cat)} / ${escapeHtml(receipt.venue)} / ${escapeHtml(people)}</p></div></button>`;
+}
+
+function bestFriendsList() {
+  const base = { "Ana Lopez": 18, "Marcus Reed": 14, "Dev Shah": 11, "Jules Kim": 9, "Priya Lee": 7 };
+  profileReceipts().forEach(receipt => (receipt.friends || []).forEach(initials => {
+    const name = fullFriendName(initials);
+    base[name] = (base[name] || 0) + 1;
+  }));
+  return Object.entries(base)
+    .map(([name, score]) => ({ name, score, initials: friendInitials(name) }))
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .slice(0, 5);
+}
+
+function markEventAttended(id) {
+  const event = events.find(item => item.id === Number(id));
+  if (!event) return;
+  state.attended.add(event.id);
+  state.rsvps.delete(event.id);
+  const receipt = { id: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  state.receipts = [receipt, ...(state.receipts || []).filter(item => Number(item.id) !== Number(event.id))];
+  localStorage.setItem("lokalAttended", JSON.stringify(Array.from(state.attended)));
+  localStorage.setItem("lokalReceipts", JSON.stringify(state.receipts));
+}
+
+function openReceipt(id) {
+  const receipt = profileReceipts().find(item => String(item.id) === String(id));
+  const event = events.find(item => item.id === Number(id)) || receipt;
+  const people = receipt?.friends?.length ? receipt.friends.map(fullFriendName).join(", ") : "Just you";
+  const eventButton = events.some(item => item.id === Number(id)) ? `<button class="wide-button" data-event="${event.id}">Open event details</button>` : "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(event.time || "")} / ${escapeHtml(event.price || "")}</p><h3>${escapeHtml(event.venue || "")}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
 }
 
 function openTasteEditor() {
@@ -55,7 +113,8 @@ function rollingCalendar() {
     }
     month.days.push({ iso: date.toISOString().slice(0, 10), label: date.getDate() });
   }
-  return `<div class="calendar" data-calendar hidden><p class="calendar-helper">Choose any date from today through ${end.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.</p>${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
+  const chosenDate = /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "") ? state.filter.date : "";
+  return `<div class="calendar" data-calendar ${chosenDate ? "" : "hidden"}><p class="calendar-helper">Choose any date from today through ${end.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.</p>${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${day.iso === chosenDate ? "selected" : ""}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
 }
 
 function activeFilterValue(label) {
@@ -84,7 +143,7 @@ function openFilters() {
   const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","festivals","performing-arts","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
-    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
+    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
 }
 
 function openNotifications() {
@@ -103,5 +162,3 @@ function openProfileList(type) {
     : plans.map(id => { const event = events.find(item => item.id === id); return `<div class="managed-list-row"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`; }).join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${type[0].toUpperCase()+type.slice(1)}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
 }
-
-
