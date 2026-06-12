@@ -326,6 +326,11 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .friend-profile-head { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
 .friend-profile-head .profile-avatar { flex: 0 0 auto; }
 .friend-profile-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+.friendship-status { margin: -3px 0 12px; padding: 11px 12px; border: 1px solid rgba(0,200,151,.35); border-radius: 14px; background: rgba(0,200,151,.09); }
+.friendship-status b { display: block; margin-bottom: 3px; color: var(--green); font-size: 11px; text-transform: uppercase; letter-spacing: .7px; }
+.friendship-status p { margin: 0; color: var(--ink); font-size: 12px; line-height: 1.4; }
+.friendship-status.pending { border-color: var(--line); background: var(--paper); }
+.friendship-status.pending b { color: var(--muted); }
 .friend-profile-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 20px; }
 .friend-feed { display: grid; gap: 8px; }
 .friend-feed-card { display: grid; grid-template-columns: 42px 1fr; gap: 10px; padding: 10px; border-radius: 13px; background: #f8f5ef; }
@@ -1036,9 +1041,10 @@ const defaultReceipts = [
   { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
   { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
 ];
-const state = { route: "home", socialTab: "groups", homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"] }, filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres", "Priya Lee"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "group-friday", type: "group", name: "Friday crew", from: "Ana", detail: "Ana invited you to join Friday crew.", time: "12 minutes ago" }, { id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "groups", homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"] }, filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "group-friday", type: "group", name: "Friday crew", from: "Ana", detail: "Ana invited you to join Friday crew.", time: "12 minutes ago" }, { id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
+state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
@@ -1669,6 +1675,19 @@ function removeGroupMembership(name) {
   state.newGroups = state.newGroups.filter(group => group.name !== name);
 }
 
+function currentUserName() {
+  return state.profile.fullName || "Jordan Miller";
+}
+
+function acceptFriendship(name) {
+  const you = currentUserName();
+  state.friends.add(name);
+  if (!state.friendConnections[you]) state.friendConnections[you] = [];
+  if (!state.friendConnections[name]) state.friendConnections[name] = [];
+  if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
+  if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
+}
+
 function groupContent() {
   const card = (name, type, detail, note, icon, style = "") => state.leftGroups.has(name) ? "" : `<button class="community-card ${state.pinnedGroups.has(name) ? "pinned" : ""}" data-group-card data-search-text="${name.toLowerCase()} ${type.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${style}">${icon}</span><span><b>${name}</b><small>${type} / ${type === "Private" && state.privateGroupMembers[name] ? `${state.privateGroupMembers[name].length} members` : detail}</small><em>${state.pinnedGroups.has(name) ? "Pinned / " : ""}${note}</em></span><span class="group-access ${type === "Private" ? "private" : ""}">${type === "Private" ? "•••" : "View"}</span></button>`;
   const group = (name, type, detail, note, icon, style = "") => ({ name, type, detail, note, icon, style });
@@ -1789,9 +1808,14 @@ function openAllFriends() {
 
 function openFriend(name) {
   const profile = { "Ana Lopez": ["AL","@analopes","New to DC / Live music + food"], "Marcus Reed": ["MR","@marcusdc","DC local / Fitness + markets"], "Dev Shah": ["DV","@devaroundtown","Exploring DC / Art + film"], "Jules Kim": ["JS","@julesk","DC local / Music + nightlife"], "Priya Lee": ["PL","@priyaleedc","New to DC / Food + art"] }[name] || ["FR","@lokalfriend","Washington, DC"];
+  const isFriend = state.friends.has(name);
+  const theirFriends = state.friendConnections[name] || [];
+  const relationship = isFriend ? `<div class="friendship-status"><b>Friends</b><p>${name}'s friends list now includes ${escapeHtml(currentUserName())}. Your friends list includes ${escapeHtml(name)}.</p></div>` : `<div class="friendship-status pending"><b>Not friends yet</b><p>Add or accept a request to connect both profiles.</p></div>`;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
     <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">Friend profile</p><h2>${name}</h2><p>${profile[1]} / ${profile[2]}</p></div></div>
+    ${relationship}
     <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-invite-friend="${name}">Invite to group</button></div>
+    <p class="section-helper">${escapeHtml(name)} has ${theirFriends.length || (isFriend ? 1 : 0)} Lokal friend${(theirFriends.length || (isFriend ? 1 : 0)) === 1 ? "" : "s"} connected in this demo.</p>
     <p class="eyebrow">Recently went to</p><div class="friend-feed"><div class="friend-feed-card"><div class="date-block">May<b>24</b></div><div><h3>Flashband at Songbyrd</h3><p>Live music / Adams Morgan / with 3 friends</p></div></div><div class="friend-feed-card"><div class="date-block">May<b>18</b></div><div><h3>Open Streets DC</h3><p>Community / Shaw</p></div></div></div>
     <p class="eyebrow group-divider">Saved for later</p><div class="interest-list"><div class="interest-event"><span><b>Skyline Social</b><small>Friday / Viceroy Rooftop</small></span><button class="text-button" data-event="4">Open</button></div><div class="interest-event"><span><b>Fresh Air Cinema</b><small>Sunday / Alethia Tanner Park</small></span><button class="text-button" data-event="8">Open</button></div></div>
   </section></div>`;
@@ -2100,7 +2124,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.addInvite !== undefined) { mark(); t.textContent = "Added"; t.classList.add("selected"); toast("Friend invited"); }
   if (t.dataset.invitePeopleOption) { const group = t.dataset.groupName; addFriendToPrivateGroup(group, t.dataset.invitePeopleOption); if (state.route === "social") renderSocial(); const selected = document.querySelector("[data-selected-invite-people]"); const input = document.querySelector("[data-invite-people-search]"); if (selected && !selected.textContent.includes(t.dataset.invitePeopleOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.invitePeopleOption}</span>`); if (input) input.value = ""; const results = document.querySelector("[data-invite-people-results]"); if (results) { results.hidden = true; results.innerHTML = ""; } toast(`${t.dataset.invitePeopleOption} added to ${group}`); }
   if (t.dataset.groupFriendOption) { const selected = document.querySelector("[data-selected-group-friends]"); const input = document.querySelector("[data-create-friends]"); if (selected && !selected.textContent.includes(t.dataset.groupFriendOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.groupFriendOption}</span>`); if (input) input.value = ""; const autocomplete = document.querySelector("[data-autocomplete]"); if (autocomplete) { autocomplete.hidden = true; autocomplete.innerHTML = ""; } toast(`${t.dataset.groupFriendOption} added to group`); }
-  if (t.dataset.addAdventure) { const name = t.dataset.addAdventure; state.friends.add(name); t.textContent = "Add to group"; t.setAttribute("aria-label", `Add ${name} to group`); t.dataset.inviteFriend = name; delete t.dataset.addAdventure; t.classList.add("selected"); toast(`${name} added as friend`); return; }
+  if (t.dataset.addAdventure) { const name = t.dataset.addAdventure; acceptFriendship(name); t.textContent = "Add to group"; t.setAttribute("aria-label", `Add ${name} to group`); t.dataset.inviteFriend = name; delete t.dataset.addAdventure; t.classList.add("selected"); toast(`${name} added as friend`); return; }
   if (t.dataset.seeAllFriends !== undefined) openAllFriends();
   if (t.dataset.viewMoreGroups !== undefined) { state.showAllGroups = !state.showAllGroups; renderSocial(); }
   if (t.dataset.schedule !== undefined) { mark(); openSimpleSheet("Schedule an event", "Add an event for the group and let members know when it is happening.", `<label class="settings-field">Event name<input placeholder="Event name"></label><label class="settings-field">Date and time<input type="datetime-local"></label><button class="wide-button" data-confirm-schedule>Schedule event</button>`); }
@@ -2142,7 +2166,7 @@ document.addEventListener("click", async event => {
     renderProfile();
     toast("Tastes updated");
   }
-  if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); openGroup(request.name); } else if (request?.type === "friend") { state.friends.add(request.name); openFriend(request.name); } toast("Request accepted"); }
+  if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); openGroup(request.name); } else if (request?.type === "friend") { acceptFriendship(request.name); if (state.route === "social") renderSocial(); openFriend(request.name); } toast(request?.type === "friend" ? `${request.name} is now your friend` : "Request accepted"); }
   if (t.dataset.declineRequest) { state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.declineRequest); openNotifications(); toast("Request declined"); }
   if (t.dataset.notificationProfile !== undefined) { modalRoot.innerHTML = ""; setRoute("profile"); toast("Profile activity opened"); }
   if (t.dataset.notificationGroup) { modalRoot.innerHTML = ""; openGroup(t.dataset.notificationGroup); toast(`Opened ${t.dataset.notificationGroup}`); }

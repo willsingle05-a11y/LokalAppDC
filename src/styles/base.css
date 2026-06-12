@@ -318,6 +318,11 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .friend-profile-head { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
 .friend-profile-head .profile-avatar { flex: 0 0 auto; }
 .friend-profile-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+.friendship-status { margin: -3px 0 12px; padding: 11px 12px; border: 1px solid rgba(0,200,151,.35); border-radius: 14px; background: rgba(0,200,151,.09); }
+.friendship-status b { display: block; margin-bottom: 3px; color: var(--green); font-size: 11px; text-transform: uppercase; letter-spacing: .7px; }
+.friendship-status p { margin: 0; color: var(--ink); font-size: 12px; line-height: 1.4; }
+.friendship-status.pending { border-color: var(--line); background: var(--paper); }
+.friendship-status.pending b { color: var(--muted); }
 .friend-profile-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 20px; }
 .friend-feed { display: grid; gap: 8px; }
 .friend-feed-card { display: grid; grid-template-columns: 42px 1fr; gap: 10px; padding: 10px; border-radius: 13px; background: #f8f5ef; }

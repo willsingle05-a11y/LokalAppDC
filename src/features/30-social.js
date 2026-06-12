@@ -55,6 +55,19 @@ function removeGroupMembership(name) {
   state.newGroups = state.newGroups.filter(group => group.name !== name);
 }
 
+function currentUserName() {
+  return state.profile.fullName || "Jordan Miller";
+}
+
+function acceptFriendship(name) {
+  const you = currentUserName();
+  state.friends.add(name);
+  if (!state.friendConnections[you]) state.friendConnections[you] = [];
+  if (!state.friendConnections[name]) state.friendConnections[name] = [];
+  if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
+  if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
+}
+
 function groupContent() {
   const card = (name, type, detail, note, icon, style = "") => state.leftGroups.has(name) ? "" : `<button class="community-card ${state.pinnedGroups.has(name) ? "pinned" : ""}" data-group-card data-search-text="${name.toLowerCase()} ${type.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${style}">${icon}</span><span><b>${name}</b><small>${type} / ${type === "Private" && state.privateGroupMembers[name] ? `${state.privateGroupMembers[name].length} members` : detail}</small><em>${state.pinnedGroups.has(name) ? "Pinned / " : ""}${note}</em></span><span class="group-access ${type === "Private" ? "private" : ""}">${type === "Private" ? "•••" : "View"}</span></button>`;
   const group = (name, type, detail, note, icon, style = "") => ({ name, type, detail, note, icon, style });
@@ -175,9 +188,14 @@ function openAllFriends() {
 
 function openFriend(name) {
   const profile = { "Ana Lopez": ["AL","@analopes","New to DC / Live music + food"], "Marcus Reed": ["MR","@marcusdc","DC local / Fitness + markets"], "Dev Shah": ["DV","@devaroundtown","Exploring DC / Art + film"], "Jules Kim": ["JS","@julesk","DC local / Music + nightlife"], "Priya Lee": ["PL","@priyaleedc","New to DC / Food + art"] }[name] || ["FR","@lokalfriend","Washington, DC"];
+  const isFriend = state.friends.has(name);
+  const theirFriends = state.friendConnections[name] || [];
+  const relationship = isFriend ? `<div class="friendship-status"><b>Friends</b><p>${name}'s friends list now includes ${escapeHtml(currentUserName())}. Your friends list includes ${escapeHtml(name)}.</p></div>` : `<div class="friendship-status pending"><b>Not friends yet</b><p>Add or accept a request to connect both profiles.</p></div>`;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
     <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">Friend profile</p><h2>${name}</h2><p>${profile[1]} / ${profile[2]}</p></div></div>
+    ${relationship}
     <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-invite-friend="${name}">Invite to group</button></div>
+    <p class="section-helper">${escapeHtml(name)} has ${theirFriends.length || (isFriend ? 1 : 0)} Lokal friend${(theirFriends.length || (isFriend ? 1 : 0)) === 1 ? "" : "s"} connected in this demo.</p>
     <p class="eyebrow">Recently went to</p><div class="friend-feed"><div class="friend-feed-card"><div class="date-block">May<b>24</b></div><div><h3>Flashband at Songbyrd</h3><p>Live music / Adams Morgan / with 3 friends</p></div></div><div class="friend-feed-card"><div class="date-block">May<b>18</b></div><div><h3>Open Streets DC</h3><p>Community / Shaw</p></div></div></div>
     <p class="eyebrow group-divider">Saved for later</p><div class="interest-list"><div class="interest-event"><span><b>Skyline Social</b><small>Friday / Viceroy Rooftop</small></span><button class="text-button" data-event="4">Open</button></div><div class="interest-event"><span><b>Fresh Air Cinema</b><small>Sunday / Alethia Tanner Park</small></span><button class="text-button" data-event="8">Open</button></div></div>
   </section></div>`;
