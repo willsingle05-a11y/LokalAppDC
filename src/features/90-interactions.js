@@ -167,11 +167,10 @@ document.addEventListener("input", event => {
     if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && people.length === 0);
   }
   if (input.matches("[data-share-group-search]")) {
-    const query = input.value.trim().toLowerCase();
+    const query = input.value.trim();
     const eventId = input.dataset.eventId;
-    const groups = ["Friday crew", "Culture club", "Skyline Social", ...state.newGroups.map(group => group.name)].filter(name => !state.leftGroups.has(name) && name.toLowerCase().includes(query));
     const results = document.querySelector("[data-share-group-results]");
-    results.innerHTML = !query ? `<p class="section-helper">Start typing to find a group.</p>` : groups.length ? groups.map(name => `<button class="share-group" data-group-share="${name}" data-event-id="${eventId}"><span class="group-icon">${name[0]}</span><span class="share-group-copy"><h3>${name}</h3><p>Send event link to group messages</p></span><span class="share-arrow">+</span></button>`).join("") : `<p class="section-helper">No groups match that search.</p>`;
+    results.innerHTML = shareGroupResultsHtml(eventId, query);
   }
   if (input.matches("[data-friend-group-search]")) {
     const query = input.value.trim().toLowerCase();
