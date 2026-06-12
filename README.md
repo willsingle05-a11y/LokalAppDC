@@ -65,6 +65,67 @@ of writing them.
 There is also a dependency-free Node sync flow available if you prefer to run
 the same process with Node.
 
+## Auto-sync events with Supabase
+
+The demo now includes a Supabase Edge Function at:
+
+- `supabase/functions/sync-predicthq-events/index.ts`
+
+That function pulls current DC events, cleans them up, and writes them into the
+same `events` table the demo already reads from.
+
+### 1. Find the Supabase service role key
+
+In Supabase:
+
+1. Open your project.
+2. Go to `Project Settings`.
+3. Go to `API`.
+4. Copy the `service_role` key.
+
+Keep this key server-side only. Do not paste it into the frontend app.
+
+### 2. Deploy the Edge Function
+
+From this project folder:
+
+```powershell
+npx supabase login
+npx supabase link --project-ref iglzcjtklryapmcpyoam
+npx supabase secrets set PREDICTHQ_API_TOKEN="your_predict_hq_token"
+npx supabase secrets set SERVICE_ROLE_KEY="your_supabase_service_role_key"
+npx supabase secrets set PHQ_LOOKAHEAD_DAYS="14"
+npx supabase functions deploy sync-predicthq-events --no-verify-jwt
+```
+
+Supabase automatically provides `SUPABASE_URL` to Edge Functions. The service
+role key is saved as `SERVICE_ROLE_KEY` because Supabase reserves custom secret
+names that start with `SUPABASE_`.
+
+### 3. Test the function once
+
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri "https://iglzcjtklryapmcpyoam.functions.supabase.co/sync-predicthq-events" `
+  -ContentType "application/json" `
+  -Body "{}"
+```
+
+Expected response:
+
+```json
+{ "ok": true, "fetched": 100, "upserted": 60 }
+```
+
+### 4. Schedule automatic updates
+
+Run this file in the Supabase SQL editor:
+
+- `supabase/sql/schedule-predicthq-sync.sql`
+
+It schedules the sync every morning. After that, the Lokal app will pick up new
+events from Supabase whenever the app opens or refreshes.
+
 ## Design system
 
 Round 2 uses a warm local-editorial palette: paper cream, district green,

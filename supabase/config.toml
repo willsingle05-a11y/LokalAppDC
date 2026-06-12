@@ -1,0 +1,2 @@
+[functions.sync-predicthq-events]
+verify_jwt = false
