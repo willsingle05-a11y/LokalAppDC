@@ -2,17 +2,7 @@
   return `<div class="activity-card"><span class="avatar">${initials}</span><div><p>${copy}</p><span class="activity-time">${time}</span></div></div>`;
 }
 
-const friendDirectory = [
-  ["AL","Ana Lopez","@analopes","8 mutual friends"],
-  ["MR","Marcus Reed","@marcusdc","5 mutual friends"],
-  ["JS","Jules Kim","@julesk","6 mutual friends"],
-  ["DV","Dev Shah","@devaroundtown","3 mutual friends"],
-  ["ET","Elena Torres","@elenaarounddc","7 mutual friends"],
-  ["PL","Priya Lee","@priyaleedc","4 mutual friends"],
-  ["NW","Nia Williams","@nianights","2 mutual friends"],
-  ["CB","Chris Bennett","@chrisb","5 mutual friends"],
-  ["SK","Sofia Kim","@sofiak","3 mutual friends"]
-];
+let friendDirectory = demoProfileSeeds.map(profileToFriendRow);
 
 const publicGroupMeta = {
   "Skyline Social": { count: "12 members", note: "Single-event group / Friday", icon: "S", style: "run", description: "A public group for Skyline Social so interested people can coordinate before Friday." },
@@ -31,7 +21,7 @@ function publicDirectoryNames() {
 
 function friendCard(friend, action = "profile") {
   const button = action === "add" ? `<button class="follow-button adventure-add" data-add-adventure="${friend[1]}" aria-label="Add ${friend[1]}">+</button>` : action === "group" ? `<button class="follow-button invite-added-friend" data-invite-friend="${friend[1]}">Add to group</button>` : "";
-  return `<div class="follow-card friend-directory-card" data-friend-card data-search-text="${friend[1].toLowerCase()} ${friend[2].toLowerCase()}"><button class="friend-card-main" data-open-friend="${friend[1]}"><span class="avatar">${friend[0]}</span><span><b>${friend[1]}</b><small>${friend[2]}</small><em>${friend[3]}</em></span></button>${button}</div>`;
+  return `<div class="follow-card friend-directory-card" data-friend-card data-search-text="${friend[1].toLowerCase()} ${friend[2].toLowerCase()} ${String(friend[4] || "").toLowerCase()}"><button class="friend-card-main" data-open-friend="${friend[1]}"><span class="avatar">${friend[0]}</span><span><b>${friend[1]}</b><small>${friend[2]}</small><em>${friend[3]}</em></span></button>${button}</div>`;
 }
 
 function userGroupNames() {
@@ -187,12 +177,12 @@ function openAllFriends() {
 }
 
 function openFriend(name) {
-  const profile = { "Ana Lopez": ["AL","@analopes","New to DC / Live music + food"], "Marcus Reed": ["MR","@marcusdc","DC local / Fitness + markets"], "Dev Shah": ["DV","@devaroundtown","Exploring DC / Art + film"], "Jules Kim": ["JS","@julesk","DC local / Music + nightlife"], "Priya Lee": ["PL","@priyaleedc","New to DC / Food + art"] }[name] || ["FR","@lokalfriend","Washington, DC"];
+  const profile = friendDirectory.find(friend => friend[1] === name) || ["FR", name, "@lokalfriend", "0 mutual friends", "Washington, DC"];
   const isFriend = state.friends.has(name);
   const theirFriends = state.friendConnections[name] || [];
   const relationship = isFriend ? `<div class="friendship-status"><b>Friends</b><p>${name}'s friends list now includes ${escapeHtml(currentUserName())}. Your friends list includes ${escapeHtml(name)}.</p></div>` : `<div class="friendship-status pending"><b>Not friends yet</b><p>Add or accept a request to connect both profiles.</p></div>`;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
-    <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">Friend profile</p><h2>${name}</h2><p>${profile[1]} / ${profile[2]}</p></div></div>
+    <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">Friend profile</p><h2>${name}</h2><p>${profile[2]} / ${profile[4] || "Washington, DC"}</p></div></div>
     ${relationship}
     <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-invite-friend="${name}">Invite to group</button></div>
     <p class="section-helper">${escapeHtml(name)} has ${theirFriends.length || (isFriend ? 1 : 0)} Lokal friend${(theirFriends.length || (isFriend ? 1 : 0)) === 1 ? "" : "s"} connected in this demo.</p>

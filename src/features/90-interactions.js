@@ -261,6 +261,7 @@ document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.d
 setRoute("home");
 if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
 syncSupabaseEvents();
+syncSupabaseProfiles();
 updateProfileShortcut();
 checkPhoneSignupStatus();
 showWelcomeBanner();

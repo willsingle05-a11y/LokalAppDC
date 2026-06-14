@@ -126,6 +126,28 @@ Run this file in the Supabase SQL editor:
 It schedules the sync every morning. After that, the Lokal app will pick up new
 events from Supabase whenever the app opens or refreshes.
 
+## Seed demo profiles
+
+The app includes 30 demo Lokal profiles in:
+
+- `src/features/01-demo-profiles.js`
+
+To make those profiles real rows in Supabase:
+
+1. Run `supabase/profiles.sql` in the Supabase SQL editor. This creates the
+   demo-safe public read policy for rows where `is_demo = true`.
+2. In PowerShell, set your service role key and run the seed script:
+
+```powershell
+$env:SUPABASE_URL="https://iglzcjtklryapmcpyoam.supabase.co"
+$env:SERVICE_ROLE_KEY="your_supabase_service_role_key"
+node .\tools\seed-demo-profiles.mjs
+```
+
+The script creates confirmed Auth users with `@demo.lokal.app` emails and
+upserts their matching `public.profiles` rows. The frontend then merges those
+profiles into the Friends search/list automatically when the app opens.
+
 ## Design system
 
 Round 2 uses a warm local-editorial palette: paper cream, district green,

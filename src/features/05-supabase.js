@@ -193,6 +193,38 @@ async function syncSupabaseEvents(showToast = false) {
   if (showToast) toast(state.eventSync.label);
 }
 
+function normalizeSupabaseProfile(row) {
+  return {
+    initials: profileInitials(row.full_name || row.fullName || row.username || ""),
+    fullName: row.full_name || row.fullName || "Lokal Friend",
+    username: row.username || "lokalfriend",
+    phone: row.phone || "",
+    birthdate: row.birthdate || "",
+    mutuals: row.mutuals || `${2 + (String(row.full_name || row.username || "").length % 7)} mutual friends`,
+    bio: row.bio || row.home_city || "Washington, DC"
+  };
+}
+
+function mergeFriendDirectory(profiles) {
+  const rows = profiles.map(profileToFriendRow);
+  const merged = [...friendDirectory, ...rows];
+  friendDirectory = merged.filter((friend, index, all) => all.findIndex(item => item[1] === friend[1]) === index);
+}
+
+async function syncSupabaseProfiles() {
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&is_demo=eq.true&order=full_name.asc`, {
+      headers: { apikey: supabaseConfig.publishableKey }
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    const rows = await response.json();
+    if (rows.length) mergeFriendDirectory(rows.map(normalizeSupabaseProfile));
+  } catch {
+    mergeFriendDirectory(demoProfileSeeds);
+  }
+  if (state.route === "social") renderSocial();
+}
+
 function formatSignupPhone(value) {
   const digits = value.replace(/\D/g, "");
   if (digits.length === 10) return `+1${digits}`;
