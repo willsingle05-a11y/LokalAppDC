@@ -60,7 +60,11 @@ function Convert-Category {
 }
 
 function Convert-TagTitle {
-  param([string]$Value)
+  param($Value)
+  if ($Value -and $Value.PSObject.Properties["label"]) { $Value = $Value.label }
+  elseif ($Value -and $Value.PSObject.Properties["name"]) { $Value = $Value.name }
+  elseif ($Value -and $Value.PSObject.Properties["title"]) { $Value = $Value.title }
+  elseif ($Value -and $Value.PSObject.Properties["value"]) { $Value = $Value.value }
   if (-not $Value) { return "" }
   $text = ($Value -replace '[-_]+', ' ' -replace '\s+', ' ').Trim()
   if (-not $text) { return "" }

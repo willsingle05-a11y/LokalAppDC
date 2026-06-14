@@ -137,18 +137,24 @@ function isEventUpcoming(event) {
 function normalizeImportedCategory(row) {
   const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
-  const tag = String(tagList.find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
+  const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
   const category = String(row.category || row.cat || "community").toLowerCase();
   if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   return category;
+}
+
+function normalizeTagValue(value) {
+  if (typeof value === "object" && value !== null) return value.label || value.name || value.title || value.value || "";
+  return value;
 }
 
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
   return [...rawTags, row.tag, category, ...labels]
+    .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
-    .filter(Boolean)
+    .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, 8);
 }

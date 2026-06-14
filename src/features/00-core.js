@@ -70,8 +70,9 @@ function eventArtImage(event) {
 function eventTags(event) {
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   return raw
+    .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
     .map(tag => String(tag || "").trim())
-    .filter(Boolean)
+    .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
 }
 

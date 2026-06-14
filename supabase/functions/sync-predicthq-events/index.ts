@@ -98,6 +98,11 @@ function category(value: string) {
   return value ? value.toLowerCase() : "community";
 }
 
+function labelText(value: any) {
+  if (value && typeof value === "object") return value.label || value.name || value.title || value.value || "";
+  return value;
+}
+
 function titleCaseTag(value: string) {
   return String(value || "")
     .replace(/[-_]+/g, " ")
@@ -106,8 +111,8 @@ function titleCaseTag(value: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function addTag(tags: string[], value: string | null | undefined) {
-  const tag = titleCaseTag(String(value || ""));
+function addTag(tags: string[], value: any) {
+  const tag = titleCaseTag(String(labelText(value) || ""));
   if (tag && !tags.some((item) => item.toLowerCase() === tag.toLowerCase())) tags.push(tag);
 }
 

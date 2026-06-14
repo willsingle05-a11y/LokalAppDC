@@ -159,6 +159,10 @@ function openProfileList(type) {
   const plans = profilePlanIds();
   const rows = type === "groups"
     ? userGroupNames().map(name => `<div class="managed-list-row"><span><b>${name}</b><small>Group conversation</small></span><div><button class="text-button" data-open-group="${name}">Open conversation</button><button class="text-button danger-text" data-profile-leave-group="${name}">Leave group</button></div></div>`).join("")
-    : plans.map(id => { const event = events.find(item => item.id === id); return `<div class="managed-list-row"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`; }).join("");
+    : plans.map(id => {
+      const event = events.find(item => item.id === id);
+      if (!event) return "";
+      return `<div class="managed-list-row managed-plan-row"><button class="managed-plan-main" data-event="${event.id}"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span></button><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`;
+    }).join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${type[0].toUpperCase()+type.slice(1)}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
 }

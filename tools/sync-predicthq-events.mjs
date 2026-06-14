@@ -77,6 +77,11 @@ function phqCategoryToLokal(category) {
   return String(category || "community").toLowerCase();
 }
 
+function labelText(value) {
+  if (value && typeof value === "object") return value.label || value.name || value.title || value.value || "";
+  return value;
+}
+
 function titleCaseTag(value) {
   return String(value || "")
     .replace(/[-_]+/g, " ")
@@ -86,7 +91,7 @@ function titleCaseTag(value) {
 }
 
 function addTag(tags, value) {
-  const tag = titleCaseTag(value);
+  const tag = titleCaseTag(labelText(value));
   if (tag && !tags.some(item => item.toLowerCase() === tag.toLowerCase())) tags.push(tag);
 }
 

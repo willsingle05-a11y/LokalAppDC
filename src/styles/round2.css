@@ -73,6 +73,8 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .managed-list-row > div { display: flex; flex-wrap: wrap; gap: 12px; }
 .managed-list-row .text-button { color: var(--green); font-size: 10px; font-weight: 900; }
 .managed-list-row .danger-text { color: #a4564a; }
+.managed-plan-main { display: grid; gap: 3px; width: 100%; padding: 0; color: inherit; background: transparent; text-align: left; }
+.managed-plan-main span { display: grid; gap: 3px; }
 .private-group-members { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 8px 0 13px; }
 .private-group-member { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 7px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
 .private-group-member .avatar { width: 26px; height: 26px; flex: 0 0 26px; font-size: 8px; }

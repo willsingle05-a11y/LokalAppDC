@@ -565,6 +565,8 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .managed-list-row > div { display: flex; flex-wrap: wrap; gap: 12px; }
 .managed-list-row .text-button { color: var(--green); font-size: 10px; font-weight: 900; }
 .managed-list-row .danger-text { color: #a4564a; }
+.managed-plan-main { display: grid; gap: 3px; width: 100%; padding: 0; color: inherit; background: transparent; text-align: left; }
+.managed-plan-main span { display: grid; gap: 3px; }
 .private-group-members { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 8px 0 13px; }
 .private-group-member { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 7px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
 .private-group-member .avatar { width: 26px; height: 26px; flex: 0 0 26px; font-size: 8px; }
@@ -1085,8 +1087,9 @@ function eventArtImage(event) {
 function eventTags(event) {
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   return raw
+    .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
     .map(tag => String(tag || "").trim())
-    .filter(Boolean)
+    .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
 }
 
@@ -1405,18 +1408,24 @@ function isEventUpcoming(event) {
 function normalizeImportedCategory(row) {
   const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
-  const tag = String(tagList.find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
+  const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
   const category = String(row.category || row.cat || "community").toLowerCase();
   if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   return category;
+}
+
+function normalizeTagValue(value) {
+  if (typeof value === "object" && value !== null) return value.label || value.name || value.title || value.value || "";
+  return value;
 }
 
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
   return [...rawTags, row.tag, category, ...labels]
+    .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
-    .filter(Boolean)
+    .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, 8);
 }
@@ -2098,7 +2107,11 @@ function openProfileList(type) {
   const plans = profilePlanIds();
   const rows = type === "groups"
     ? userGroupNames().map(name => `<div class="managed-list-row"><span><b>${name}</b><small>Group conversation</small></span><div><button class="text-button" data-open-group="${name}">Open conversation</button><button class="text-button danger-text" data-profile-leave-group="${name}">Leave group</button></div></div>`).join("")
-    : plans.map(id => { const event = events.find(item => item.id === id); return `<div class="managed-list-row"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`; }).join("");
+    : plans.map(id => {
+      const event = events.find(item => item.id === id);
+      if (!event) return "";
+      return `<div class="managed-list-row managed-plan-row"><button class="managed-plan-main" data-event="${event.id}"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span></button><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`;
+    }).join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${type[0].toUpperCase()+type.slice(1)}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
 }
 
