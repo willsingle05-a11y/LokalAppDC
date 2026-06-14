@@ -77,7 +77,7 @@ function genericEventArt(event) {
   };
   const item = art[key] || art[event.cat] || art.community;
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='${item.a}'/><stop offset='.58' stop-color='${item.b}'/><stop offset='1' stop-color='${item.c}'/></linearGradient><pattern id='dots' width='16' height='16' patternUnits='userSpaceOnUse'><circle cx='3' cy='3' r='2' fill='rgba(255,255,255,.18)'/></pattern></defs><rect width='100' height='100' rx='18' fill='url(#g)'/><rect width='100' height='100' rx='18' fill='url(#dots)'/><circle cx='80' cy='18' r='18' fill='rgba(255,255,255,.14)'/><circle cx='18' cy='82' r='25' fill='rgba(255,255,255,.12)'/>${item.shapes}</svg>`;
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  return `url('data:image/svg+xml,${encodeURIComponent(svg)}')`;
 }
 
 function eventArtScene(event) {
@@ -99,7 +99,7 @@ function eventArtScene(event) {
 }
 
 function eventArtImage(event) {
-  if (event.image) return `url("${String(event.image).replace(/"/g, "%22")}")`;
+  if (event.image) return `url('${String(event.image).replace(/'/g, "%27")}')`;
   return genericEventArt(event);
 }
 

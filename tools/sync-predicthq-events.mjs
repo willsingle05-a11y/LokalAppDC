@@ -131,6 +131,22 @@ function eventUrl(event) {
   return event.event_url || event.url || event.entities?.find(entity => entity.url)?.url || null;
 }
 
+function imageUrl(value) {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  return value.url || value.image_url || value.thumbnail_url || value.original_url || null;
+}
+
+function eventImageUrl(event) {
+  const direct = imageUrl(event.image_url) || imageUrl(event.images?.[0]);
+  if (direct) return direct;
+  const entity = event.entities?.find(item =>
+    imageUrl(item.image) || imageUrl(item.image_url) || imageUrl(item.logo) || imageUrl(item.thumbnail) || imageUrl(item.images?.[0])
+  );
+  if (!entity) return null;
+  return imageUrl(entity.image) || imageUrl(entity.image_url) || imageUrl(entity.logo) || imageUrl(entity.thumbnail) || imageUrl(entity.images?.[0]);
+}
+
 function eventAddress(event) {
   return event.geo?.address?.formatted_address || event.entities?.find(entity => entity.formatted_address)?.formatted_address || "";
 }
@@ -224,6 +240,7 @@ function normalizePredictHqEvent(event) {
     ends_at: event.end || null,
     timezone: event.timezone || TIMEZONE,
     ticket_url: eventUrl(event),
+    image_url: eventImageUrl(event),
     source: "predicthq",
     external_id: event.id,
     external_url: eventUrl(event),

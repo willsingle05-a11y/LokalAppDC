@@ -126,6 +126,41 @@ function Get-EventAddress {
   ""
 }
 
+function Get-ImageUrl {
+  param($Value)
+  if (-not $Value) { return $null }
+  if ($Value -is [string]) { return $Value }
+  if ($Value.url) { return $Value.url }
+  if ($Value.image_url) { return $Value.image_url }
+  if ($Value.thumbnail_url) { return $Value.thumbnail_url }
+  if ($Value.original_url) { return $Value.original_url }
+  $null
+}
+
+function Get-EventImageUrl {
+  param($Event)
+  $direct = Get-ImageUrl $Event.image_url
+  if ($direct) { return $direct }
+  if ($Event.images -and $Event.images.Count -gt 0) {
+    $image = Get-ImageUrl $Event.images[0]
+    if ($image) { return $image }
+  }
+  $entity = $Event.entities | Where-Object {
+    (Get-ImageUrl $_.image) -or (Get-ImageUrl $_.image_url) -or (Get-ImageUrl $_.logo) -or (Get-ImageUrl $_.thumbnail) -or ($_.images -and $_.images.Count -gt 0 -and (Get-ImageUrl $_.images[0]))
+  } | Select-Object -First 1
+  if (-not $entity) { return $null }
+  $image = Get-ImageUrl $entity.image
+  if ($image) { return $image }
+  $image = Get-ImageUrl $entity.image_url
+  if ($image) { return $image }
+  $image = Get-ImageUrl $entity.logo
+  if ($image) { return $image }
+  $image = Get-ImageUrl $entity.thumbnail
+  if ($image) { return $image }
+  if ($entity.images -and $entity.images.Count -gt 0) { return Get-ImageUrl $entity.images[0] }
+  $null
+}
+
 function Get-VenueNameFromText {
   param([string]$Text)
   $cleaned = "$Text" -replace '^Sourced from predicthq\.com\s*-\s*', ''
@@ -240,6 +275,7 @@ function Convert-Event {
     ends_at = $Event.end
     timezone = $(if ($Event.timezone) { $Event.timezone } else { $Timezone })
     ticket_url = $externalUrl
+    image_url = Get-EventImageUrl $Event
     source = "predicthq"
     external_id = $Event.id
     external_url = $externalUrl

@@ -149,8 +149,8 @@ h1, h2, h3, .brand b, .nav-item, .nav-item.active { color: #111827; }
 .app-shell, .page, main, .onboarding { background: #f5f7fa; }
 .bottom-nav { background: rgba(255,255,255,.97); }
 .profile-avatar, .avatar-me, .group-icon { background: #111827; }
-.event-art, .cat-music, .cat-food, .cat-art, .cat-fitness { background: #111827; }
-.cat-nightlife { background: #111827; }
+.event-art, .cat-music, .cat-food, .cat-art, .cat-fitness { background: #32d274; }
+.cat-nightlife { background: #32d274; }
 .event-art {
   background-position: center;
   background-size: cover;

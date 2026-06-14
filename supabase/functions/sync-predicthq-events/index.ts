@@ -174,7 +174,15 @@ function isLokalEvent(event: PredictHqEvent) {
 function eventImageUrl(event: PredictHqEvent) {
   const image = event.images?.[0];
   if (typeof image === "string") return image;
-  return image?.url || event.image_url || null;
+  if (image?.url || event.image_url) return image?.url || event.image_url;
+  const entity = (event.entities || []).find((item: any) =>
+    item.image?.url || item.image_url || item.logo?.url || item.thumbnail?.url ||
+    (Array.isArray(item.images) && item.images.some((entityImage: any) => typeof entityImage === "string" || entityImage?.url))
+  );
+  if (!entity) return null;
+  const entityImage = entity.images?.[0];
+  if (typeof entityImage === "string") return entityImage;
+  return entity.image?.url || entity.image_url || entity.logo?.url || entity.thumbnail?.url || entityImage?.url || null;
 }
 
 function localTimeText(value: string) {

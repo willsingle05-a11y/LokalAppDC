@@ -67,6 +67,22 @@ function rawEventApiVenueName(row) {
   return entity?.name || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
 }
 
+function rawImageUrl(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value.url || value.image_url || value.thumbnail_url || value.original_url || "";
+}
+
+function rawEventApiImage(row) {
+  const direct = rawImageUrl(row.image_url) || rawImageUrl(row.image) || rawImageUrl(row.raw_json?.image_url);
+  if (direct) return direct;
+  const eventImage = Array.isArray(row.raw_json?.images) ? row.raw_json.images.map(rawImageUrl).find(Boolean) : rawImageUrl(row.raw_json?.images);
+  if (eventImage) return eventImage;
+  const entity = row.raw_json?.entities?.find(item => rawImageUrl(item.image) || rawImageUrl(item.image_url) || rawImageUrl(item.logo) || rawImageUrl(item.thumbnail) || (Array.isArray(item.images) && item.images.map(rawImageUrl).find(Boolean)));
+  if (!entity) return "";
+  return rawImageUrl(entity.image) || rawImageUrl(entity.image_url) || rawImageUrl(entity.logo) || rawImageUrl(entity.thumbnail) || (Array.isArray(entity.images) ? entity.images.map(rawImageUrl).find(Boolean) : rawImageUrl(entity.images)) || "";
+}
+
 function inferVenueNameFromText(value) {
   const text = cleanImportedText(value);
   const patterns = [
@@ -178,7 +194,7 @@ function normalizeSupabaseEvent(row, index) {
     cat: category,
     tag: tags[0] || row.tag || row.category || "Local event",
     tags,
-    image: row.image_url || row.image || row.raw_json?.image_url || row.raw_json?.images?.[0]?.url || row.raw_json?.images?.[0] || "",
+    image: rawEventApiImage(row),
     friends: Array.isArray(row.friends) ? row.friends : [],
     desc: normalizeSupabaseDescription(row)
   };
