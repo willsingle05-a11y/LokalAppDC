@@ -84,6 +84,7 @@ function Get-LogicalTags {
   $tags = [System.Collections.ArrayList]::new()
   $text = "$($Event.title) $($Event.description) $VenueName".ToLowerInvariant()
   Add-EventTag -Tags $tags -Value $Category
+  if ($text -match "smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history") { Add-EventTag -Tags $tags -Value "Smithsonian" }
   if ($Event.labels) { $Event.labels | Select-Object -First 6 | ForEach-Object { Add-EventTag -Tags $tags -Value $_ } }
   if ($Event.phq_labels) { $Event.phq_labels | Select-Object -First 6 | ForEach-Object { Add-EventTag -Tags $tags -Value $_ } }
   if ($Category -eq "concerts" -or $text -match "concert|live music|band|dj|jazz|vinyl|songwriter|showcase") { Add-EventTag -Tags $tags -Value "Live Music" }
@@ -98,7 +99,6 @@ function Get-LogicalTags {
   if ($text -match "free|no cover|complimentary") { Add-EventTag -Tags $tags -Value "Free" }
   if ($text -match "workshop|class|learn|lesson") { Add-EventTag -Tags $tags -Value "Classes" }
   if ($text -match "community|volunteer|neighborhood|meetup") { Add-EventTag -Tags $tags -Value "Community" }
-  if ($text -match "smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history") { Add-EventTag -Tags $tags -Value "Smithsonian" }
   if ($Event.start) {
     $dcZone = [System.TimeZoneInfo]::FindSystemTimeZoneById("Eastern Standard Time")
     $hour = [System.TimeZoneInfo]::ConvertTimeFromUtc(([datetime]$Event.start).ToUniversalTime(), $dcZone).Hour

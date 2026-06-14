@@ -158,8 +158,8 @@ document.addEventListener("input", event => {
   }
   if (input.matches("[data-discover-search]")) {
     const query = input.value.trim().toLowerCase();
-    let visible = 0;
-    document.querySelectorAll("#app .feed-event, #app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
+    const visible = renderDiscoverEventSearch(query);
+    document.querySelectorAll("#app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; });
     const people = [["AL","Ana Lopez","@analopes"],["MR","Marcus Reed","@marcusdc"],["DV","Dev Shah","@devaroundtown"],["JS","Jules Kim","@julesk"],["PL","Priya Lee","@priyaleedc"]].filter(person => `${person[1]} ${person[2]}`.toLowerCase().includes(query));
     const results = document.querySelector("[data-discover-results]");
     if (results) { results.hidden = !query || !people.length; results.innerHTML = people.map(person => `<button class="follow-card" data-open-friend="${person[1]}"><span class="avatar">${person[0]}</span><span><b>${person[1]}</b><small>${person[2]}</small></span></button>`).join(""); }

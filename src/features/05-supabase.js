@@ -176,7 +176,9 @@ function normalizeTagValue(value) {
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
-  return [...rawTags, row.tag, category, ...labels]
+  const text = `${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
+  const priorityTags = /smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text) ? ["Smithsonian"] : [];
+  return [category, ...priorityTags, ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")

@@ -1556,7 +1556,9 @@ function normalizeTagValue(value) {
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
-  return [...rawTags, row.tag, category, ...labels]
+  const text = `${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
+  const priorityTags = /smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text) ? ["Smithsonian"] : [];
+  return [category, ...priorityTags, ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
@@ -1761,6 +1763,24 @@ function renderHome() {
     <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Your feed</p><h2>What's happening</h2></div></div>
     <div class="event-stack">${filtered.map(eventRow).join("")}</div></section>
   </section>`;
+}
+
+function discoverSearchText(event) {
+  return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+}
+
+function renderDiscoverEventSearch(query) {
+  const stack = document.querySelector(".feed-section .event-stack");
+  if (!stack) return 0;
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  const pool = normalizedQuery
+    ? events.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
+    : events.filter(event => matchesFilter(event, state.homeFilter));
+  const matches = pool.sort(sortEventsByStart);
+  stack.innerHTML = matches.length
+    ? matches.map(eventRow).join("")
+    : `<p class="section-helper">No events matched that search yet.</p>`;
+  return matches.length;
 }
 
 const dcMapAreas = {
@@ -2579,8 +2599,8 @@ document.addEventListener("input", event => {
   }
   if (input.matches("[data-discover-search]")) {
     const query = input.value.trim().toLowerCase();
-    let visible = 0;
-    document.querySelectorAll("#app .feed-event, #app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
+    const visible = renderDiscoverEventSearch(query);
+    document.querySelectorAll("#app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; });
     const people = [["AL","Ana Lopez","@analopes"],["MR","Marcus Reed","@marcusdc"],["DV","Dev Shah","@devaroundtown"],["JS","Jules Kim","@julesk"],["PL","Priya Lee","@priyaleedc"]].filter(person => `${person[1]} ${person[2]}`.toLowerCase().includes(query));
     const results = document.querySelector("[data-discover-results]");
     if (results) { results.hidden = !query || !people.length; results.innerHTML = people.map(person => `<button class="follow-card" data-open-friend="${person[1]}"><span class="avatar">${person[0]}</span><span><b>${person[1]}</b><small>${person[2]}</small></span></button>`).join(""); }

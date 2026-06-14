@@ -12,6 +12,24 @@
   </section>`;
 }
 
+function discoverSearchText(event) {
+  return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+}
+
+function renderDiscoverEventSearch(query) {
+  const stack = document.querySelector(".feed-section .event-stack");
+  if (!stack) return 0;
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  const pool = normalizedQuery
+    ? events.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
+    : events.filter(event => matchesFilter(event, state.homeFilter));
+  const matches = pool.sort(sortEventsByStart);
+  stack.innerHTML = matches.length
+    ? matches.map(eventRow).join("")
+    : `<p class="section-helper">No events matched that search yet.</p>`;
+  return matches.length;
+}
+
 const dcMapAreas = {
   "Adams Morgan": { x: 24, y: 27 },
   "U Street": { x: 42, y: 42 },

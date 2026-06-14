@@ -120,6 +120,7 @@ function logicalTags(event: PredictHqEvent, eventCategory: string, venueName: st
   const tags: string[] = [];
   const text = `${event.title || ""} ${event.description || ""} ${venueName || ""}`.toLowerCase();
   addTag(tags, eventCategory);
+  if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) addTag(tags, "Smithsonian");
   (event.labels || event.phq_labels || []).slice(0, 6).forEach((label: string) => addTag(tags, label));
   if (eventCategory === "concerts" || /concert|live music|band|dj|jazz|vinyl|songwriter|showcase/.test(text)) addTag(tags, "Live Music");
   if (/dj|dance|party|club|nightlife/.test(text)) addTag(tags, "Nightlife");
@@ -133,7 +134,6 @@ function logicalTags(event: PredictHqEvent, eventCategory: string, venueName: st
   if (/free|no cover|complimentary/.test(text)) addTag(tags, "Free");
   if (/workshop|class|learn|lesson/.test(text)) addTag(tags, "Classes");
   if (/community|volunteer|neighborhood|meetup/.test(text)) addTag(tags, "Community");
-  if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) addTag(tags, "Smithsonian");
   const start = event.start ? new Date(event.start) : null;
   if (start && !Number.isNaN(start.getTime())) {
     const hour = Number(new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, hour: "numeric", hour12: false }).format(start));
