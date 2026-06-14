@@ -120,6 +120,37 @@ function primaryEventTag(event) {
   return eventTags(event)[0] || event.tag || event.cat || "Local event";
 }
 
+function eventArtLabel(event) {
+  const category = String(event.cat || event.category || "").toLowerCase();
+  const labels = {
+    music: "Concert",
+    concerts: "Concert",
+    art: "Arts",
+    "performing-arts": "Arts",
+    theatre: "Arts",
+    theater: "Arts",
+    sports: "Sports",
+    fitness: "Fitness",
+    food: "Food",
+    festivals: "Festival",
+    community: "Community",
+    expos: "Expo",
+    nightlife: "Night out"
+  };
+  if (labels[category]) return labels[category];
+  const tagText = eventTags(event).join(" ").toLowerCase();
+  const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
+  if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concert";
+  if (/\b(theatre|theater|performing|arts?|museum|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
+  if (/\b(baseball|mlb|nba|nfl|nhl|soccer|sports?|game)\b/.test(text)) return "Sports";
+  if (/\b(food|drink|wine|beer|cocktail|restaurant|brunch|market)\b/.test(text)) return "Food";
+  if (/\b(festival|fair)\b/.test(text)) return "Festival";
+  if (/\b(expo|conference|convention)\b/.test(text)) return "Expo";
+  if (/\b(run|yoga|fitness|wellness|pickleball)\b/.test(text)) return "Fitness";
+  if (/\b(community|volunteer|neighborhood|meetup)\b/.test(text)) return "Community";
+  return "Event";
+}
+
 function eventRow(event) {
   const signal = event.friends.length ? `<div class="signal">${avatarStack(event.friends)} ${event.friends.map(f => friendNames[f]).join(" + ")} ${event.friends.length === 1 ? "saved this" : "are going"}</div>` : "";
   const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
@@ -127,7 +158,7 @@ function eventRow(event) {
   const image = eventArtImage(event);
   const tags = eventTags(event);
   return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};">${eventArtScene(event)}<span class="art-label">${escapeHtml(primaryEventTag(event))}</span></span>
+    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};">${eventArtScene(event)}<span class="art-label">${escapeHtml(eventArtLabel(event))}</span></span>
     <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
   </button>`;
 }

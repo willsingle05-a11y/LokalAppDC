@@ -18,21 +18,30 @@ function formatSupabaseDate(value) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
 }
 
-function normalizeSupabasePrice(value, isMinimum = false) {
+function rowIsExplicitlyFree(row) {
+  const tags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
+  const text = `${row.price || ""} ${row.price_label || ""} ${row.title || ""} ${row.description || ""} ${tags} ${row.raw_json?.description || ""} ${Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : ""}`.toLowerCase();
+  return /\b(free|no cover|complimentary|free admission)\b/.test(text);
+}
+
+function normalizeSupabasePrice(value, isMinimum = false, isExplicitlyFree = false) {
   if (value === null || value === undefined || value === "") return "Price unknown";
-  if (String(value).toLowerCase() === "free" || Number(value) === 0) return "Free";
+  if (String(value).toLowerCase() === "free") return "Free";
+  if (Number(value) === 0) return isExplicitlyFree ? "Free" : "Price unknown";
   const text = String(value);
   const price = text.startsWith("$") ? text : `$${text}`;
   return isMinimum ? `From ${price}` : price;
 }
 
 function normalizeSupabasePriceFromRow(row) {
-  if (row.price !== undefined && row.price !== null && row.price !== "") return normalizeSupabasePrice(row.price);
+  const isExplicitlyFree = rowIsExplicitlyFree(row);
+  if (row.price !== undefined && row.price !== null && row.price !== "") return normalizeSupabasePrice(row.price, false, isExplicitlyFree);
   if (row.price_min !== undefined && row.price_min !== null && row.price_min !== "") {
+    if (Number(row.price_min) === 0 && !isExplicitlyFree) return "Price unknown";
     if (row.price_max !== undefined && row.price_max !== null && row.price_max !== "" && Number(row.price_max) !== Number(row.price_min)) {
-      return `${normalizeSupabasePrice(row.price_min)}-${normalizeSupabasePrice(row.price_max).replace("$", "")}`;
+      return `${normalizeSupabasePrice(row.price_min, false, isExplicitlyFree)}-${normalizeSupabasePrice(row.price_max).replace("$", "")}`;
     }
-    return normalizeSupabasePrice(row.price_min, true);
+    return normalizeSupabasePrice(row.price_min, true, isExplicitlyFree);
   }
   return "Price unknown";
 }
