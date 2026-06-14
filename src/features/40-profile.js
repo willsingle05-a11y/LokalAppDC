@@ -152,7 +152,7 @@ function openNotifications() {
 }
 
 function profilePlanIds() {
-  return Array.from(new Set([1, 3, 5, ...state.rsvps])).filter(id => !state.removedPlans?.has(id));
+  return Array.from(new Set([1, 3, 5, ...state.saved, ...state.rsvps])).filter(id => !state.removedPlans?.has(id));
 }
 
 function openProfileList(type) {
