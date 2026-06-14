@@ -46,6 +46,10 @@ function receiptFriendUnits(receipts) {
   return receipts.reduce((sum, receipt) => sum + new Set(receipt.friends || []).size, 0);
 }
 
+function receiptEventKey(receipt) {
+  return String(receipt?.eventId || receipt?.id || `${receipt?.title || ""}|${receipt?.venue || ""}|${receipt?.time || ""}`).toLowerCase();
+}
+
 function scoreBreakdown() {
   const receipts = profileReceipts();
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
@@ -79,7 +83,7 @@ function profileReceipts() {
     return { id: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
   }).filter(Boolean);
   return [...stored, ...attendedRows]
-    .filter((receipt, index, all) => all.findIndex(item => String(item.id) === String(receipt.id)) === index)
+    .filter((receipt, index, all) => all.findIndex(item => receiptEventKey(item) === receiptEventKey(receipt)) === index)
     .sort((a, b) => (b.attendedAt || 0) - (a.attendedAt || 0));
 }
 
@@ -107,10 +111,10 @@ function markEventAttended(id) {
   const event = events.find(item => item.id === Number(id));
   if (!event) return { ok: false, message: "Event not found" };
   if (Number.isFinite(event.startSort) && event.startSort > Date.now()) return { ok: false, message: "You can add this after the event starts" };
-  if (state.attended.has(event.id)) return { ok: false, message: "This receipt is already counted" };
+  if (state.attended.has(event.id) || profileReceipts().some(receipt => receiptEventKey(receipt) === receiptEventKey(event))) return { ok: false, message: "This event is already counted once" };
   state.attended.add(event.id);
   state.rsvps.delete(event.id);
-  const receipt = { id: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  const receipt = { id: event.id, eventId: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
   state.receipts = [receipt, ...(state.receipts || []).filter(item => Number(item.id) !== Number(event.id))];
   localStorage.setItem("lokalAttended", JSON.stringify(Array.from(state.attended)));
   localStorage.setItem("lokalReceipts", JSON.stringify(state.receipts));
