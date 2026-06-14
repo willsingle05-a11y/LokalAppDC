@@ -23,6 +23,15 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .request-actions button:last-child { color: #a4564a; background: #f7e9e4; }
 .lokal-score { display: inline-flex; align-items: baseline; gap: 5px; padding: 7px 9px; border-radius: 12px; font-family: Georgia, serif; font-size: 24px; }
 .lokal-score small { font-size: 9px; letter-spacing: .6px; text-transform: uppercase; }
+.score-breakdown { display: grid; gap: 8px; margin: 14px 0; }
+.score-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px; border: 1px solid rgba(58, 124, 165, .14); border-radius: 13px; background: #f5f7fa; }
+.score-row span { display: grid; gap: 3px; }
+.score-row b { font-size: 12px; }
+.score-row small { color: var(--muted); font-size: 10px; line-height: 1.35; }
+.score-row strong { color: #00c897; font-size: 18px; white-space: nowrap; }
+.score-safeguard { padding: 12px; border: 1px solid rgba(0, 200, 151, .24); border-radius: 14px; background: rgba(0, 200, 151, .08); }
+.score-safeguard b { color: #008f6c; font-size: 12px; }
+.score-safeguard p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .calendar { margin: 13px 0; padding: 11px; border-radius: 14px; background: #f8f5ef; }
 .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
 .calendar-grid button { padding: 7px 2px; border-radius: 7px; color: var(--ink); background: var(--paper); font-size: 10px; }
