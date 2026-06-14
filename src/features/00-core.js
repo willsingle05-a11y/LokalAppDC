@@ -48,7 +48,7 @@ function eventVisualCategory(event) {
   return map[event.cat] || event.cat;
 }
 
-function genericEventArt(event) {
+function eventArtKind(event) {
   const tags = eventTags(event).join(" ").toLowerCase();
   const titleText = `${event.title || ""} ${event.venue || ""} ${event.cat || ""} ${tags}`.toLowerCase();
   let key = event.cat || "community";
@@ -57,6 +57,11 @@ function genericEventArt(event) {
   if (/museum|gallery|art|exhibit/.test(titleText)) key = "arts";
   if (/comedy|stand-up|standup/.test(titleText)) key = "comedy";
   if (/run|yoga|fitness|wellness|pickleball/.test(titleText)) key = "fitness";
+  return key;
+}
+
+function genericEventArt(event) {
+  const key = eventArtKind(event);
   const art = {
     concerts: { a: "#00c897", b: "#0b6b58", c: "#c9fff0", shapes: "<path d='M18 72 C34 42 66 42 82 72' fill='none' stroke='white' stroke-width='5'/><path d='M34 44 V22 L64 31 V55' fill='none' stroke='white' stroke-width='5'/><circle cx='34' cy='67' r='9' fill='rgba(255,255,255,.85)'/><circle cx='64' cy='67' r='9' fill='rgba(255,255,255,.65)'/>" },
     "performing-arts": { a: "#5f9fc3", b: "#1d4e6b", c: "#e0eef7", shapes: "<path d='M18 24 Q50 11 82 24 V82 Q50 67 18 82 Z' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M33 43 Q50 54 67 43' fill='none' stroke='white' stroke-width='5'/><circle cx='37' cy='34' r='4' fill='white'/><circle cx='63' cy='34' r='4' fill='white'/>" },
@@ -73,6 +78,24 @@ function genericEventArt(event) {
   const item = art[key] || art[event.cat] || art.community;
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='${item.a}'/><stop offset='.58' stop-color='${item.b}'/><stop offset='1' stop-color='${item.c}'/></linearGradient><pattern id='dots' width='16' height='16' patternUnits='userSpaceOnUse'><circle cx='3' cy='3' r='2' fill='rgba(255,255,255,.18)'/></pattern></defs><rect width='100' height='100' rx='18' fill='url(#g)'/><rect width='100' height='100' rx='18' fill='url(#dots)'/><circle cx='80' cy='18' r='18' fill='rgba(255,255,255,.14)'/><circle cx='18' cy='82' r='25' fill='rgba(255,255,255,.12)'/>${item.shapes}</svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+function eventArtScene(event) {
+  if (event.image) return "";
+  const scenes = {
+    concerts: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M24 72 C38 47 62 47 76 72' fill='none'/><path d='M38 48 V24 L66 32 V58'/><circle cx='38' cy='70' r='9'/><circle cx='66' cy='70' r='9'/></svg>",
+    "performing-arts": "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M20 26 Q50 14 80 26 L72 76 Q50 64 28 76 Z'/><circle cx='39' cy='41' r='4'/><circle cx='61' cy='41' r='4'/><path d='M38 58 Q50 68 62 58' fill='none'/></svg>",
+    sports: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31' fill='none'/><path d='M20 50 H80 M50 19 C37 36 37 64 50 81 M50 19 C63 36 63 64 50 81' fill='none'/></svg>",
+    festivals: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M18 40 C34 23 66 23 82 40' fill='none'/><path d='M26 47 H74 L68 78 H32 Z'/><path d='M38 47 V78 M50 36 V78 M62 47 V78' fill='none'/></svg>",
+    community: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 80 V38 H47 V80 M53 80 V25 H77 V80'/><path d='M31 49 H40 M61 37 H70 M61 51 H70' fill='none'/></svg>",
+    expos: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='20' y='25' width='60' height='52' rx='7'/><path d='M31 40 H69 M31 53 H69 M31 66 H56' fill='none'/></svg>",
+    food: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M30 23 V58 M40 23 V58 M30 41 H40 M61 23 V78' fill='none'/><path d='M22 71 C34 55 66 55 78 71'/><circle cx='50' cy='49' r='10'/></svg>",
+    film: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='19' y='29' width='62' height='42' rx='7'/><path d='M38 40 L38 60 L60 50 Z'/><path d='M25 36 H30 M25 48 H30 M25 60 H30 M70 36 H75 M70 48 H75 M70 60 H75' fill='none'/></svg>",
+    arts: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='24' y='21' width='52' height='60' rx='8'/><circle cx='42' cy='43' r='10'/><path d='M31 68 C42 55 54 62 68 42' fill='none'/></svg>",
+    comedy: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M25 28 Q50 18 75 28 L70 72 Q50 84 30 72 Z'/><circle cx='40' cy='43' r='4'/><circle cx='60' cy='43' r='4'/><path d='M38 59 Q50 68 62 59' fill='none'/></svg>",
+    fitness: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M24 63 C36 41 52 76 66 34' fill='none'/><circle cx='68' cy='30' r='8'/><path d='M24 78 H78' fill='none'/></svg>"
+  };
+  return `<span class="art-scene art-scene-${eventArtKind(event)}">${scenes[eventArtKind(event)] || scenes.community}</span>`;
 }
 
 function eventArtImage(event) {
@@ -104,7 +127,7 @@ function eventRow(event) {
   const image = eventArtImage(event);
   const tags = eventTags(event);
   return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};"><span class="art-label">${escapeHtml(primaryEventTag(event))}</span></span>
+    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};">${eventArtScene(event)}<span class="art-label">${escapeHtml(primaryEventTag(event))}</span></span>
     <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
   </button>`;
 }

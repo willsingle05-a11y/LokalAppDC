@@ -157,6 +157,36 @@ h1, h2, h3, .brand b, .nav-item, .nav-item.active { color: #111827; }
   isolation: isolate;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
 }
+.art-scene {
+  position: absolute;
+  inset: 13px 9px 34px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, .9);
+  opacity: .96;
+  filter: drop-shadow(0 5px 10px rgba(17,24,39,.16));
+}
+.art-scene svg {
+  width: 78px;
+  height: 78px;
+}
+.art-scene path,
+.art-scene rect,
+.art-scene circle {
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.art-scene path:not([fill='none']),
+.art-scene rect,
+.art-scene circle:not([fill='none']) {
+  fill: rgba(255, 255, 255, .22);
+}
+.art-scene path[fill='none'] {
+  fill: none;
+}
 .event-art:before,
 .event-art:after {
   display: none;
@@ -190,12 +220,12 @@ h1, h2, h3, .brand b { color: #326f91; }
 
 /* Remove near-black navy surfaces */
 .brand-mark, .wide-button, .primary, .chip.active, .filter-chip.active, .action.selected, .group-type.selected, .message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
-.profile-avatar, .avatar-me, .group-icon, .event-art, .cat-music, .cat-food, .cat-art, .cat-fitness, .cat-nightlife,
+.profile-avatar, .avatar-me, .group-icon,
 .feature-card, .stop-card.anchor, .anchor-summary {
   background: #00c897;
 }
 .brand-mark, .wide-button, .primary, .chip.active, .filter-chip.active, .action.selected, .group-type.selected, .message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
-.profile-avatar, .avatar-me, .group-icon, .event-art, .cat-music, .cat-food, .cat-art, .cat-fitness, .cat-nightlife,
+.profile-avatar, .avatar-me, .group-icon,
 .feature-card, .stop-card.anchor, .anchor-summary { color: #ffffff; }
 .share-shortcut, .filter-button, .action, .secondary, .chip, .filter-chip, .detail-pill, .route-badge, .taste-strip span, .follow-button, .group-access, .public-member-count, .filter-options button, .request-actions button, .hype-button, .contacts-art {
   color: #008f6c;
