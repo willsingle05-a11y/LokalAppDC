@@ -1710,24 +1710,47 @@ function renderMap() {
 }
 
 const followingStories = [
-  { icon: "S", name: "Songbyrd", type: "Venue", intro: "What's coming up at Songbyrd over the next few days.", eventIds: [1, 11] },
-  { icon: "D", name: "@dcafterdark", type: "Curator", intro: "A few things @dcafterdark thinks are worth leaving the house for this week.", eventIds: [4, 6, 7] },
-  { icon: "R", name: "DC Run Club", type: "Public group", intro: "Upcoming ways to run, meet people, and hang out with DC Run Club.", eventIds: [5, 8, 2] },
-  { icon: "M", name: "Smithsonian", type: "Venue", intro: "A Smithsonian event to catch over the next couple of days.", eventIds: [9] },
-  { icon: "E", name: "@eater_dc", type: "Curator", intro: "Food and drink suggestions from @eater_dc for the next few days.", eventIds: [2, 4, 8] },
-  { icon: "A", name: "Atlas", type: "Venue", intro: "What's coming up at Atlas over the next few days.", eventIds: [10] }
+  { id: "songbyrd", icon: "S", name: "Songbyrd", type: "Venue", intro: "What's coming up at Songbyrd over the next few days.", eventIds: [1, 11], venueKeywords: ["songbyrd"] },
+  { id: "dcafterdark", icon: "D", name: "@dcafterdark", type: "Curator", intro: "A few things @dcafterdark thinks are worth leaving the house for this week.", eventIds: [4, 6, 7], categories: ["concerts", "performing-arts"], tagKeywords: ["Nightlife", "Comedy", "Live Music", "Late Night", "Evening"] },
+  { id: "runclub", icon: "R", name: "DC Run Club", type: "Public group", intro: "Upcoming ways to run, meet people, and hang out with DC Run Club.", eventIds: [3], tagKeywords: ["Run", "Fitness", "Wellness", "Sports"], textKeywords: ["run club", "run", "yoga", "fitness"] },
+  { id: "smithsonian", icon: "M", name: "Smithsonian", type: "Venue", intro: "A Smithsonian event to catch over the next couple of days.", eventIds: [9], venueKeywords: ["smithsonian", "hirshhorn", "national gallery", "saam", "portrait gallery"] },
+  { id: "eaterdc", icon: "E", name: "@eater_dc", type: "Curator", intro: "Food and drink suggestions from @eater_dc for the next few days.", eventIds: [5], tagKeywords: ["Food & Drink", "Food", "Market", "Wine", "Beer", "Cocktail"], textKeywords: ["food", "restaurant", "market", "chef", "brunch", "wine", "beer", "cocktail"] },
+  { id: "atlas", icon: "A", name: "Atlas", type: "Venue", intro: "What's coming up at Atlas over the next few days.", eventIds: [10], venueKeywords: ["atlas"] }
 ];
+
+function storyEventPool(story) {
+  const venueKeywords = story.venueKeywords || [];
+  const textKeywords = story.textKeywords || [];
+  const tagKeywords = story.tagKeywords || [];
+  const categories = story.categories || [];
+  const directMatches = events.filter(event => {
+    const eventText = `${event.title} ${event.venue} ${event.area} ${event.desc || ""}`.toLowerCase();
+    const tags = eventTags(event).map(tag => tag.toLowerCase());
+    if (venueKeywords.some(keyword => `${event.venue} ${event.title}`.toLowerCase().includes(keyword))) return true;
+    if (textKeywords.some(keyword => eventText.includes(keyword.toLowerCase()))) return true;
+    if (tagKeywords.some(keyword => tags.includes(keyword.toLowerCase()))) return true;
+    if (categories.includes(event.cat)) return true;
+    return false;
+  });
+  const fallback = (story.eventIds || [])
+    .map(id => events.find(event => event.id === id) || demoEvents.find(event => event.id === id))
+    .filter(Boolean);
+  return [...directMatches, ...fallback]
+    .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
+    .sort(sortEventsByStart)
+    .slice(0, 6);
+}
 
 function openStory(index) {
   const storyIndex = (Number(index) + followingStories.length) % followingStories.length;
   const story = followingStories[storyIndex];
-  const storyEvents = story.eventIds.map(id => events.find(event => event.id === id)).filter(Boolean);
+  const storyEvents = storyEventPool(story);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet story-sheet" role="dialog" aria-modal="true" aria-label="${story.name}" data-story-sheet="${storyIndex}">
     <button class="modal-close" aria-label="Close ${story.name}">&times;</button>
     <div class="story-progress">${followingStories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.name}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
-    <div class="event-stack">${storyEvents.map(eventRow).join("")}</div>
+    <div class="event-stack">${storyEvents.length ? storyEvents.map(eventRow).join("") : `<p class="section-helper">No upcoming events matched this follow yet. Lokal will fill this story as new events come in.</p>`}</div>
     <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">← Previous</button><small>${storyIndex + 1} of ${followingStories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next →</button></div>
   </section></div>`;
 }
