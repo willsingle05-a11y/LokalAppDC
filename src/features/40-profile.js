@@ -57,7 +57,7 @@ function scoreBreakdown() {
   const breakdown = [
     { label: "Base profile", value: 100, detail: "Starting score for creating a profile." },
     { label: "Verified attendance", value: receipts.length * 15, detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - no lifetime cap.` },
-    { label: "Went with friends", value: receiptFriendUnits(receipts) * 2, detail: "Small bonus for receipts that include friends. It grows with real attended events, not repeated clicks." },
+    { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
     { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
     { label: "Saved ideas", value: cappedScore(savedOnlyCount, 1, 20), detail: `${savedOnlyCount} saved event${savedOnlyCount === 1 ? "" : "s"} not already RSVP'd - 1 each - capped at 20.` },
     { label: "Friends and groups", value: cappedScore(state.friends.size, 2, 20) + cappedScore(userGroupNames().length, 2, 20), detail: "Rewards having a real social graph, with separate caps for friends and groups." },
