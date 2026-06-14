@@ -59,6 +59,52 @@ function Convert-Category {
   $Category.ToLowerInvariant()
 }
 
+function Convert-TagTitle {
+  param([string]$Value)
+  if (-not $Value) { return "" }
+  $text = ($Value -replace '[-_]+', ' ' -replace '\s+', ' ').Trim()
+  if (-not $text) { return "" }
+  (Get-Culture).TextInfo.ToTitleCase($text.ToLowerInvariant())
+}
+
+function Add-EventTag {
+  param([System.Collections.ArrayList]$Tags, [string]$Value)
+  $tag = Convert-TagTitle $Value
+  if ($tag -and -not ($Tags | Where-Object { $_.ToLowerInvariant() -eq $tag.ToLowerInvariant() })) {
+    [void]$Tags.Add($tag)
+  }
+}
+
+function Get-LogicalTags {
+  param($Event, [string]$Category, [string]$VenueName)
+  $tags = [System.Collections.ArrayList]::new()
+  $text = "$($Event.title) $($Event.description) $VenueName".ToLowerInvariant()
+  Add-EventTag -Tags $tags -Value $Category
+  if ($Event.labels) { $Event.labels | Select-Object -First 6 | ForEach-Object { Add-EventTag -Tags $tags -Value $_ } }
+  if ($Event.phq_labels) { $Event.phq_labels | Select-Object -First 6 | ForEach-Object { Add-EventTag -Tags $tags -Value $_ } }
+  if ($Category -eq "concerts" -or $text -match "concert|live music|band|dj|jazz|vinyl|songwriter|showcase") { Add-EventTag -Tags $tags -Value "Live Music" }
+  if ($text -match "dj|dance|party|club|nightlife") { Add-EventTag -Tags $tags -Value "Nightlife" }
+  if ($text -match "comedy|stand up|open mic") { Add-EventTag -Tags $tags -Value "Comedy" }
+  if ($text -match "film|cinema|screening|movie") { Add-EventTag -Tags $tags -Value "Film" }
+  if ($text -match "gallery|museum|exhibit|exhibition|art opening") { Add-EventTag -Tags $tags -Value "Art" }
+  if ($text -match "market|food|tasting|brunch|restaurant|chef|wine|beer|cocktail") { Add-EventTag -Tags $tags -Value "Food & Drink" }
+  if ($text -match "run|yoga|fitness|bike|pickleball|wellness") { Add-EventTag -Tags $tags -Value "Fitness" }
+  if ($text -match "nats|nationals|soccer|basketball|football|hockey|game\b|sports") { Add-EventTag -Tags $tags -Value "Sports" }
+  if ($text -match "family|kids|children") { Add-EventTag -Tags $tags -Value "Family Friendly" }
+  if ($text -match "free|no cover|complimentary") { Add-EventTag -Tags $tags -Value "Free" }
+  if ($text -match "workshop|class|learn|lesson") { Add-EventTag -Tags $tags -Value "Classes" }
+  if ($text -match "community|volunteer|neighborhood|meetup") { Add-EventTag -Tags $tags -Value "Community" }
+  if ($Event.start) {
+    $dcZone = [System.TimeZoneInfo]::FindSystemTimeZoneById("Eastern Standard Time")
+    $hour = [System.TimeZoneInfo]::ConvertTimeFromUtc(([datetime]$Event.start).ToUniversalTime(), $dcZone).Hour
+    if ($hour -ge 4 -and $hour -lt 12) { Add-EventTag -Tags $tags -Value "Morning" }
+    elseif ($hour -ge 12 -and $hour -lt 16) { Add-EventTag -Tags $tags -Value "Afternoon" }
+    elseif ($hour -ge 16 -and $hour -lt 21) { Add-EventTag -Tags $tags -Value "Evening" }
+    else { Add-EventTag -Tags $tags -Value "Late Night" }
+  }
+  @($tags | Select-Object -First 10)
+}
+
 function Get-EntityName {
   param($Event)
   $venue = $Event.entities | Where-Object { $_.type -eq "venue" -or $_.type -eq "place" } | Select-Object -First 1
@@ -165,6 +211,7 @@ function Convert-Event {
   if (-not $externalUrl) { $externalUrl = $Event.url }
   $venueName = Get-EntityName $Event
   $category = Convert-Category $Event.category
+  $tags = Get-LogicalTags -Event $Event -Category $category -VenueName $venueName
   $lokalScore = Get-LokalScore -Event $Event -VenueName $venueName -Category $category
   $description = "$($Event.description)" -replace '^Sourced from predicthq\.com\s*-\s*', ''
   $description = $description -replace '^Sourced from predicthq\.com\.?\s*', ''
@@ -178,7 +225,8 @@ function Convert-Event {
     title = $(if ($Event.title) { $Event.title } else { "Untitled event" })
     description = $description
     category = $category
-    tag = $(if ($Event.labels -and $Event.labels.Count) { $Event.labels[0] } else { $Event.category })
+    tag = $(if ($tags.Count) { $tags[0] } elseif ($Event.labels -and $Event.labels.Count) { $Event.labels[0] } else { $Event.category })
+    tags = $tags
     venue_name = $venueName
     venue = $venueName
     neighborhood = "Washington, DC"
@@ -226,6 +274,7 @@ function Get-SupabaseEventColumns {
     "description",
     "category",
     "tag",
+    "tags",
     "venue_name",
     "venue",
     "neighborhood",

@@ -33,7 +33,8 @@ Edit files in `src`. Treat the generated standalone HTML as the share artifact.
 ## Sync real DC events from an event API
 
 1. Run `supabase/events.sql` in the Supabase SQL editor. This creates/updates
-   the `events` table that the demo already reads from.
+   the `events` table that the demo already reads from, including the `tags`
+   array used for multi-tag event cards and future tag filtering.
 2. Get an event API token and set it in your shell.
 3. Run the sync script:
 
@@ -72,7 +73,10 @@ The demo now includes a Supabase Edge Function at:
 - `supabase/functions/sync-predicthq-events/index.ts`
 
 That function pulls current DC events, cleans them up, and writes them into the
-same `events` table the demo already reads from.
+same `events` table the demo already reads from. Imported rows include a single
+primary `tag` plus a multi-value `tags` array inferred from API labels,
+category, title/description keywords, time of day, free/price signals, and
+local activity patterns.
 
 ### 1. Find the Supabase service role key
 

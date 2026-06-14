@@ -77,6 +77,47 @@ function phqCategoryToLokal(category) {
   return String(category || "community").toLowerCase();
 }
 
+function titleCaseTag(value) {
+  return String(value || "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, letter => letter.toUpperCase());
+}
+
+function addTag(tags, value) {
+  const tag = titleCaseTag(value);
+  if (tag && !tags.some(item => item.toLowerCase() === tag.toLowerCase())) tags.push(tag);
+}
+
+function logicalTags(event, category, venueName) {
+  const tags = [];
+  const text = `${event.title || ""} ${event.description || ""} ${venueName || ""}`.toLowerCase();
+  addTag(tags, category);
+  (event.labels || event.phq_labels || []).slice(0, 6).forEach(label => addTag(tags, label));
+  if (category === "concerts" || /concert|live music|band|dj|jazz|vinyl|songwriter|showcase/.test(text)) addTag(tags, "Live Music");
+  if (/dj|dance|party|club|nightlife/.test(text)) addTag(tags, "Nightlife");
+  if (/comedy|stand up|open mic/.test(text)) addTag(tags, "Comedy");
+  if (/film|cinema|screening|movie/.test(text)) addTag(tags, "Film");
+  if (/gallery|museum|exhibit|exhibition|art opening/.test(text)) addTag(tags, "Art");
+  if (/market|food|tasting|brunch|restaurant|chef|wine|beer|cocktail/.test(text)) addTag(tags, "Food & Drink");
+  if (/run|yoga|fitness|bike|pickleball|wellness/.test(text)) addTag(tags, "Fitness");
+  if (/nats|nationals|soccer|basketball|football|hockey|game\b|sports/.test(text)) addTag(tags, "Sports");
+  if (/family|kids|children/.test(text)) addTag(tags, "Family Friendly");
+  if (/free|no cover|complimentary/.test(text)) addTag(tags, "Free");
+  if (/workshop|class|learn|lesson/.test(text)) addTag(tags, "Classes");
+  if (/community|volunteer|neighborhood|meetup/.test(text)) addTag(tags, "Community");
+  const start = event.start ? new Date(event.start) : null;
+  if (start && !Number.isNaN(start.getTime())) {
+    const hour = Number(new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, hour: "numeric", hour12: false }).format(start));
+    if (hour >= 4 && hour < 12) addTag(tags, "Morning");
+    else if (hour >= 12 && hour < 16) addTag(tags, "Afternoon");
+    else if (hour >= 16 && hour < 21) addTag(tags, "Evening");
+    else addTag(tags, "Late Night");
+  }
+  return tags.slice(0, 10);
+}
+
 function firstEntity(event, type) {
   return event.entities?.find(entity => entity.type === type) || null;
 }
@@ -157,6 +198,7 @@ function normalizePredictHqEvent(event) {
   const venue = firstEntity(event, "venue") || firstEntity(event, "place");
   const venueName = venue?.name || inferVenueNameFromText(`${event.title || ""} ${event.description || ""}`) || "Location in description";
   const category = phqCategoryToLokal(event.category);
+  const tags = logicalTags(event, category, venueName);
   const [longitude, latitude] = Array.isArray(event.location) ? event.location : [null, null];
   const start = event.start ? new Date(event.start) : null;
   const localDate = event.start_local || event.start;
@@ -164,7 +206,8 @@ function normalizePredictHqEvent(event) {
     title: event.title || "Untitled event",
     description: descriptionWithAddress(event) || event.phq_labels?.join(", ") || null,
     category,
-    tag: event.labels?.[0] || event.category || "Local event",
+    tag: tags[0] || event.labels?.[0] || event.category || "Local event",
+    tags,
     venue_name: venueName,
     venue: venueName,
     neighborhood: "Washington, DC",

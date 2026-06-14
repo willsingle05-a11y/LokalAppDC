@@ -136,14 +136,26 @@ function isEventUpcoming(event) {
 
 function normalizeImportedCategory(row) {
   const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
-  const tag = String(row.tag || "").toLowerCase();
+  const tagList = Array.isArray(row.tags) ? row.tags : [];
+  const tag = String(tagList.find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
   const category = String(row.category || row.cat || "community").toLowerCase();
   if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   return category;
 }
 
+function normalizeSupabaseTags(row, category) {
+  const rawTags = Array.isArray(row.tags) ? row.tags : [];
+  const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
+  return [...rawTags, row.tag, category, ...labels]
+    .map(tag => String(tag || "").trim())
+    .filter(Boolean)
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+    .slice(0, 8);
+}
+
 function normalizeSupabaseEvent(row, index) {
   const category = normalizeImportedCategory(row);
+  const tags = normalizeSupabaseTags(row, category);
   return {
     id: 1000 + index,
     sourceId: row.id,
@@ -158,7 +170,8 @@ function normalizeSupabaseEvent(row, index) {
     hasPreciseStart: Boolean(row.starts_at || row.start_time || row.start_at),
     price: normalizeSupabasePriceFromRow(row),
     cat: category,
-    tag: row.tag || row.category || "Local event",
+    tag: tags[0] || row.tag || row.category || "Local event",
+    tags,
     image: row.image_url || row.image || row.raw_json?.image_url || row.raw_json?.images?.[0]?.url || row.raw_json?.images?.[0] || "",
     friends: Array.isArray(row.friends) ? row.friends : [],
     desc: normalizeSupabaseDescription(row)

@@ -98,6 +98,47 @@ function category(value: string) {
   return value ? value.toLowerCase() : "community";
 }
 
+function titleCaseTag(value: string) {
+  return String(value || "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function addTag(tags: string[], value: string | null | undefined) {
+  const tag = titleCaseTag(String(value || ""));
+  if (tag && !tags.some((item) => item.toLowerCase() === tag.toLowerCase())) tags.push(tag);
+}
+
+function logicalTags(event: PredictHqEvent, eventCategory: string, venueName: string) {
+  const tags: string[] = [];
+  const text = `${event.title || ""} ${event.description || ""} ${venueName || ""}`.toLowerCase();
+  addTag(tags, eventCategory);
+  (event.labels || event.phq_labels || []).slice(0, 6).forEach((label: string) => addTag(tags, label));
+  if (eventCategory === "concerts" || /concert|live music|band|dj|jazz|vinyl|songwriter|showcase/.test(text)) addTag(tags, "Live Music");
+  if (/dj|dance|party|club|nightlife/.test(text)) addTag(tags, "Nightlife");
+  if (/comedy|stand up|open mic/.test(text)) addTag(tags, "Comedy");
+  if (/film|cinema|screening|movie/.test(text)) addTag(tags, "Film");
+  if (/gallery|museum|exhibit|exhibition|art opening/.test(text)) addTag(tags, "Art");
+  if (/market|food|tasting|brunch|restaurant|chef|wine|beer|cocktail/.test(text)) addTag(tags, "Food & Drink");
+  if (/run|yoga|fitness|bike|pickleball|wellness/.test(text)) addTag(tags, "Fitness");
+  if (/nats|nationals|soccer|basketball|football|hockey|game\b|sports/.test(text)) addTag(tags, "Sports");
+  if (/family|kids|children/.test(text)) addTag(tags, "Family Friendly");
+  if (/free|no cover|complimentary/.test(text)) addTag(tags, "Free");
+  if (/workshop|class|learn|lesson/.test(text)) addTag(tags, "Classes");
+  if (/community|volunteer|neighborhood|meetup/.test(text)) addTag(tags, "Community");
+  const start = event.start ? new Date(event.start) : null;
+  if (start && !Number.isNaN(start.getTime())) {
+    const hour = Number(new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, hour: "numeric", hour12: false }).format(start));
+    if (hour >= 4 && hour < 12) addTag(tags, "Morning");
+    else if (hour >= 12 && hour < 16) addTag(tags, "Afternoon");
+    else if (hour >= 16 && hour < 21) addTag(tags, "Evening");
+    else addTag(tags, "Late Night");
+  }
+  return tags.slice(0, 10);
+}
+
 function lokalScore(event: PredictHqEvent, venueName: string, eventCategory: string) {
   let score = 50;
   const text = `${event.title || ""} ${event.description || ""}`.toLowerCase();
@@ -143,6 +184,7 @@ function localTimeText(value: string) {
 function convertEvent(event: PredictHqEvent) {
   const venueName = entityName(event);
   const eventCategory = category(event.category);
+  const tags = logicalTags(event, eventCategory, venueName);
   const address = eventAddress(event);
   let description = String(event.description || "")
     .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
@@ -154,7 +196,8 @@ function convertEvent(event: PredictHqEvent) {
     title: event.title || "Untitled event",
     description: description || null,
     category: eventCategory,
-    tag: event.labels?.[0] || event.category || eventCategory,
+    tag: tags[0] || event.labels?.[0] || event.category || eventCategory,
+    tags,
     venue_name: venueName,
     venue: venueName,
     neighborhood: "Washington, DC",

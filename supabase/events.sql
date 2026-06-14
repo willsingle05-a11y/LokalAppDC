@@ -4,6 +4,7 @@ create table if not exists public.events (
   description text,
   category text default 'community',
   tag text,
+  tags text[] default '{}',
   venue_name text,
   venue text,
   neighborhood text,
@@ -34,6 +35,7 @@ alter table public.events add column if not exists title text;
 alter table public.events add column if not exists description text;
 alter table public.events add column if not exists category text default 'community';
 alter table public.events add column if not exists tag text;
+alter table public.events add column if not exists tags text[] default '{}';
 alter table public.events add column if not exists venue_name text;
 alter table public.events add column if not exists venue text;
 alter table public.events add column if not exists neighborhood text;
@@ -65,6 +67,7 @@ on public.events (source, external_id);
 
 create index if not exists events_starts_at_idx on public.events (starts_at);
 create index if not exists events_category_idx on public.events (category);
+create index if not exists events_tags_gin_idx on public.events using gin (tags);
 
 alter table public.events enable row level security;
 

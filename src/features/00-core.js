@@ -67,14 +67,31 @@ function eventArtImage(event) {
   return genericEventArt(event);
 }
 
+function eventTags(event) {
+  const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
+  return raw
+    .map(tag => String(tag || "").trim())
+    .filter(Boolean)
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+}
+
+function eventTagChips(event, limit = 3) {
+  return eventTags(event).slice(0, limit).map(tag => `<span class="event-tag">${escapeHtml(tag)}</span>`).join("");
+}
+
+function primaryEventTag(event) {
+  return eventTags(event)[0] || event.tag || event.cat || "Local event";
+}
+
 function eventRow(event) {
   const signal = event.friends.length ? `<div class="signal">${avatarStack(event.friends)} ${event.friends.map(f => friendNames[f]).join(" + ")} ${event.friends.length === 1 ? "saved this" : "are going"}</div>` : "";
   const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
   const attachedGroup = event.id === 3 ? `<div class="signal">Hosted by public group: DC Run Club</div>` : event.id === 4 ? `<div class="signal">Join the Skyline Social event chat</div>` : "";
   const image = eventArtImage(event);
-  return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag}`.toLowerCase()}">
-    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};"><span class="art-label">${event.tag}</span></span>
-    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p>${signal}${attachedGroup}</span>
+  const tags = eventTags(event);
+  return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};"><span class="art-label">${escapeHtml(primaryEventTag(event))}</span></span>
+    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
   </button>`;
 }
 
