@@ -49,16 +49,29 @@ function eventVisualCategory(event) {
 }
 
 function genericEventArt(event) {
+  const tags = eventTags(event).join(" ").toLowerCase();
+  const titleText = `${event.title || ""} ${event.venue || ""} ${event.cat || ""} ${tags}`.toLowerCase();
+  let key = event.cat || "community";
+  if (/food|market|chef|brunch|wine|beer|cocktail|restaurant/.test(titleText)) key = "food";
+  if (/film|cinema|movie/.test(titleText)) key = "film";
+  if (/museum|gallery|art|exhibit/.test(titleText)) key = "arts";
+  if (/comedy|stand-up|standup/.test(titleText)) key = "comedy";
+  if (/run|yoga|fitness|wellness|pickleball/.test(titleText)) key = "fitness";
   const art = {
-    concerts: { label: "Live stage", color: "#00c897", icon: "M 20 70 C 38 36 62 36 80 70 M 34 42 L 34 22 L 62 30 L 62 52 M 30 78 L 70 78" },
-    "performing-arts": { label: "Curtain call", color: "#5f9fc3", icon: "M 22 28 Q 50 12 78 28 L 70 76 Q 50 64 30 76 Z M 36 39 Q 50 48 64 39" },
-    sports: { label: "Game day", color: "#00e5a8", icon: "M 50 18 A 32 32 0 1 1 49 18 M 22 50 H 78 M 50 18 C 36 36 36 64 50 82 M 50 18 C 64 36 64 64 50 82" },
-    festivals: { label: "Festival lights", color: "#3a7ca5", icon: "M 18 36 C 34 22 66 22 82 36 M 24 48 H 76 M 30 48 V 78 M 70 48 V 78 M 39 35 V 78 M 61 35 V 78" },
-    community: { label: "Around town", color: "#00c897", icon: "M 24 76 V 34 H 48 V 76 M 52 76 V 24 H 76 V 76 M 31 44 H 41 M 59 34 H 69 M 59 47 H 69" },
-    expos: { label: "Show floor", color: "#5f9fc3", icon: "M 22 28 H 78 V 76 H 22 Z M 30 40 H 70 M 30 52 H 70 M 30 64 H 54" }
+    concerts: { a: "#00c897", b: "#0b6b58", c: "#c9fff0", shapes: "<path d='M18 72 C34 42 66 42 82 72' fill='none' stroke='white' stroke-width='5'/><path d='M34 44 V22 L64 31 V55' fill='none' stroke='white' stroke-width='5'/><circle cx='34' cy='67' r='9' fill='rgba(255,255,255,.85)'/><circle cx='64' cy='67' r='9' fill='rgba(255,255,255,.65)'/>" },
+    "performing-arts": { a: "#5f9fc3", b: "#1d4e6b", c: "#e0eef7", shapes: "<path d='M18 24 Q50 11 82 24 V82 Q50 67 18 82 Z' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M33 43 Q50 54 67 43' fill='none' stroke='white' stroke-width='5'/><circle cx='37' cy='34' r='4' fill='white'/><circle cx='63' cy='34' r='4' fill='white'/>" },
+    sports: { a: "#00e5a8", b: "#16855f", c: "#e8fff8", shapes: "<rect x='16' y='22' width='68' height='56' rx='12' fill='rgba(255,255,255,.15)' stroke='white' stroke-width='4'/><path d='M16 50 H84 M50 22 V78' stroke='white' stroke-width='4'/><circle cx='50' cy='50' r='13' fill='none' stroke='white' stroke-width='4'/>" },
+    festivals: { a: "#3a7ca5", b: "#00c897", c: "#f5f7fa", shapes: "<path d='M18 42 C33 23 67 23 82 42' fill='none' stroke='white' stroke-width='5'/><path d='M26 46 H74 L68 78 H32 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M36 46 V78 M50 35 V78 M64 46 V78' stroke='white' stroke-width='4'/>" },
+    community: { a: "#e0eef7", b: "#00c897", c: "#1d4e6b", shapes: "<path d='M22 80 V38 H47 V80 M53 80 V24 H78 V80' fill='rgba(255,255,255,.55)' stroke='#1d4e6b' stroke-width='4'/><path d='M30 48 H39 M61 36 H70 M61 50 H70' stroke='#1d4e6b' stroke-width='4'/><circle cx='28' cy='23' r='8' fill='rgba(255,255,255,.75)'/>" },
+    expos: { a: "#5f9fc3", b: "#d8ecf6", c: "#1d4e6b", shapes: "<rect x='19' y='25' width='62' height='52' rx='7' fill='rgba(255,255,255,.55)' stroke='#1d4e6b' stroke-width='4'/><path d='M29 39 H71 M29 52 H71 M29 65 H56' stroke='#1d4e6b' stroke-width='4'/><circle cx='74' cy='22' r='8' fill='rgba(0,200,151,.75)'/>" },
+    food: { a: "#00c897", b: "#f5f7fa", c: "#1d4e6b", shapes: "<path d='M30 22 V57 M40 22 V57 M30 40 H40 M60 22 V78' stroke='#1d4e6b' stroke-width='5' stroke-linecap='round'/><path d='M22 70 C34 54 66 54 78 70' fill='rgba(255,255,255,.55)' stroke='#1d4e6b' stroke-width='4'/><circle cx='50' cy='48' r='10' fill='rgba(0,200,151,.45)'/>" },
+    film: { a: "#111827", b: "#5f9fc3", c: "#f5f7fa", shapes: "<rect x='19' y='28' width='62' height='44' rx='7' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M37 39 L37 61 L59 50 Z' fill='white'/><path d='M24 35 H30 M24 47 H30 M24 59 H30 M70 35 H76 M70 47 H76 M70 59 H76' stroke='white' stroke-width='3'/>" },
+    arts: { a: "#5f9fc3", b: "#f5f7fa", c: "#00c897", shapes: "<rect x='23' y='20' width='54' height='62' rx='8' fill='rgba(255,255,255,.45)' stroke='#1d4e6b' stroke-width='4'/><circle cx='42' cy='43' r='10' fill='rgba(0,200,151,.7)'/><path d='M30 69 C42 54 53 61 69 42' fill='none' stroke='#1d4e6b' stroke-width='5'/>" },
+    comedy: { a: "#00c897", b: "#1d4e6b", c: "#f5f7fa", shapes: "<path d='M25 28 Q50 18 75 28 L70 72 Q50 84 30 72 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><circle cx='40' cy='43' r='4' fill='white'/><circle cx='60' cy='43' r='4' fill='white'/><path d='M37 58 Q50 68 63 58' fill='none' stroke='white' stroke-width='5'/>" },
+    fitness: { a: "#00e5a8", b: "#f5f7fa", c: "#1d4e6b", shapes: "<path d='M24 62 C36 40 52 76 66 34' fill='none' stroke='#1d4e6b' stroke-width='5'/><circle cx='68' cy='30' r='8' fill='rgba(29,78,107,.85)'/><path d='M24 77 H78' stroke='#1d4e6b' stroke-width='5'/>" }
   };
-  const item = art[event.cat] || art.community;
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='${item.color}'/><circle cx='74' cy='20' r='18' fill='rgba(255,255,255,.16)'/><circle cx='25' cy='74' r='24' fill='rgba(255,255,255,.14)'/><path d='${item.icon}' fill='none' stroke='white' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/></svg>`;
+  const item = art[key] || art[event.cat] || art.community;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='${item.a}'/><stop offset='.58' stop-color='${item.b}'/><stop offset='1' stop-color='${item.c}'/></linearGradient><pattern id='dots' width='16' height='16' patternUnits='userSpaceOnUse'><circle cx='3' cy='3' r='2' fill='rgba(255,255,255,.18)'/></pattern></defs><rect width='100' height='100' rx='18' fill='url(#g)'/><rect width='100' height='100' rx='18' fill='url(#dots)'/><circle cx='80' cy='18' r='18' fill='rgba(255,255,255,.14)'/><circle cx='18' cy='82' r='25' fill='rgba(255,255,255,.12)'/>${item.shapes}</svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
