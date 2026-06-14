@@ -133,6 +133,7 @@ function logicalTags(event: PredictHqEvent, eventCategory: string, venueName: st
   if (/free|no cover|complimentary/.test(text)) addTag(tags, "Free");
   if (/workshop|class|learn|lesson/.test(text)) addTag(tags, "Classes");
   if (/community|volunteer|neighborhood|meetup/.test(text)) addTag(tags, "Community");
+  if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) addTag(tags, "Smithsonian");
   const start = event.start ? new Date(event.start) : null;
   if (start && !Number.isNaN(start.getTime())) {
     const hour = Number(new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, hour: "numeric", hour12: false }).format(start));
