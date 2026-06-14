@@ -3,7 +3,7 @@ function renderProfile() {
   const receipts = profileReceipts();
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><button class="lokal-score" data-score-info>${lokalScore()} <small>Lokal score</small></button><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><span class="lokal-score">${lokalScore()} <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(state.bio)}</p>
     <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tasteChips}<button class="chip" data-edit-tastes>Edit</button></div>
     <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="groups"><b>${userGroupNames().length}</b><small>Groups</small></button></div>
@@ -56,22 +56,24 @@ function scoreBreakdown() {
   const savedOnlyCount = Array.from(state.saved || []).filter(id => !state.rsvps.has(id) && !state.removedPlans?.has(id)).length;
   const breakdown = [
     { label: "Base profile", value: 100, detail: "Starting score for creating a profile." },
-    { label: "Verified attendance", value: cappedScore(receipts.length, 15, 300), detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} · 15 each · capped at 300.` },
+    { label: "Verified attendance", value: cappedScore(receipts.length, 15, 300), detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - capped at 300.` },
     { label: "Went with friends", value: cappedScore(receiptFriendUnits(receipts), 2, 40), detail: "Small bonus for receipts that include friends, capped so it rewards real plans without dominating." },
-    { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} · 3 each · capped at 30.` },
-    { label: "Saved ideas", value: cappedScore(savedOnlyCount, 1, 20), detail: `${savedOnlyCount} saved event${savedOnlyCount === 1 ? "" : "s"} not already RSVP'd · 1 each · capped at 20.` },
+    { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
+    { label: "Saved ideas", value: cappedScore(savedOnlyCount, 1, 20), detail: `${savedOnlyCount} saved event${savedOnlyCount === 1 ? "" : "s"} not already RSVP'd - 1 each - capped at 20.` },
     { label: "Friends and groups", value: cappedScore(state.friends.size, 2, 20) + cappedScore(userGroupNames().length, 2, 20), detail: "Rewards having a real social graph, with separate caps for friends and groups." },
     { label: "Conversation activity", value: cappedScore(socialActivityUnits(), 1, 30), detail: "Counts unique meaningful messages and event shares, not repeated short spam." }
   ];
   return { total: breakdown.reduce((sum, item) => sum + item.value, 0), items: breakdown };
 }
 
-function openScoreBreakdown() {
+function openFaqSheet() {
   const breakdown = scoreBreakdown();
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score breakdown"><button class="modal-close" aria-label="Close score breakdown">&times;</button>
-    <p class="eyebrow">Lokal score</p><h2>${breakdown.total} points</h2><p class="lede">The score rewards real local activity, not button spam. Repeatable actions are deduped or capped.</p>
+  const maxScore = 100 + 300 + 40 + 30 + 20 + 40 + 30;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="FAQ"><button class="modal-close" aria-label="Close FAQ">&times;</button>
+    <p class="eyebrow">FAQ</p><h2>How Lokal works</h2>
+    <div class="score-safeguard"><b>Is there a max Lokal score?</b><p>In this demo model, yes. The current capped max is ${maxScore}. That keeps the score from becoming a spam contest while still rewarding real attendance and social activity.</p></div>
     <div class="score-breakdown">${breakdown.items.map(item => `<div class="score-row"><span><b>${escapeHtml(item.label)}</b><small>${escapeHtml(item.detail)}</small></span><strong>+${item.value}</strong></div>`).join("")}</div>
-    <div class="score-safeguard"><b>Safeguards built in</b><p>Attendance only counts once per event, future events cannot be marked attended, saved/RSVP/message points are capped, and duplicate short messages do not inflate the score.</p></div>
+    <div class="score-safeguard"><b>How do you prevent cheating?</b><p>Each event can only count once, future events cannot be marked attended, repeated saves or RSVPs are deduped, and short duplicate messages do not inflate the score. In a real app, higher-value attendance would also use check-ins, ticket scans, organizer confirmation, or friend verification.</p></div>
   </section></div>`;
 }
 

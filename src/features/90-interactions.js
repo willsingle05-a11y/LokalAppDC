@@ -58,7 +58,6 @@
   if (t.dataset.calendarDate) { document.querySelectorAll("[data-calendar-date]").forEach(day => day.classList.remove("selected")); t.classList.add("selected"); state.filter.date = t.dataset.calendarDate; }
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || ""))) state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
-  if (t.dataset.scoreInfo !== undefined) { mark(); openScoreBreakdown(); }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {
     mark();
@@ -94,7 +93,7 @@
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
   if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
   if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
-  if (t.dataset.settingsPage) { mark(); const pages = { notifications:["Notification settings","Choose which updates you receive: group messages, invitations, friend requests, and event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."], faq:["FAQ","Find answers about accounts, groups, events, and Lokal scores."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); }
+  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: group messages, invitations, friend requests, and event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Deactivate account", "Your profile will be hidden until you sign back in.", `<button class="danger-button" data-confirm-deactivate>Confirm deactivation</button>`); }
   if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
