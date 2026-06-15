@@ -47,7 +47,7 @@ function normalizeSupabasePriceFromRow(row) {
   if (row.price_min !== undefined && row.price_min !== null && row.price_min !== "") {
     if (Number(row.price_min) === 0 && !isExplicitlyFree) return "Price unknown";
     if (row.price_max !== undefined && row.price_max !== null && row.price_max !== "" && Number(row.price_max) !== Number(row.price_min)) {
-      return `${normalizeSupabasePrice(row.price_min, false, isExplicitlyFree)}-${normalizeSupabasePrice(row.price_max).replace("$", "")}`;
+      return `${normalizeSupabasePrice(row.price_min, false, isExplicitlyFree)}-${normalizeSupabasePrice(row.price_max, false, isExplicitlyFree)}`;
     }
     return normalizeSupabasePrice(row.price_min, true, isExplicitlyFree);
   }
@@ -177,9 +177,16 @@ function startOfTodaySortValue() {
   return today.getTime();
 }
 
-function isEventUpcoming(event) {
+function endOfDiscoveryWindowSortValue() {
+  const end = new Date();
+  end.setDate(end.getDate() + 7);
+  end.setHours(23, 59, 59, 999);
+  return end.getTime();
+}
+
+function isEventInDiscoveryWindow(event) {
   if (!Number.isFinite(event.startSort)) return true;
-  return event.hasPreciseStart ? event.startSort >= Date.now() : event.startSort >= startOfTodaySortValue();
+  return event.startSort >= startOfTodaySortValue() && event.startSort <= endOfDiscoveryWindowSortValue();
 }
 
 function normalizeImportedCategory(row) {
@@ -264,11 +271,11 @@ async function syncSupabaseEvents(showToast = false) {
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
       const normalized = dcRows.map(normalizeSupabaseEvent);
-      const upcoming = normalized.filter(isEventUpcoming);
-      events = upcoming;
+      const discoveryWindowEvents = normalized.filter(isEventInDiscoveryWindow);
+      events = discoveryWindowEvents;
       const hiddenCount = rows.length - events.length;
-      const shownLabel = `${events.length} upcoming event${events.length === 1 ? "" : "s"} shown`;
-      state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} older or outside-DC row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };
+      const shownLabel = `${events.length} next-week DC event${events.length === 1 ? "" : "s"} shown`;
+      state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} outside-window or outside-DC row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };
     } else {
       events = [...demoEvents];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
