@@ -2,6 +2,7 @@
   const filtered = events.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
+  const feedContent = renderDiscoverFeedContent(filtered);
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
@@ -10,8 +11,51 @@
     <p class="eyebrow">Following</p><div class="following-rail">${followingStories.map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
     <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Swipe your feed</p><h2>${escapeHtml(feedTitle)}</h2></div><span class="route-badge">${filtered.length} event${filtered.length === 1 ? "" : "s"}</span></div>
-    <div class="event-stack">${filtered.map(eventRow).join("")}</div></section>
+    <div data-feed-content>${feedContent}</div></section>
   </section>`;
+}
+
+function discoverCategoryLabel(category) {
+  const item = discoverFilterItems().find(([value]) => value === category);
+  return item ? item[1] : category;
+}
+
+function categoryFromTaste(taste) {
+  const text = String(taste || "").toLowerCase();
+  if (/music|concert|jazz|dj|karaoke/.test(text)) return "concerts";
+  if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
+  if (/museum/.test(text)) return "museums";
+  if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
+  if (/sport|pickleball/.test(text)) return "sports";
+  if (/food|restaurant|brunch|festival|street fair|market/.test(text)) return "festivals";
+  if (/community|volunteer|book club|networking|professional/.test(text)) return "community";
+  return "";
+}
+
+function orderedDiscoverCategories() {
+  const defaults = ["concerts", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
+  return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
+}
+
+function discoverRail(category, railEvents) {
+  const sorted = railEvents.sort(sortEventsByStart);
+  const emptyText = category === "for-you" ? "No events matched that search yet." : "No events in this section yet.";
+  return `<section class="discover-rail" data-discover-rail="${category}">
+    <div class="rail-heading"><div><p class="eyebrow">${category === "for-you" ? "Search results" : "Browse by category"}</p><h3>${escapeHtml(discoverCategoryLabel(category))}</h3></div><span>${sorted.length}</span></div>
+    <div class="event-stack">${sorted.length ? sorted.map(eventRow).join("") : `<p class="section-helper">${emptyText}</p>`}</div>
+  </section>`;
+}
+
+function renderDiscoverFeedContent(filtered) {
+  if (!["all", "nearby"].includes(state.homeFilter)) {
+    return discoverRail(state.homeFilter, filtered);
+  }
+  const base = events.filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
+  const rails = orderedDiscoverCategories()
+    .map(category => [category, base.filter(event => matchesFilter(event, category))])
+    .filter(([, railEvents]) => railEvents.length);
+  return `<div class="discovery-sections">${rails.map(([category, railEvents]) => discoverRail(category, railEvents)).join("")}</div>`;
 }
 
 function discoverSearchText(event) {
@@ -19,16 +63,18 @@ function discoverSearchText(event) {
 }
 
 function renderDiscoverEventSearch(query) {
-  const stack = document.querySelector(".feed-section .event-stack");
-  if (!stack) return 0;
+  const content = document.querySelector("[data-feed-content]");
+  if (!content) return 0;
   const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) {
+    renderHome();
+    return events.filter(event => matchesFilter(event, state.homeFilter)).length;
+  }
   const pool = normalizedQuery
     ? events.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
     : events.filter(event => matchesFilter(event, state.homeFilter));
   const matches = pool.sort(sortEventsByStart);
-  stack.innerHTML = matches.length
-    ? matches.map(eventRow).join("")
-    : `<p class="section-helper">No events matched that search yet.</p>`;
+  content.innerHTML = discoverRail("for-you", matches);
   const count = document.querySelector(".feed-section .route-badge");
   if (count) count.textContent = `${matches.length} result${matches.length === 1 ? "" : "s"}`;
   return matches.length;
