@@ -186,6 +186,7 @@ function eventStartHour(event) {
 
 function eventStartSortValue(event) {
   if (Number.isFinite(event.startSort)) return event.startSort;
+  if (event.startSort === Number.POSITIVE_INFINITY) return Number.MAX_SAFE_INTEGER;
   const timeText = String(event.time || "");
   const dayOrder = timeText.startsWith("Tonight") ? 0
     : timeText.startsWith("Today") ? 0

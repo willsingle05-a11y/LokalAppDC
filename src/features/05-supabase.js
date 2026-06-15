@@ -143,7 +143,14 @@ function normalizeSupabaseDescription(row) {
   return `${description}\n\nAddress: ${address}`;
 }
 
+function hasReliableSupabaseStart(row) {
+  if (row.date || row.time || row.start_time || row.start_at) return true;
+  if (row.source === "smithsonian" && !row.raw_json) return false;
+  return Boolean(row.starts_at);
+}
+
 function eventStartHourFromRow(row) {
+  if (!hasReliableSupabaseStart(row)) return null;
   const source = row.starts_at || row.start_time || row.start_at;
   if (source) {
     const date = new Date(source);
@@ -158,6 +165,7 @@ function eventStartHourFromRow(row) {
 }
 
 function eventStartSortFromRow(row) {
+  if (!hasReliableSupabaseStart(row)) return Number.POSITIVE_INFINITY;
   const source = row.starts_at || row.start_time || row.start_at;
   if (source) {
     const date = new Date(source);
@@ -244,11 +252,11 @@ function normalizeSupabaseEvent(row, index) {
     title: row.title || row.name || "Untitled Lokal event",
     venue: normalizeSupabaseVenue(row),
     area: row.neighborhood || row.area || row.location || "Washington, DC",
-    time: row.date && row.time ? `${formatSupabaseDate(row.date)}, ${String(row.time).trim()}` : row.time || formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date),
+    time: hasReliableSupabaseStart(row) ? (row.date && row.time ? `${formatSupabaseDate(row.date)}, ${String(row.time).trim()}` : row.time || formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : "Ongoing / time varies",
     startDate: row.date || "",
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
-    hasPreciseStart: Boolean(row.starts_at || row.start_time || row.start_at),
+    hasPreciseStart: hasReliableSupabaseStart(row) && Boolean(row.starts_at || row.start_time || row.start_at),
     price: normalizeSupabasePriceFromRow(row),
     cat: category,
     tag: tags[0] || row.tag || row.category || "Local event",
