@@ -64,6 +64,32 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .discover-search-results { display: grid; gap: 6px; margin: -3px 0 12px; }
 .discover-search-results .follow-card { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .feed-section.search-empty-feed::after { display: block; padding: 18px 4px; color: var(--muted); content: "No events or people match that search."; font-size: 12px; }
+.feed-section .section-heading { align-items: center; }
+.feed-section .event-stack {
+  display: flex;
+  gap: 12px;
+  margin: 0 -18px;
+  padding: 1px 18px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.feed-section .event-stack::-webkit-scrollbar { display: none; }
+.feed-section .event-row {
+  grid-template-columns: 1fr;
+  flex: 0 0 min(82vw, 330px);
+  min-height: 360px;
+  scroll-snap-align: start;
+}
+.feed-section .event-art { min-height: 172px; }
+.feed-section .event-copy {
+  justify-content: flex-start;
+  min-height: 188px;
+}
+.feed-section .section-helper {
+  flex: 0 0 calc(100vw - 36px);
+}
 .friend-directory-card { display: flex; padding: 0; overflow: hidden; }
 .friend-card-main { display: flex; flex: 1; align-items: center; gap: 10px; padding: 11px; background: transparent; text-align: left; }
 .friend-card-main span:last-child { display: grid; gap: 2px; }

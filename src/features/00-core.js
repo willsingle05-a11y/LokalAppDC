@@ -44,7 +44,7 @@ function avatarStack(friends) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food" };
+  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -57,6 +57,7 @@ function eventArtKind(event) {
   if (/museum|gallery|art|exhibit/.test(titleText)) key = "arts";
   if (/comedy|stand-up|standup/.test(titleText)) key = "comedy";
   if (/run|yoga|fitness|wellness|pickleball/.test(titleText)) key = "fitness";
+  if (/nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night/.test(titleText)) key = "nightlife";
   return key;
 }
 
@@ -73,7 +74,8 @@ function genericEventArt(event) {
     film: { a: "#35d374", b: "#0fc983", c: "#d8ffe8", shapes: "<rect x='19' y='28' width='62' height='44' rx='7' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M37 39 L37 61 L59 50 Z' fill='white'/><path d='M24 35 H30 M24 47 H30 M24 59 H30 M70 35 H76 M70 47 H76 M70 59 H76' stroke='white' stroke-width='3'/>" },
     arts: { a: "#58e28a", b: "#1acb75", c: "#e6fff0", shapes: "<rect x='23' y='20' width='54' height='62' rx='8' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><circle cx='42' cy='43' r='10' fill='rgba(255,255,255,.6)'/><path d='M30 69 C42 54 53 61 69 42' fill='none' stroke='white' stroke-width='5'/>" },
     comedy: { a: "#45dc80", b: "#0bc479", c: "#e3ffed", shapes: "<path d='M25 28 Q50 18 75 28 L70 72 Q50 84 30 72 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><circle cx='40' cy='43' r='4' fill='white'/><circle cx='60' cy='43' r='4' fill='white'/><path d='M37 58 Q50 68 63 58' fill='none' stroke='white' stroke-width='5'/>" },
-    fitness: { a: "#61e591", b: "#18c879", c: "#e9fff2", shapes: "<path d='M24 62 C36 40 52 76 66 34' fill='none' stroke='white' stroke-width='5'/><circle cx='68' cy='30' r='8' fill='rgba(255,255,255,.7)'/><path d='M24 77 H78' stroke='white' stroke-width='5'/>" }
+    fitness: { a: "#61e591", b: "#18c879", c: "#e9fff2", shapes: "<path d='M24 62 C36 40 52 76 66 34' fill='none' stroke='white' stroke-width='5'/><circle cx='68' cy='30' r='8' fill='rgba(255,255,255,.7)'/><path d='M24 77 H78' stroke='white' stroke-width='5'/>" },
+    nightlife: { a: "#2f3f6f", b: "#111827", c: "#32d274", shapes: "<path d='M29 24 H71 L64 51 Q50 62 36 51 Z' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M50 59 V78 M37 78 H63' stroke='white' stroke-width='5'/><path d='M28 31 H72 M37 39 H63' stroke='white' stroke-width='4'/><circle cx='72' cy='24' r='8' fill='rgba(255,255,255,.65)'/>" }
   };
   const item = art[key] || art[event.cat] || art.community;
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='${item.a}'/><stop offset='.58' stop-color='${item.b}'/><stop offset='1' stop-color='${item.c}'/></linearGradient><pattern id='dots' width='16' height='16' patternUnits='userSpaceOnUse'><circle cx='3' cy='3' r='2' fill='rgba(255,255,255,.18)'/></pattern></defs><rect width='100' height='100' rx='18' fill='url(#g)'/><rect width='100' height='100' rx='18' fill='url(#dots)'/><circle cx='80' cy='18' r='18' fill='rgba(255,255,255,.14)'/><circle cx='18' cy='82' r='25' fill='rgba(255,255,255,.12)'/>${item.shapes}</svg>`;
@@ -93,7 +95,8 @@ function eventArtScene(event) {
     film: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='19' y='29' width='62' height='42' rx='7'/><path d='M38 40 L38 60 L60 50 Z'/><path d='M25 36 H30 M25 48 H30 M25 60 H30 M70 36 H75 M70 48 H75 M70 60 H75' fill='none'/></svg>",
     arts: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='24' y='21' width='52' height='60' rx='8'/><circle cx='42' cy='43' r='10'/><path d='M31 68 C42 55 54 62 68 42' fill='none'/></svg>",
     comedy: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M25 28 Q50 18 75 28 L70 72 Q50 84 30 72 Z'/><circle cx='40' cy='43' r='4'/><circle cx='60' cy='43' r='4'/><path d='M38 59 Q50 68 62 59' fill='none'/></svg>",
-    fitness: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M24 63 C36 41 52 76 66 34' fill='none'/><circle cx='68' cy='30' r='8'/><path d='M24 78 H78' fill='none'/></svg>"
+    fitness: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M24 63 C36 41 52 76 66 34' fill='none'/><circle cx='68' cy='30' r='8'/><path d='M24 78 H78' fill='none'/></svg>",
+    nightlife: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M29 24 H71 L64 51 Q50 62 36 51 Z'/><path d='M50 59 V78 M37 78 H63' fill='none'/><path d='M28 31 H72 M37 39 H63' fill='none'/><circle cx='72' cy='24' r='8'/></svg>"
   };
   return `<span class="art-scene art-scene-${eventArtKind(event)}">${scenes[eventArtKind(event)] || scenes.community}</span>`;
 }
@@ -104,7 +107,7 @@ function eventArtImage(event) {
 }
 
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos" };
+  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   return raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -143,6 +146,7 @@ function eventArtLabel(event) {
   if (labels[category]) return labels[category];
   const tagText = eventTags(event).join(" ").toLowerCase();
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
+  if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Night out";
   if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concert";
   if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
   if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
@@ -273,10 +277,14 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   return event.cat === filter;
 }
 
+function discoverFilterItems() {
+  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+}
+
 function filterChips(active, scope) {
   const items = scope === "home"
-    ? [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]]
-    : [["all", "All"], ["concerts", "Concerts"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    ? discoverFilterItems()
+    : [["all", "All"], ["concerts", "Concerts"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 

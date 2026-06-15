@@ -1,5 +1,7 @@
 ﻿function renderHome() {
   const filtered = events.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
+  const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
+  const feedTitle = activeChip ? activeChip[1] : "What's happening";
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
@@ -7,7 +9,7 @@
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     <p class="eyebrow">Following</p><div class="following-rail">${followingStories.map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Your feed</p><h2>What's happening</h2></div></div>
+    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Swipe your feed</p><h2>${escapeHtml(feedTitle)}</h2></div><span class="route-badge">${filtered.length} event${filtered.length === 1 ? "" : "s"}</span></div>
     <div class="event-stack">${filtered.map(eventRow).join("")}</div></section>
   </section>`;
 }
@@ -27,6 +29,8 @@ function renderDiscoverEventSearch(query) {
   stack.innerHTML = matches.length
     ? matches.map(eventRow).join("")
     : `<p class="section-helper">No events matched that search yet.</p>`;
+  const count = document.querySelector(".feed-section .route-badge");
+  if (count) count.textContent = `${matches.length} result${matches.length === 1 ? "" : "s"}`;
   return matches.length;
 }
 
