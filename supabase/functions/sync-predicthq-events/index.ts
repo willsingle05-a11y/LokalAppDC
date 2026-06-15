@@ -95,7 +95,8 @@ function eventAddress(event: PredictHqEvent) {
 }
 
 function category(value: string) {
-  return value ? value.toLowerCase() : "community";
+  const normalized = value ? value.toLowerCase() : "community";
+  return ["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums"].includes(normalized) ? normalized : "community";
 }
 
 function labelText(value: any) {

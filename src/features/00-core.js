@@ -44,7 +44,7 @@ function avatarStack(friends) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "performing-arts": "art", festivals: "food", sports: "fitness", expos: "art", community: "food" };
+  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food" };
   return map[event.cat] || event.cat;
 }
 
@@ -127,6 +127,7 @@ function eventArtLabel(event) {
     concerts: "Concert",
     art: "Arts",
     "performing-arts": "Arts",
+    museums: "Museums",
     theatre: "Arts",
     theater: "Arts",
     sports: "Sports",
@@ -141,14 +142,15 @@ function eventArtLabel(event) {
   const tagText = eventTags(event).join(" ").toLowerCase();
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
   if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concert";
-  if (/\b(theatre|theater|performing|arts?|museum|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
+  if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
+  if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
   if (/\b(baseball|mlb|nba|nfl|nhl|soccer|sports?|game)\b/.test(text)) return "Sports";
   if (/\b(food|drink|wine|beer|cocktail|restaurant|brunch|market)\b/.test(text)) return "Food";
   if (/\b(festival|fair)\b/.test(text)) return "Festival";
   if (/\b(expo|conference|convention)\b/.test(text)) return "Expo";
   if (/\b(run|yoga|fitness|wellness|pickleball)\b/.test(text)) return "Fitness";
   if (/\b(community|volunteer|neighborhood|meetup)\b/.test(text)) return "Community";
-  return "Event";
+  return "Community";
 }
 
 function eventRow(event) {
@@ -270,8 +272,8 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 
 function filterChips(active, scope) {
   const items = scope === "home"
-    ? [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["performing-arts", "Performing arts"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]]
-    : [["all", "All"], ["concerts", "Concerts"], ["performing-arts", "Arts"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    ? [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]]
+    : [["all", "All"], ["concerts", "Concerts"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 

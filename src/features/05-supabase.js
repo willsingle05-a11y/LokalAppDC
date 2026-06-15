@@ -160,12 +160,20 @@ function isEventUpcoming(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos"]);
+  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
+  const text = `${row.category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
+  const directCategory = String(row.category || row.cat || "").toLowerCase();
   const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
-  const category = String(row.category || row.cat || "community").toLowerCase();
   if (row.source !== "manual" && importedCategories.has(tag)) return tag;
-  return category;
+  if (importedCategories.has(directCategory)) return directCategory;
+  if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
+  if (/concert|music|rock|pop|r&b|hip-hop|rap|jazz|latin|country|dj|band|singer|songwriter/.test(text)) return "concerts";
+  if (/theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance/.test(text)) return "performing-arts";
+  if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
+  if (/festival|fair/.test(text)) return "festivals";
+  if (/expo|conference|convention/.test(text)) return "expos";
+  return "community";
 }
 
 function normalizeTagValue(value) {

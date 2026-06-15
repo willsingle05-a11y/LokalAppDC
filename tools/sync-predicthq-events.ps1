@@ -56,7 +56,10 @@ function Get-DcPlaceId {
 function Convert-Category {
   param([string]$Category)
   if (-not $Category) { return "community" }
-  $Category.ToLowerInvariant()
+  $normalized = $Category.ToLowerInvariant()
+  $allowed = @("concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums")
+  if ($allowed -contains $normalized) { return $normalized }
+  "community"
 }
 
 function Convert-TagTitle {

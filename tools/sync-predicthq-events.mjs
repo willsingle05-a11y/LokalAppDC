@@ -74,7 +74,9 @@ async function findWashingtonDcPlaceId() {
 }
 
 function phqCategoryToLokal(category) {
-  return String(category || "community").toLowerCase();
+  const value = String(category || "community").toLowerCase();
+  const allowed = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums"]);
+  return allowed.has(value) ? value : "community";
 }
 
 function labelText(value) {
