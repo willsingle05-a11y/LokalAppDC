@@ -262,6 +262,7 @@ setRoute("home");
 if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
 syncSupabaseEvents();
 syncSupabaseProfiles();
+syncSupabaseGroups();
 updateProfileShortcut();
 checkPhoneSignupStatus();
 showWelcomeBanner();

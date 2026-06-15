@@ -1,0 +1,48 @@
+alter table public."Profiles" add column if not exists is_demo boolean default false;
+
+insert into public."Profiles"
+  (id, display_name, username, birthdate, bio, avatar_initials, taste_tags, neighborhoods, price_preference, onboarding_completed, push_notifications, location_sharing, is_demo, created_at)
+values
+  ('00000000-0000-4000-8000-000000000101','Ana Lopez','analopes','1998-04-18','New to DC / Live music + food','AL',array['Live music','Food','Markets'],array['Adams Morgan','Shaw'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000102','Marcus Reed','marcusdc','1995-09-03','DC local / Fitness + markets','MR',array['Fitness','Markets','Sports'],array['U Street','Columbia Heights'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000103','Jules Kim','julesk','1999-01-27','DC local / Music + nightlife','JS',array['Live music','Nightlife','Comedy'],array['U Street','Logan Circle'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000104','Dev Shah','devaroundtown','1997-07-14','Exploring DC / Art + film','DV',array['Arts','Film','Museums'],array['Shaw','Penn Quarter'],'under_20',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000105','Elena Torres','elenaarounddc','1996-11-21','Capitol Hill / Patios + galleries','ET',array['Arts','Patios','Food'],array['Capitol Hill','H Street'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000106','Priya Lee','priyaleedc','2000-05-09','New to DC / Food + art','PL',array['Food','Arts','Museums'],array['Dupont','Penn Quarter'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000107','Nia Williams','nianights','1998-08-12','Shaw / Comedy, dancing, and late-night food','NW',array['Comedy','Dancing','Food'],array['Shaw','Logan Circle'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000108','Chris Bennett','chrisb','1994-12-30','Navy Yard / Sports, rooftops, and trivia','CB',array['Sports','Rooftops','Trivia'],array['Navy Yard'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000109','Sofia Kim','sofiak','2001-03-05','Adams Morgan / Coffee walks + shows','SK',array['Coffee','Live music','Low-key hangs'],array['Adams Morgan'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000110','Avery Morgan','averymoves','1997-02-16','Logan Circle / Run clubs and low-key hangs','AM',array['Run clubs','Fitness','Low-key hangs'],array['Logan Circle'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000111','Theo Harris','theohdc','1995-06-22','H Street / DJs, pop-ups, and soccer bars','TH',array['DJs','Pop-ups','Sports'],array['H Street'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000112','Maya Kapoor','mayainthecity','1999-10-02','Dupont / Museums, wine bars, and book clubs','MK',array['Museums','Wine bars','Book clubs'],array['Dupont','Penn Quarter'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000113','Leo Brooks','leobrooks','1996-01-19','Brookland / Community events and farmers markets','LB',array['Community','Farmers markets','Volunteering'],array['Brookland'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000114','Grace Turner','gracetdc','1998-07-08','Georgetown / Gallery openings and live jazz','GT',array['Gallery openings','Jazz','Arts'],array['Georgetown','Dupont'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000115','Ryan James','ryanrounddc','1993-04-25','U Street / Concerts, comedy, and pickup games','RJ',array['Concerts','Comedy','Sports'],array['U Street'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000116','Isabel Cruz','isabelcruzdc','2000-09-18','Columbia Heights / Food halls and dance nights','IC',array['Food','Dancing','Nightlife'],array['Columbia Heights'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000117','Owen Adams','owenout','1997-12-11','NoMa / Outdoor movies, markets, and patios','OA',array['Outdoor movies','Markets','Patios'],array['NoMa','Union Market'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000118','Zara Hassan','zaralokal','1999-05-28','Mount Pleasant / Art, volunteering, and coffee','ZH',array['Arts','Volunteering','Coffee'],array['Mount Pleasant'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000119','Ben Miller','benindc','1994-03-31','Capitol Riverfront / Nats games and rooftops','BM',array['Sports','Rooftops','Food'],array['Navy Yard','Capitol Riverfront'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000120','Camila Wright','camilaw','1998-11-04','Petworth / Trivia, karaoke, and street fairs','CW',array['Trivia','Karaoke','Street fairs'],array['Petworth'],'under_20',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000121','Sam Nguyen','samfinds','1996-08-29','Union Market / New restaurants and design events','SN',array['Restaurants','Design','Markets'],array['Union Market','NoMa'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000122','Harper King','harpergoes','2001-02-07','Tenleytown / College events and free concerts','HK',array['College events','Free events','Concerts'],array['Tenleytown'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000123','Eli Parker','eliparker','1995-10-14','Southwest / Theater, waterfront walks, and jazz','EP',array['Theater','Jazz','Waterfront'],array['Southwest','Penn Quarter'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000124','Quinn Davis','quinndc','1999-06-06','Ivy City / DJs, breweries, and bike rides','QD',array['DJs','Breweries','Bike rides'],array['Ivy City','NoMa'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000125','Fatima Thompson','fatimathompson','1997-09-20','Woodley Park / Wellness, parks, and museums','FT',array['Wellness','Parks','Museums'],array['Woodley Park'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000126','Jonah Patel','jonahp','1994-01-10','Downtown / Networking, sports, and happy hours','JP',array['Networking','Sports','Happy hours'],array['Downtown'],'any',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000127','Riley Ochoa','rileyo','2000-12-02','Anacostia / Community markets and live music','RO',array['Community','Markets','Live music'],array['Anacostia'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000128','Mina Hughes','minahughes','1998-05-17','Cleveland Park / Book clubs and gallery days','MH',array['Book clubs','Gallery openings','Museums'],array['Cleveland Park'],'under_20',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000129','Kai Thomas','kaithomas','1996-07-26','Takoma / Festivals, yoga, and volunteer days','KT',array['Festivals','Yoga','Volunteering'],array['Takoma'],'free',true,true,true,true,now()),
+  ('00000000-0000-4000-8000-000000000130','Lena Scott','lenascott','1999-03-13','Bloomingdale / Brunch, patios, and local shows','LS',array['Brunch','Patios','Live music'],array['Bloomingdale','Shaw'],'any',true,true,true,true,now())
+on conflict (id) do update set
+  display_name = excluded.display_name,
+  username = excluded.username,
+  birthdate = excluded.birthdate,
+  bio = excluded.bio,
+  avatar_initials = excluded.avatar_initials,
+  taste_tags = excluded.taste_tags,
+  neighborhoods = excluded.neighborhoods,
+  price_preference = excluded.price_preference,
+  onboarding_completed = excluded.onboarding_completed,
+  push_notifications = excluded.push_notifications,
+  location_sharing = excluded.location_sharing,
+  is_demo = excluded.is_demo;

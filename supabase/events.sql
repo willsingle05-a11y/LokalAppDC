@@ -19,13 +19,18 @@ create table if not exists public.events (
   price_max numeric,
   ticket_url text,
   image_url text,
+  is_free boolean default false,
+  venue_address text,
   source text not null default 'manual',
   external_id text,
   external_url text,
   latitude double precision,
   longitude double precision,
+  lat double precision,
+  lng double precision,
   lokal_score integer default 50,
   raw_json jsonb,
+  status text default 'published',
   last_seen_at timestamptz default now(),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -50,13 +55,18 @@ alter table public.events add column if not exists price_min numeric;
 alter table public.events add column if not exists price_max numeric;
 alter table public.events add column if not exists ticket_url text;
 alter table public.events add column if not exists image_url text;
+alter table public.events add column if not exists is_free boolean default false;
+alter table public.events add column if not exists venue_address text;
 alter table public.events add column if not exists source text not null default 'manual';
 alter table public.events add column if not exists external_id text;
 alter table public.events add column if not exists external_url text;
 alter table public.events add column if not exists latitude double precision;
 alter table public.events add column if not exists longitude double precision;
+alter table public.events add column if not exists lat double precision;
+alter table public.events add column if not exists lng double precision;
 alter table public.events add column if not exists lokal_score integer default 50;
 alter table public.events add column if not exists raw_json jsonb;
+alter table public.events add column if not exists status text default 'published';
 alter table public.events add column if not exists last_seen_at timestamptz default now();
 alter table public.events add column if not exists created_at timestamptz default now();
 alter table public.events add column if not exists updated_at timestamptz default now();
@@ -67,6 +77,7 @@ on public.events (source, external_id);
 
 create index if not exists events_starts_at_idx on public.events (starts_at);
 create index if not exists events_category_idx on public.events (category);
+create index if not exists events_status_idx on public.events (status);
 create index if not exists events_tags_gin_idx on public.events using gin (tags);
 
 alter table public.events enable row level security;

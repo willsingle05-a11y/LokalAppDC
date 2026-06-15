@@ -21,21 +21,29 @@ function formatSupabaseDate(value) {
 function rowIsExplicitlyFree(row) {
   const tags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
   const text = `${row.price || ""} ${row.price_label || ""} ${row.title || ""} ${row.description || ""} ${tags} ${row.raw_json?.description || ""} ${Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : ""}`.toLowerCase();
-  return /\b(free|no cover|complimentary|free admission)\b/.test(text);
+  return row.is_free === true || /\b(free|no cover|complimentary|free admission)\b/.test(text);
+}
+
+function formatTicketPrice(value) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return "";
+  return amount % 1 === 0 ? `$${amount}` : `$${amount.toFixed(2)}`;
 }
 
 function normalizeSupabasePrice(value, isMinimum = false, isExplicitlyFree = false) {
   if (value === null || value === undefined || value === "") return "Price unknown";
   if (String(value).toLowerCase() === "free") return "Free";
   if (Number(value) === 0) return isExplicitlyFree ? "Free" : "Price unknown";
-  const text = String(value);
-  const price = text.startsWith("$") ? text : `$${text}`;
+  const price = Number.isFinite(Number(value)) ? formatTicketPrice(value) : (String(value).startsWith("$") ? String(value) : `$${value}`);
   return isMinimum ? `From ${price}` : price;
 }
 
 function normalizeSupabasePriceFromRow(row) {
   const isExplicitlyFree = rowIsExplicitlyFree(row);
+  const offer = Array.isArray(row.raw_json?.offers) ? row.raw_json.offers.find(item => Number(item?.lowPrice || item?.price || item?.minPrice) > 0) : null;
+  const apiPriceMin = row.raw_json?.priceRanges?.find(item => Number(item.min) > 0)?.min ?? offer?.lowPrice ?? offer?.price ?? offer?.minPrice;
   if (row.price !== undefined && row.price !== null && row.price !== "") return normalizeSupabasePrice(row.price, false, isExplicitlyFree);
+  if (apiPriceMin !== undefined && apiPriceMin !== null && apiPriceMin !== "") return normalizeSupabasePrice(apiPriceMin, true, isExplicitlyFree);
   if (row.price_min !== undefined && row.price_min !== null && row.price_min !== "") {
     if (Number(row.price_min) === 0 && !isExplicitlyFree) return "Price unknown";
     if (row.price_max !== undefined && row.price_max !== null && row.price_max !== "" && Number(row.price_max) !== Number(row.price_min)) {
@@ -113,6 +121,21 @@ function normalizeSupabaseVenue(row) {
   return venue || rawEventApiVenueName(row) || "Location in description";
 }
 
+function supabaseLocationText(row) {
+  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.location || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
+}
+
+function isSupabaseEventInDc(row) {
+  const text = supabaseLocationText(row);
+  if (/\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|md\b|va\b|virginia|maryland)\b/.test(text) && !/washington,\s*dc|district of columbia|\bdc\b/.test(text)) return false;
+  if (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) {
+    const lat = Number(row.latitude);
+    const lng = Number(row.longitude);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) return lat >= 38.79 && lat <= 38.995 && lng >= -77.12 && lng <= -76.90;
+  }
+  return /washington,\s*dc|district of columbia|\bdc\b/.test(text) || row.source === "manual" || row.source === "smithsonian";
+}
+
 function normalizeSupabaseDescription(row) {
   const description = cleanSupabaseDescription(row.description || row.desc);
   const address = rawEventApiAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
@@ -162,14 +185,14 @@ function isEventUpcoming(event) {
 function normalizeImportedCategory(row) {
   const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
-  const text = `${row.category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
+  const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const directCategory = String(row.category || row.cat || "").toLowerCase();
   const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
   if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   if (importedCategories.has(directCategory)) return directCategory;
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
-  if (/concert|music|rock|pop|r&b|hip-hop|rap|jazz|latin|country|dj|band|singer|songwriter/.test(text)) return "concerts";
-  if (/theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance/.test(text)) return "performing-arts";
+  if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
+  if (/theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera/.test(text)) return "performing-arts";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "expos";
@@ -184,9 +207,19 @@ function normalizeTagValue(value) {
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
-  const text = `${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
-  const priorityTags = /smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text) ? ["Smithsonian"] : [];
-  return [category, ...priorityTags, ...rawTags, row.tag, ...labels]
+  const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
+  const inferredTags = [];
+  const categoryLabels = { concerts: "Concerts", festivals: "Festivals", "performing-arts": "Arts", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums" };
+  if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
+  if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
+  if (/concert|live music|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) inferredTags.push("Live Music");
+  if (/theatre|theater|performance art|performing|arts & theatre|gallery|art|exhibit|exhibition|musical|opera/.test(text)) inferredTags.push("Arts");
+  if (/comedy|stand up|stand-up|improv/.test(text)) inferredTags.push("Comedy");
+  if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
+  if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl|nationals|mystics/.test(text)) inferredTags.push("Sports");
+  if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
+  if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
+  return [...inferredTags, categoryLabels[category] || category, ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
@@ -223,18 +256,19 @@ async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   if (state.route === "home") renderHome();
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&order=starts_at.asc.nullslast,date.asc.nullslast`, {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast`, {
       headers: { apikey: supabaseConfig.publishableKey }
     });
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
     const rows = await response.json();
     if (rows.length) {
-      const normalized = rows.map(normalizeSupabaseEvent);
+      const dcRows = rows.filter(isSupabaseEventInDc);
+      const normalized = dcRows.map(normalizeSupabaseEvent);
       const upcoming = normalized.filter(isEventUpcoming);
-      events = upcoming.filter(event => event.source === "manual" || event.venue !== "Location in description");
+      events = upcoming;
       const hiddenCount = rows.length - events.length;
       const shownLabel = `${events.length} upcoming event${events.length === 1 ? "" : "s"} shown`;
-      state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} older or incomplete row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };
+      state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} older or outside-DC row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };
     } else {
       events = [...demoEvents];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
@@ -247,15 +281,46 @@ async function syncSupabaseEvents(showToast = false) {
   if (showToast) toast(state.eventSync.label);
 }
 
-function normalizeSupabaseProfile(row) {
+function normalizeSupabaseGroup(row) {
   return {
-    initials: profileInitials(row.full_name || row.fullName || row.username || ""),
-    fullName: row.full_name || row.fullName || "Lokal Friend",
+    name: row.name || "Lokal group",
+    type: row.type || "Public",
+    count: row.member_count ? `${row.member_count} members` : row.member_count_label || "New group",
+    note: row.note || "New public group",
+    icon: row.icon || String(row.name || "L").slice(0, 1).toUpperCase(),
+    style: row.style || "",
+    description: row.description || "A public Lokal group for finding plans around DC."
+  };
+}
+
+function mergeSupabaseGroups(rows) {
+  rows.map(normalizeSupabaseGroup).forEach(group => {
+    publicGroupMeta[group.name] = group;
+  });
+}
+
+async function syncSupabaseGroups() {
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/demo_groups?select=name,type,member_count,member_count_label,note,icon,style,description,is_demo&is_demo=eq.true&order=name.asc`, {
+      headers: { apikey: supabaseConfig.publishableKey }
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    const rows = await response.json();
+    if (rows.length) mergeSupabaseGroups(rows);
+  } catch {}
+  if (state.route === "social") renderSocial();
+}
+
+function normalizeSupabaseProfile(row) {
+  const fullName = row.full_name || row.fullName || row.display_name || "Lokal Friend";
+  return {
+    initials: row.avatar_initials || profileInitials(fullName || row.username || ""),
+    fullName,
     username: row.username || "lokalfriend",
     phone: row.phone || "",
     birthdate: row.birthdate || "",
-    mutuals: row.mutuals || `${2 + (String(row.full_name || row.username || "").length % 7)} mutual friends`,
-    bio: row.bio || row.home_city || "Washington, DC"
+    mutuals: row.mutuals || `${2 + (String(fullName || row.username || "").length % 7)} mutual friends`,
+    bio: row.bio || row.home_city || (Array.isArray(row.neighborhoods) ? row.neighborhoods.join(", ") : "") || "Washington, DC"
   };
 }
 
@@ -267,9 +332,14 @@ function mergeFriendDirectory(profiles) {
 
 async function syncSupabaseProfiles() {
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&is_demo=eq.true&order=full_name.asc`, {
+    let response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&is_demo=eq.true&order=full_name.asc`, {
       headers: { apikey: supabaseConfig.publishableKey }
     });
+    if (!response.ok) {
+      response = await fetch(`${supabaseConfig.url}/rest/v1/Profiles?select=id,username,display_name,birthdate,bio,avatar_initials,taste_tags,neighborhoods,is_demo&is_demo=eq.true&order=display_name.asc`, {
+        headers: { apikey: supabaseConfig.publishableKey }
+      });
+    }
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
     const rows = await response.json();
     if (rows.length) mergeFriendDirectory(rows.map(normalizeSupabaseProfile));
