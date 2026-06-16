@@ -141,15 +141,19 @@ function eventTags(event) {
   const inferred = [];
   const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
   add("Comedy", /comedy|stand[- ]?up|improv|comic|open mic/);
-  add("Theater", /theatre|theater|play\b|stage|drama/);
+  add("Play", /\b(play|drama)\b|othello|hamlet|macbeth/);
   add("Musical", /musical|broadway|opera/);
+  add("Stage Show", /stage show|live stage|touring|theatre|theater/);
+  add("Touring Show", /touring|tour\b/);
+  add("Family Show", /family|kids|children|bluey|disney/);
   add("Dance", /dance|ballet|choreo/);
   add("Film", /film|cinema|screening|movie/);
   add("Gallery", /gallery|exhibit|exhibition|installation|visual art/);
   add("Classical", /symphony|orchestra|classical|chamber music/);
-  add("Performance", /performance|performing|cabaret|spoken word|poetry/);
+  add("Cabaret", /cabaret/);
+  add("Spoken Word", /spoken word|poetry/);
   const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian"].includes(tag.toLowerCase()));
-  return [...clean, ...inferred, "Performance", "Live Show"]
+  return [...clean, ...inferred, "Live Show", "Ticketed"]
     .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, Math.max(3, clean.length + inferred.length));
 }

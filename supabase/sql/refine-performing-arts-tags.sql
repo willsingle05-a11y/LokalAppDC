@@ -28,7 +28,7 @@ performing_rows as (
   select
     events.id,
     event_text.text,
-    array_remove(array_remove(array_remove(array_remove(array_remove(array_remove(coalesce(events.tags, '{}'), 'Arts'), 'Art'), 'performing-arts'), 'Museums'), 'Museum'), 'Smithsonian') as cleaned_tags
+    array_remove(array_remove(array_remove(array_remove(array_remove(array_remove(array_remove(array_remove(coalesce(events.tags, '{}'), 'Arts'), 'Art'), 'performing-arts'), 'Museums'), 'Museum'), 'Smithsonian'), 'Performance'), 'Theater') as cleaned_tags
   from public.events events
   join event_text on event_text.id = events.id
   where events.category = 'performing-arts'
@@ -39,14 +39,18 @@ tagged as (
     id,
     cleaned_tags
     || case when text ~* 'comedy|stand[- ]?up|standup|improv|comic|open mic' then array['Comedy'] else '{}'::text[] end
-    || case when text ~* 'theatre|theater|play|stage|drama' then array['Theater'] else '{}'::text[] end
+    || case when text ~* '\m(play|drama)\M|othello|hamlet|macbeth' then array['Play'] else '{}'::text[] end
     || case when text ~* 'musical|broadway|opera' then array['Musical'] else '{}'::text[] end
+    || case when text ~* 'stage show|live stage|touring|theatre|theater' then array['Stage Show'] else '{}'::text[] end
+    || case when text ~* 'touring|\mtour\M' then array['Touring Show'] else '{}'::text[] end
+    || case when text ~* 'family|kids|children|bluey|disney' then array['Family Show'] else '{}'::text[] end
     || case when text ~* 'dance|ballet|choreo' then array['Dance'] else '{}'::text[] end
     || case when text ~* 'film|cinema|screening|movie' then array['Film'] else '{}'::text[] end
     || case when text ~* 'gallery|exhibit|exhibition|installation|visual art' then array['Gallery'] else '{}'::text[] end
     || case when text ~* 'symphony|orchestra|classical|chamber music' then array['Classical'] else '{}'::text[] end
-    || case when text ~* 'performance|performing|cabaret|spoken word|poetry' then array['Performance'] else '{}'::text[] end
-    || array['Performance', 'Live Show'] as new_tags
+    || case when text ~* 'cabaret' then array['Cabaret'] else '{}'::text[] end
+    || case when text ~* 'spoken word|poetry' then array['Spoken Word'] else '{}'::text[] end
+    || array['Live Show', 'Ticketed'] as new_tags
   from performing_rows
 )
 update public.events events
@@ -58,7 +62,7 @@ set
       from unnest(tagged.new_tags) with ordinality as tags(tag, first_seen)
       where tag is not null
         and tag <> ''
-        and lower(tag) not in ('arts', 'art', 'performing-arts', 'performing arts', 'museum', 'museums', 'smithsonian')
+        and lower(tag) not in ('arts', 'art', 'performing-arts', 'performing arts', 'museum', 'museums', 'smithsonian', 'performance', 'theater', 'theatre')
       order by lower(tag), first_seen
     ) deduped
   ),
