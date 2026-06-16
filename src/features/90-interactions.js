@@ -287,6 +287,10 @@ document.addEventListener("wheel", event => {
 }, { passive: false });
 
 document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
+if (new URLSearchParams(location.search).has("newUser")) {
+  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts"].forEach(key => localStorage.removeItem(key));
+  history.replaceState(null, "", location.pathname);
+}
 setRoute("home");
 if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
 syncSupabaseEvents();
