@@ -437,8 +437,8 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .receipt h3 { margin: 1px 0 3px; }
 .receipt p { margin: 0; color: var(--muted); font-size: 11px; }
 
-.onboarding { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 18px; background: var(--cream); }
-.onboard-card { width: min(100%, 560px); }
+.onboarding { position: fixed; inset: 0; z-index: 40; display: grid; align-items: start; justify-items: center; overflow-y: auto; overscroll-behavior: contain; padding: 18px; background: var(--cream); -webkit-overflow-scrolling: touch; }
+.onboard-card { width: min(100%, 560px); max-height: none; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
 .onboard-logo { display: grid; width: 54px; height: 54px; margin-bottom: 34px; place-items: center; border-radius: 18px; color: white; background: var(--orange); font-family: Georgia, serif; font-size: 33px; font-weight: 700; }
 .step-count { color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.5px; }
 .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 22px 0; }
