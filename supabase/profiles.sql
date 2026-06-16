@@ -4,6 +4,10 @@ create table if not exists public.profiles (
   full_name text not null,
   birthdate date not null,
   phone text,
+  email text,
+  event_interests text[] default '{}',
+  area_interests text[] default '{}',
+  onboarding_completed boolean default false,
   bio text,
   avatar_url text,
   home_city text default 'Washington, DC',
@@ -12,6 +16,10 @@ create table if not exists public.profiles (
 );
 
 alter table public.profiles add column if not exists phone text;
+alter table public.profiles add column if not exists email text;
+alter table public.profiles add column if not exists event_interests text[] default '{}';
+alter table public.profiles add column if not exists area_interests text[] default '{}';
+alter table public.profiles add column if not exists onboarding_completed boolean default false;
 alter table public.profiles add column if not exists home_city text default 'Washington, DC';
 alter table public.profiles add column if not exists is_demo boolean default false;
 
@@ -36,25 +44,39 @@ to authenticated
 using ((select auth.uid()) = id)
 with check ((select auth.uid()) = id);
 
+drop policy if exists "Users can insert their own profile" on public.profiles;
+create policy "Users can insert their own profile"
+on public.profiles for insert
+to authenticated
+with check ((select auth.uid()) = id);
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, username, full_name, birthdate, phone)
+  insert into public.profiles (id, username, full_name, birthdate, phone, email, event_interests, area_interests, onboarding_completed)
   values (
     new.id,
     new.raw_user_meta_data ->> 'username',
     new.raw_user_meta_data ->> 'full_name',
     nullif(new.raw_user_meta_data ->> 'birthdate', '')::date,
-    new.phone
+    coalesce(new.phone, new.raw_user_meta_data ->> 'phone'),
+    coalesce(new.email, new.raw_user_meta_data ->> 'email'),
+    coalesce(array(select jsonb_array_elements_text(new.raw_user_meta_data -> 'event_interests')), '{}'::text[]),
+    coalesce(array(select jsonb_array_elements_text(new.raw_user_meta_data -> 'area_interests')), '{}'::text[]),
+    true
   )
   on conflict (id) do update set
     username = excluded.username,
     full_name = excluded.full_name,
     birthdate = excluded.birthdate,
-    phone = excluded.phone;
+    phone = excluded.phone,
+    email = excluded.email,
+    event_interests = excluded.event_interests,
+    area_interests = excluded.area_interests,
+    onboarding_completed = excluded.onboarding_completed;
   return new;
 end;
 $$;

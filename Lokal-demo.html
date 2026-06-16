@@ -450,6 +450,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .onboard-logo { display: grid; width: 54px; height: 54px; margin-bottom: 34px; place-items: center; border-radius: 18px; color: white; background: var(--orange); font-family: Georgia, serif; font-size: 33px; font-weight: 700; }
 .step-count { color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.5px; }
 .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 22px 0; }
+.compact-select-grid { margin: 10px 0 18px; }
 .select-tile { padding: 17px 12px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); text-align: left; font-size: 13px; font-weight: 800; }
 .select-tile.selected { border-color: var(--green); color: white; background: var(--green); }
 .wide-button { width: 100%; padding: 14px; border-radius: 14px; color: white; background: var(--orange); font-size: 13px; font-weight: 900; }
@@ -1428,7 +1429,7 @@ const supabaseConfig = {
   url: "https://iglzcjtklryapmcpyoam.supabase.co",
   publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH"
 };
-const demoAuthConfig = { useMockOtp: true, mockOtp: "123456" };
+const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
 
 function formatSupabaseTime(value) {
   if (!value) return "Date to be announced";
@@ -1632,6 +1633,7 @@ function normalizeImportedCategory(row) {
   const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
+  if (/\b(comedy|stand up|stand-up|standup|improv|comic)\b/.test(text)) return "performing-arts";
   if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   if (importedCategories.has(directCategory)) return directCategory;
   if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
@@ -1647,6 +1649,22 @@ function normalizeTagValue(value) {
   return value;
 }
 
+function sportsLeagueTags(row) {
+  const rawTags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
+  const labels = Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : "";
+  const text = `${row.category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags} ${labels}`.toLowerCase();
+  const tags = [];
+  const add = (...items) => items.forEach(item => { if (!tags.includes(item)) tags.push(item); });
+  if (/\b(mlb|major league baseball|washington nationals|nationals|nats\b|baseball)\b/.test(text)) add("MLB", "Baseball");
+  if (/\b(nba|washington wizards|wizards)\b/.test(text)) add("NBA", "Basketball");
+  if (/\b(wnba|washington mystics|mystics)\b/.test(text)) add("WNBA", "Basketball");
+  if (/\b(nfl|washington commanders|commanders|football)\b/.test(text)) add("NFL", "Football");
+  if (/\b(nhl|washington capitals|capitals|caps\b|hockey)\b/.test(text)) add("NHL", "Hockey");
+  if (/\b(mls|d\.?c\.? united|dc united|soccer)\b/.test(text)) add("MLS", "Soccer");
+  if (/\b(washington spirit|nwsl)\b/.test(text)) add("NWSL", "Soccer");
+  return tags;
+}
+
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
@@ -1660,7 +1678,8 @@ function normalizeSupabaseTags(row, category) {
   if (/theatre|theater|performance art|performing|arts & theatre|gallery|art|exhibit|exhibition|musical|opera/.test(text)) inferredTags.push("Arts");
   if (/comedy|stand up|stand-up|improv/.test(text)) inferredTags.push("Comedy");
   if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
-  if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl|nationals|mystics/.test(text)) inferredTags.push("Sports");
+  const sportTags = sportsLeagueTags(row);
+  if (sportTags.length || /baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl|mls|wnba|nationals|mystics|wizards|capitals|commanders|d\.?c\.? united|dc united/.test(text)) inferredTags.push("Sports", ...sportTags);
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) inferredTags.push("Nightlife");
   if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
   if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
@@ -1835,9 +1854,18 @@ function updateProfileShortcut() {
 }
 
 function finalizeLokalProfile(profile) {
-  const saved = { ...profile, phone: formatDisplayPhone(profile.phone), age: calculateAge(profile.birthdate), initials: profileInitials(profile.fullName), bio: state.bio };
+  const saved = {
+    ...profile,
+    phone: formatDisplayPhone(profile.phone),
+    age: calculateAge(profile.birthdate),
+    initials: profileInitials(profile.fullName),
+    bio: state.bio,
+    tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
+    areas: profile.areaInterests || []
+  };
   state.profile = saved;
   state.age = saved.age;
+  state.tastes = saved.tastes;
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
   updateProfileShortcut();
 }
@@ -1856,19 +1884,72 @@ async function supabaseAuthRequest(path, body) {
   return data;
 }
 
-async function createLokalAccount({ fullName, phone, username, birthdate, password }) {
-  if (!fullName || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split(".")[1];
+    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+  } catch {
+    return {};
+  }
+}
+
+function validateSignupEmail(email) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
+}
+
+async function syncSupabaseSignupProfile(accessToken, profile) {
+  const userId = decodeJwtPayload(accessToken).sub;
+  if (!userId) return;
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?on_conflict=id`, {
+    method: "POST",
+    headers: {
+      apikey: supabaseConfig.publishableKey,
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates"
+    },
+    body: JSON.stringify([{
+      id: userId,
+      username: profile.username,
+      full_name: profile.fullName,
+      birthdate: profile.birthdate,
+      phone: profile.phone,
+      email: profile.email,
+      event_interests: profile.eventInterests,
+      area_interests: profile.areaInterests,
+      home_city: "Washington, DC",
+      is_demo: false
+    }])
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || "Supabase created the login but could not save profile preferences.");
+  }
+}
+
+async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [] }) {
+  if (!fullName || !email || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
   if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
+  validateSignupEmail(email);
   validateBirthday(birthdate);
   const formattedPhone = formatSignupPhone(phone);
-  state.pendingSignupProfile = { fullName, phone: formattedPhone, username, birthdate };
+  state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests };
   state.pendingSignupPhone = formattedPhone;
   if (demoAuthConfig.useMockOtp) return { demoOtp: true };
   const data = await supabaseAuthRequest("signup", {
-    phone: formattedPhone,
+    email,
     password,
-    data: { full_name: fullName, username, birthdate }
+    data: {
+      full_name: fullName,
+      username,
+      birthdate,
+      phone: formattedPhone,
+      email,
+      event_interests: eventInterests,
+      area_interests: areaInterests
+    }
   });
+  if (data.access_token) await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
   return data;
 }
 
@@ -2588,19 +2669,18 @@ function openShareSheet(id) {
 
 
 function renderOnboarding() {
+  const signupEventOptions = ["Live music", "Nightlife", "Museums", "Sports", "Comedy", "Restaurants", "Performing arts", "Festivals", "Free events", "Markets"];
+  const signupAreaOptions = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia"];
   const steps = [
     { type: "welcome", title: "Your city,<br>in motion.", text: "Find the things worth leaving the house for, and see what your friends are into." },
-    { type: "account", title: "Create your account.", text: "A few basics, then we'll get your feed started." },
-    { title: "What are you into?", text: "Pick as many as you like. You can fine-tune these any time.", options: ["Live music", "Restaurants", "Bars", "Coffee", "Art + museums", "Sports", "Fitness", "Markets", "Comedy", "Community", "Free events", "Nightlife"] },
-    { title: "Are you new to the city?", text: "This helps Lokal balance essentials with the under-the-radar picks.", options: ["Just moved here", "Still exploring", "DC local", "Visiting"] },
+    { type: "account", title: "Create your account.", text: "Pick what you like and where you want to explore. Lokal will use this to shape your feed." },
     { type: "contacts", title: "Find your people.", text: "See what friends save, build groups, and make plans without starting a new group chat." }
   ];
   const s = steps[state.onboardStep];
   const content = s.type === "welcome" ? `<div class="intro-art"><span>LOKAL</span></div><button class="wide-button" data-next>Get started</button>`
-    : s.type === "account" ? `<div class="account-fields"><input data-signup-full-name placeholder="Full name" aria-label="Full name" autocomplete="name"><input data-signup-phone placeholder="Phone number" type="tel" inputmode="numeric" aria-label="Phone number" autocomplete="tel"><input data-signup-username placeholder="Public username" aria-label="Public username" autocomplete="username"><label class="birth-field">Birthday<input data-signup-birthdate type="date" aria-label="Birthday" autocomplete="bday"></label><input data-signup-password placeholder="Create a password" type="password" aria-label="Create a password" autocomplete="new-password"><small>Birthday must be in the past and age 14+. Phone numbers use (xxx) xxx-xxxx format.</small><p class="account-error" data-account-error></p></div><button class="wide-button" data-create-account>Create account</button>`
-    : s.type === "contacts" ? `<div class="contacts-art">${avatarStack(["AL","MR","DV","JS"])}</div><button class="wide-button" data-next>Sync contacts</button><button class="skip-button" data-next>Maybe later</button>`
-    : `<div class="select-grid preference-grid">${s.options.map(o => `<button class="select-tile" data-select="${o}">${o}</button>`).join("")}</div><button class="wide-button" data-next disabled>Keep going</button>`;
-  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">${state.onboardStep === 0 ? "WELCOME TO LOKAL" : `STEP ${state.onboardStep} OF 4`}</p><h1>${s.title}</h1><p class="lede">${s.text}</p>${content}</section></div>`);
+    : s.type === "account" ? `<div class="account-fields"><input data-signup-full-name placeholder="Full name" aria-label="Full name" autocomplete="name"><input data-signup-email placeholder="Email" type="email" aria-label="Email" autocomplete="email"><input data-signup-phone placeholder="Phone number" type="tel" inputmode="numeric" aria-label="Phone number" autocomplete="tel"><input data-signup-username placeholder="Public username" aria-label="Public username" autocomplete="username"><label class="birth-field">Birthday<input data-signup-birthdate type="date" aria-label="Birthday" autocomplete="bday"></label><input data-signup-password placeholder="Create a password" type="password" aria-label="Create a password" autocomplete="new-password"><small>Birthday must be in the past and age 14+. Phone numbers use (xxx) xxx-xxxx format.</small></div><p class="settings-label">Event interests</p><div class="select-grid preference-grid compact-select-grid">${signupEventOptions.map(o => `<button class="select-tile" data-signup-interest="${o}">${o}</button>`).join("")}</div><p class="settings-label">Areas to explore</p><div class="select-grid preference-grid compact-select-grid">${signupAreaOptions.map(o => `<button class="select-tile" data-signup-area="${o}">${o}</button>`).join("")}</div><p class="account-error" data-account-error></p><button class="wide-button" data-create-account>Create account</button>`
+    : `<div class="contacts-art">${avatarStack(["AL","MR","DV","JS"])}</div><button class="wide-button" data-next>Sync contacts</button><button class="skip-button" data-next>Maybe later</button>`;
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">${state.onboardStep === 0 ? "WELCOME TO LOKAL" : `STEP ${state.onboardStep} OF ${steps.length - 1}`}</p><h1>${s.title}</h1><p class="lede">${s.text}</p>${content}</section></div>`);
 }
 
 function renderPhoneVerification() {
@@ -2629,8 +2709,6 @@ function setRoute(route) {
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
 }
-
-
 
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
@@ -2736,10 +2814,39 @@ document.addEventListener("click", async event => {
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
   if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }
-  if (t.dataset.select) { t.classList.toggle("selected"); state.selections.add(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = false; }
-  if (t.dataset.createAccount !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { const result = await createLokalAccount({ fullName: card.querySelector("[data-signup-full-name]").value.trim(), phone: card.querySelector("[data-signup-phone]").value.trim(), username: card.querySelector("[data-signup-username]").value.trim(), birthdate: card.querySelector("[data-signup-birthdate]").value, password: card.querySelector("[data-signup-password]").value }); document.querySelector(".onboarding").remove(); if (result.access_token) { finalizeLokalProfile(state.pendingSignupProfile); state.onboardStep++; renderOnboarding(); toast("Account created"); } else { renderPhoneVerification(); } } catch (accountError) { error.textContent = accountError.message; t.disabled = false; } }
+  if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
+  if (t.dataset.signupInterest || t.dataset.signupArea) { mark(); t.classList.toggle("selected"); }
+  if (t.dataset.createAccount !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const eventInterests = [...card.querySelectorAll("[data-signup-interest].selected")].map(button => button.dataset.signupInterest);
+    const areaInterests = [...card.querySelectorAll("[data-signup-area].selected")].map(button => button.dataset.signupArea);
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      const result = await createLokalAccount({
+        fullName: card.querySelector("[data-signup-full-name]").value.trim(),
+        email: card.querySelector("[data-signup-email]").value.trim(),
+        phone: card.querySelector("[data-signup-phone]").value.trim(),
+        username: card.querySelector("[data-signup-username]").value.trim(),
+        birthdate: card.querySelector("[data-signup-birthdate]").value,
+        password: card.querySelector("[data-signup-password]").value,
+        eventInterests,
+        areaInterests
+      });
+      document.querySelector(".onboarding").remove();
+      finalizeLokalProfile(state.pendingSignupProfile);
+      state.onboardStep++;
+      renderOnboarding();
+      toast(result.access_token ? "Account created" : "Account created. Check your email to confirm it.");
+    } catch (accountError) {
+      error.textContent = accountError.message;
+      t.disabled = false;
+    }
+  }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 5) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); } }
   if (!handled && !t.disabled) toast("Action opened");
 });
 

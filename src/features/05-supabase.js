@@ -2,7 +2,7 @@ const supabaseConfig = {
   url: "https://iglzcjtklryapmcpyoam.supabase.co",
   publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH"
 };
-const demoAuthConfig = { useMockOtp: true, mockOtp: "123456" };
+const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
 
 function formatSupabaseTime(value) {
   if (!value) return "Date to be announced";
@@ -206,6 +206,7 @@ function normalizeImportedCategory(row) {
   const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
+  if (/\b(comedy|stand up|stand-up|standup|improv|comic)\b/.test(text)) return "performing-arts";
   if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   if (importedCategories.has(directCategory)) return directCategory;
   if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
@@ -221,6 +222,22 @@ function normalizeTagValue(value) {
   return value;
 }
 
+function sportsLeagueTags(row) {
+  const rawTags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
+  const labels = Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : "";
+  const text = `${row.category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags} ${labels}`.toLowerCase();
+  const tags = [];
+  const add = (...items) => items.forEach(item => { if (!tags.includes(item)) tags.push(item); });
+  if (/\b(mlb|major league baseball|washington nationals|nationals|nats\b|baseball)\b/.test(text)) add("MLB", "Baseball");
+  if (/\b(nba|washington wizards|wizards)\b/.test(text)) add("NBA", "Basketball");
+  if (/\b(wnba|washington mystics|mystics)\b/.test(text)) add("WNBA", "Basketball");
+  if (/\b(nfl|washington commanders|commanders|football)\b/.test(text)) add("NFL", "Football");
+  if (/\b(nhl|washington capitals|capitals|caps\b|hockey)\b/.test(text)) add("NHL", "Hockey");
+  if (/\b(mls|d\.?c\.? united|dc united|soccer)\b/.test(text)) add("MLS", "Soccer");
+  if (/\b(washington spirit|nwsl)\b/.test(text)) add("NWSL", "Soccer");
+  return tags;
+}
+
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
@@ -234,7 +251,8 @@ function normalizeSupabaseTags(row, category) {
   if (/theatre|theater|performance art|performing|arts & theatre|gallery|art|exhibit|exhibition|musical|opera/.test(text)) inferredTags.push("Arts");
   if (/comedy|stand up|stand-up|improv/.test(text)) inferredTags.push("Comedy");
   if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
-  if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl|nationals|mystics/.test(text)) inferredTags.push("Sports");
+  const sportTags = sportsLeagueTags(row);
+  if (sportTags.length || /baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl|mls|wnba|nationals|mystics|wizards|capitals|commanders|d\.?c\.? united|dc united/.test(text)) inferredTags.push("Sports", ...sportTags);
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) inferredTags.push("Nightlife");
   if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
   if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
@@ -409,9 +427,18 @@ function updateProfileShortcut() {
 }
 
 function finalizeLokalProfile(profile) {
-  const saved = { ...profile, phone: formatDisplayPhone(profile.phone), age: calculateAge(profile.birthdate), initials: profileInitials(profile.fullName), bio: state.bio };
+  const saved = {
+    ...profile,
+    phone: formatDisplayPhone(profile.phone),
+    age: calculateAge(profile.birthdate),
+    initials: profileInitials(profile.fullName),
+    bio: state.bio,
+    tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
+    areas: profile.areaInterests || []
+  };
   state.profile = saved;
   state.age = saved.age;
+  state.tastes = saved.tastes;
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
   updateProfileShortcut();
 }
@@ -430,19 +457,72 @@ async function supabaseAuthRequest(path, body) {
   return data;
 }
 
-async function createLokalAccount({ fullName, phone, username, birthdate, password }) {
-  if (!fullName || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split(".")[1];
+    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+  } catch {
+    return {};
+  }
+}
+
+function validateSignupEmail(email) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
+}
+
+async function syncSupabaseSignupProfile(accessToken, profile) {
+  const userId = decodeJwtPayload(accessToken).sub;
+  if (!userId) return;
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?on_conflict=id`, {
+    method: "POST",
+    headers: {
+      apikey: supabaseConfig.publishableKey,
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates"
+    },
+    body: JSON.stringify([{
+      id: userId,
+      username: profile.username,
+      full_name: profile.fullName,
+      birthdate: profile.birthdate,
+      phone: profile.phone,
+      email: profile.email,
+      event_interests: profile.eventInterests,
+      area_interests: profile.areaInterests,
+      home_city: "Washington, DC",
+      is_demo: false
+    }])
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || "Supabase created the login but could not save profile preferences.");
+  }
+}
+
+async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [] }) {
+  if (!fullName || !email || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
   if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
+  validateSignupEmail(email);
   validateBirthday(birthdate);
   const formattedPhone = formatSignupPhone(phone);
-  state.pendingSignupProfile = { fullName, phone: formattedPhone, username, birthdate };
+  state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests };
   state.pendingSignupPhone = formattedPhone;
   if (demoAuthConfig.useMockOtp) return { demoOtp: true };
   const data = await supabaseAuthRequest("signup", {
-    phone: formattedPhone,
+    email,
     password,
-    data: { full_name: fullName, username, birthdate }
+    data: {
+      full_name: fullName,
+      username,
+      birthdate,
+      phone: formattedPhone,
+      email,
+      event_interests: eventInterests,
+      area_interests: areaInterests
+    }
   });
+  if (data.access_token) await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
   return data;
 }
 

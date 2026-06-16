@@ -102,10 +102,39 @@
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
   if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }
-  if (t.dataset.select) { t.classList.toggle("selected"); state.selections.add(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = false; }
-  if (t.dataset.createAccount !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { const result = await createLokalAccount({ fullName: card.querySelector("[data-signup-full-name]").value.trim(), phone: card.querySelector("[data-signup-phone]").value.trim(), username: card.querySelector("[data-signup-username]").value.trim(), birthdate: card.querySelector("[data-signup-birthdate]").value, password: card.querySelector("[data-signup-password]").value }); document.querySelector(".onboarding").remove(); if (result.access_token) { finalizeLokalProfile(state.pendingSignupProfile); state.onboardStep++; renderOnboarding(); toast("Account created"); } else { renderPhoneVerification(); } } catch (accountError) { error.textContent = accountError.message; t.disabled = false; } }
+  if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
+  if (t.dataset.signupInterest || t.dataset.signupArea) { mark(); t.classList.toggle("selected"); }
+  if (t.dataset.createAccount !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const eventInterests = [...card.querySelectorAll("[data-signup-interest].selected")].map(button => button.dataset.signupInterest);
+    const areaInterests = [...card.querySelectorAll("[data-signup-area].selected")].map(button => button.dataset.signupArea);
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      const result = await createLokalAccount({
+        fullName: card.querySelector("[data-signup-full-name]").value.trim(),
+        email: card.querySelector("[data-signup-email]").value.trim(),
+        phone: card.querySelector("[data-signup-phone]").value.trim(),
+        username: card.querySelector("[data-signup-username]").value.trim(),
+        birthdate: card.querySelector("[data-signup-birthdate]").value,
+        password: card.querySelector("[data-signup-password]").value,
+        eventInterests,
+        areaInterests
+      });
+      document.querySelector(".onboarding").remove();
+      finalizeLokalProfile(state.pendingSignupProfile);
+      state.onboardStep++;
+      renderOnboarding();
+      toast(result.access_token ? "Account created" : "Account created. Check your email to confirm it.");
+    } catch (accountError) {
+      error.textContent = accountError.message;
+      t.disabled = false;
+    }
+  }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 5) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); } }
   if (!handled && !t.disabled) toast("Action opened");
 });
 
