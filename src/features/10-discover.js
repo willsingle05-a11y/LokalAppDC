@@ -8,7 +8,7 @@
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
     <label class="search-box"><span>⌕</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
-    <p class="eyebrow">Following</p><div class="following-rail">${followingStories.map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
+    <p class="eyebrow">Following</p><div class="following-rail">${activeFollowingStories().map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
     <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Swipe your feed</p><h2>${escapeHtml(feedTitle)}</h2></div><span class="route-badge">${filtered.length} event${filtered.length === 1 ? "" : "s"}</span></div>
     <div data-feed-content>${feedContent}</div></section>
@@ -184,7 +184,7 @@ function storyEventPool(story) {
     return false;
   });
   const fallback = (story.eventIds || [])
-    .map(id => events.find(event => event.id === id) || demoEvents.find(event => event.id === id))
+    .map(id => events.find(event => event.id === id))
     .filter(Boolean);
   return [...directMatches, ...fallback]
     .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
@@ -192,17 +192,28 @@ function storyEventPool(story) {
     .slice(0, 6);
 }
 
+function activeFollowingStories() {
+  return followingStories
+    .map(story => ({ ...story, storyEvents: storyEventPool(story) }))
+    .filter(story => story.storyEvents.length);
+}
+
 function openStory(index) {
-  const storyIndex = (Number(index) + followingStories.length) % followingStories.length;
-  const story = followingStories[storyIndex];
-  const storyEvents = storyEventPool(story);
+  const stories = activeFollowingStories();
+  if (!stories.length) {
+    toast("No active stories right now");
+    return;
+  }
+  const storyIndex = (Number(index) + stories.length) % stories.length;
+  const story = stories[storyIndex];
+  const storyEvents = story.storyEvents;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet story-sheet" role="dialog" aria-modal="true" aria-label="${story.name}" data-story-sheet="${storyIndex}">
     <button class="modal-close" aria-label="Close ${story.name}">&times;</button>
-    <div class="story-progress">${followingStories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
+    <div class="story-progress">${stories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.name}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
-    <div class="event-stack">${storyEvents.length ? storyEvents.map(eventRow).join("") : `<p class="section-helper">No upcoming events matched this follow yet. Lokal will fill this story as new events come in.</p>`}</div>
-    <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">← Previous</button><small>${storyIndex + 1} of ${followingStories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next →</button></div>
+    <div class="event-stack">${storyEvents.map(eventRow).join("")}</div>
+    <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">← Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next →</button></div>
   </section></div>`;
 }
 

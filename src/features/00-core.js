@@ -52,12 +52,19 @@ function eventArtKind(event) {
   const tags = eventTags(event).join(" ").toLowerCase();
   const titleText = `${event.title || ""} ${event.venue || ""} ${event.cat || ""} ${tags}`.toLowerCase();
   let key = event.cat || "community";
-  if (/food|market|chef|brunch|wine|beer|cocktail|restaurant/.test(titleText)) key = "food";
-  if (/film|cinema|movie/.test(titleText)) key = "film";
-  if (/museum|gallery|art|exhibit/.test(titleText)) key = "arts";
+  if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(titleText)) return "museum";
+  if (/run club|running|run\b|5k|10k|marathon|jog/.test(titleText)) return "run";
+  if (/baseball|mlb|nationals|nats\b/.test(titleText)) return "baseball";
+  if (/basketball|nba|wnba|wizards|mystics/.test(titleText)) return "basketball";
+  if (/soccer|mls|nwsl|d\.?c\.? united|dc united|washington spirit/.test(titleText)) return "soccer";
+  if (/hockey|nhl|capitals|caps\b/.test(titleText)) return "hockey";
+  if (/football|nfl|commanders/.test(titleText)) return "football";
   if (/comedy|stand-up|standup/.test(titleText)) key = "comedy";
-  if (/run|yoga|fitness|wellness|pickleball/.test(titleText)) key = "fitness";
-  if (/nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night/.test(titleText)) key = "nightlife";
+  if (/film|cinema|movie|screening/.test(titleText)) key = "film";
+  if (/gallery|art|exhibit|exhibition/.test(titleText)) key = "arts";
+  if (/yoga|fitness|wellness|pickleball/.test(titleText)) key = "fitness";
+  if (/nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night|dj set/.test(titleText)) key = "nightlife";
+  if (/food|market|chef|brunch|wine|beer|cocktail|restaurant/.test(titleText)) key = "food";
   return key;
 }
 
@@ -72,8 +79,15 @@ function genericEventArt(event) {
     expos: { a: "#46dc82", b: "#10c578", c: "#dfffea", shapes: "<rect x='19' y='25' width='62' height='52' rx='7' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><path d='M29 39 H71 M29 52 H71 M29 65 H56' stroke='white' stroke-width='4'/><circle cx='74' cy='22' r='8' fill='rgba(255,255,255,.65)'/>" },
     food: { a: "#50dc82", b: "#18c973", c: "#eafff1", shapes: "<path d='M30 22 V57 M40 22 V57 M30 40 H40 M60 22 V78' stroke='white' stroke-width='5' stroke-linecap='round'/><path d='M22 70 C34 54 66 54 78 70' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><circle cx='50' cy='48' r='10' fill='rgba(255,255,255,.45)'/>" },
     film: { a: "#35d374", b: "#0fc983", c: "#d8ffe8", shapes: "<rect x='19' y='28' width='62' height='44' rx='7' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M37 39 L37 61 L59 50 Z' fill='white'/><path d='M24 35 H30 M24 47 H30 M24 59 H30 M70 35 H76 M70 47 H76 M70 59 H76' stroke='white' stroke-width='3'/>" },
+    museum: { a: "#58e28a", b: "#1acb75", c: "#e6fff0", shapes: "<path d='M18 78 H82' stroke='white' stroke-width='5'/><path d='M24 35 H76 L50 19 Z' fill='rgba(255,255,255,.32)' stroke='white' stroke-width='4'/><path d='M29 35 V72 M43 35 V72 M57 35 V72 M71 35 V72' stroke='white' stroke-width='5'/><path d='M23 72 H77' stroke='white' stroke-width='5'/>" },
     arts: { a: "#58e28a", b: "#1acb75", c: "#e6fff0", shapes: "<rect x='23' y='20' width='54' height='62' rx='8' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><circle cx='42' cy='43' r='10' fill='rgba(255,255,255,.6)'/><path d='M30 69 C42 54 53 61 69 42' fill='none' stroke='white' stroke-width='5'/>" },
     comedy: { a: "#45dc80", b: "#0bc479", c: "#e3ffed", shapes: "<path d='M25 28 Q50 18 75 28 L70 72 Q50 84 30 72 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><circle cx='40' cy='43' r='4' fill='white'/><circle cx='60' cy='43' r='4' fill='white'/><path d='M37 58 Q50 68 63 58' fill='none' stroke='white' stroke-width='5'/>" },
+    run: { a: "#61e591", b: "#18c879", c: "#e9fff2", shapes: "<path d='M24 68 C34 77 55 78 77 66 C81 64 80 57 75 56 L58 52 L45 37 L36 42 L46 58 L31 57 C24 56 20 63 24 68 Z' fill='rgba(255,255,255,.42)' stroke='white' stroke-width='4' stroke-linejoin='round'/><path d='M31 70 C42 74 58 74 75 66 M45 58 L58 52' stroke='white' stroke-width='4' fill='none'/><circle cx='38' cy='33' r='7' fill='rgba(255,255,255,.72)'/>" },
+    baseball: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<circle cx='50' cy='50' r='31' fill='rgba(255,255,255,.24)' stroke='white' stroke-width='5'/><path d='M33 26 C41 38 41 62 33 74 M67 26 C59 38 59 62 67 74' fill='none' stroke='white' stroke-width='4'/><path d='M36 37 L41 34 M36 47 L42 45 M36 57 L42 60 M64 37 L59 34 M64 47 L58 45 M64 57 L58 60' stroke='white' stroke-width='3'/>" },
+    basketball: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<circle cx='50' cy='50' r='31' fill='rgba(255,255,255,.18)' stroke='white' stroke-width='5'/><path d='M20 50 H80 M50 19 V81 M29 29 C43 41 43 59 29 71 M71 29 C57 41 57 59 71 71' fill='none' stroke='white' stroke-width='4'/>" },
+    soccer: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<circle cx='50' cy='50' r='31' fill='rgba(255,255,255,.18)' stroke='white' stroke-width='5'/><path d='M50 34 L64 44 L59 61 H41 L36 44 Z' fill='rgba(255,255,255,.45)' stroke='white' stroke-width='4'/><path d='M50 34 V22 M64 44 L78 39 M59 61 L66 75 M41 61 L34 75 M36 44 L22 39' stroke='white' stroke-width='4'/>" },
+    hockey: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<path d='M34 21 L51 68' stroke='white' stroke-width='6' stroke-linecap='round'/><path d='M66 21 L52 68' stroke='white' stroke-width='6' stroke-linecap='round'/><path d='M42 70 H71' stroke='white' stroke-width='6' stroke-linecap='round'/><ellipse cx='31' cy='75' rx='12' ry='5' fill='rgba(255,255,255,.62)'/>" },
+    football: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<path d='M22 50 C32 24 68 24 78 50 C68 76 32 76 22 50 Z' fill='rgba(255,255,255,.24)' stroke='white' stroke-width='5'/><path d='M36 50 H64 M44 42 V58 M50 42 V58 M56 42 V58' stroke='white' stroke-width='4'/><path d='M29 35 C43 43 57 43 71 35 M29 65 C43 57 57 57 71 65' stroke='white' stroke-width='3' fill='none'/>" },
     fitness: { a: "#61e591", b: "#18c879", c: "#e9fff2", shapes: "<path d='M24 62 C36 40 52 76 66 34' fill='none' stroke='white' stroke-width='5'/><circle cx='68' cy='30' r='8' fill='rgba(255,255,255,.7)'/><path d='M24 77 H78' stroke='white' stroke-width='5'/>" },
     nightlife: { a: "#2f3f6f", b: "#111827", c: "#32d274", shapes: "<path d='M29 24 H71 L64 51 Q50 62 36 51 Z' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M50 59 V78 M37 78 H63' stroke='white' stroke-width='5'/><path d='M28 31 H72 M37 39 H63' stroke='white' stroke-width='4'/><circle cx='72' cy='24' r='8' fill='rgba(255,255,255,.65)'/>" }
   };
@@ -93,8 +107,15 @@ function eventArtScene(event) {
     expos: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='20' y='25' width='60' height='52' rx='7'/><path d='M31 40 H69 M31 53 H69 M31 66 H56' fill='none'/></svg>",
     food: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M30 23 V58 M40 23 V58 M30 41 H40 M61 23 V78' fill='none'/><path d='M22 71 C34 55 66 55 78 71'/><circle cx='50' cy='49' r='10'/></svg>",
     film: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='19' y='29' width='62' height='42' rx='7'/><path d='M38 40 L38 60 L60 50 Z'/><path d='M25 36 H30 M25 48 H30 M25 60 H30 M70 36 H75 M70 48 H75 M70 60 H75' fill='none'/></svg>",
+    museum: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M18 78 H82'/><path d='M24 35 H76 L50 19 Z'/><path d='M29 35 V72 M43 35 V72 M57 35 V72 M71 35 V72'/><path d='M23 72 H77'/></svg>",
     arts: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='24' y='21' width='52' height='60' rx='8'/><circle cx='42' cy='43' r='10'/><path d='M31 68 C42 55 54 62 68 42' fill='none'/></svg>",
     comedy: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M25 28 Q50 18 75 28 L70 72 Q50 84 30 72 Z'/><circle cx='40' cy='43' r='4'/><circle cx='60' cy='43' r='4'/><path d='M38 59 Q50 68 62 59' fill='none'/></svg>",
+    run: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M24 68 C34 77 55 78 77 66 C81 64 80 57 75 56 L58 52 L45 37 L36 42 L46 58 L31 57 C24 56 20 63 24 68 Z'/><path d='M31 70 C42 74 58 74 75 66 M45 58 L58 52' fill='none'/><circle cx='38' cy='33' r='7'/></svg>",
+    baseball: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31'/><path d='M33 26 C41 38 41 62 33 74 M67 26 C59 38 59 62 67 74' fill='none'/><path d='M36 37 L41 34 M36 47 L42 45 M36 57 L42 60 M64 37 L59 34 M64 47 L58 45 M64 57 L58 60'/></svg>",
+    basketball: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31'/><path d='M20 50 H80 M50 19 V81 M29 29 C43 41 43 59 29 71 M71 29 C57 41 57 59 71 71' fill='none'/></svg>",
+    soccer: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31'/><path d='M50 34 L64 44 L59 61 H41 L36 44 Z'/><path d='M50 34 V22 M64 44 L78 39 M59 61 L66 75 M41 61 L34 75 M36 44 L22 39' fill='none'/></svg>",
+    hockey: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M34 21 L51 68 M66 21 L52 68 M42 70 H71' fill='none'/><ellipse cx='31' cy='75' rx='12' ry='5'/></svg>",
+    football: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M22 50 C32 24 68 24 78 50 C68 76 32 76 22 50 Z'/><path d='M36 50 H64 M44 42 V58 M50 42 V58 M56 42 V58' fill='none'/><path d='M29 35 C43 43 57 43 71 35 M29 65 C43 57 57 57 71 65' fill='none'/></svg>",
     fitness: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M24 63 C36 41 52 76 66 34' fill='none'/><circle cx='68' cy='30' r='8'/><path d='M24 78 H78' fill='none'/></svg>",
     nightlife: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M29 24 H71 L64 51 Q50 62 36 51 Z'/><path d='M50 59 V78 M37 78 H63' fill='none'/><path d='M28 31 H72 M37 39 H63' fill='none'/><circle cx='72' cy='24' r='8'/></svg>"
   };
