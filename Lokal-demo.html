@@ -1570,18 +1570,25 @@ function normalizeSupabaseVenue(row) {
 }
 
 function supabaseLocationText(row) {
-  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.location || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
+  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.location || ""} ${row.venue_name || ""} ${row.venue || ""} ${row.raw_json?.geo?.address?.locality || ""} ${row.raw_json?.geo?.address?.region || ""} ${row.raw_json?.geo?.address?.country_code || ""}`.toLowerCase();
 }
 
 function isSupabaseEventInDc(row) {
   const text = supabaseLocationText(row);
-  if (/\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|md\b|va\b|virginia|maryland)\b/.test(text) && !/washington,\s*dc|district of columbia|\bdc\b/.test(text)) return false;
+  const nonDcText = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore|md\b|va\b|virginia|maryland)\b/.test(text);
+  const dcText = /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
+  if (nonDcText && !dcText) return false;
   if (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) {
     const lat = Number(row.latitude);
     const lng = Number(row.longitude);
     if (Number.isFinite(lat) && Number.isFinite(lng)) return lat >= 38.79 && lat <= 38.995 && lng >= -77.12 && lng <= -76.90;
   }
-  return /washington,\s*dc|district of columbia|\bdc\b/.test(text) || row.source === "manual" || row.source === "smithsonian";
+  if (row.lat !== null && row.lat !== undefined && row.lng !== null && row.lng !== undefined) {
+    const lat = Number(row.lat);
+    const lng = Number(row.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) return lat >= 38.79 && lat <= 38.995 && lng >= -77.12 && lng <= -76.90;
+  }
+  return dcText;
 }
 
 function normalizeSupabaseDescription(row) {

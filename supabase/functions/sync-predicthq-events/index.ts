@@ -94,6 +94,18 @@ function eventAddress(event: PredictHqEvent) {
     "";
 }
 
+function isPredictHqEventInDc(event: PredictHqEvent) {
+  const lat = Number(event.location?.[1]);
+  const lng = Number(event.location?.[0]);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return lat >= 38.79 && lat <= 38.995 && lng >= -77.12 && lng <= -76.90;
+  }
+  const address = `${eventAddress(event)} ${event.geo?.address?.locality || ""} ${event.geo?.address?.region || ""}`.toLowerCase();
+  const hasDcText = /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(address);
+  const hasNonDcText = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore|md\b|va\b|virginia|maryland)\b/.test(address);
+  return hasDcText && !hasNonDcText;
+}
+
 function category(value: string) {
   const normalized = value ? value.toLowerCase() : "community";
   return ["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums"].includes(normalized) ? normalized : "community";
@@ -163,6 +175,7 @@ function lokalScore(event: PredictHqEvent, venueName: string, eventCategory: str
 }
 
 function isLokalEvent(event: PredictHqEvent) {
+  if (!isPredictHqEventInDc(event)) return false;
   const venueName = entityName(event);
   const eventCategory = category(event.category);
   const text = `${event.title || ""} ${event.description || ""}`.toLowerCase();
