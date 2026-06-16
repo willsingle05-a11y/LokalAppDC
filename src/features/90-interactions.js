@@ -287,8 +287,13 @@ document.addEventListener("wheel", event => {
 }, { passive: false });
 
 document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
-if (new URLSearchParams(location.search).has("newUser")) {
+const startupParams = new URLSearchParams(location.search);
+if (startupParams.has("newUser")) {
   ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts"].forEach(key => localStorage.removeItem(key));
+  history.replaceState(null, "", location.pathname);
+}
+if (startupParams.has("bypassSignup")) {
+  localStorage.setItem("lokalAccountCreated", "true");
   history.replaceState(null, "", location.pathname);
 }
 setRoute("home");
