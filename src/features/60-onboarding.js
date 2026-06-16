@@ -24,6 +24,7 @@ function toast(message) {
 }
 
 function showWelcomeBanner() {
+  if (!localStorage.getItem("lokalAccountCreated") || document.querySelector(".onboarding")) return;
   const existing = document.querySelector(".welcome-banner");
   if (existing) existing.remove();
   const firstName = state.profile.fullName.split(" ")[0] || "there";
