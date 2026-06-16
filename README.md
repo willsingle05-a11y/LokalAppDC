@@ -15,12 +15,42 @@ The maintainable source files live in `src`:
 - `src/features/60-onboarding.js` - first-run account and preferences
 - `src/features/90-interactions.js` - click/input handlers and startup
 
+## Run the Vite app
+
+Install dependencies once:
+
+```powershell
+npm.cmd install
+```
+
+Run the local development app:
+
+```powershell
+npm.cmd run dev
+```
+
+Build the launchable web app:
+
+```powershell
+npm.cmd run build
+```
+
+Preview the production build:
+
+```powershell
+npm.cmd run preview
+```
+
+The Vite entry point is `index.html`, which loads `src/main.js`. That bridge
+keeps the existing feature files running in their current order while the app
+moves toward a more launchable structure.
+
 ## Build the shareable file
 
 Run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\build-standalone.ps1
+npm.cmd run build:standalone
 ```
 
 This regenerates:

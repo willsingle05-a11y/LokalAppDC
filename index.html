@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f7fa" />
+    <title>Lokal DC</title>
+  </head>
+  <body>
+    <div class="demo-stage">
+      <aside class="demo-sidebar">
+        <div class="sidebar-brand"><b>LOKAL</b></div>
+        <p class="eyebrow">DC event discovery</p>
+        <h1>Good plans,<br>closer to home.</h1>
+        <p class="lede">A social discovery app for the full landscape of what is happening around the city, including the things ticketing apps miss.</p>
+        <div class="sidebar-note">
+          <p class="eyebrow">90-second demo</p>
+          <p>Open <b>Skyline Social</b>, share it with <b>Friday crew</b>, then check notifications and your profile activity.</p>
+        </div>
+        <div class="sidebar-actions">
+          <button class="secondary" data-copy-link>Copy demo link</button>
+          <button class="text-button" data-restart>Restart walkthrough</button>
+        </div>
+      </aside>
+
+      <div class="app-shell">
+        <header class="topbar">
+          <button class="brand" data-route="home" aria-label="Lokal home">
+            <span><b>LOKAL</b><small>WASHINGTON, DC</small></span>
+          </button>
+          <div class="topbar-actions">
+            <button class="share-shortcut" data-add-friends-link>Add friends</button>
+            <button class="header-icon" aria-label="Notifications" data-notifications><span data-icon="bell"></span><i></i></button>
+            <button class="icon-button" id="profile-shortcut" data-route="profile" aria-label="Open profile">
+              <span class="avatar avatar-me">JM</span>
+            </button>
+          </div>
+        </header>
+
+        <main id="app"></main>
+
+        <nav class="bottom-nav" aria-label="Main navigation">
+          <button class="nav-item active" data-route="home"><span data-icon="compass"></span><b>Discover</b></button>
+          <button class="nav-item" data-route="social"><span data-icon="people"></span><b>Social</b></button>
+          <button class="nav-item" data-route="profile"><span data-icon="user"></span><b>Profile</b></button>
+        </nav>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
