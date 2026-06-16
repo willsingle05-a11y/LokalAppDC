@@ -251,6 +251,45 @@ function seededPerformingArtsFallbackTags(seedText) {
   return [pool[seed % pool.length], pool[(seed + 4) % pool.length]];
 }
 
+function seededConcertFallbackTags(seedText) {
+  const pool = ["Tour Stop", "Club Show", "New Release", "Small Room", "Late Set", "Featured Artist", "Dance Floor", "Local Stage", "Vocal Set", "Deep Cuts"];
+  const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return [pool[seed % pool.length], pool[(seed + 5) % pool.length]];
+}
+
+function concertDetailTags(row) {
+  const rawTags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
+  const labels = Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : "";
+  const text = `${row.category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${labels}`.toLowerCase();
+  const tags = [];
+  const add = (label, pattern) => { if (pattern.test(text) && !tags.includes(label)) tags.push(label); };
+  add("Hip-Hop", /\b(hip[- ]?hop|rap|rapper|conway|chris travis)\b/);
+  add("R&B", /r&b|rhythm and blues|jill scott|bayou/);
+  add("Jazz", /jazz|bebop|swing/);
+  add("Go-Go", /go[- ]?go|northeast groovers|wpgc/);
+  add("Pop", /\bpop\b|dorian electra|fulton lee|flawed mangoes|daniela andrade/);
+  add("Rock", /music - rock|\brock band\b|\balt[- ]rock\b|\bindie rock\b|the church|the kills|of montreal/);
+  add("Indie", /indie|alt[- ]|alternative|of montreal|son little|bixby|flawed mangoes/);
+  add("Folk", /folk|americana|singer[- ]songwriter|josiah and the bonnevilles|orville peck/);
+  add("Country", /music - country|country music|orville peck|kolby cooper/);
+  add("Electronic", /electronic|edm|dance music|dj set|rufus|rüfüs|echostage|soundcheck/);
+  add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel/);
+  add("Soul", /soul|funk|big freedia|tank and the bangas/);
+  add("DJ Set", /\bdj\b|deejay|turntable|vinyl/);
+  add("Album Tour", /album|record release|new release|listening session|playlist/);
+  add("Tour Stop", /\btour\b|world tour|north america/);
+  add("Local Artist", /dc artist|local artist|local lineup|hometown/);
+  add("Free", /free admission|free event|free concert|free show|rsvp free|no cover/);
+  add("18+", /\b18\+\b|ages 18/);
+  add("21+", /\b21\+\b|ages 21/);
+  add("Club Show", /9:30 club|930 club|the atlantis|union stage|black cat|dc9|songbyrd/);
+  add("Big Room", /the anthem|echostage|arena|stadium|audi field/);
+  const fallback = seededConcertFallbackTags(`${row.title || ""} ${row.venue_name || ""} ${row.venue || ""}`).filter(() => tags.length < 2);
+  return [...tags, ...fallback]
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+    .slice(0, 6);
+}
+
 function performingArtsDetailTags(row) {
   const rawTags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
   const labels = Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : "";
@@ -285,10 +324,10 @@ function normalizeSupabaseTags(row, category) {
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "Concerts", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife" };
+  const categoryLabels = { concerts: "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
-  if (/concert|live music|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) inferredTags.push("Live Music");
+  if (category === "concerts") inferredTags.push(...concertDetailTags(row));
   if (/theatre|theater|performance art|performing|arts & theatre|gallery|art|exhibit|exhibition|musical|opera/.test(text)) inferredTags.push("Arts");
   if (/comedy|stand up|stand-up|improv/.test(text)) inferredTags.push("Comedy");
   if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
@@ -302,6 +341,7 @@ function normalizeSupabaseTags(row, category) {
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => category !== "concerts" || !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()))
     .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, 8);

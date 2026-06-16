@@ -133,6 +133,12 @@ function seededPerformingArtsFallbackTags(seedText) {
   return [pool[seed % pool.length], pool[(seed + 4) % pool.length]];
 }
 
+function seededConcertFallbackTags(seedText) {
+  const pool = ["Tour Stop", "Club Show", "New Release", "Small Room", "Late Set", "Featured Artist", "Dance Floor", "Local Stage", "Vocal Set", "Deep Cuts"];
+  const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return [pool[seed % pool.length], pool[(seed + 5) % pool.length]];
+}
+
 function eventTags(event) {
   const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
@@ -142,6 +148,37 @@ function eventTags(event) {
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  if (String(event.cat || "").toLowerCase() === "concerts") {
+    const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
+    const inferred = [];
+    const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
+    add("Hip-Hop", /\b(hip[- ]?hop|rap|rapper|conway|chris travis)\b/);
+    add("R&B", /r&b|rhythm and blues|jill scott|bayou/);
+    add("Jazz", /jazz|bebop|swing/);
+    add("Go-Go", /go[- ]?go|northeast groovers|wpgc/);
+    add("Pop", /\bpop\b|dorian electra|fulton lee|flawed mangoes|daniela andrade/);
+    add("Rock", /music - rock|\brock band\b|\balt[- ]rock\b|\bindie rock\b|the church|the kills|of montreal/);
+    add("Indie", /indie|alt[- ]|alternative|of montreal|son little|bixby|flawed mangoes/);
+    add("Folk", /folk|americana|singer[- ]songwriter|josiah and the bonnevilles|orville peck/);
+    add("Country", /music - country|country music|orville peck|kolby cooper/);
+    add("Electronic", /electronic|edm|dance music|dj set|rufus|rüfüs|echostage|soundcheck/);
+    add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel/);
+    add("Soul", /soul|funk|big freedia|tank and the bangas/);
+    add("DJ Set", /\bdj\b|deejay|turntable|vinyl/);
+    add("Album Tour", /album|record release|new release|listening session|playlist/);
+    add("Tour Stop", /\btour\b|world tour|north america/);
+    add("Local Artist", /dc artist|local artist|local lineup|hometown/);
+    add("Free", /free admission|free event|free concert|free show|rsvp free|no cover/);
+    add("18+", /\b18\+\b|ages 18/);
+    add("21+", /\b21\+\b|ages 21/);
+    add("Club Show", /9:30 club|930 club|the atlantis|union stage|black cat|dc9|songbyrd/);
+    add("Big Room", /the anthem|echostage|arena|stadium|audi field/);
+    const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()));
+    const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
+    return [...clean, ...inferred, ...fallback]
+      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length));
+  }
   if (String(event.cat || "").toLowerCase() !== "performing-arts") return tags;
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
   const inferred = [];
