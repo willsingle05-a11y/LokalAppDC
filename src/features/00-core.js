@@ -127,6 +127,12 @@ function eventArtImage(event) {
   return genericEventArt(event);
 }
 
+function seededPerformingArtsFallbackTags(seedText) {
+  const pool = ["Curtain Call", "Limited Run", "Tour Stop", "Ensemble", "Solo Set", "Matinee", "Late Show", "New Work", "Classic Story", "Reserved Seating"];
+  const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return [pool[seed % pool.length], pool[(seed + 4) % pool.length]];
+}
+
 function eventTags(event) {
   const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
@@ -141,21 +147,26 @@ function eventTags(event) {
   const inferred = [];
   const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
   add("Comedy", /comedy|stand[- ]?up|improv|comic|open mic/);
+  add("Broadway", /broadway|moulin rouge|suffs|lion king|wicked|hamilton/);
   add("Play", /\b(play|drama)\b|othello|hamlet|macbeth/);
-  add("Musical", /musical|broadway|opera/);
-  add("Stage Show", /stage show|live stage|touring|theatre|theater/);
-  add("Touring Show", /touring|tour\b/);
-  add("Family Show", /family|kids|children|bluey|disney/);
+  add("Musical", /musical|moulin rouge|suffs|wicked|hamilton|lion king/);
+  add("Opera", /\bopera\b(?! house)/);
+  add("Touring Production", /touring|\btour\b/);
+  add("Family Friendly", /family|kids|children|bluey|disney/);
   add("Dance", /dance|ballet|choreo/);
   add("Film", /film|cinema|screening|movie/);
   add("Gallery", /gallery|exhibit|exhibition|installation|visual art/);
   add("Classical", /symphony|orchestra|classical|chamber music/);
   add("Cabaret", /cabaret/);
+  add("Drag", /\bdrag\b|drag queen|drag brunch/);
+  add("Magic", /magic|illusionist/);
+  add("Storytelling", /storytelling|story slam|moth/);
   add("Spoken Word", /spoken word|poetry/);
-  const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian"].includes(tag.toLowerCase()));
-  return [...clean, ...inferred, "Live Show", "Ticketed"]
+  const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()));
+  const fallback = seededPerformingArtsFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(tag => clean.length + inferred.length < 2 || inferred.length < 2);
+  return [...clean, ...inferred, ...fallback]
     .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-    .slice(0, Math.max(3, clean.length + inferred.length));
+    .slice(0, Math.max(3, clean.length + inferred.length + fallback.length));
 }
 
 function eventTagChips(event, limit = 3) {
