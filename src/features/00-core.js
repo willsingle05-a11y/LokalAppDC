@@ -130,12 +130,28 @@ function eventArtImage(event) {
 function eventTags(event) {
   const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
-  return raw
+  const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
     .map(tag => String(tag || "").trim())
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  if (String(event.cat || "").toLowerCase() !== "performing-arts") return tags;
+  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
+  const inferred = [];
+  const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
+  add("Comedy", /comedy|stand[- ]?up|improv|comic|open mic/);
+  add("Theater", /theatre|theater|play\b|stage|drama/);
+  add("Musical", /musical|broadway|opera/);
+  add("Dance", /dance|ballet|choreo/);
+  add("Film", /film|cinema|screening|movie/);
+  add("Gallery", /gallery|exhibit|exhibition|installation|visual art/);
+  add("Classical", /symphony|orchestra|classical|chamber music/);
+  add("Performance", /performance|performing|cabaret|spoken word|poetry/);
+  const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian"].includes(tag.toLowerCase()));
+  return [...clean, ...inferred, "Performance", "Live Show"]
+    .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+    .slice(0, Math.max(3, clean.length + inferred.length));
 }
 
 function eventTagChips(event, limit = 3) {

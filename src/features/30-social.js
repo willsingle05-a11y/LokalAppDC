@@ -15,8 +15,39 @@ const publicGroupMeta = {
   "H Street Food Walks": { count: "537 members", note: "New tasting route posted", icon: "H", style: "art", description: "A public group for casual food walks, new openings, and neighborhood recommendations." }
 };
 
+const groupCategoryHints = {
+  "DC Run Club": ["fitness", "sports"],
+  "District Book Club": ["community"],
+  "DC Trivia Nights": ["nightlife", "community"],
+  "DC Pickleball Crew": ["sports", "fitness"],
+  "Capital Film Club": ["performing-arts"],
+  "Volunteer DC": ["community"],
+  "H Street Food Walks": ["festivals", "nightlife"],
+  "Culture club": ["performing-arts", "museums"],
+  "Gallery hopping": ["performing-arts", "museums"],
+  "Sunday coffee walk": ["community", "festivals"],
+  "Skyline Social": ["nightlife"],
+  "Friday crew": ["nightlife", "concerts"],
+  "Capitol picnic crew": ["community", "festivals"]
+};
+
 function publicDirectoryNames() {
   return Object.keys(publicGroupMeta).filter(name => name !== "Skyline Social" && !state.joinedGroups.has(name) && !state.leftGroups.has(name));
+}
+
+function groupRecord(name) {
+  return state.newGroups.find(group => group.name === name) || null;
+}
+
+function groupTypeLabel(name) {
+  const record = groupRecord(name);
+  if (publicGroupMeta[name] || record?.type === "Public") return "Public";
+  if (record?.type === "Event chat") return "Event chat";
+  return "Private";
+}
+
+function groupMeta(name) {
+  return publicGroupMeta[name] || null;
 }
 
 function friendCard(friend, action = "profile") {
@@ -45,6 +76,40 @@ function removeGroupMembership(name) {
   state.newGroups = state.newGroups.filter(group => group.name !== name);
 }
 
+function groupSuggestedEvents(name, limit = 4) {
+  const hints = groupCategoryHints[name] || [];
+  const nameText = name.toLowerCase();
+  const scored = events.map(event => {
+    const text = `${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
+    let score = 0;
+    if (hints.includes(event.cat)) score += 6;
+    if (nameText.includes("run") && /run|fitness|wellness|yoga/.test(text)) score += 8;
+    if (nameText.includes("film") && /film|cinema|movie|screening/.test(text)) score += 8;
+    if (nameText.includes("food") && /food|market|restaurant|chef|brunch|wine|cocktail/.test(text)) score += 8;
+    if (nameText.includes("trivia") && /trivia|bar|nightlife|pub/.test(text)) score += 8;
+    if (nameText.includes("gallery") && /gallery|museum|exhibit|art/.test(text)) score += 8;
+    if (nameText.includes("culture") && /museum|theater|theatre|film|gallery|comedy|performance/.test(text)) score += 7;
+    if (nameText.includes("skyline") && /rooftop|nightlife|cocktail|party/.test(text)) score += 8;
+    if (nameText.includes("coffee") && /coffee|morning|market|walk|community/.test(text)) score += 7;
+    return { event, score };
+  }).filter(item => item.score > 0);
+  const fallback = events.filter(event => matchesFilter(event, "all")).slice(0, limit);
+  const ranked = scored.sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event)).map(item => item.event);
+  return [...ranked, ...fallback]
+    .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
+    .slice(0, limit);
+}
+
+function groupEventList(name) {
+  const suggested = groupSuggestedEvents(name);
+  return suggested.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+}
+
+function groupSharePicker(name) {
+  const suggested = groupSuggestedEvents(name, 6);
+  return suggested.map(event => `<button class="interest-event" data-send-event="${event.id}" data-group-name="${escapeHtml(name)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+}
+
 function currentUserName() {
   return state.profile.fullName || "Jordan Miller";
 }
@@ -59,11 +124,16 @@ function acceptFriendship(name) {
 }
 
 function groupContent() {
-  const card = (name, type, detail, note, icon, style = "") => state.leftGroups.has(name) ? "" : `<button class="community-card ${state.pinnedGroups.has(name) ? "pinned" : ""}" data-group-card data-search-text="${name.toLowerCase()} ${type.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${style}">${icon}</span><span><b>${name}</b><small>${type} / ${type === "Private" && state.privateGroupMembers[name] ? `${state.privateGroupMembers[name].length} members` : detail}</small><em>${state.pinnedGroups.has(name) ? "Pinned / " : ""}${note}</em></span><span class="group-access ${type === "Private" ? "private" : ""}">${type === "Private" ? "•••" : "View"}</span></button>`;
+  const card = (name, type, detail, note, icon, style = "") => {
+    if (state.leftGroups.has(name)) return "";
+    const suggestions = groupSuggestedEvents(name, 2);
+    const chips = suggestions.map(event => primaryEventTag(event)).filter(Boolean).slice(0, 2);
+    return `<button class="community-card ${state.pinnedGroups.has(name) ? "pinned" : ""}" data-group-card data-search-text="${`${name} ${type} ${detail} ${note} ${chips.join(" ")}`.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${style}">${icon}</span><span><b>${name}</b><small>${type} / ${type === "Private" && state.privateGroupMembers[name] ? `${state.privateGroupMembers[name].length} members` : detail}</small><em>${state.pinnedGroups.has(name) ? "Pinned / " : ""}${note}</em><span class="group-mini-tags">${chips.map(tag => `<i>${escapeHtml(tag)}</i>`).join("")}</span></span><span class="group-access ${type === "Private" ? "private" : ""}">${type === "Private" ? "Chat" : type === "Event chat" ? "Plan" : "View"}</span></button>`;
+  };
   const group = (name, type, detail, note, icon, style = "") => ({ name, type, detail, note, icon, style });
   const renderGroup = item => card(item.name, item.type, item.detail, item.note, item.icon, item.style);
-  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => name !== "Skyline Social" && !state.leftGroups.has(name)).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
-  const baseGroups = [group("Friday crew","Private","6 members","Ready to start chatting","F"), ...state.newGroups.map(item => group(item.name,item.type,"Created just now","Invite people to get started",item.name[0].toUpperCase())), group("Culture club","Private","8 members","Ready to start chatting","C","art"), group("Skyline Social","Public","12 members","Single-event group / Friday","S","run"), ...joinedPublicGroups, group("Capitol picnic crew","Private","5 members","Last active Monday","P"), group("Gallery hopping","Private","4 members","Last active May 24","G","art"), group("Sunday coffee walk","Private","7 members","Last active May 18","S","run")];
+  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => name !== "Skyline Social" && !state.leftGroups.has(name) && publicGroupMeta[name]).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
+  const baseGroups = [group("Friday crew","Private","6 members","Ready to start chatting","F"), ...state.newGroups.map(item => group(item.name,item.type,item.type === "Public" ? "1 member" : "Created just now",item.type === "Event chat" ? "Attach an event and invite people" : "Invite people to get started",item.name[0].toUpperCase())), group("Culture club","Private","8 members","Ready to start chatting","C","art"), group("Skyline Social","Public","12 members","Single-event group / Friday","S","run"), ...joinedPublicGroups, group("Capitol picnic crew","Private","5 members","Last active Monday","P"), group("Gallery hopping","Private","4 members","Last active May 24","G","art"), group("Sunday coffee walk","Private","7 members","Last active May 18","S","run")];
   const pinnedGroups = baseGroups.filter(item => state.pinnedGroups.has(item.name)).sort((a, b) => Number(a.type === "Public") - Number(b.type === "Public"));
   const recentGroups = baseGroups.filter(item => !state.pinnedGroups.has(item.name) && !["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name));
   const archivedGroups = baseGroups.filter(item => ["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name) && !state.pinnedGroups.has(item.name));
@@ -92,20 +162,26 @@ function groupMessage(message) {
 
 function openGroup(name) {
   const publicMeta = publicGroupMeta[name];
-  const isPublic = Boolean(publicMeta);
+  const record = groupRecord(name);
+  const type = groupTypeLabel(name);
+  const isPublic = type === "Public";
+  const isEventChat = type === "Event chat";
   const members = state.privateGroupMembers[name] || ["You", "Ana Lopez", "Marcus Reed"];
-  if (isPublic && !state.joinedGroups.has(name)) {
-    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} preview"><button class="modal-close" aria-label="Close group preview">&times;</button><p class="eyebrow">Public group</p><h2>${name}</h2><p class="group-description">${publicMeta.description}</p><p class="lede">${publicMeta.count}</p><button class="wide-button" data-join-group="${name}">Join group</button></section></div>`;
+  const description = publicMeta?.description || (isEventChat ? "A single-plan thread for deciding who is going, sharing tickets, and keeping the event details in one place." : "A group thread for choosing plans, sharing events, and coordinating with people you know.");
+  const count = publicMeta?.count || (isPublic ? "1 member" : `${members.length} members`);
+  const eventList = groupEventList(name);
+  if (isPublic && !state.joinedGroups.has(name) && !record) {
+    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} preview"><button class="modal-close" aria-label="Close group preview">&times;</button><p class="eyebrow">Public group</p><h2>${name}</h2><p class="group-description">${description}</p><p class="lede">${count}</p><p class="eyebrow group-divider">Upcoming in this group</p><div class="interest-list">${eventList}</div><button class="wide-button" data-join-group="${name}">Join group</button></section></div>`;
     return;
   }
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} group"><button class="modal-close" aria-label="Close group">&times;</button>
-    <p class="eyebrow">${isPublic ? "Public group" : "Group"}</p><h2>${name}</h2>
-    <p class="group-description">${isPublic ? publicMeta.description : "Our running thread for the next night out. Share ideas, keep tickets together, and see who is interested."}</p>
-    ${isPublic ? `<p class="public-member-count">${publicMeta.count}</p>` : ""}
+    <p class="eyebrow">${isPublic ? "Public group" : isEventChat ? "Event chat" : "Private group"}</p><h2>${name}</h2>
+    <p class="group-description">${description}</p>
+    <p class="public-member-count">${count}</p>
     ${isPublic ? "" : `<p class="eyebrow group-divider">People in this group</p><div class="private-group-members">${members.map(member => `<div class="private-group-member"><span class="avatar">${friendInitials(member)}</span><b>${member}</b></div>`).join("")}</div>`}
-    <div class="group-detail-actions"><button class="secondary" data-invite data-group-name="${name}">+ Invite people</button>${isPublic ? `<button class="secondary" data-schedule>+ Schedule event</button>` : `<button class="secondary" data-share-group-event="${name}">+ Share event</button>`}</div>
+    <div class="group-detail-actions"><button class="secondary" data-invite data-group-name="${name}">+ Invite people</button><button class="secondary" data-share-group-event="${name}">+ Share event</button></div>
     <p class="eyebrow group-divider">Messages</p><div class="message-list">${(state.groupMessages[name] || []).map(groupMessage).join("") || `<p class="message-empty">No messages yet. Share an event or start the conversation.</p>`}</div><div class="message-compose"><input data-message placeholder="Message the group" aria-label="Message the group"><button class="primary" data-send-message data-group-name="${name}">Send</button></div>
-    <p class="eyebrow group-divider">Events</p><div class="interest-list"><div class="interest-event"><span><b>Skyline Social</b><small>Friday / 4 people interested</small></span><button class="text-button" data-event="4">Open</button></div><div class="interest-event"><span><b>Fresh Air Cinema</b><small>Sunday / 3 people interested</small></span><button class="text-button" data-event="8">Open</button></div></div>
+    <p class="eyebrow group-divider">${isEventChat ? "Plan options" : "Suggested events"}</p><div class="interest-list">${eventList}</div>
     <button class="options-button" data-group-options="${name}">•••</button>
   </section></div>`;
 }
@@ -118,7 +194,7 @@ function openInvite(name = "Friday crew") {
 function openCreateGroup() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal create-sheet" role="dialog" aria-modal="true" aria-label="Create a group"><button class="modal-close" aria-label="Close group creation">&times;</button>
     <p class="eyebrow">New group</p><h2>Bring people together.</h2><p class="lede">Start a private crew or a public community.</p>
-    <div class="group-type-grid"><button class="group-type selected" data-group-type="private">Private crew</button><button class="group-type" data-group-type="public">Public group</button></div>
+    <div class="group-type-grid"><button class="group-type selected" data-group-type="private">Private crew</button><button class="group-type" data-group-type="event">Event chat</button><button class="group-type" data-group-type="public">Public group</button></div>
     <input data-group-name placeholder="Group name" aria-label="Group name"><input data-create-friends placeholder="Add friends" aria-label="Add group friends"><div class="autocomplete" data-autocomplete hidden></div><div class="selected-group-friends" data-selected-group-friends></div>
     <button class="wide-button" data-save-group>Create group</button>
   </section></div>`;

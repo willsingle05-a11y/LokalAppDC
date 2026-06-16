@@ -274,6 +274,8 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .community-grid, .group-list { display: grid; gap: 8px; }
 .community-card { display: flex; align-items: center; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-align: left; }
 .community-card span:nth-child(2) { display: grid; flex: 1; gap: 2px; }.community-card small { color: var(--muted); font-size: 10px; }.community-card em { color: var(--orange); font-size: 10px; font-style: normal; font-weight: 800; }
+.group-mini-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.group-mini-tags i { padding: 3px 6px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 8px; font-style: normal; font-weight: 900; }
 .group-access { padding: 5px 7px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 8px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
 .group-access.private { color: #725b7f; background: #eee4f0; }
 .group-icon.run { background: var(--green); }.group-icon.book { background: #9e6f95; }.group-icon.art { background: var(--orange); }
@@ -1223,12 +1225,28 @@ function eventArtImage(event) {
 function eventTags(event) {
   const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
-  return raw
+  const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
     .map(tag => String(tag || "").trim())
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  if (String(event.cat || "").toLowerCase() !== "performing-arts") return tags;
+  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
+  const inferred = [];
+  const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
+  add("Comedy", /comedy|stand[- ]?up|improv|comic|open mic/);
+  add("Theater", /theatre|theater|play\b|stage|drama/);
+  add("Musical", /musical|broadway|opera/);
+  add("Dance", /dance|ballet|choreo/);
+  add("Film", /film|cinema|screening|movie/);
+  add("Gallery", /gallery|exhibit|exhibition|installation|visual art/);
+  add("Classical", /symphony|orchestra|classical|chamber music/);
+  add("Performance", /performance|performing|cabaret|spoken word|poetry/);
+  const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian"].includes(tag.toLowerCase()));
+  return [...clean, ...inferred, "Performance", "Live Show"]
+    .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+    .slice(0, Math.max(3, clean.length + inferred.length));
 }
 
 function eventTagChips(event, limit = 3) {
@@ -1693,13 +1711,32 @@ function sportsLeagueTags(row) {
   return tags;
 }
 
+function performingArtsDetailTags(row) {
+  const rawTags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
+  const labels = Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : "";
+  const text = `${row.category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags} ${labels}`.toLowerCase();
+  const tags = [];
+  const add = (label, pattern) => { if (pattern.test(text) && !tags.includes(label)) tags.push(label); };
+  add("Comedy", /comedy|stand[- ]?up|standup|improv|comic|open mic/);
+  add("Theater", /theatre|theater|play\b|stage|drama/);
+  add("Musical", /musical|broadway|opera/);
+  add("Dance", /dance|ballet|choreo/);
+  add("Film", /film|cinema|screening|movie/);
+  add("Gallery", /gallery|exhibit|exhibition|installation|visual art/);
+  add("Classical", /symphony|orchestra|classical|chamber music/);
+  add("Performance", /performance|performing|cabaret|spoken word|poetry/);
+  return [...tags, "Performance", "Live Show"]
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+    .slice(0, 5);
+}
+
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "Concerts", festivals: "Festivals", "performing-arts": "Arts", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife" };
+  const categoryLabels = { concerts: "Concerts", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
   if (/concert|live music|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) inferredTags.push("Live Music");
@@ -1711,10 +1748,12 @@ function normalizeSupabaseTags(row, category) {
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) inferredTags.push("Nightlife");
   if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
   if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
-  return [...inferredTags, categoryLabels[category] || category, ...rawTags, row.tag, ...labels]
+  if (category === "performing-arts") inferredTags.push(...performingArtsDetailTags(row));
+  return [...inferredTags, categoryLabels[category] || "", ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, 8);
 }
@@ -2241,8 +2280,39 @@ const publicGroupMeta = {
   "H Street Food Walks": { count: "537 members", note: "New tasting route posted", icon: "H", style: "art", description: "A public group for casual food walks, new openings, and neighborhood recommendations." }
 };
 
+const groupCategoryHints = {
+  "DC Run Club": ["fitness", "sports"],
+  "District Book Club": ["community"],
+  "DC Trivia Nights": ["nightlife", "community"],
+  "DC Pickleball Crew": ["sports", "fitness"],
+  "Capital Film Club": ["performing-arts"],
+  "Volunteer DC": ["community"],
+  "H Street Food Walks": ["festivals", "nightlife"],
+  "Culture club": ["performing-arts", "museums"],
+  "Gallery hopping": ["performing-arts", "museums"],
+  "Sunday coffee walk": ["community", "festivals"],
+  "Skyline Social": ["nightlife"],
+  "Friday crew": ["nightlife", "concerts"],
+  "Capitol picnic crew": ["community", "festivals"]
+};
+
 function publicDirectoryNames() {
   return Object.keys(publicGroupMeta).filter(name => name !== "Skyline Social" && !state.joinedGroups.has(name) && !state.leftGroups.has(name));
+}
+
+function groupRecord(name) {
+  return state.newGroups.find(group => group.name === name) || null;
+}
+
+function groupTypeLabel(name) {
+  const record = groupRecord(name);
+  if (publicGroupMeta[name] || record?.type === "Public") return "Public";
+  if (record?.type === "Event chat") return "Event chat";
+  return "Private";
+}
+
+function groupMeta(name) {
+  return publicGroupMeta[name] || null;
 }
 
 function friendCard(friend, action = "profile") {
@@ -2271,6 +2341,40 @@ function removeGroupMembership(name) {
   state.newGroups = state.newGroups.filter(group => group.name !== name);
 }
 
+function groupSuggestedEvents(name, limit = 4) {
+  const hints = groupCategoryHints[name] || [];
+  const nameText = name.toLowerCase();
+  const scored = events.map(event => {
+    const text = `${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
+    let score = 0;
+    if (hints.includes(event.cat)) score += 6;
+    if (nameText.includes("run") && /run|fitness|wellness|yoga/.test(text)) score += 8;
+    if (nameText.includes("film") && /film|cinema|movie|screening/.test(text)) score += 8;
+    if (nameText.includes("food") && /food|market|restaurant|chef|brunch|wine|cocktail/.test(text)) score += 8;
+    if (nameText.includes("trivia") && /trivia|bar|nightlife|pub/.test(text)) score += 8;
+    if (nameText.includes("gallery") && /gallery|museum|exhibit|art/.test(text)) score += 8;
+    if (nameText.includes("culture") && /museum|theater|theatre|film|gallery|comedy|performance/.test(text)) score += 7;
+    if (nameText.includes("skyline") && /rooftop|nightlife|cocktail|party/.test(text)) score += 8;
+    if (nameText.includes("coffee") && /coffee|morning|market|walk|community/.test(text)) score += 7;
+    return { event, score };
+  }).filter(item => item.score > 0);
+  const fallback = events.filter(event => matchesFilter(event, "all")).slice(0, limit);
+  const ranked = scored.sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event)).map(item => item.event);
+  return [...ranked, ...fallback]
+    .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
+    .slice(0, limit);
+}
+
+function groupEventList(name) {
+  const suggested = groupSuggestedEvents(name);
+  return suggested.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+}
+
+function groupSharePicker(name) {
+  const suggested = groupSuggestedEvents(name, 6);
+  return suggested.map(event => `<button class="interest-event" data-send-event="${event.id}" data-group-name="${escapeHtml(name)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+}
+
 function currentUserName() {
   return state.profile.fullName || "Jordan Miller";
 }
@@ -2285,11 +2389,16 @@ function acceptFriendship(name) {
 }
 
 function groupContent() {
-  const card = (name, type, detail, note, icon, style = "") => state.leftGroups.has(name) ? "" : `<button class="community-card ${state.pinnedGroups.has(name) ? "pinned" : ""}" data-group-card data-search-text="${name.toLowerCase()} ${type.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${style}">${icon}</span><span><b>${name}</b><small>${type} / ${type === "Private" && state.privateGroupMembers[name] ? `${state.privateGroupMembers[name].length} members` : detail}</small><em>${state.pinnedGroups.has(name) ? "Pinned / " : ""}${note}</em></span><span class="group-access ${type === "Private" ? "private" : ""}">${type === "Private" ? "•••" : "View"}</span></button>`;
+  const card = (name, type, detail, note, icon, style = "") => {
+    if (state.leftGroups.has(name)) return "";
+    const suggestions = groupSuggestedEvents(name, 2);
+    const chips = suggestions.map(event => primaryEventTag(event)).filter(Boolean).slice(0, 2);
+    return `<button class="community-card ${state.pinnedGroups.has(name) ? "pinned" : ""}" data-group-card data-search-text="${`${name} ${type} ${detail} ${note} ${chips.join(" ")}`.toLowerCase()}" data-open-group="${name}"><span class="group-icon ${style}">${icon}</span><span><b>${name}</b><small>${type} / ${type === "Private" && state.privateGroupMembers[name] ? `${state.privateGroupMembers[name].length} members` : detail}</small><em>${state.pinnedGroups.has(name) ? "Pinned / " : ""}${note}</em><span class="group-mini-tags">${chips.map(tag => `<i>${escapeHtml(tag)}</i>`).join("")}</span></span><span class="group-access ${type === "Private" ? "private" : ""}">${type === "Private" ? "Chat" : type === "Event chat" ? "Plan" : "View"}</span></button>`;
+  };
   const group = (name, type, detail, note, icon, style = "") => ({ name, type, detail, note, icon, style });
   const renderGroup = item => card(item.name, item.type, item.detail, item.note, item.icon, item.style);
-  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => name !== "Skyline Social" && !state.leftGroups.has(name)).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
-  const baseGroups = [group("Friday crew","Private","6 members","Ready to start chatting","F"), ...state.newGroups.map(item => group(item.name,item.type,"Created just now","Invite people to get started",item.name[0].toUpperCase())), group("Culture club","Private","8 members","Ready to start chatting","C","art"), group("Skyline Social","Public","12 members","Single-event group / Friday","S","run"), ...joinedPublicGroups, group("Capitol picnic crew","Private","5 members","Last active Monday","P"), group("Gallery hopping","Private","4 members","Last active May 24","G","art"), group("Sunday coffee walk","Private","7 members","Last active May 18","S","run")];
+  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => name !== "Skyline Social" && !state.leftGroups.has(name) && publicGroupMeta[name]).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
+  const baseGroups = [group("Friday crew","Private","6 members","Ready to start chatting","F"), ...state.newGroups.map(item => group(item.name,item.type,item.type === "Public" ? "1 member" : "Created just now",item.type === "Event chat" ? "Attach an event and invite people" : "Invite people to get started",item.name[0].toUpperCase())), group("Culture club","Private","8 members","Ready to start chatting","C","art"), group("Skyline Social","Public","12 members","Single-event group / Friday","S","run"), ...joinedPublicGroups, group("Capitol picnic crew","Private","5 members","Last active Monday","P"), group("Gallery hopping","Private","4 members","Last active May 24","G","art"), group("Sunday coffee walk","Private","7 members","Last active May 18","S","run")];
   const pinnedGroups = baseGroups.filter(item => state.pinnedGroups.has(item.name)).sort((a, b) => Number(a.type === "Public") - Number(b.type === "Public"));
   const recentGroups = baseGroups.filter(item => !state.pinnedGroups.has(item.name) && !["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name));
   const archivedGroups = baseGroups.filter(item => ["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name) && !state.pinnedGroups.has(item.name));
@@ -2318,20 +2427,26 @@ function groupMessage(message) {
 
 function openGroup(name) {
   const publicMeta = publicGroupMeta[name];
-  const isPublic = Boolean(publicMeta);
+  const record = groupRecord(name);
+  const type = groupTypeLabel(name);
+  const isPublic = type === "Public";
+  const isEventChat = type === "Event chat";
   const members = state.privateGroupMembers[name] || ["You", "Ana Lopez", "Marcus Reed"];
-  if (isPublic && !state.joinedGroups.has(name)) {
-    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} preview"><button class="modal-close" aria-label="Close group preview">&times;</button><p class="eyebrow">Public group</p><h2>${name}</h2><p class="group-description">${publicMeta.description}</p><p class="lede">${publicMeta.count}</p><button class="wide-button" data-join-group="${name}">Join group</button></section></div>`;
+  const description = publicMeta?.description || (isEventChat ? "A single-plan thread for deciding who is going, sharing tickets, and keeping the event details in one place." : "A group thread for choosing plans, sharing events, and coordinating with people you know.");
+  const count = publicMeta?.count || (isPublic ? "1 member" : `${members.length} members`);
+  const eventList = groupEventList(name);
+  if (isPublic && !state.joinedGroups.has(name) && !record) {
+    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} preview"><button class="modal-close" aria-label="Close group preview">&times;</button><p class="eyebrow">Public group</p><h2>${name}</h2><p class="group-description">${description}</p><p class="lede">${count}</p><p class="eyebrow group-divider">Upcoming in this group</p><div class="interest-list">${eventList}</div><button class="wide-button" data-join-group="${name}">Join group</button></section></div>`;
     return;
   }
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal group-detail" role="dialog" aria-modal="true" aria-label="${name} group"><button class="modal-close" aria-label="Close group">&times;</button>
-    <p class="eyebrow">${isPublic ? "Public group" : "Group"}</p><h2>${name}</h2>
-    <p class="group-description">${isPublic ? publicMeta.description : "Our running thread for the next night out. Share ideas, keep tickets together, and see who is interested."}</p>
-    ${isPublic ? `<p class="public-member-count">${publicMeta.count}</p>` : ""}
+    <p class="eyebrow">${isPublic ? "Public group" : isEventChat ? "Event chat" : "Private group"}</p><h2>${name}</h2>
+    <p class="group-description">${description}</p>
+    <p class="public-member-count">${count}</p>
     ${isPublic ? "" : `<p class="eyebrow group-divider">People in this group</p><div class="private-group-members">${members.map(member => `<div class="private-group-member"><span class="avatar">${friendInitials(member)}</span><b>${member}</b></div>`).join("")}</div>`}
-    <div class="group-detail-actions"><button class="secondary" data-invite data-group-name="${name}">+ Invite people</button>${isPublic ? `<button class="secondary" data-schedule>+ Schedule event</button>` : `<button class="secondary" data-share-group-event="${name}">+ Share event</button>`}</div>
+    <div class="group-detail-actions"><button class="secondary" data-invite data-group-name="${name}">+ Invite people</button><button class="secondary" data-share-group-event="${name}">+ Share event</button></div>
     <p class="eyebrow group-divider">Messages</p><div class="message-list">${(state.groupMessages[name] || []).map(groupMessage).join("") || `<p class="message-empty">No messages yet. Share an event or start the conversation.</p>`}</div><div class="message-compose"><input data-message placeholder="Message the group" aria-label="Message the group"><button class="primary" data-send-message data-group-name="${name}">Send</button></div>
-    <p class="eyebrow group-divider">Events</p><div class="interest-list"><div class="interest-event"><span><b>Skyline Social</b><small>Friday / 4 people interested</small></span><button class="text-button" data-event="4">Open</button></div><div class="interest-event"><span><b>Fresh Air Cinema</b><small>Sunday / 3 people interested</small></span><button class="text-button" data-event="8">Open</button></div></div>
+    <p class="eyebrow group-divider">${isEventChat ? "Plan options" : "Suggested events"}</p><div class="interest-list">${eventList}</div>
     <button class="options-button" data-group-options="${name}">•••</button>
   </section></div>`;
 }
@@ -2344,7 +2459,7 @@ function openInvite(name = "Friday crew") {
 function openCreateGroup() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal create-sheet" role="dialog" aria-modal="true" aria-label="Create a group"><button class="modal-close" aria-label="Close group creation">&times;</button>
     <p class="eyebrow">New group</p><h2>Bring people together.</h2><p class="lede">Start a private crew or a public community.</p>
-    <div class="group-type-grid"><button class="group-type selected" data-group-type="private">Private crew</button><button class="group-type" data-group-type="public">Public group</button></div>
+    <div class="group-type-grid"><button class="group-type selected" data-group-type="private">Private crew</button><button class="group-type" data-group-type="event">Event chat</button><button class="group-type" data-group-type="public">Public group</button></div>
     <input data-group-name placeholder="Group name" aria-label="Group name"><input data-create-friends placeholder="Add friends" aria-label="Add group friends"><div class="autocomplete" data-autocomplete hidden></div><div class="selected-group-friends" data-selected-group-friends></div>
     <button class="wide-button" data-save-group>Create group</button>
   </section></div>`;
@@ -2779,7 +2894,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.mapZoom) { mark(); if (t.dataset.mapZoom === "reset") { state.mapZoom = 1; state.mapSearch = ""; state.mapCenter = { x: 50, y: 50 }; } renderMap(); }
   if (t.dataset.createGroup !== undefined) openCreateGroup();
   if (t.dataset.groupType) { state.groupType = t.dataset.groupType; document.querySelectorAll(".group-type").forEach(button => button.classList.toggle("selected", button.dataset.groupType === state.groupType)); }
-  if (t.dataset.saveGroup !== undefined) { const input = document.querySelector("[data-group-name]"); const name = input?.value.trim() || "New Lokal group"; const labels = { private: "Private", event: "Event chat", public: "Public" }; if (state.leftGroups.has(name)) { toast("Choose a different group name"); return; } state.newGroups.unshift({ name, type: labels[state.groupType] }); if (state.groupType === "private" && !state.privateGroupMembers[name]) state.privateGroupMembers[name] = ["You"]; modalRoot.innerHTML = ""; state.socialTab = "groups"; renderSocial(); toast(`${name} created`); }
+  if (t.dataset.saveGroup !== undefined) { const input = document.querySelector("[data-group-name]"); const name = input?.value.trim() || "New Lokal group"; const labels = { private: "Private", event: "Event chat", public: "Public" }; if (state.leftGroups.has(name)) { toast("Choose a different group name"); return; } state.newGroups.unshift({ name, type: labels[state.groupType] }); if (state.groupType !== "public" && !state.privateGroupMembers[name]) state.privateGroupMembers[name] = ["You"]; modalRoot.innerHTML = ""; state.socialTab = "groups"; renderSocial(); toast(`${name} created`); }
   if (t.dataset.openGroup) openGroup(t.dataset.openGroup);
   if (t.dataset.openFriend) openFriend(t.dataset.openFriend);
   if (t.dataset.invite !== undefined) openInvite(t.dataset.groupName);
@@ -2793,7 +2908,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.viewMoreGroups !== undefined) { state.showAllGroups = !state.showAllGroups; renderSocial(); }
   if (t.dataset.schedule !== undefined) { mark(); openSimpleSheet("Schedule an event", "Add an event for the group and let members know when it is happening.", `<label class="settings-field">Event name<input placeholder="Event name"></label><label class="settings-field">Date and time<input type="datetime-local"></label><button class="wide-button" data-confirm-schedule>Schedule event</button>`); }
   if (t.dataset.confirmSchedule !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Event scheduled for the group"); }
-  if (t.dataset.shareGroupEvent !== undefined) { mark(); const group = t.dataset.shareGroupEvent; openSimpleSheet("Share an event", "Choose an event to send to this group.", `<div class="interest-list"><button class="interest-event" data-send-event="4" data-group-name="${group}"><span><b>Skyline Social</b><small>Friday / Viceroy Rooftop</small></span></button><button class="interest-event" data-send-event="8" data-group-name="${group}"><span><b>Fresh Air Cinema</b><small>Sunday / Alethia Tanner Park</small></span></button></div>`); }
+  if (t.dataset.shareGroupEvent !== undefined) { mark(); const group = t.dataset.shareGroupEvent; openSimpleSheet("Share an event", "Choose an event to send to this group.", `<div class="interest-list">${groupSharePicker(group)}</div>`); }
   if (t.dataset.sendEvent !== undefined) { mark(); const group = t.dataset.groupName; const eventId = Number(t.dataset.sendEvent); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Event added to group messages"); }
   if (t.dataset.joinGroup) { if (state.leftGroups.has(t.dataset.joinGroup)) { toast("You left this group"); return; } state.joinedGroups.add(t.dataset.joinGroup); if (state.route === "social") renderSocial(); openGroup(t.dataset.joinGroup); toast("Group joined"); }
   if (t.dataset.groupOptions) { modalRoot.innerHTML += `<div class="options-menu"><button data-pin-group="${t.dataset.groupOptions}">${state.pinnedGroups.has(t.dataset.groupOptions) ? "Unpin group" : "Pin group"}</button><button data-leave-group="${t.dataset.groupOptions}">Leave group</button></div>`; }
