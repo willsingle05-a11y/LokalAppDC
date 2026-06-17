@@ -1562,12 +1562,51 @@ function normalizeSupabasePrice(value, isMinimum = false, isExplicitlyFree = fal
   return isMinimum ? `From ${price}` : price;
 }
 
+function positivePriceValue(...values) {
+  return values.map(value => Number(value)).find(value => Number.isFinite(value) && value > 0);
+}
+
+function ticketmasterPriceRange(row) {
+  const sources = [
+    row.raw_json,
+    row.raw_json?._embedded?.events?.[0],
+    row.raw_json?.event,
+    row.raw_json?.ticketmaster
+  ].filter(Boolean);
+  for (const source of sources) {
+    const ranges = Array.isArray(source.priceRanges) ? source.priceRanges : [];
+    const range = ranges.find(item => positivePriceValue(item?.min, item?.lowPrice, item?.price, item?.minPrice));
+    if (range) {
+      return {
+        min: positivePriceValue(range.min, range.lowPrice, range.price, range.minPrice),
+        max: positivePriceValue(range.max, range.highPrice, range.maxPrice)
+      };
+    }
+    const offers = Array.isArray(source.offers) ? source.offers : [];
+    const offer = offers.find(item => positivePriceValue(item?.lowPrice, item?.price, item?.minPrice));
+    if (offer) {
+      return {
+        min: positivePriceValue(offer.lowPrice, offer.price, offer.minPrice),
+        max: positivePriceValue(offer.highPrice, offer.maxPrice)
+      };
+    }
+  }
+  return null;
+}
+
+function formatListedPriceRange(range) {
+  if (!range?.min) return "";
+  if (range.max && range.max !== range.min) return `${formatTicketPrice(range.min)}-${formatTicketPrice(range.max)}`;
+  return `From ${formatTicketPrice(range.min)}`;
+}
+
 function normalizeSupabasePriceFromRow(row) {
   const isExplicitlyFree = rowIsExplicitlyFree(row);
-  const offer = Array.isArray(row.raw_json?.offers) ? row.raw_json.offers.find(item => Number(item?.lowPrice || item?.price || item?.minPrice) > 0) : null;
-  const apiPriceMin = row.raw_json?.priceRanges?.find(item => Number(item.min) > 0)?.min ?? offer?.lowPrice ?? offer?.price ?? offer?.minPrice;
+  const listedTicketmasterPrice = String(row.source || "").toLowerCase() === "ticketmaster" ? formatListedPriceRange(ticketmasterPriceRange(row)) : "";
+  if (listedTicketmasterPrice) return listedTicketmasterPrice;
   if (row.price !== undefined && row.price !== null && row.price !== "") return normalizeSupabasePrice(row.price, false, isExplicitlyFree);
-  if (apiPriceMin !== undefined && apiPriceMin !== null && apiPriceMin !== "") return normalizeSupabasePrice(apiPriceMin, true, isExplicitlyFree);
+  const listedApiPrice = formatListedPriceRange(ticketmasterPriceRange(row));
+  if (listedApiPrice) return listedApiPrice;
   if (row.price_min !== undefined && row.price_min !== null && row.price_min !== "") {
     if (Number(row.price_min) === 0 && !isExplicitlyFree) return "Price unknown";
     if (row.price_max !== undefined && row.price_max !== null && row.price_max !== "" && Number(row.price_max) !== Number(row.price_min)) {
@@ -1735,16 +1774,41 @@ function normalizeImportedCategory(row) {
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const directCategory = String(row.category || row.cat || "").toLowerCase();
   const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
+  const directCategoryMap = {
+    "arts & theatre": "performing-arts",
+    theatre: "performing-arts",
+    theater: "performing-arts",
+    comedy: "performing-arts",
+    "performance art": "performing-arts",
+    baseball: "sports",
+    basketball: "sports",
+    football: "sports",
+    hockey: "sports",
+    soccer: "sports",
+    museum: "museums",
+    museums: "museums",
+    rock: "concerts",
+    pop: "concerts",
+    "r&b": "concerts",
+    "hip-hop/rap": "concerts",
+    jazz: "concerts",
+    latin: "concerts",
+    country: "concerts",
+    "dance/electronic": "concerts",
+    religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
+  };
+  if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
   if (/\b(comedy|stand up|stand-up|standup|improv|comic)\b/.test(text)) return "performing-arts";
-  if (row.source !== "manual" && importedCategories.has(tag)) return tag;
   if (importedCategories.has(directCategory)) return directCategory;
   if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
-  if (/theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera/.test(text)) return "performing-arts";
+  if (/signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera|stage play|pippin|what became of us/.test(text)) return "performing-arts";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "expos";
+  if (/room 808|showcase|band|artist|singer|songwriter/.test(text)) return "concerts";
+  if (row.source !== "manual" && importedCategories.has(tag) && tag !== "community") return tag;
   return "community";
 }
 
