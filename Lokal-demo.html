@@ -2229,7 +2229,8 @@ async function verifyLokalPhone(token) {
 }
 
 function renderHome() {
-  const filtered = events.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
+  const dcEvents = displayableDcEvents();
+  const filtered = dcEvents.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
   const feedContent = renderDiscoverFeedContent(filtered);
@@ -2281,7 +2282,7 @@ function renderDiscoverFeedContent(filtered) {
   if (!["all", "nearby"].includes(state.homeFilter)) {
     return discoverRail(state.homeFilter, filtered);
   }
-  const base = events.filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
+  const base = displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
   const rails = orderedDiscoverCategories()
     .map(category => [category, base.filter(event => matchesFilter(event, category))])
     .filter(([, railEvents]) => railEvents.length);
@@ -2292,17 +2293,29 @@ function discoverSearchText(event) {
   return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
 }
 
+function displayableDcEvents() {
+  return events.filter(isDisplayableDcEvent);
+}
+
+function isDisplayableDcEvent(event) {
+  const text = `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""}`.toLowerCase();
+  const outsideDc = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore)\b|,\s*(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy)\b|\bvirginia\b/.test(text);
+  if (outsideDc) return false;
+  return /washington,\s*(dc|d\.c\.)|washington dc|district of columbia|\bdc\b|northwest|northeast|southwest|southeast|\bnw\b|\bne\b|\bsw\b|\bse\b|adams morgan|u street|logan circle|shaw|navy yard|penn quarter|h street|georgetown|dupont|capitol hill|noma|union market|waterfront|wharf|foggy bottom|columbia heights|petworth|tenleytown|cleveland park|woodley park|brookland|anacostia|eckington|ivy city|barracks row|mount vernon square|downtown/.test(text);
+}
+
 function renderDiscoverEventSearch(query) {
   const content = document.querySelector("[data-feed-content]");
   if (!content) return 0;
   const normalizedQuery = String(query || "").trim().toLowerCase();
   if (!normalizedQuery) {
     renderHome();
-    return events.filter(event => matchesFilter(event, state.homeFilter)).length;
+    return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
+  const dcEvents = displayableDcEvents();
   const pool = normalizedQuery
-    ? events.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
-    : events.filter(event => matchesFilter(event, state.homeFilter));
+    ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
+    : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
   const matches = pool.sort(sortEventsByStart);
   content.innerHTML = discoverRail("for-you", matches);
   const count = document.querySelector(".feed-section .route-badge");
@@ -2361,13 +2374,13 @@ function applyMapSearch() {
   const query = state.mapSearch.trim().toLowerCase();
   if (!query) return;
   const area = Object.entries(dcMapAreas).find(([name]) => name.toLowerCase().includes(query));
-  const event = events.find(item => mapSearchMatches(item));
+  const event = displayableDcEvents().find(item => mapSearchMatches(item));
   if (area) state.mapCenter = area[1];
   else if (event) state.mapCenter = eventMapPosition(event, 0);
 }
 
 function renderMap() {
-  const visibleEvents = events.filter(event => matchesFilter(event, state.mapFilter, false) && mapSearchMatches(event)).sort(sortEventsByStart);
+  const visibleEvents = displayableDcEvents().filter(event => matchesFilter(event, state.mapFilter, false) && mapSearchMatches(event)).sort(sortEventsByStart);
   const pins = visibleEvents.map((event, index) => {
     const pos = scaledMapPosition(eventMapPosition(event, index));
     return `<button class="pin ${event.cat}" data-map-event="${event.id}" style="left:${pos.x}%;top:${pos.y}%"><span>${index + 1}</span></button>`;
@@ -2404,7 +2417,8 @@ function storyEventPool(story) {
   const textKeywords = story.textKeywords || [];
   const tagKeywords = story.tagKeywords || [];
   const categories = story.categories || [];
-  const directMatches = events.filter(event => {
+  const dcEvents = displayableDcEvents();
+  const directMatches = dcEvents.filter(event => {
     const eventText = `${event.title} ${event.venue} ${event.area} ${event.desc || ""}`.toLowerCase();
     const tags = eventTags(event).map(tag => tag.toLowerCase());
     if (venueKeywords.some(keyword => `${event.venue} ${event.title}`.toLowerCase().includes(keyword))) return true;
@@ -2414,7 +2428,7 @@ function storyEventPool(story) {
     return false;
   });
   const fallback = (story.eventIds || [])
-    .map(id => events.find(event => event.id === id))
+    .map(id => dcEvents.find(event => event.id === id))
     .filter(Boolean);
   return [...directMatches, ...fallback]
     .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
