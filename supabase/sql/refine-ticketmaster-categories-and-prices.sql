@@ -21,15 +21,15 @@ classified as (
   select
     id,
     case
-      when raw_category in ('concerts', 'performing-arts', 'sports', 'museums', 'festivals', 'expos', 'nightlife') then raw_category
       when raw_category in ('arts & theatre', 'theatre', 'theater', 'comedy', 'performance art')
-        or text ~* 'signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|stage play|musical|opera|pippin|what became of us|comedy|stand[- ]?up'
+        or text ~* 'signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|stage play|musical|opera|pippin|what became of us|comedy|comedian|stand[- ]?up|improv|room 808|comedy club|dc improv|showcase'
         then 'performing-arts'
+      when raw_category in ('concerts', 'performing-arts', 'sports', 'museums', 'festivals', 'expos', 'nightlife') then raw_category
       when raw_category in ('baseball', 'basketball', 'football', 'hockey', 'soccer')
         or text ~* 'baseball|basketball|football|hockey|soccer|nationals|wizards|mystics|capitals|commanders|d\.?c\.? united|sports'
         then 'sports'
       when raw_category in ('rock', 'pop', 'r&b', 'hip-hop/rap', 'jazz', 'latin', 'country', 'dance/electronic')
-        or text ~* 'concert|tour|music|gospel|festival of praise|room 808|showcase|band|artist|singer|songwriter|dj|jazz|latin|country|rock|pop|r&b|hip[- ]?hop|rap'
+        or text ~* 'concert|tour|music|gospel|festival of praise|band|artist|singer|songwriter|dj|jazz|latin|country|rock|pop|r&b|hip[- ]?hop|rap'
         then 'concerts'
       when raw_category in ('museum', 'museums')
         or text ~* 'museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history'
@@ -52,10 +52,10 @@ tagged as (
       case when classified.new_category = 'expos' then 'Expos' end,
       case when classified.new_category = 'nightlife' then 'Nightlife' end,
       case when normalized.text ~* 'comedy|stand[- ]?up|comic' then 'Comedy' end,
+      case when normalized.text ~* 'room 808|showcase' then 'Comedy' end,
       case when normalized.text ~* 'baseball|nationals' then 'MLB' end,
       case when normalized.text ~* 'baseball|nationals' then 'Baseball' end,
-      case when normalized.text ~* 'gospel' then 'Gospel' end,
-      case when normalized.text ~* 'room 808|showcase' then 'Club Show' end
+      case when normalized.text ~* 'gospel' then 'Gospel' end
     ], null) as inferred_tags
   from public.events events
   join classified on classified.id = events.id

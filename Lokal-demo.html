@@ -1772,6 +1772,10 @@ function normalizeImportedCategory(row) {
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
+  const classificationText = [
+    ...(Array.isArray(row.raw_json?.classifications) ? row.raw_json.classifications : []),
+    ...(Array.isArray(row.raw_json?._embedded?.events?.[0]?.classifications) ? row.raw_json._embedded.events[0].classifications : [])
+  ].map(item => [item?.segment?.name, item?.genre?.name, item?.subGenre?.name, item?.type?.name, item?.subType?.name].filter(Boolean).join(" ")).join(" ").toLowerCase();
   const directCategory = String(row.category || row.cat || "").toLowerCase();
   const tag = String(tagList.map(normalizeTagValue).find(item => importedCategories.has(String(item).toLowerCase())) || row.tag || "").toLowerCase();
   const directCategoryMap = {
@@ -1797,17 +1801,22 @@ function normalizeImportedCategory(row) {
     "dance/electronic": "concerts",
     religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
   };
+  if (/comedy|comedian|stand[- ]?up|improv/.test(classificationText)) return "performing-arts";
+  if (/sports|baseball|basketball|football|hockey|soccer/.test(classificationText)) return "sports";
+  if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
+  if (/arts|theatre|theater|performance|play|musical/.test(classificationText)) return "performing-arts";
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
-  if (/\b(comedy|stand up|stand-up|standup|improv|comic)\b/.test(text)) return "performing-arts";
+  if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
   if (importedCategories.has(directCategory)) return directCategory;
-  if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
   if (/signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera|stage play|pippin|what became of us/.test(text)) return "performing-arts";
+  if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "expos";
-  if (/room 808|showcase|band|artist|singer|songwriter/.test(text)) return "concerts";
+  if (/showcase/.test(text)) return "performing-arts";
+  if (/band|artist|singer|songwriter/.test(text)) return "concerts";
   if (row.source !== "manual" && importedCategories.has(tag) && tag !== "community") return tag;
   return "community";
 }

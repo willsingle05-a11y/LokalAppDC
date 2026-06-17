@@ -7,7 +7,8 @@
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
-    "build:standalone": "powershell -ExecutionPolicy Bypass -File ./build-standalone.ps1"
+    "build:standalone": "powershell -ExecutionPolicy Bypass -File ./build-standalone.ps1",
+    "enrich:ticketmaster": "node tools/enrich-ticketmaster-events.mjs"
   },
   "devDependencies": {
     "vite": "^8.0.16"

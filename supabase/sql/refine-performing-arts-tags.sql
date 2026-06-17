@@ -1,7 +1,7 @@
 with event_text as (
   select
     id,
-    concat_ws(' ', title, description, venue_name, venue, array_to_string(coalesce(tags, '{}'), ' ')) as text
+    concat_ws(' ', title, description, venue_name, venue) as text
   from public.events
   where category = 'performing-arts'
 ),
@@ -34,9 +34,10 @@ performing_rows as (
       where lower(tag) not in (
         'arts', 'art', 'performing-arts', 'performing arts', 'museums', 'museum', 'smithsonian',
         'performance', 'theater', 'theatre', 'stage show', 'touring show', 'family show',
-        'live show', 'ticketed', 'opera', 'curtain call', 'limited run', 'tour stop',
+        'live show', 'ticketed', 'opera', 'dance', 'curtain call', 'limited run', 'tour stop',
         'ensemble', 'solo set', 'matinee', 'late show', 'new work', 'classic story',
-        'reserved seating'
+        'reserved seating', 'club show', 'new release', 'small room', 'featured artist',
+        'dance floor', 'local stage', 'vocal set', 'deep cuts'
       )
     ) as cleaned_tags
   from public.events events
