@@ -8,14 +8,20 @@ function formatSupabaseTime(value) {
   if (!value) return "Date to be announced";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }).format(date);
+  return new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }).format(date);
 }
 
 function formatSupabaseDate(value) {
   if (!value) return "";
   const date = new Date(`${value}T12:00:00`);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric" }).format(date);
+}
+
+function formatSupabaseDateAndTime(dateValue, timeValue) {
+  const date = formatSupabaseDate(dateValue);
+  const time = String(timeValue || "").trim();
+  return [date, time].filter(Boolean).join(", ") || "Date to be announced";
 }
 
 function rowIsExplicitlyFree(row) {
@@ -357,7 +363,7 @@ function normalizeSupabaseEvent(row, index) {
     title: row.title || row.name || "Untitled Lokal event",
     venue: normalizeSupabaseVenue(row),
     area: row.neighborhood || row.area || row.location || "Washington, DC",
-    time: hasReliableSupabaseStart(row) ? (row.date && row.time ? `${formatSupabaseDate(row.date)}, ${String(row.time).trim()}` : row.time || formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : "Ongoing / time varies",
+    time: hasReliableSupabaseStart(row) ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : "Ongoing / time varies",
     startDate: row.date || "",
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
