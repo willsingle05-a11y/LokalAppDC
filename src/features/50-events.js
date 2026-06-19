@@ -26,23 +26,39 @@ function shareGroupResultsHtml(eventId, query = "") {
 function openShareSheet(id) {
   const e = events.find(event => event.id === Number(id));
   const shareText = shareMessageForEvent(e);
+  const shareUrl = lokalEventShareUrl(e);
   const smsBody = encodeURIComponent(shareText);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Send a plan</p><h2>Share ${e.title}</h2><p class="lede">Use the premade message below or send it through your favorite app.</p>
-    <div class="share-preview">${escapeHtml(shareText)}</div>
+    <p class="eyebrow">Send a Lokal event</p><h2>Share ${e.title}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
+    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(e.venue)}</span><small>${escapeHtml(e.price)} / ${escapeHtml(eventTags(e).slice(0, 3).join(" · "))}</small><em>${escapeHtml(shareUrl)}</em></div>
     <div class="share-channel-grid">
       <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
       <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
-      <a class="share-channel" href="https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(location.href)}" target="_blank" rel="noreferrer">Snapchat</a>
+      <a class="share-channel" href="https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(shareUrl)}" target="_blank" rel="noreferrer">Snapchat</a>
       <a class="share-channel" href="mailto:?subject=${encodeURIComponent(e.title)}&body=${smsBody}">Email</a>
     </div>
-    <button class="wide-button" data-copy-event-share="${e.id}">Copy message</button>
+    <button class="wide-button" data-copy-event-share="${e.id}">Copy Lokal event</button>
   </section></div>`;
 }
 
 function shareMessageForEvent(event) {
-  return `Want to go to ${event.title}? ${event.time} at ${event.venue} in ${event.area}. ${event.price}. I found it on Lokal.`;
+  return `Want to go to ${event.title}? ${event.time} at ${event.venue} in ${event.area}. ${event.price}. Open it in Lokal: ${lokalEventShareUrl(event)}`;
+}
+
+function lokalEventShareUrl(event) {
+  return `https://lokal.app/event/${encodeURIComponent(event.sourceId || event.id)}`;
+}
+
+function lokalEventSharePayload(event) {
+  return [
+    "Lokal event",
+    event.title,
+    `${event.time} / ${event.price}`,
+    `${event.venue} / ${event.area}`,
+    eventTags(event).slice(0, 5).join(", "),
+    lokalEventShareUrl(event)
+  ].filter(Boolean).join("\n");
 }
 
 

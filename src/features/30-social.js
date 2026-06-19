@@ -292,15 +292,18 @@ function plannerCalendar(plans) {
   if (!plans.length) return `<p class="section-helper empty-planner">Save or RSVP to an event and it will appear on your calendar.</p>`;
   const start = new Date();
   start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() + state.plannerWeekOffset * 7);
   const end = new Date(start);
-  end.setDate(end.getDate() + 34);
+  end.setDate(end.getDate() + 6);
+  const weekLabel = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
   const days = [];
   for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
     const iso = date.toISOString().slice(0, 10);
     const dayPlans = plans.filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
     days.push({ date: new Date(date), iso, plans: dayPlans });
   }
-  return `<div class="planner-legend">${["concerts","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
+  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
+  <div class="planner-legend">${["concerts","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
     const disabled = !day.plans.length;
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
@@ -331,7 +334,7 @@ function openFriend(name) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
     <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">${isFriend ? "Friend profile" : "Profile preview"}</p><h2>${escapeHtml(name)}</h2><p>${escapeHtml(profile[2])} / ${escapeHtml(profile[4] || "Washington, DC")}</p></div></div>
     <div class="friendship-status ${isFriend ? "" : "pending"}"><b>${isFriend ? "Friends" : "Not friends yet"}</b><p>${isFriend ? `${name} shares event interests with you.` : "Add them to see more profile activity in a full app."}</p></div>
-    <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-share-profile="${name}">Share profile</button></div>
+    <div class="friend-profile-actions"><button class="secondary" data-share-profile="${name}">Share profile</button></div>
     <p class="eyebrow">Interested in</p><div class="chips profile-taste-chips">${tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("")}</div>
     <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
   </section></div>`;

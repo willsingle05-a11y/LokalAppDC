@@ -153,7 +153,7 @@ function openSettings() {
     <label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>
     <p class="settings-label">Account settings</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label><label class="settings-field">Phone signup status<input value="${state.phoneSignupEnabled ? "Enabled in Supabase" : "Demo OTP active / Supabase phone disabled"}" readonly></label>
-    <p class="settings-label">More</p><button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Groups, messages, and event reminders</p></span></button><button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button><button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button><button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
+    <p class="settings-label">More</p><button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Friend requests, event recommendations, and saved-event reminders</p></span></button><button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button><button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button><button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button><button class="danger-button" data-deactivate>Deactivate account</button>
   </section></div>`;
 }
@@ -211,8 +211,30 @@ function openFilters() {
 }
 
 function openNotifications() {
-  const requests = state.pendingRequests.map(request => `<div class="notification-card request-notification"><b>${request.type === "group" ? `${request.from} invited you to ${request.name}` : `${request.from} sent you a friend request`}</b><p>${request.detail}</p><small>${request.time}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`).join("");
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests}<button class="notification-card" data-notification-group="Culture club"><b>New message in Culture club</b><p>Jules shared a gallery opening for Thursday.</p><small>34 minutes ago</small></button><div class="notification-card"><b>Jazz on the Hill starts soon</b><p>Your saved event begins at 7:30 PM.</p><small>Tonight</small></div></section></div>`;
+  const requests = state.pendingRequests
+    .filter(request => request.type === "friend")
+    .map(request => `<div class="notification-card request-notification"><b>${escapeHtml(request.from)} sent you a friend request</b><p>${escapeHtml(request.detail)}</p><small>${escapeHtml(request.time)}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`)
+    .join("");
+  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted near ${escapeHtml(event.area)}.</p><small>${escapeHtml(event.time)} / ${escapeHtml(event.price)}</small></button>`).join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests || `<p class="section-helper">No new friend requests right now.</p>`}${recommended}</section></div>`;
+}
+
+function notificationEventPicks() {
+  const tasteText = (state.tastes || []).join(" ").toLowerCase();
+  return events
+    .filter(event => typeof isDisplayableDcEvent !== "function" || isDisplayableDcEvent(event))
+    .filter(event => matchesFilter(event, "all", false))
+    .map(event => {
+      const text = `${event.title} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
+      const score = (tasteText.includes("music") && /concert|music|jazz|dj|r&b|rock|pop/.test(text) ? 5 : 0)
+        + (tasteText.includes("food") && /food|market|chef|restaurant|brunch/.test(text) ? 5 : 0)
+        + (tasteText.includes("art") && /museum|arts|gallery|film|comedy|theater/.test(text) ? 5 : 0)
+        + (state.saved.has(event.id) || state.rsvps.has(event.id) ? -10 : 0);
+      return { event, score };
+    })
+    .sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event))
+    .map(item => item.event)
+    .slice(0, 2);
 }
 
 function profilePlanIds() {

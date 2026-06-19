@@ -623,6 +623,7 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .direct-chat-row { display: flex; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); text-align: left; }
 .direct-chat-row span:nth-child(2) { display: grid; flex: 1; min-width: 0; gap: 3px; }.direct-chat-row b { font-size: 12px; }.direct-chat-row small { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }.direct-chat-row em { color: var(--green); font-size: 22px; font-style: normal; }
 .direct-chat-messages { display: grid; gap: 7px; margin-top: 12px; }
+.friend-profile-actions { grid-template-columns: 1fr; }
 .community-card.pinned { border-color: var(--orange); box-shadow: 0 4px 12px rgba(242,105,69,.12); }
 .group-type-grid { grid-template-columns: repeat(2,1fr); }
 
@@ -1086,6 +1087,27 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-size: 9px;
   font-weight: 900;
 }
+.planner-week-controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.planner-week-controls span {
+  color: #326f91;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.planner-week-controls .secondary {
+  padding: 9px 8px;
+  font-size: 10px;
+}
+.planner-week-controls .secondary:disabled {
+  opacity: .42;
+  cursor: default;
+}
 .planner-calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1121,6 +1143,8 @@ h1, h2, h3, .brand b { color: #326f91; }
   background: rgba(255, 255, 255, .6);
 }
 .share-preview {
+  display: grid;
+  gap: 4px;
   margin: 13px 0;
   padding: 12px;
   border: 1px solid rgba(58, 124, 165, .18);
@@ -1129,6 +1153,18 @@ h1, h2, h3, .brand b { color: #326f91; }
   background: #f5f7fa;
   font-size: 12px;
   line-height: 1.45;
+}
+.share-preview b { font-size: 14px; }
+.share-preview span, .share-preview small, .share-preview em {
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+}
+.share-preview em {
+  overflow: hidden;
+  color: #008f6c;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .share-channel-grid {
   display: grid;
@@ -1268,7 +1304,7 @@ const defaultReceipts = [
   { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
   { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
 ];
-const state = { route: "home", socialTab: "saved", homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -3002,15 +3038,18 @@ function plannerCalendar(plans) {
   if (!plans.length) return `<p class="section-helper empty-planner">Save or RSVP to an event and it will appear on your calendar.</p>`;
   const start = new Date();
   start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() + state.plannerWeekOffset * 7);
   const end = new Date(start);
-  end.setDate(end.getDate() + 34);
+  end.setDate(end.getDate() + 6);
+  const weekLabel = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
   const days = [];
   for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
     const iso = date.toISOString().slice(0, 10);
     const dayPlans = plans.filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
     days.push({ date: new Date(date), iso, plans: dayPlans });
   }
-  return `<div class="planner-legend">${["concerts","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
+  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
+  <div class="planner-legend">${["concerts","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
     const disabled = !day.plans.length;
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
@@ -3041,7 +3080,7 @@ function openFriend(name) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
     <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">${isFriend ? "Friend profile" : "Profile preview"}</p><h2>${escapeHtml(name)}</h2><p>${escapeHtml(profile[2])} / ${escapeHtml(profile[4] || "Washington, DC")}</p></div></div>
     <div class="friendship-status ${isFriend ? "" : "pending"}"><b>${isFriend ? "Friends" : "Not friends yet"}</b><p>${isFriend ? `${name} shares event interests with you.` : "Add them to see more profile activity in a full app."}</p></div>
-    <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-share-profile="${name}">Share profile</button></div>
+    <div class="friend-profile-actions"><button class="secondary" data-share-profile="${name}">Share profile</button></div>
     <p class="eyebrow">Interested in</p><div class="chips profile-taste-chips">${tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("")}</div>
     <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
   </section></div>`;
@@ -3203,7 +3242,7 @@ function openSettings() {
     <label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>
     <p class="settings-label">Account settings</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label><label class="settings-field">Phone signup status<input value="${state.phoneSignupEnabled ? "Enabled in Supabase" : "Demo OTP active / Supabase phone disabled"}" readonly></label>
-    <p class="settings-label">More</p><button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Groups, messages, and event reminders</p></span></button><button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button><button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button><button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
+    <p class="settings-label">More</p><button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Friend requests, event recommendations, and saved-event reminders</p></span></button><button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button><button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button><button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button><button class="danger-button" data-deactivate>Deactivate account</button>
   </section></div>`;
 }
@@ -3261,8 +3300,30 @@ function openFilters() {
 }
 
 function openNotifications() {
-  const requests = state.pendingRequests.map(request => `<div class="notification-card request-notification"><b>${request.type === "group" ? `${request.from} invited you to ${request.name}` : `${request.from} sent you a friend request`}</b><p>${request.detail}</p><small>${request.time}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`).join("");
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests}<button class="notification-card" data-notification-group="Culture club"><b>New message in Culture club</b><p>Jules shared a gallery opening for Thursday.</p><small>34 minutes ago</small></button><div class="notification-card"><b>Jazz on the Hill starts soon</b><p>Your saved event begins at 7:30 PM.</p><small>Tonight</small></div></section></div>`;
+  const requests = state.pendingRequests
+    .filter(request => request.type === "friend")
+    .map(request => `<div class="notification-card request-notification"><b>${escapeHtml(request.from)} sent you a friend request</b><p>${escapeHtml(request.detail)}</p><small>${escapeHtml(request.time)}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`)
+    .join("");
+  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted near ${escapeHtml(event.area)}.</p><small>${escapeHtml(event.time)} / ${escapeHtml(event.price)}</small></button>`).join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests || `<p class="section-helper">No new friend requests right now.</p>`}${recommended}</section></div>`;
+}
+
+function notificationEventPicks() {
+  const tasteText = (state.tastes || []).join(" ").toLowerCase();
+  return events
+    .filter(event => typeof isDisplayableDcEvent !== "function" || isDisplayableDcEvent(event))
+    .filter(event => matchesFilter(event, "all", false))
+    .map(event => {
+      const text = `${event.title} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
+      const score = (tasteText.includes("music") && /concert|music|jazz|dj|r&b|rock|pop/.test(text) ? 5 : 0)
+        + (tasteText.includes("food") && /food|market|chef|restaurant|brunch/.test(text) ? 5 : 0)
+        + (tasteText.includes("art") && /museum|arts|gallery|film|comedy|theater/.test(text) ? 5 : 0)
+        + (state.saved.has(event.id) || state.rsvps.has(event.id) ? -10 : 0);
+      return { event, score };
+    })
+    .sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event))
+    .map(item => item.event)
+    .slice(0, 2);
 }
 
 function profilePlanIds() {
@@ -3316,23 +3377,39 @@ function shareGroupResultsHtml(eventId, query = "") {
 function openShareSheet(id) {
   const e = events.find(event => event.id === Number(id));
   const shareText = shareMessageForEvent(e);
+  const shareUrl = lokalEventShareUrl(e);
   const smsBody = encodeURIComponent(shareText);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Send a plan</p><h2>Share ${e.title}</h2><p class="lede">Use the premade message below or send it through your favorite app.</p>
-    <div class="share-preview">${escapeHtml(shareText)}</div>
+    <p class="eyebrow">Send a Lokal event</p><h2>Share ${e.title}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
+    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(e.venue)}</span><small>${escapeHtml(e.price)} / ${escapeHtml(eventTags(e).slice(0, 3).join(" · "))}</small><em>${escapeHtml(shareUrl)}</em></div>
     <div class="share-channel-grid">
       <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
       <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
-      <a class="share-channel" href="https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(location.href)}" target="_blank" rel="noreferrer">Snapchat</a>
+      <a class="share-channel" href="https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(shareUrl)}" target="_blank" rel="noreferrer">Snapchat</a>
       <a class="share-channel" href="mailto:?subject=${encodeURIComponent(e.title)}&body=${smsBody}">Email</a>
     </div>
-    <button class="wide-button" data-copy-event-share="${e.id}">Copy message</button>
+    <button class="wide-button" data-copy-event-share="${e.id}">Copy Lokal event</button>
   </section></div>`;
 }
 
 function shareMessageForEvent(event) {
-  return `Want to go to ${event.title}? ${event.time} at ${event.venue} in ${event.area}. ${event.price}. I found it on Lokal.`;
+  return `Want to go to ${event.title}? ${event.time} at ${event.venue} in ${event.area}. ${event.price}. Open it in Lokal: ${lokalEventShareUrl(event)}`;
+}
+
+function lokalEventShareUrl(event) {
+  return `https://lokal.app/event/${encodeURIComponent(event.sourceId || event.id)}`;
+}
+
+function lokalEventSharePayload(event) {
+  return [
+    "Lokal event",
+    event.title,
+    `${event.time} / ${event.price}`,
+    `${event.venue} / ${event.area}`,
+    eventTags(event).slice(0, 5).join(", "),
+    lokalEventShareUrl(event)
+  ].filter(Boolean).join("\n");
 }
 
 
@@ -3397,8 +3474,9 @@ document.addEventListener("click", async event => {
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }
-  if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const message = shareMessageForEvent(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: message, url: location.href }); else await navigator.clipboard?.writeText(message); toast(navigator.share ? "Share sheet opened" : "Share message copied"); } catch { toast("Share canceled"); } }
-  if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await navigator.clipboard?.writeText(shareMessageForEvent(eventToShare)); } catch {} toast("Share message copied"); }
+  if (t.dataset.plannerWeek) { mark(); state.plannerWeekOffset = Math.max(0, state.plannerWeekOffset + Number(t.dataset.plannerWeek)); renderSocial(); }
+  if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await navigator.clipboard?.writeText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast("Share canceled"); } }
+  if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await navigator.clipboard?.writeText(lokalEventSharePayload(eventToShare)); } catch {} toast("Lokal event copied"); }
   if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await navigator.clipboard?.writeText(profileUrl); } catch {} toast("Profile link copied"); }
   if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; openGroup(group); toast(`Event sent to ${group}`); }
   if (t.dataset.copyLink !== undefined) { mark(); try { await navigator.clipboard?.writeText(location.href); } catch {} toast("Demo link copied"); }
@@ -3473,13 +3551,13 @@ document.addEventListener("click", async event => {
   if (t.dataset.storyNext !== undefined) openStory(Number(t.dataset.storyNext) + 1);
   if (t.dataset.directInbox !== undefined) { mark(); openDirectInbox(); }
   if (t.dataset.openDirectChat) { mark(); openDirectChat(t.dataset.openDirectChat); }
-  if (t.dataset.messageFriend) { mark(); openDirectChat(t.dataset.messageFriend); }
+  if (t.dataset.messageFriend) { mark(); toast("Direct messages are not part of this demo flow"); }
   if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text: input.value.trim() }]; openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>⌕</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
   if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
   if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
-  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: group messages, invitations, friend requests, and event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Deactivate account", "Your profile will be hidden until you sign back in.", `<button class="danger-button" data-confirm-deactivate>Confirm deactivation</button>`); }
   if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
