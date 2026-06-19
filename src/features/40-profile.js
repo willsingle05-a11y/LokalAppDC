@@ -1,16 +1,21 @@
 function renderProfile() {
   const tasteChips = state.tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("");
   const receipts = profileReceipts();
+  const friends = profileFriendRows();
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)}</p><span class="lokal-score">${lokalScore()} <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><span class="lokal-score">${lokalScore()} <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(state.bio)}</p>
     <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tasteChips}<button class="chip" data-edit-tastes>Edit</button></div>
-    <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="groups"><b>${userGroupNames().length}</b><small>Groups</small></button></div>
-    <p class="eyebrow">Best friends</p><div class="best-friends-list">${bestFriendsList().map((friend,index) => `<div class="best-friend-row"><b>${index + 1}</b><span class="avatar">${friend.initials}</span><span><strong>${friend.name}</strong><small>${friend.score} shared activit${friend.score === 1 ? "y" : "ies"}</small></span></div>`).join("")}</div>
+    <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="friends"><b>${state.friends.size}</b><small>Friends</small></button></div>
+    <p class="eyebrow">Friends</p><div class="follow-list profile-friends-list">${friends.map(friend => friendCard(friend)).join("")}</div><button class="text-button see-all-friends" data-profile-list="friends">See all friends</button>
     <p class="eyebrow">Your receipt</p><h2>Recently attended</h2>
     <div class="receipt-list">${receipts.map(receiptRow).join("") || `<p class="section-helper">Mark an event as attended and it will show here.</p>`}</div>
   </section>`;
+}
+
+function profileFriendRows(limit = 5) {
+  return friendDirectory.filter(friend => state.friends.has(friend[1])).slice(0, limit);
 }
 
 function fullFriendName(initials) {
@@ -60,8 +65,8 @@ function scoreBreakdown() {
     { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
     { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
     { label: "Saved ideas", value: cappedScore(savedOnlyCount, 1, 20), detail: `${savedOnlyCount} saved event${savedOnlyCount === 1 ? "" : "s"} not already RSVP'd - 1 each - capped at 20.` },
-    { label: "Friends and groups", value: cappedScore(state.friends.size, 2, 20) + cappedScore(userGroupNames().length, 2, 20), detail: "Rewards having a real social graph, with separate caps for friends and groups." },
-    { label: "Conversation activity", value: cappedScore(socialActivityUnits(), 1, 30), detail: "Counts unique meaningful messages and event shares, not repeated short spam." }
+    { label: "Friends", value: cappedScore(state.friends.size, 2, 30), detail: "Rewards having a real social graph without relying on group activity." },
+    { label: "Conversation activity", value: cappedScore(socialActivityUnits(), 1, 30), detail: "Counts unique meaningful direct messages and event shares, not repeated short spam." }
   ];
   return { total: breakdown.reduce((sum, item) => sum + item.value, 0), items: breakdown };
 }
@@ -145,6 +150,7 @@ function openSettings() {
     <p class="eyebrow">Profile and account</p><h2>Settings</h2>
     <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
     <label class="settings-field">Name<input value="${escapeHtml(state.profile.fullName)}" readonly></label><label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label><label class="settings-field">Home city<input value="Washington, DC"></label><label class="settings-field">Age<input data-age-input type="number" min="13" max="120" value="${state.age}"></label><label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label><small class="section-helper">Ideas: where you're from, school, favorite activities, or what you like doing around the city.</small>
+    <label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>
     <p class="settings-label">Account settings</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label><label class="settings-field">Phone signup status<input value="${state.phoneSignupEnabled ? "Enabled in Supabase" : "Demo OTP active / Supabase phone disabled"}" readonly></label>
     <p class="settings-label">More</p><button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Groups, messages, and event reminders</p></span></button><button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button><button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button><button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
@@ -224,8 +230,8 @@ function profilePlanEvents() {
 
 function openProfileList(type) {
   const plans = profilePlanEvents();
-  const rows = type === "groups"
-    ? userGroupNames().map(name => `<div class="managed-list-row"><span><b>${name}</b><small>Group conversation</small></span><div><button class="text-button" data-open-group="${name}">Open conversation</button><button class="text-button danger-text" data-profile-leave-group="${name}">Leave group</button></div></div>`).join("")
+  const rows = type === "friends"
+    ? friendDirectory.filter(friend => state.friends.has(friend[1])).map(friend => friendCard(friend)).join("")
     : plans.map(event => {
       return `<div class="managed-list-row managed-plan-row"><button class="managed-plan-main" data-event="${event.id}"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span></button><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`;
     }).join("");

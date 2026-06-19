@@ -252,21 +252,6 @@ function openAllFriends() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="All friends"><button class="modal-close" aria-label="Close all friends">&times;</button><p class="eyebrow">Friends</p><h2>All friends</h2><div class="follow-list">${friends.map(friend => friendCard(friend)).join("")}</div></section></div>`;
 }
 
-function openFriend(name) {
-  const profile = friendDirectory.find(friend => friend[1] === name) || ["FR", name, "@lokalfriend", "0 mutual friends", "Washington, DC"];
-  const isFriend = state.friends.has(name);
-  const theirFriends = state.friendConnections[name] || [];
-  const relationship = isFriend ? `<div class="friendship-status"><b>Friends</b><p>${name}'s friends list now includes ${escapeHtml(currentUserName())}. Your friends list includes ${escapeHtml(name)}.</p></div>` : `<div class="friendship-status pending"><b>Not friends yet</b><p>Add or accept a request to connect both profiles.</p></div>`;
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
-    <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">Friend profile</p><h2>${name}</h2><p>${profile[2]} / ${profile[4] || "Washington, DC"}</p></div></div>
-    ${relationship}
-    <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-invite-friend="${name}">Invite to group</button></div>
-    <p class="section-helper">${escapeHtml(name)} has ${theirFriends.length || (isFriend ? 1 : 0)} Lokal friend${(theirFriends.length || (isFriend ? 1 : 0)) === 1 ? "" : "s"} connected in this demo.</p>
-    <p class="eyebrow">Recently went to</p><div class="friend-feed"><div class="friend-feed-card"><div class="date-block">May<b>24</b></div><div><h3>Flashband at Songbyrd</h3><p>Live music / Adams Morgan / with 3 friends</p></div></div><div class="friend-feed-card"><div class="date-block">May<b>18</b></div><div><h3>Open Streets DC</h3><p>Community / Shaw</p></div></div></div>
-    <p class="eyebrow group-divider">Saved for later</p><div class="interest-list"><div class="interest-event"><span><b>Skyline Social</b><small>Friday / Viceroy Rooftop</small></span><button class="text-button" data-event="4">Open</button></div><div class="interest-event"><span><b>Fresh Air Cinema</b><small>Sunday / Alethia Tanner Park</small></span><button class="text-button" data-event="8">Open</button></div></div>
-  </section></div>`;
-}
-
 function followingContent() {
   const accounts = [["songbyrd","S","Songbyrd Music House","Venue","Concerts, DJ nights, and neighborhood picks"],["dcafterdark","D","@dcafterdark","Local curator","Late-night lists and weekend roundups"],["runclub","R","DC Run Club","Public group","Routes, meetups, and post-run coffee"],["smithsonian","M","Smithsonian After Hours","Venue collection","Museum events worth planning around"],["eaterdc","E","@eater_dc","Food curator","Pop-ups, openings, and neighborhood food guides"]];
   return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues, public groups, and curators to shape what shows up in Discover.</p></div>
@@ -274,14 +259,81 @@ function followingContent() {
 }
 
 function renderSocial() {
-  const socialContent = state.socialTab === "friends" ? friendsContent() : groupContent();
-  const isFriends = state.socialTab === "friends";
+  const savedPlans = savedPlannerEvents("saved");
+  const rsvpPlans = savedPlannerEvents("rsvp");
+  const allPlans = savedPlannerEvents("all");
   app.innerHTML = `<section class="page">
-    <p class="eyebrow">Social</p><div class="social-title-row"><h1>${isFriends ? "Friends" : "Groups"}</h1>${isFriends ? `<button class="dm-inbox-button" data-direct-inbox aria-label="Open direct messages">✎</button>` : ""}</div><p class="lede">${isFriends ? "Find people you know and open their profile before adding them." : "Keep event chats, friend crews, and public communities in one place."}</p>
-    ${isFriends ? "" : `<button class="wide-button" data-create-group>+ Create a group</button>`}
-    <div class="tabs social-tabs"><button class="tab-button ${state.socialTab === "groups" ? "active" : ""}" data-social-tab="groups">Groups</button><button class="tab-button ${state.socialTab === "friends" ? "active" : ""}" data-social-tab="friends">Friends</button></div>
-    <section class="section" id="social-content">${socialContent}</section>
+    <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div><span class="route-badge">${allPlans.length} plan${allPlans.length === 1 ? "" : "s"}</span></div>
+    <p class="lede">Keep saved ideas and RSVPs in one place, then use the calendar to see what your week actually looks like.</p>
+    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved events</p><h2>For later</h2></div></div>${plannerList(savedPlans, "No saved events yet. Tap Save on any event in Discover.", "Saved")}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">RSVPs</p><h2>Going</h2></div></div>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">Calendar</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
   </section>`;
 }
 
+function savedPlannerEvents(mode = "all") {
+  const savedIds = state.saved || new Set();
+  const rsvpIds = state.rsvps || new Set();
+  return events
+    .filter(event => !state.removedPlans?.has(event.id))
+    .filter(event => mode === "saved" ? savedIds.has(event.id) : mode === "rsvp" ? rsvpIds.has(event.id) : savedIds.has(event.id) || rsvpIds.has(event.id))
+    .sort(sortEventsByStart);
+}
+
+function plannerList(plans, emptyText, statusLabel) {
+  if (!plans.length) return `<p class="section-helper empty-planner">${emptyText}</p>`;
+  return `<div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}">
+    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button>
+    <div class="planner-actions"><span>${statusLabel}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+  </article>`).join("")}</div>`;
+}
+
+function plannerCalendar(plans) {
+  if (!plans.length) return `<p class="section-helper empty-planner">Save or RSVP to an event and it will appear on your calendar.</p>`;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 34);
+  const days = [];
+  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+    const iso = date.toISOString().slice(0, 10);
+    const dayPlans = plans.filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
+    days.push({ date: new Date(date), iso, plans: dayPlans });
+  }
+  return `<div class="planner-legend">${["concerts","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
+  <div class="planner-calendar">${days.map(day => {
+    const disabled = !day.plans.length;
+    const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
+    return `<button class="planner-day ${disabled ? "empty" : ""}" ${disabled ? "disabled" : `data-calendar-plan="${day.plans[0].id}"`} aria-label="${label} ${day.date.getDate()}${disabled ? "" : `, ${day.plans.length} plan${day.plans.length === 1 ? "" : "s"}`}">
+      <span>${label}</span><b>${day.date.getDate()}</b><em>${day.plans.map(event => `<i class="${event.cat}"></i>`).join("")}</em>
+    </button>`;
+  }).join("")}</div>`;
+}
+
+function friendInterestEvents(name, limit = 4) {
+  const profile = friendDirectory.find(friend => friend[1] === name);
+  const seed = `${name} ${profile?.[4] || ""}`.toLowerCase();
+  const preferred = events.filter(event => {
+    const text = `${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
+    if (/ana|priya|jules/.test(seed)) return /concert|music|museum|art|gallery|food|market|nightlife/.test(text);
+    if (/marcus|dev/.test(seed)) return /sports|run|fitness|nightlife|concert|food/.test(text);
+    if (/elena|sofia|nia/.test(seed)) return /museum|arts|comedy|food|festival|community/.test(text);
+    return /concert|food|museum|nightlife/.test(text);
+  });
+  return [...preferred, ...events].filter((event, index, all) => all.findIndex(item => item.id === event.id) === index).sort(sortEventsByStart).slice(0, limit);
+}
+
+function openFriend(name) {
+  const profile = friendDirectory.find(friend => friend[1] === name) || ["FR", name, "@lokalfriend", "0 mutual friends", "Washington, DC"];
+  const isFriend = state.friends.has(name);
+  const theirEvents = friendInterestEvents(name);
+  const tastes = theirEvents.flatMap(eventTags).filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index).slice(0, 5);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
+    <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">${isFriend ? "Friend profile" : "Profile preview"}</p><h2>${escapeHtml(name)}</h2><p>${escapeHtml(profile[2])} / ${escapeHtml(profile[4] || "Washington, DC")}</p></div></div>
+    <div class="friendship-status ${isFriend ? "" : "pending"}"><b>${isFriend ? "Friends" : "Not friends yet"}</b><p>${isFriend ? `${name} shares event interests with you.` : "Add them to see more profile activity in a full app."}</p></div>
+    <div class="friend-profile-actions"><button class="secondary" data-message-friend="${name}">Message</button><button class="secondary" data-share-profile="${name}">Share profile</button></div>
+    <p class="eyebrow">Interested in</p><div class="chips profile-taste-chips">${tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("")}</div>
+    <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
+  </section></div>`;
+}
 
