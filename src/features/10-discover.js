@@ -207,7 +207,15 @@ function storyEventPool(story) {
 }
 
 function activeFollowingStories() {
-  return followingStories
+  const ownStory = state.storyPosts.length ? [{
+    id: "your-story",
+    icon: state.profile.initials,
+    name: "Your story",
+    type: "Just posted",
+    intro: "Events you shared with your friends on Lokal.",
+    eventIds: state.storyPosts.map(post => post.eventId)
+  }] : [];
+  return [...ownStory, ...followingStories]
     .map(story => ({ ...story, storyEvents: storyEventPool(story) }))
     .filter(story => story.storyEvents.length);
 }
