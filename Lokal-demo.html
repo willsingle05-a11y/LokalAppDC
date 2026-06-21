@@ -531,6 +531,8 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
 .calendar-grid button { padding: 7px 2px; border-radius: 7px; color: var(--ink); background: var(--paper); font-size: 10px; }
 .calendar-grid button.selected { color: white; background: var(--green); }
+.calendar-grid button.in-range { color: var(--green); background: #dceee7; }
+.calendar-clear { margin: -3px 0 10px; font-size: 11px; }
 .calendar-month + .calendar-month { margin-top: 14px; }
 .calendar-helper { margin: 0 0 12px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 .autocomplete { display: grid; gap: 4px; margin: -5px 0 10px; padding: 6px; border-radius: 10px; background: #f8f5ef; }
@@ -1602,6 +1604,12 @@ function matchesDateFilter(event, value) {
     sunday.setDate(saturday.getDate() + 1);
     return sameCalendarDate(eventDate, saturday) || sameCalendarDate(eventDate, sunday);
   }
+  const range = String(value).match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
+  if (range) {
+    const start = new Date(`${range[1]}T00:00:00`);
+    const end = new Date(`${range[2]}T23:59:59`);
+    return eventDate >= start && eventDate <= end;
+  }
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return event.startDate === value || sameCalendarDate(eventDate, new Date(`${value}T00:00:00`));
   return true;
 }
@@ -1701,6 +1709,12 @@ const supabaseConfig = {
   publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH"
 };
 const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
+const supabaseStorageKeys = {
+  accessToken: "lokalSupabaseAccessToken",
+  userId: "lokalSupabaseUserId",
+  demoUserId: "lokalDemoInteractionUserId",
+  pendingInteractions: "lokalPendingEventInteractions"
+};
 
 function formatSupabaseTime(value) {
   if (!value) return "Date to be announced";
@@ -1795,6 +1809,95 @@ function normalizeSupabasePriceFromRow(row) {
     return normalizeSupabasePrice(row.price_min, true, isExplicitlyFree);
   }
   return "Price unknown";
+}
+
+function persistSupabaseSession(accessToken) {
+  if (!accessToken) return;
+  const userId = decodeJwtPayload(accessToken).sub;
+  localStorage.setItem(supabaseStorageKeys.accessToken, accessToken);
+  if (userId) localStorage.setItem(supabaseStorageKeys.userId, userId);
+}
+
+function fallbackInteractionUserId() {
+  let userId = localStorage.getItem(supabaseStorageKeys.demoUserId);
+  if (!userId) {
+    userId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-4000-8000-000000000000";
+    localStorage.setItem(supabaseStorageKeys.demoUserId, userId);
+  }
+  return userId;
+}
+
+function currentInteractionUserId() {
+  const token = localStorage.getItem(supabaseStorageKeys.accessToken);
+  return decodeJwtPayload(token || "").sub || state.profile?.id || localStorage.getItem(supabaseStorageKeys.userId) || fallbackInteractionUserId();
+}
+
+function interactionEventId(event) {
+  const value = event?.sourceId || event?.id;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
+function queuePendingEventInteraction(record) {
+  const pending = JSON.parse(localStorage.getItem(supabaseStorageKeys.pendingInteractions) || "[]");
+  pending.push({ ...record, queued_at: new Date().toISOString() });
+  localStorage.setItem(supabaseStorageKeys.pendingInteractions, JSON.stringify(pending.slice(-40)));
+}
+
+function supabaseInteractionHeaders() {
+  const token = localStorage.getItem(supabaseStorageKeys.accessToken);
+  const headers = {
+    apikey: supabaseConfig.publishableKey,
+    "Content-Type": "application/json"
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+async function existingEventInteraction(userId, eventId) {
+  const url = `${supabaseConfig.url}/rest/v1/event_interactions?select=id&user_id=eq.${encodeURIComponent(userId)}&event_id=eq.${encodeURIComponent(eventId)}&limit=1`;
+  const response = await fetch(url, { headers: supabaseInteractionHeaders() });
+  if (!response.ok) throw new Error(`Supabase interaction lookup returned ${response.status}`);
+  const rows = await response.json();
+  return rows[0] || null;
+}
+
+async function saveEventInteraction(eventId, kind = "save", active = true) {
+  const event = events.find(item => item.id === Number(eventId));
+  const supabaseEventId = interactionEventId(event);
+  if (!supabaseEventId) return { skipped: "no-supabase-event-id" };
+  const record = {
+    user_id: currentInteractionUserId(),
+    event_id: supabaseEventId,
+    kind,
+    active,
+    title: event?.title || "",
+    category: event?.cat || "",
+    tags: event?.tags || []
+  };
+  try {
+    const existing = await existingEventInteraction(record.user_id, record.event_id);
+    if (active && !existing) {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/event_interactions`, {
+        method: "POST",
+        headers: { ...supabaseInteractionHeaders(), Prefer: "return=minimal" },
+        body: JSON.stringify([{ user_id: record.user_id, event_id: record.event_id }])
+      });
+      if (!response.ok) throw new Error(`Supabase interaction insert returned ${response.status}`);
+    }
+    if (!active && existing) {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/event_interactions?user_id=eq.${encodeURIComponent(record.user_id)}&event_id=eq.${encodeURIComponent(record.event_id)}`, {
+        method: "DELETE",
+        headers: supabaseInteractionHeaders()
+      });
+      if (!response.ok) throw new Error(`Supabase interaction delete returned ${response.status}`);
+    }
+    return { synced: true };
+  } catch (error) {
+    queuePendingEventInteraction(record);
+    console.warn("[supabase] event interaction queued locally:", error.message);
+    return { queued: true, error };
+  }
 }
 
 function cleanSupabaseDescription(value) {
@@ -2333,6 +2436,7 @@ function validateSignupEmail(email) {
 async function syncSupabaseSignupProfile(accessToken, profile) {
   const userId = decodeJwtPayload(accessToken).sub;
   if (!userId) return;
+  state.pendingSignupProfile = { ...profile, id: userId };
   const response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?on_conflict=id`, {
     method: "POST",
     headers: {
@@ -2382,7 +2486,10 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       area_interests: areaInterests
     }
   });
-  if (data.access_token) await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+  if (data.access_token) {
+    persistSupabaseSession(data.access_token);
+    await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+  }
   return data;
 }
 
@@ -2404,6 +2511,10 @@ async function verifyLokalPhone(token) {
     return { demoOtp: true };
   }
   const data = await supabaseAuthRequest("verify", { phone: state.pendingSignupPhone, token: token.trim(), type: "sms" });
+  if (data.access_token) {
+    persistSupabaseSession(data.access_token);
+    state.pendingSignupProfile = { ...state.pendingSignupProfile, id: decodeJwtPayload(data.access_token).sub };
+  }
   finalizeLokalProfile(state.pendingSignupProfile);
   return data;
 }
@@ -3266,8 +3377,18 @@ function rollingCalendar() {
     }
     month.days.push({ iso: date.toISOString().slice(0, 10), label: date.getDate() });
   }
-  const chosenDate = /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "") ? state.filter.date : "";
-  return `<div class="calendar" data-calendar ${chosenDate ? "" : "hidden"}><p class="calendar-helper">Choose any date from today through ${end.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.</p>${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${day.iso === chosenDate ? "selected" : ""}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
+  const selected = String(state.filter.date || "");
+  const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
+  const selectedStart = range ? range[1] : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : "";
+  const selectedEnd = range ? range[2] : "";
+  const calendarVisible = Boolean(selectedStart) || state.filterDatePickerOpen;
+  const dateClass = iso => {
+    if (iso === selectedStart || iso === selectedEnd) return "selected";
+    if (selectedStart && selectedEnd && iso > selectedStart && iso < selectedEnd) return "in-range";
+    return "";
+  };
+  const label = selectedEnd ? `${selectedStart} to ${selectedEnd}` : selectedStart ? `${selectedStart} selected. Choose another day to make a range, or show events for this day.` : "Choose one day, or choose a start and end date for a range.";
+  return `<div class="calendar" data-calendar ${calendarVisible ? "" : "hidden"}><p class="calendar-helper">${label}</p>${selectedStart ? `<button class="text-button calendar-clear" data-calendar-clear>Clear dates</button>` : ""}${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${dateClass(day.iso)}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
 }
 
 function activeFilterValue(label) {
@@ -3296,7 +3417,7 @@ function openFilters() {
   const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
-    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
+    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
 }
 
 function openNotifications() {
@@ -3468,8 +3589,22 @@ document.addEventListener("click", async event => {
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.event) { mark(); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
-  if (t.dataset.save) { const id = Number(t.dataset.save); state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id); openDetail(id); toast(state.saved.has(id) ? "Saved for later" : "Removed from saved"); }
-  if (t.dataset.rsvp) { const id = Number(t.dataset.rsvp); state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id); openDetail(id); toast(state.rsvps.has(id) ? "You are in" : "RSVP removed"); }
+  if (t.dataset.save) {
+    const id = Number(t.dataset.save);
+    state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
+    const isSaved = state.saved.has(id);
+    openDetail(id);
+    saveEventInteraction(id, "save", isSaved);
+    toast(isSaved ? "Saved for later" : "Removed from saved");
+  }
+  if (t.dataset.rsvp) {
+    const id = Number(t.dataset.rsvp);
+    state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id);
+    const isRsvp = state.rsvps.has(id);
+    openDetail(id);
+    saveEventInteraction(id, "rsvp", isRsvp);
+    toast(isRsvp ? "You are in" : "RSVP removed");
+  }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
@@ -3513,14 +3648,15 @@ document.addEventListener("click", async event => {
   if (t.dataset.leaveGroup) { removeGroupMembership(t.dataset.leaveGroup); modalRoot.innerHTML = ""; renderSocial(); toast("You left the group"); }
   if (t.dataset.profileLeaveGroup) { removeGroupMembership(t.dataset.profileLeaveGroup); renderProfile(); openProfileList("groups"); toast(`Left ${t.dataset.profileLeaveGroup}`); }
   if (t.dataset.seeMorePublicGroups !== undefined) openPublicGroupDirectory();
-  if (t.dataset.removePlan) { if (!state.removedPlans) state.removedPlans = new Set(); const id = Number(t.dataset.removePlan); state.removedPlans.add(id); state.rsvps.delete(id); state.saved.delete(id); renderProfile(); openProfileList("plans"); toast("Plan removed"); }
+  if (t.dataset.removePlan) { if (!state.removedPlans) state.removedPlans = new Set(); const id = Number(t.dataset.removePlan); state.removedPlans.add(id); state.rsvps.delete(id); state.saved.delete(id); saveEventInteraction(id, "remove", false); renderProfile(); openProfileList("plans"); toast("Plan removed"); }
   if (t.dataset.groupView) { document.querySelectorAll("[data-group-view]").forEach(button => button.classList.toggle("selected", button.dataset.groupView === t.dataset.groupView)); document.querySelectorAll("[data-group-panel]").forEach(panel => panel.hidden = panel.dataset.groupPanel !== t.dataset.groupView); }
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { state.groupMessages[group] = [{ type: "text", text: input.value.trim() }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); renderSocial(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
-  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") state.filter.date = t.dataset.filterValue; if (t.dataset.filterValue === "Choose a date") document.querySelector("[data-calendar]").hidden = false; }
-  if (t.dataset.calendarDate) { document.querySelectorAll("[data-calendar-date]").forEach(day => day.classList.remove("selected")); t.classList.add("selected"); state.filter.date = t.dataset.calendarDate; }
-  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || ""))) state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
+  if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }
+  if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; state.filterDatePickerOpen = true; openFilters(); }
+  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {

@@ -177,8 +177,18 @@ function rollingCalendar() {
     }
     month.days.push({ iso: date.toISOString().slice(0, 10), label: date.getDate() });
   }
-  const chosenDate = /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "") ? state.filter.date : "";
-  return `<div class="calendar" data-calendar ${chosenDate ? "" : "hidden"}><p class="calendar-helper">Choose any date from today through ${end.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.</p>${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${day.iso === chosenDate ? "selected" : ""}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
+  const selected = String(state.filter.date || "");
+  const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
+  const selectedStart = range ? range[1] : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : "";
+  const selectedEnd = range ? range[2] : "";
+  const calendarVisible = Boolean(selectedStart) || state.filterDatePickerOpen;
+  const dateClass = iso => {
+    if (iso === selectedStart || iso === selectedEnd) return "selected";
+    if (selectedStart && selectedEnd && iso > selectedStart && iso < selectedEnd) return "in-range";
+    return "";
+  };
+  const label = selectedEnd ? `${selectedStart} to ${selectedEnd}` : selectedStart ? `${selectedStart} selected. Choose another day to make a range, or show events for this day.` : "Choose one day, or choose a start and end date for a range.";
+  return `<div class="calendar" data-calendar ${calendarVisible ? "" : "hidden"}><p class="calendar-helper">${label}</p>${selectedStart ? `<button class="text-button calendar-clear" data-calendar-clear>Clear dates</button>` : ""}${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${dateClass(day.iso)}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
 }
 
 function activeFilterValue(label) {
@@ -207,7 +217,7 @@ function openFilters() {
   const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
-    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
+    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
 }
 
 function openNotifications() {

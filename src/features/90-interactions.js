@@ -9,8 +9,22 @@
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.event) { mark(); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
-  if (t.dataset.save) { const id = Number(t.dataset.save); state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id); openDetail(id); toast(state.saved.has(id) ? "Saved for later" : "Removed from saved"); }
-  if (t.dataset.rsvp) { const id = Number(t.dataset.rsvp); state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id); openDetail(id); toast(state.rsvps.has(id) ? "You are in" : "RSVP removed"); }
+  if (t.dataset.save) {
+    const id = Number(t.dataset.save);
+    state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
+    const isSaved = state.saved.has(id);
+    openDetail(id);
+    saveEventInteraction(id, "save", isSaved);
+    toast(isSaved ? "Saved for later" : "Removed from saved");
+  }
+  if (t.dataset.rsvp) {
+    const id = Number(t.dataset.rsvp);
+    state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id);
+    const isRsvp = state.rsvps.has(id);
+    openDetail(id);
+    saveEventInteraction(id, "rsvp", isRsvp);
+    toast(isRsvp ? "You are in" : "RSVP removed");
+  }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
@@ -54,14 +68,15 @@
   if (t.dataset.leaveGroup) { removeGroupMembership(t.dataset.leaveGroup); modalRoot.innerHTML = ""; renderSocial(); toast("You left the group"); }
   if (t.dataset.profileLeaveGroup) { removeGroupMembership(t.dataset.profileLeaveGroup); renderProfile(); openProfileList("groups"); toast(`Left ${t.dataset.profileLeaveGroup}`); }
   if (t.dataset.seeMorePublicGroups !== undefined) openPublicGroupDirectory();
-  if (t.dataset.removePlan) { if (!state.removedPlans) state.removedPlans = new Set(); const id = Number(t.dataset.removePlan); state.removedPlans.add(id); state.rsvps.delete(id); state.saved.delete(id); renderProfile(); openProfileList("plans"); toast("Plan removed"); }
+  if (t.dataset.removePlan) { if (!state.removedPlans) state.removedPlans = new Set(); const id = Number(t.dataset.removePlan); state.removedPlans.add(id); state.rsvps.delete(id); state.saved.delete(id); saveEventInteraction(id, "remove", false); renderProfile(); openProfileList("plans"); toast("Plan removed"); }
   if (t.dataset.groupView) { document.querySelectorAll("[data-group-view]").forEach(button => button.classList.toggle("selected", button.dataset.groupView === t.dataset.groupView)); document.querySelectorAll("[data-group-panel]").forEach(panel => panel.hidden = panel.dataset.groupPanel !== t.dataset.groupView); }
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { state.groupMessages[group] = [{ type: "text", text: input.value.trim() }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); renderSocial(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
-  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") state.filter.date = t.dataset.filterValue; if (t.dataset.filterValue === "Choose a date") document.querySelector("[data-calendar]").hidden = false; }
-  if (t.dataset.calendarDate) { document.querySelectorAll("[data-calendar-date]").forEach(day => day.classList.remove("selected")); t.classList.add("selected"); state.filter.date = t.dataset.calendarDate; }
-  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^\d{4}-\d{2}-\d{2}$/.test(state.filter.date || ""))) state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
+  if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }
+  if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; state.filterDatePickerOpen = true; openFilters(); }
+  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {

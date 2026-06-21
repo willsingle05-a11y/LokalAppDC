@@ -3,6 +3,12 @@ const supabaseConfig = {
   publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH"
 };
 const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
+const supabaseStorageKeys = {
+  accessToken: "lokalSupabaseAccessToken",
+  userId: "lokalSupabaseUserId",
+  demoUserId: "lokalDemoInteractionUserId",
+  pendingInteractions: "lokalPendingEventInteractions"
+};
 
 function formatSupabaseTime(value) {
   if (!value) return "Date to be announced";
@@ -97,6 +103,95 @@ function normalizeSupabasePriceFromRow(row) {
     return normalizeSupabasePrice(row.price_min, true, isExplicitlyFree);
   }
   return "Price unknown";
+}
+
+function persistSupabaseSession(accessToken) {
+  if (!accessToken) return;
+  const userId = decodeJwtPayload(accessToken).sub;
+  localStorage.setItem(supabaseStorageKeys.accessToken, accessToken);
+  if (userId) localStorage.setItem(supabaseStorageKeys.userId, userId);
+}
+
+function fallbackInteractionUserId() {
+  let userId = localStorage.getItem(supabaseStorageKeys.demoUserId);
+  if (!userId) {
+    userId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-4000-8000-000000000000";
+    localStorage.setItem(supabaseStorageKeys.demoUserId, userId);
+  }
+  return userId;
+}
+
+function currentInteractionUserId() {
+  const token = localStorage.getItem(supabaseStorageKeys.accessToken);
+  return decodeJwtPayload(token || "").sub || state.profile?.id || localStorage.getItem(supabaseStorageKeys.userId) || fallbackInteractionUserId();
+}
+
+function interactionEventId(event) {
+  const value = event?.sourceId || event?.id;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
+function queuePendingEventInteraction(record) {
+  const pending = JSON.parse(localStorage.getItem(supabaseStorageKeys.pendingInteractions) || "[]");
+  pending.push({ ...record, queued_at: new Date().toISOString() });
+  localStorage.setItem(supabaseStorageKeys.pendingInteractions, JSON.stringify(pending.slice(-40)));
+}
+
+function supabaseInteractionHeaders() {
+  const token = localStorage.getItem(supabaseStorageKeys.accessToken);
+  const headers = {
+    apikey: supabaseConfig.publishableKey,
+    "Content-Type": "application/json"
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+async function existingEventInteraction(userId, eventId) {
+  const url = `${supabaseConfig.url}/rest/v1/event_interactions?select=id&user_id=eq.${encodeURIComponent(userId)}&event_id=eq.${encodeURIComponent(eventId)}&limit=1`;
+  const response = await fetch(url, { headers: supabaseInteractionHeaders() });
+  if (!response.ok) throw new Error(`Supabase interaction lookup returned ${response.status}`);
+  const rows = await response.json();
+  return rows[0] || null;
+}
+
+async function saveEventInteraction(eventId, kind = "save", active = true) {
+  const event = events.find(item => item.id === Number(eventId));
+  const supabaseEventId = interactionEventId(event);
+  if (!supabaseEventId) return { skipped: "no-supabase-event-id" };
+  const record = {
+    user_id: currentInteractionUserId(),
+    event_id: supabaseEventId,
+    kind,
+    active,
+    title: event?.title || "",
+    category: event?.cat || "",
+    tags: event?.tags || []
+  };
+  try {
+    const existing = await existingEventInteraction(record.user_id, record.event_id);
+    if (active && !existing) {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/event_interactions`, {
+        method: "POST",
+        headers: { ...supabaseInteractionHeaders(), Prefer: "return=minimal" },
+        body: JSON.stringify([{ user_id: record.user_id, event_id: record.event_id }])
+      });
+      if (!response.ok) throw new Error(`Supabase interaction insert returned ${response.status}`);
+    }
+    if (!active && existing) {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/event_interactions?user_id=eq.${encodeURIComponent(record.user_id)}&event_id=eq.${encodeURIComponent(record.event_id)}`, {
+        method: "DELETE",
+        headers: supabaseInteractionHeaders()
+      });
+      if (!response.ok) throw new Error(`Supabase interaction delete returned ${response.status}`);
+    }
+    return { synced: true };
+  } catch (error) {
+    queuePendingEventInteraction(record);
+    console.warn("[supabase] event interaction queued locally:", error.message);
+    return { queued: true, error };
+  }
 }
 
 function cleanSupabaseDescription(value) {
@@ -635,6 +730,7 @@ function validateSignupEmail(email) {
 async function syncSupabaseSignupProfile(accessToken, profile) {
   const userId = decodeJwtPayload(accessToken).sub;
   if (!userId) return;
+  state.pendingSignupProfile = { ...profile, id: userId };
   const response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?on_conflict=id`, {
     method: "POST",
     headers: {
@@ -684,7 +780,10 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       area_interests: areaInterests
     }
   });
-  if (data.access_token) await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+  if (data.access_token) {
+    persistSupabaseSession(data.access_token);
+    await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+  }
   return data;
 }
 
@@ -706,6 +805,10 @@ async function verifyLokalPhone(token) {
     return { demoOtp: true };
   }
   const data = await supabaseAuthRequest("verify", { phone: state.pendingSignupPhone, token: token.trim(), type: "sms" });
+  if (data.access_token) {
+    persistSupabaseSession(data.access_token);
+    state.pendingSignupProfile = { ...state.pendingSignupProfile, id: decodeJwtPayload(data.access_token).sub };
+  }
   finalizeLokalProfile(state.pendingSignupProfile);
   return data;
 }

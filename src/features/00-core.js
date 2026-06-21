@@ -327,6 +327,12 @@ function matchesDateFilter(event, value) {
     sunday.setDate(saturday.getDate() + 1);
     return sameCalendarDate(eventDate, saturday) || sameCalendarDate(eventDate, sunday);
   }
+  const range = String(value).match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
+  if (range) {
+    const start = new Date(`${range[1]}T00:00:00`);
+    const end = new Date(`${range[2]}T23:59:59`);
+    return eventDate >= start && eventDate <= end;
+  }
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return event.startDate === value || sameCalendarDate(eventDate, new Date(`${value}T00:00:00`));
   return true;
 }

@@ -36,6 +36,8 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
 .calendar-grid button { padding: 7px 2px; border-radius: 7px; color: var(--ink); background: var(--paper); font-size: 10px; }
 .calendar-grid button.selected { color: white; background: var(--green); }
+.calendar-grid button.in-range { color: var(--green); background: #dceee7; }
+.calendar-clear { margin: -3px 0 10px; font-size: 11px; }
 .calendar-month + .calendar-month { margin-top: 14px; }
 .calendar-helper { margin: 0 0 12px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 .autocomplete { display: grid; gap: 4px; margin: -5px 0 10px; padding: 6px; border-radius: 10px; background: #f8f5ef; }
