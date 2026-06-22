@@ -1132,6 +1132,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .planner-day em { display: flex; justify-content: center; flex-wrap: wrap; gap: 2px; min-height: 12px; font-style: normal; }
 .planner-dot.concerts, .planner-legend i.concerts, .planner-day i.concerts { background: #00c897; }
 .planner-dot.nightlife, .planner-legend i.nightlife, .planner-day i.nightlife { background: #326f91; }
+.planner-dot.happy-hours, .planner-legend i.happy-hours, .planner-day i.happy-hours { background: #e26f4f; }
 .planner-dot.performing-arts, .planner-legend i.performing-arts, .planner-day i.performing-arts { background: #9b7edb; }
 .planner-dot.museums, .planner-legend i.museums, .planner-day i.museums { background: #5f9fc3; }
 .planner-dot.sports, .planner-legend i.sports, .planner-day i.sports { background: #f59e0b; }
@@ -1337,7 +1338,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife" };
+  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -1345,6 +1346,7 @@ function eventArtKind(event) {
   const tags = eventTags(event).join(" ").toLowerCase();
   const titleText = `${event.title || ""} ${event.venue || ""} ${event.cat || ""} ${tags}`.toLowerCase();
   let key = event.cat || "community";
+  if (key === "happy-hours") key = "nightlife";
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(titleText)) return "museum";
   if (/run club|running|run\b|5k|10k|marathon|jog/.test(titleText)) return "run";
   if (/baseball|mlb|nationals|nats\b/.test(titleText)) return "baseball";
@@ -1433,7 +1435,7 @@ function seededConcertFallbackTags(seedText) {
 }
 
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife" };
+  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -1523,7 +1525,8 @@ function eventArtLabel(event) {
     festivals: "Festival",
     community: "Community",
     expos: "Expo",
-    nightlife: "Night out"
+    nightlife: "Night out",
+    "happy-hours": "Happy hour"
   };
   if (labels[category]) return labels[category];
   const tagText = eventTags(event).join(" ").toLowerCase();
@@ -1649,7 +1652,7 @@ function matchesTimeFilter(event, value) {
 
 function matchesFilter(event, filter, applyDiscoverFilters = true) {
   const priceValue = eventNumericPrice(event);
-  if (state.age < 21 && event.cat === "nightlife") return false;
+  if (state.age < 21 && ["nightlife", "happy-hours"].includes(event.cat)) return false;
   if (applyDiscoverFilters && state.highlightedOnly && !isHighlighted(event)) return false;
   if (applyDiscoverFilters && state.filter.category && state.filter.category !== "All categories" && event.cat !== state.filter.category) return false;
   if (applyDiscoverFilters && !matchesDateFilter(event, state.filter.date)) return false;
@@ -1666,13 +1669,13 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 
@@ -2067,7 +2070,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife"]);
+  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -2105,6 +2108,7 @@ function normalizeImportedCategory(row) {
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
   if (/arts|theatre|theater|performance|play|musical/.test(classificationText)) return "performing-arts";
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
+  if (directCategory === "happy-hours") return "happy-hours";
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
   if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
@@ -2220,7 +2224,7 @@ function normalizeSupabaseTags(row, category) {
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife" };
+  const categoryLabels = { concerts: "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", "happy-hours": "" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
   if (category === "concerts") inferredTags.push(...concertDetailTags(row));
@@ -2268,71 +2272,8 @@ function normalizeSupabaseEvent(row, index) {
   };
 }
 
-function localDateKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-function formatHappyHourClock(iso, time) {
-  return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(`${iso}T${String(time).slice(0, 5)}`));
-}
-
-function normalizeSupabaseHappyHour(row, dayOffset) {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + dayOffset);
-  const iso = localDateKey(date);
-  const startsAt = new Date(`${iso}T${String(row.starts_at).slice(0, 5)}`);
-  const endsAt = String(row.ends_at || "").slice(0, 5);
-  const startTime = formatHappyHourClock(iso, row.starts_at);
-  const endTime = endsAt ? formatHappyHourClock(iso, endsAt) : "";
-  const tags = [...new Set(["Happy hour", "Food & Drink", ...(Array.isArray(row.tags) ? row.tags : [])])];
-  return {
-    id: 700000 + Number(row.id || 0) * 10 + dayOffset,
-    sourceId: `happy-hour-${row.id}-${iso}`,
-    source: "happy-hours",
-    title: row.title || `${row.venue_name} happy hour`,
-    venue: row.venue_name,
-    area: row.neighborhood || "Washington, DC",
-    time: `${formatSupabaseDate(iso)}, ${startTime}${endTime ? ` - ${endTime}` : ""}`,
-    startDate: iso,
-    startHour: startsAt.getHours(),
-    startSort: startsAt.getTime(),
-    hasPreciseStart: true,
-    price: row.price_label || "Happy hour specials",
-    cat: "nightlife",
-    tag: "Happy hour",
-    tags,
-    image: "",
-    friends: [],
-    desc: row.specials || `Happy hour at ${row.venue_name}. See the venue source for current specials.`,
-    sourceUrl: row.source_url
-  };
-}
-
-async function syncSupabaseHappyHours() {
-  try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/happy_hours?select=*&is_active=eq.true`, {
-      headers: { apikey: supabaseConfig.publishableKey }
-    });
-    if (!response.ok) throw new Error(`Supabase happy hours returned ${response.status}`);
-    const rows = await response.json();
-    const happyHours = rows.flatMap(row => {
-      const occurrences = [];
-      for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
-        const date = new Date();
-        date.setDate(date.getDate() + dayOffset);
-        if (date.getDay() === Number(row.weekday)) occurrences.push(normalizeSupabaseHappyHour(row, dayOffset));
-      }
-      return occurrences;
-    });
-    events = [...events.filter(event => event.source !== "happy-hours"), ...happyHours].sort(sortEventsByStart);
-    if (happyHours.length) state.eventSync.label = `${state.eventSync.label} / ${happyHours.length} DC happy hour${happyHours.length === 1 ? "" : "s"} added`;
-  } catch {}
-}
-
 async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
-  await syncSupabaseHappyHours();
   if (state.route === "home") renderHome();
   try {
     const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast`, {
@@ -2725,6 +2666,7 @@ function discoverCategoryLabel(category) {
 function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
   if (/music|concert|jazz|dj|karaoke/.test(text)) return "concerts";
+  if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/museum/.test(text)) return "museums";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
@@ -2735,7 +2677,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "happy-hours", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
@@ -3244,7 +3186,7 @@ function plannerCalendar(plans) {
     days.push({ date: new Date(date), iso, plans: dayPlans });
   }
   return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
-  <div class="planner-legend">${["concerts","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
+  <div class="planner-legend">${["concerts","happy-hours","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
     const disabled = !day.plans.length;
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
@@ -3508,7 +3450,7 @@ function activeFilterSummary() {
 }
 
 function openFilters() {
-  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","happy-hours","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
     ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;

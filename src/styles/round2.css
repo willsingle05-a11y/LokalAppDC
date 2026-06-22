@@ -637,6 +637,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .planner-day em { display: flex; justify-content: center; flex-wrap: wrap; gap: 2px; min-height: 12px; font-style: normal; }
 .planner-dot.concerts, .planner-legend i.concerts, .planner-day i.concerts { background: #00c897; }
 .planner-dot.nightlife, .planner-legend i.nightlife, .planner-day i.nightlife { background: #326f91; }
+.planner-dot.happy-hours, .planner-legend i.happy-hours, .planner-day i.happy-hours { background: #e26f4f; }
 .planner-dot.performing-arts, .planner-legend i.performing-arts, .planner-day i.performing-arts { background: #9b7edb; }
 .planner-dot.museums, .planner-legend i.museums, .planner-day i.museums { background: #5f9fc3; }
 .planner-dot.sports, .planner-legend i.sports, .planner-day i.sports { background: #f59e0b; }

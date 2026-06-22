@@ -301,7 +301,7 @@ function plannerCalendar(plans) {
     days.push({ date: new Date(date), iso, plans: dayPlans });
   }
   return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
-  <div class="planner-legend">${["concerts","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
+  <div class="planner-legend">${["concerts","happy-hours","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
     const disabled = !day.plans.length;
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });

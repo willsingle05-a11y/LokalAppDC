@@ -345,7 +345,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife"]);
+  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -383,6 +383,7 @@ function normalizeImportedCategory(row) {
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
   if (/arts|theatre|theater|performance|play|musical/.test(classificationText)) return "performing-arts";
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
+  if (directCategory === "happy-hours") return "happy-hours";
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
   if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
@@ -498,7 +499,7 @@ function normalizeSupabaseTags(row, category) {
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife" };
+  const categoryLabels = { concerts: "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", "happy-hours": "" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
   if (category === "concerts") inferredTags.push(...concertDetailTags(row));
@@ -546,71 +547,8 @@ function normalizeSupabaseEvent(row, index) {
   };
 }
 
-function localDateKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-function formatHappyHourClock(iso, time) {
-  return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(`${iso}T${String(time).slice(0, 5)}`));
-}
-
-function normalizeSupabaseHappyHour(row, dayOffset) {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + dayOffset);
-  const iso = localDateKey(date);
-  const startsAt = new Date(`${iso}T${String(row.starts_at).slice(0, 5)}`);
-  const endsAt = String(row.ends_at || "").slice(0, 5);
-  const startTime = formatHappyHourClock(iso, row.starts_at);
-  const endTime = endsAt ? formatHappyHourClock(iso, endsAt) : "";
-  const tags = [...new Set(["Happy hour", "Food & Drink", ...(Array.isArray(row.tags) ? row.tags : [])])];
-  return {
-    id: 700000 + Number(row.id || 0) * 10 + dayOffset,
-    sourceId: `happy-hour-${row.id}-${iso}`,
-    source: "happy-hours",
-    title: row.title || `${row.venue_name} happy hour`,
-    venue: row.venue_name,
-    area: row.neighborhood || "Washington, DC",
-    time: `${formatSupabaseDate(iso)}, ${startTime}${endTime ? ` - ${endTime}` : ""}`,
-    startDate: iso,
-    startHour: startsAt.getHours(),
-    startSort: startsAt.getTime(),
-    hasPreciseStart: true,
-    price: row.price_label || "Happy hour specials",
-    cat: "nightlife",
-    tag: "Happy hour",
-    tags,
-    image: "",
-    friends: [],
-    desc: row.specials || `Happy hour at ${row.venue_name}. See the venue source for current specials.`,
-    sourceUrl: row.source_url
-  };
-}
-
-async function syncSupabaseHappyHours() {
-  try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/happy_hours?select=*&is_active=eq.true`, {
-      headers: { apikey: supabaseConfig.publishableKey }
-    });
-    if (!response.ok) throw new Error(`Supabase happy hours returned ${response.status}`);
-    const rows = await response.json();
-    const happyHours = rows.flatMap(row => {
-      const occurrences = [];
-      for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
-        const date = new Date();
-        date.setDate(date.getDate() + dayOffset);
-        if (date.getDay() === Number(row.weekday)) occurrences.push(normalizeSupabaseHappyHour(row, dayOffset));
-      }
-      return occurrences;
-    });
-    events = [...events.filter(event => event.source !== "happy-hours"), ...happyHours].sort(sortEventsByStart);
-    if (happyHours.length) state.eventSync.label = `${state.eventSync.label} / ${happyHours.length} DC happy hour${happyHours.length === 1 ? "" : "s"} added`;
-  } catch {}
-}
-
 async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
-  await syncSupabaseHappyHours();
   if (state.route === "home") renderHome();
   try {
     const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast`, {

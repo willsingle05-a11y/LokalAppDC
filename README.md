@@ -184,11 +184,11 @@ profiles into the Friends search/list automatically when the app opens.
 
 ## Happy-hour data
 
-Run `supabase/happy-hours.sql` in the Supabase SQL editor, then add only
-currently verified, DC-proper listings to `data/happy-hours.json`. Each row
-needs the venue's official source URL, DC street address, weekday, and local
-start/end time. The app expands the weekly rows into the next seven days of
-Discovery listings automatically.
+Add only currently verified, DC-proper listings to `data/happy-hours.json`.
+Each row needs the venue's official source URL, DC street address, weekday,
+and local start/end time. The import script expands the weekly rows into the
+next eight days of normal `events` entries, with `source = happy-hours` and
+`category = happy-hours`.
 
 ```json
 [
@@ -201,6 +201,7 @@ Discovery listings automatically.
     "ends_at": "18:00",
     "specials": "Verified specials from the venue's official page.",
     "price_label": "Happy hour specials",
+    "tags": ["Cocktails", "Food deals", "After work"],
     "source_url": "https://venue.example/happy-hour"
   }
 ]
