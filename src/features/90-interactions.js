@@ -29,6 +29,7 @@
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }
+  if (t.dataset.calendarDay) { mark(); openCalendarPlans(t.dataset.calendarDay); }
   if (t.dataset.plannerWeek) { mark(); state.plannerWeekOffset = Math.max(0, state.plannerWeekOffset + Number(t.dataset.plannerWeek)); renderSocial(); }
   if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await navigator.clipboard?.writeText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast("Share canceled"); } }
   if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await navigator.clipboard?.writeText(lokalEventSharePayload(eventToShare)); } catch {} toast("Lokal event copied"); }
@@ -174,6 +175,10 @@ modalRoot.addEventListener("touchend", event => {
 
 document.addEventListener("input", event => {
   const input = event.target;
+  if (input.matches("[data-signup-phone]")) {
+    const digits = input.value.replace(/\D/g, "").slice(0, 10);
+    input.value = digits.length > 6 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : digits.length > 3 ? `(${digits.slice(0, 3)}) ${digits.slice(3)}` : digits.length ? `(${digits}` : "";
+  }
   if (input.matches("[data-group-search]")) {
     const query = input.value.trim().toLowerCase();
     let visible = 0;
