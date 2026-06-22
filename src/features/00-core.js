@@ -267,7 +267,7 @@ function eventArtLabel(event) {
 function eventRow(event) {
   const signal = eventInterestSignal(event);
   const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
-  const attachedGroup = event.id === 3 ? `<div class="signal">Hosted by public group: DC Run Club</div>` : event.id === 4 ? `<div class="signal">Join the Skyline Social event chat</div>` : "";
+  const attachedGroup = event.id === 4 ? `<div class="signal">Join the Skyline Social event chat</div>` : "";
   const image = eventArtImage(event);
   const tags = eventTags(event);
   return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
