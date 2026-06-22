@@ -1,1 +1,67 @@
-[]
+[
+  {
+    "source_key": "the-admiral-mon",
+    "venue_name": "The Admiral",
+    "venue_address": "1 Dupont Cir NW, Washington, DC 20036",
+    "neighborhood": "Dupont Circle",
+    "weekday": "monday",
+    "starts_at": "16:00",
+    "ends_at": "18:00",
+    "specials": "$10 cocktails, $35 cocktail pitcher, $6 beers, $11.25 wine, $6.50 shots.",
+    "price_label": "Cocktails from $10",
+    "tags": ["Cocktails", "Cocktail pitchers", "Beer", "Wine", "Shots", "After work"],
+    "source_url": "https://www.theadmiraldc.com/"
+  },
+  {
+    "source_key": "the-admiral-tue",
+    "venue_name": "The Admiral",
+    "venue_address": "1 Dupont Cir NW, Washington, DC 20036",
+    "neighborhood": "Dupont Circle",
+    "weekday": "tuesday",
+    "starts_at": "16:00",
+    "ends_at": "18:00",
+    "specials": "$10 cocktails, $35 cocktail pitcher, $6 beers, $11.25 wine, $6.50 shots.",
+    "price_label": "Cocktails from $10",
+    "tags": ["Cocktails", "Cocktail pitchers", "Beer", "Wine", "Shots", "After work"],
+    "source_url": "https://www.theadmiraldc.com/"
+  },
+  {
+    "source_key": "the-admiral-wed",
+    "venue_name": "The Admiral",
+    "venue_address": "1 Dupont Cir NW, Washington, DC 20036",
+    "neighborhood": "Dupont Circle",
+    "weekday": "wednesday",
+    "starts_at": "16:00",
+    "ends_at": "22:00",
+    "specials": "$10 cocktails, $35 cocktail pitcher, $6 beers, $11.25 wine, $6.50 shots.",
+    "price_label": "Cocktails from $10",
+    "tags": ["Cocktails", "Cocktail pitchers", "Beer", "Wine", "Shots", "Evening"],
+    "source_url": "https://www.theadmiraldc.com/"
+  },
+  {
+    "source_key": "the-admiral-thu",
+    "venue_name": "The Admiral",
+    "venue_address": "1 Dupont Cir NW, Washington, DC 20036",
+    "neighborhood": "Dupont Circle",
+    "weekday": "thursday",
+    "starts_at": "16:00",
+    "ends_at": "18:00",
+    "specials": "$10 cocktails, $35 cocktail pitcher, $6 beers, $11.25 wine, $6.50 shots.",
+    "price_label": "Cocktails from $10",
+    "tags": ["Cocktails", "Cocktail pitchers", "Beer", "Wine", "Shots", "After work"],
+    "source_url": "https://www.theadmiraldc.com/"
+  },
+  {
+    "source_key": "the-admiral-fri",
+    "venue_name": "The Admiral",
+    "venue_address": "1 Dupont Cir NW, Washington, DC 20036",
+    "neighborhood": "Dupont Circle",
+    "weekday": "friday",
+    "starts_at": "16:00",
+    "ends_at": "18:00",
+    "specials": "$10 cocktails, $35 cocktail pitcher, $6 beers, $11.25 wine, $6.50 shots.",
+    "price_label": "Cocktails from $10",
+    "tags": ["Cocktails", "Cocktail pitchers", "Beer", "Wine", "Shots", "After work"],
+    "source_url": "https://www.theadmiraldc.com/"
+  }
+]
