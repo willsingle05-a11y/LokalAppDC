@@ -546,8 +546,71 @@ function normalizeSupabaseEvent(row, index) {
   };
 }
 
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function formatHappyHourClock(iso, time) {
+  return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(`${iso}T${String(time).slice(0, 5)}`));
+}
+
+function normalizeSupabaseHappyHour(row, dayOffset) {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + dayOffset);
+  const iso = localDateKey(date);
+  const startsAt = new Date(`${iso}T${String(row.starts_at).slice(0, 5)}`);
+  const endsAt = String(row.ends_at || "").slice(0, 5);
+  const startTime = formatHappyHourClock(iso, row.starts_at);
+  const endTime = endsAt ? formatHappyHourClock(iso, endsAt) : "";
+  const tags = [...new Set(["Happy hour", "Food & Drink", ...(Array.isArray(row.tags) ? row.tags : [])])];
+  return {
+    id: 700000 + Number(row.id || 0) * 10 + dayOffset,
+    sourceId: `happy-hour-${row.id}-${iso}`,
+    source: "happy-hours",
+    title: row.title || `${row.venue_name} happy hour`,
+    venue: row.venue_name,
+    area: row.neighborhood || "Washington, DC",
+    time: `${formatSupabaseDate(iso)}, ${startTime}${endTime ? ` - ${endTime}` : ""}`,
+    startDate: iso,
+    startHour: startsAt.getHours(),
+    startSort: startsAt.getTime(),
+    hasPreciseStart: true,
+    price: row.price_label || "Happy hour specials",
+    cat: "nightlife",
+    tag: "Happy hour",
+    tags,
+    image: "",
+    friends: [],
+    desc: row.specials || `Happy hour at ${row.venue_name}. See the venue source for current specials.`,
+    sourceUrl: row.source_url
+  };
+}
+
+async function syncSupabaseHappyHours() {
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/happy_hours?select=*&is_active=eq.true`, {
+      headers: { apikey: supabaseConfig.publishableKey }
+    });
+    if (!response.ok) throw new Error(`Supabase happy hours returned ${response.status}`);
+    const rows = await response.json();
+    const happyHours = rows.flatMap(row => {
+      const occurrences = [];
+      for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
+        const date = new Date();
+        date.setDate(date.getDate() + dayOffset);
+        if (date.getDay() === Number(row.weekday)) occurrences.push(normalizeSupabaseHappyHour(row, dayOffset));
+      }
+      return occurrences;
+    });
+    events = [...events.filter(event => event.source !== "happy-hours"), ...happyHours].sort(sortEventsByStart);
+    if (happyHours.length) state.eventSync.label = `${state.eventSync.label} / ${happyHours.length} DC happy hour${happyHours.length === 1 ? "" : "s"} added`;
+  } catch {}
+}
+
 async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
+  await syncSupabaseHappyHours();
   if (state.route === "home") renderHome();
   try {
     const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast`, {

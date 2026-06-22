@@ -182,6 +182,38 @@ The script creates confirmed Auth users with `@demo.lokal.app` emails and
 upserts their matching `public.profiles` rows. The frontend then merges those
 profiles into the Friends search/list automatically when the app opens.
 
+## Happy-hour data
+
+Run `supabase/happy-hours.sql` in the Supabase SQL editor, then add only
+currently verified, DC-proper listings to `data/happy-hours.json`. Each row
+needs the venue's official source URL, DC street address, weekday, and local
+start/end time. The app expands the weekly rows into the next seven days of
+Discovery listings automatically.
+
+```json
+[
+  {
+    "venue_name": "Example DC venue",
+    "venue_address": "123 Example St NW, Washington, DC 20001",
+    "neighborhood": "Downtown",
+    "weekday": "monday",
+    "starts_at": "16:00",
+    "ends_at": "18:00",
+    "specials": "Verified specials from the venue's official page.",
+    "price_label": "Happy hour specials",
+    "source_url": "https://venue.example/happy-hour"
+  }
+]
+```
+
+To upsert verified rows:
+
+```powershell
+$env:SUPABASE_URL="https://iglzcjtklryapmcpyoam.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
+npm run import:happy-hours
+```
+
 ## Design system
 
 Round 2 uses a warm local-editorial palette: paper cream, district green,

@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "build:standalone": "powershell -ExecutionPolicy Bypass -File ./build-standalone.ps1",
-    "enrich:ticketmaster": "node tools/enrich-ticketmaster-events.mjs"
+    "enrich:ticketmaster": "node tools/enrich-ticketmaster-events.mjs",
+    "import:happy-hours": "node tools/import-happy-hours.mjs"
   },
   "devDependencies": {
     "vite": "^8.0.16"
