@@ -132,7 +132,7 @@ function openReceipt(id) {
   const event = events.find(item => item.id === Number(id)) || receipt;
   const people = receipt?.friends?.length ? receipt.friends.map(fullFriendName).join(", ") : "Just you";
   const eventButton = events.some(item => item.id === Number(id)) ? `<button class="wide-button" data-event="${event.id}">Open event details</button>` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(event.time || "")} / ${escapeHtml(event.price || "")}</p><h3>${escapeHtml(event.venue || "")}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(eventMetaLine(event))}</p><h3>${escapeHtml(event.venue || "")}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
 }
 
 function openTasteEditor() {
@@ -225,7 +225,7 @@ function openNotifications() {
     .filter(request => request.type === "friend")
     .map(request => `<div class="notification-card request-notification"><b>${escapeHtml(request.from)} sent you a friend request</b><p>${escapeHtml(request.detail)}</p><small>${escapeHtml(request.time)}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`)
     .join("");
-  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted near ${escapeHtml(event.area)}.</p><small>${escapeHtml(event.time)} / ${escapeHtml(event.price)}</small></button>`).join("");
+  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted near ${escapeHtml(event.area)}.</p><small>${escapeHtml(eventMetaLine(event))}</small></button>`).join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests || `<p class="section-helper">No new friend requests right now.</p>`}${recommended}</section></div>`;
 }
 

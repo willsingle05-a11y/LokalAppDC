@@ -29,21 +29,37 @@ function formatClock(value) {
 
 function happyHourTags(row) {
   const text = `${row.venue_name || ""} ${row.specials || ""} ${(row.tags || []).join(" ")}`.toLowerCase();
-  const tags = ["Happy hour", "Weekday deal"];
+  const tags = [];
   const add = (tag, pattern) => { if (pattern.test(text) && !tags.includes(tag)) tags.push(tag); };
   add("Cocktails", /cocktail|martini|margarita|spritz|old fashioned/);
+  add("Margaritas", /margarita/);
+  add("Spritzes", /spritz/);
+  add("Whiskey", /whiskey|old fashioned/);
+  add("Tequila", /tequila|paloma/);
   add("Wine", /wine|rosé|rose|bottle/);
   add("Beer", /beer|draft|lager|ipa|pint/);
-  add("Food deals", /food|snack|appetizer|small plate|burger|oyster|taco|pizza/);
+  add("Draft beer", /draft|lager|ipa|pint/);
+  add("Bites", /food|snack|appetizer|small plate|slider|grilled cheese|fries/);
+  add("Burgers", /burger/);
+  add("Tacos", /taco/);
+  add("Wings", /wing/);
+  add("Pizza", /pizza/);
   add("Oysters", /oyster/);
   add("Rooftop", /rooftop/);
   add("Patio", /patio|outdoor|terrace/);
-  add("Hotel bar", /hotel/);
+  add("Beer garden", /beer garden|wundergarten|brig/);
+  add("Karaoke", /karaoke/);
+  add("Arcade", /arcade/);
+  add("Billiards", /billiards/);
+  add("Late night", /late|11pm|midnight|\b2am\b/);
+  add("Half-price", /half\s*(?:off|price)|50%/);
   const startHour = Number(String(row.starts_at || "").slice(0, 2));
   if (startHour >= 18) tags.push("Evening");
   else if (startHour <= 16) tags.push("Early evening");
   else tags.push("After work");
-  return [...new Set([...tags, ...(row.tags || [])])].slice(0, 7);
+  return [...new Set([...tags, ...(row.tags || [])])]
+    .filter(tag => !["happy hour", "happy hours", "weekday deal", "sports", "sport"].includes(String(tag).toLowerCase()))
+    .slice(0, 7);
 }
 
 function normalizeSource(row) {

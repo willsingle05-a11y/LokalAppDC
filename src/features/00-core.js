@@ -227,6 +227,14 @@ function eventTagChips(event, limit = 3) {
   return eventTags(event).slice(0, limit).map(tag => `<span class="event-tag">${escapeHtml(tag)}</span>`).join("");
 }
 
+function eventPriceLabel(event) {
+  return String(event.cat || event.category || "").toLowerCase() === "happy-hours" ? "" : String(event.price || "");
+}
+
+function eventMetaLine(event) {
+  return [event.time, eventPriceLabel(event)].filter(Boolean).join(" / ");
+}
+
 function primaryEventTag(event) {
   return eventTags(event)[0] || event.tag || event.cat || "Local event";
 }
@@ -274,7 +282,7 @@ function eventRow(event) {
   const tags = eventTags(event);
   return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};">${eventArtScene(event)}<span class="art-label">${escapeHtml(eventArtLabel(event))}</span></span>
-    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
+    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${eventMetaLine(event)}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
   </button>`;
 }
 

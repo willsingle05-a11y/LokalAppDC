@@ -90,20 +90,37 @@ function timeRanges(value) {
   }).filter(Boolean);
 }
 
-function tagsFor(specials, startsAt, existing = []) {
-  const text = `${specials || ""} ${existing.join(" ")}`.toLowerCase();
-  const tags = ["Happy hour", "Weekday deal"];
+function tagsFor(specials, startsAt, venueName = "") {
+  const text = `${specials || ""} ${venueName || ""}`.toLowerCase();
+  const tags = [];
   const add = (tag, pattern) => { if (pattern.test(text)) tags.push(tag); };
   add("Cocktails", /cocktail|martini|margarita|spritz|daiquiri|mixed drink/);
+  add("Margaritas", /margarita/);
+  add("Spritzes", /spritz/);
+  add("Whiskey", /whiskey|old fashioned/);
+  add("Tequila", /tequila|paloma/);
   add("Wine", /wine|ros[eé]|bottle/);
   add("Beer", /beer|draft|lager|ipa|pint|cans?/);
-  add("Food deals", /food|apps?|snack|burger|taco|wing|slider|bites|pizza|grilled cheese|fries/);
+  add("Draft beer", /draft|lager|ipa|pint/);
+  add("Bites", /food|apps?|snack|slider|bites|grilled cheese|fries/);
+  add("Burgers", /burger/);
+  add("Tacos", /taco/);
+  add("Wings", /wing/);
+  add("Pizza", /pizza/);
   add("Shots", /shots?/);
   add("Pitchers", /pitcher/);
   add("Frozen drinks", /frozen/);
+  add("Rooftop", /rooftop|12 stories/);
+  add("Patio", /patio|terrace|outdoor/);
+  add("Beer garden", /beer garden|wundergarten|brig/);
+  add("Karaoke", /karaoke/);
+  add("Arcade", /arcade/);
+  add("Billiards", /billiards/);
+  add("Late night", /late|11pm|midnight|\b2am\b/);
+  add("Half-price", /half\s*(?:off|price)|50%/);
   const hour = Number(startsAt.slice(0, 2));
   tags.push(hour < 16 ? "Early evening" : hour >= 18 ? "Evening" : "After work");
-  return [...new Set(tags)].slice(0, 8);
+  return [...new Set(tags)].slice(0, 7);
 }
 
 function addressFromHeader(row) {
@@ -191,7 +208,7 @@ function parseFile(rows, file) {
           ends_at: range.end,
           specials,
           price_label: specials.match(/\$\d+(?:\.\d+)?/) ? `Specials from ${specials.match(/\$\d+(?:\.\d+)?/)[0]}` : "Happy hour specials",
-          tags: tagsFor(specials, range.start),
+          tags: tagsFor(specials, range.start, venue.name),
           source_url: venue.website ? (venue.website.startsWith("http") ? venue.website : `https://${venue.website}`) : "",
           source_name: file
         });
