@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 
 process.env.TZ = "America/New_York";
 
@@ -13,8 +13,10 @@ function localDateKey(date) {
 
 function isDcProper(row) {
   const address = String(row.venue_address || "").toLowerCase();
+  const neighborhood = String(row.neighborhood || "").toLowerCase();
   const excluded = /arlington|alexandria|bethesda|silver spring|national harbor|falls church|maryland|virginia|\bmd\b|\bva\b/;
-  return !excluded.test(address) && /washington|\bdc\b|\bd\.c\.\b|\b200\d{2}\b/.test(address);
+  const dcNeighborhoods = /dupont|navy yard|adams morgan|georgetown|logan circle|wharf|noma|columbia heights|capitol hill|shaw/;
+  return !excluded.test(address) && (/washington|\bdc\b|\bd\.c\.\b|\b200\d{2}\b/.test(address) || dcNeighborhoods.test(neighborhood));
 }
 
 function timeIsValid(value) {
@@ -46,13 +48,15 @@ function happyHourTags(row) {
 
 function normalizeSource(row) {
   const weekday = typeof row.weekday === "number" ? row.weekday : weekdayNames.indexOf(String(row.weekday || "").toLowerCase());
-  if (!row.venue_name || !row.venue_address || !row.source_url || weekday < 0 || weekday > 6 || !timeIsValid(row.starts_at) || !timeIsValid(row.ends_at) || row.is_active === false) return null;
-  if (!isDcProper(row)) return null;
+  const neighborhood = row.neighborhood?.trim() || "Washington, DC";
+  const venueAddress = row.venue_address?.trim() || `${neighborhood}, Washington, DC`;
+  if (!row.venue_name || weekday < 0 || weekday > 6 || !timeIsValid(row.starts_at) || !timeIsValid(row.ends_at) || row.is_active === false) return null;
+  if (!isDcProper({ venue_address: venueAddress, neighborhood })) return null;
   return {
     sourceKey: row.source_key || `${row.venue_name}-${weekday}-${row.starts_at}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
     venueName: row.venue_name.trim(),
-    venueAddress: row.venue_address.trim(),
-    neighborhood: row.neighborhood?.trim() || "Washington, DC",
+    venueAddress,
+    neighborhood,
     weekday,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
@@ -60,7 +64,7 @@ function normalizeSource(row) {
     specials: row.specials?.trim() || `Happy hour at ${row.venue_name.trim()}. See the venue source for current specials.`,
     price: row.price_label?.trim() || "Happy hour specials",
     tags: happyHourTags(row),
-    sourceUrl: row.source_url,
+    sourceUrl: row.source_url || null,
     sourceUpdatedAt: row.source_updated_at || null
   };
 }
@@ -73,6 +77,11 @@ function upcomingEventRows(source) {
     date.setDate(date.getDate() + dayOffset);
     if (date.getDay() !== source.weekday) continue;
     const iso = localDateKey(date);
+    const startsAt = `${iso}T${source.startsAt}:00-04:00`;
+    const crossesMidnight = source.endsAt <= source.startsAt;
+    const endDate = new Date(`${iso}T12:00:00`);
+    if (crossesMidnight) endDate.setDate(endDate.getDate() + 1);
+    const endsAt = `${localDateKey(endDate)}T${source.endsAt}:00-04:00`;
     rows.push({
       source: "happy-hours",
       external_id: `${source.sourceKey}-${iso}`,
@@ -87,6 +96,8 @@ function upcomingEventRows(source) {
       neighborhood: source.neighborhood,
       date: iso,
       time: `${formatClock(source.startsAt)} - ${formatClock(source.endsAt)}`,
+      starts_at: startsAt,
+      ends_at: endsAt,
       price: source.price,
       ticket_url: source.sourceUrl,
       external_url: source.sourceUrl,
@@ -100,9 +111,118 @@ function upcomingEventRows(source) {
   return rows;
 }
 
+function buildUpsertSql(eventRows) {
+  const json = JSON.stringify(eventRows).replace(/'/g, "''");
+  return `
+insert into public.events (
+  source, external_id, title, description, category, tag, tags, venue_name, venue,
+  venue_address, neighborhood, date, time, price, ticket_url, external_url, timezone,
+  is_free, status, last_seen_at, raw_json, starts_at, ends_at, is_recurring
+)
+select
+  item->>'source', item->>'external_id', item->>'title', item->>'description',
+  item->>'category', item->>'tag', array(select jsonb_array_elements_text(item->'tags')),
+  item->>'venue_name', item->>'venue', item->>'venue_address', item->>'neighborhood',
+  (item->>'date')::date, item->>'time', item->>'price', item->>'ticket_url',
+  item->>'external_url', item->>'timezone', coalesce((item->>'is_free')::boolean, false),
+  item->>'status', (item->>'last_seen_at')::timestamptz, item->'raw_json',
+  (item->>'starts_at')::timestamptz, (item->>'ends_at')::timestamptz, true
+from jsonb_array_elements('${json}'::jsonb) as item
+on conflict (source, external_id) do update set
+  title = excluded.title,
+  description = excluded.description,
+  category = excluded.category,
+  tag = excluded.tag,
+  tags = excluded.tags,
+  venue_name = excluded.venue_name,
+  venue = excluded.venue,
+  venue_address = excluded.venue_address,
+  neighborhood = excluded.neighborhood,
+  date = excluded.date,
+  time = excluded.time,
+  price = excluded.price,
+  ticket_url = excluded.ticket_url,
+  external_url = excluded.external_url,
+  timezone = excluded.timezone,
+  is_free = excluded.is_free,
+  status = excluded.status,
+  last_seen_at = excluded.last_seen_at,
+  raw_json = excluded.raw_json,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  is_recurring = true,
+  updated_at = now();
+`;
+}
+
+function buildScheduleUpsertSql(schedules) {
+  const rows = schedules.map(schedule => ({
+    source_key: schedule.sourceKey,
+    venue_name: schedule.venueName,
+    venue_address: schedule.venueAddress,
+    neighborhood: schedule.neighborhood,
+    weekday: schedule.weekday,
+    starts_at: schedule.startsAt,
+    ends_at: schedule.endsAt,
+    specials: schedule.specials,
+    price_label: schedule.price,
+    tags: schedule.tags,
+    source_url: schedule.sourceUrl,
+    source_name: "Lokal curated happy-hour CSV"
+  }));
+  const json = JSON.stringify(rows).replace(/'/g, "''");
+  return `
+insert into public.recurring_happy_hour_schedules (
+  source_key, venue_name, venue_address, neighborhood, weekday, starts_at, ends_at,
+  specials, price_label, tags, source_url, source_name
+)
+select
+  item->>'source_key', item->>'venue_name', item->>'venue_address', item->>'neighborhood',
+  (item->>'weekday')::smallint, (item->>'starts_at')::time, (item->>'ends_at')::time,
+  item->>'specials', item->>'price_label', array(select jsonb_array_elements_text(item->'tags')),
+  item->>'source_url', item->>'source_name'
+from jsonb_array_elements('${json}'::jsonb) as item
+on conflict (source_key) do update set
+  venue_name = excluded.venue_name,
+  venue_address = excluded.venue_address,
+  neighborhood = excluded.neighborhood,
+  weekday = excluded.weekday,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  specials = excluded.specials,
+  price_label = excluded.price_label,
+  tags = excluded.tags,
+  source_url = excluded.source_url,
+  source_name = excluded.source_name,
+  is_active = true,
+  updated_at = now();
+
+select public.refresh_recurring_happy_hour_events(60);
+`;
+}
+
 const sourceRows = JSON.parse(await readFile(sourceFile, "utf8"));
-const eventRows = sourceRows.map(normalizeSource).filter(Boolean).flatMap(upcomingEventRows);
+const schedules = sourceRows.map(normalizeSource).filter(Boolean);
+const eventRows = schedules.flatMap(upcomingEventRows);
 console.log(`Validated ${eventRows.length} upcoming DC happy-hour event rows from ${sourceRows.length} source rows.`);
+
+const sqlIndex = process.argv.indexOf("--sql");
+if (sqlIndex >= 0) {
+  const output = process.argv[sqlIndex + 1];
+  if (!output) throw new Error("Use --sql <output-file> to write the Supabase upsert query.");
+  await writeFile(output, buildUpsertSql(eventRows));
+  console.log(`Wrote ${output}.`);
+  process.exit(0);
+}
+
+const scheduleSqlIndex = process.argv.indexOf("--schedule-sql");
+if (scheduleSqlIndex >= 0) {
+  const output = process.argv[scheduleSqlIndex + 1];
+  if (!output) throw new Error("Use --schedule-sql <output-file> to write the recurring schedule upsert query.");
+  await writeFile(output, buildScheduleUpsertSql(schedules));
+  console.log(`Wrote ${output} for ${schedules.length} recurring schedules.`);
+  process.exit(0);
+}
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.log("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to upsert the validated events.");

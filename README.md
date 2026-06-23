@@ -185,10 +185,10 @@ profiles into the Friends search/list automatically when the app opens.
 ## Happy-hour data
 
 Add only currently verified, DC-proper listings to `data/happy-hours.json`.
-Each row needs the venue's official source URL, DC street address, weekday,
-and local start/end time. The import script expands the weekly rows into the
-next eight days of normal `events` entries, with `source = happy-hours` and
-`category = happy-hours`.
+Each row needs a weekday and local start/end time. A street address and venue
+URL are retained when known; neighborhood-scoped DC source sheets can omit
+them. The import script expands weekly rows into normal `events` entries with
+`source = happy-hours` and `category = happy-hours`.
 
 ```json
 [
@@ -207,7 +207,25 @@ next eight days of normal `events` entries, with `source = happy-hours` and
 ]
 ```
 
-To upsert verified rows:
+The long-lived recurring setup is in
+`supabase/sql/recurring-happy-hours.sql`. It stores schedules in
+`public.recurring_happy_hour_schedules`, materializes a rolling 60-day event
+window, and refreshes it daily via `pg_cron`.
+
+To parse uploaded spreadsheet-style CSV files into the source data:
+
+```powershell
+node .\tools\parse-happy-hour-csvs.mjs .\data\happy-hours.json <csv-file> [...more-csv-files]
+```
+
+To generate a schedule seed query for the linked Supabase project:
+
+```powershell
+node .\tools\import-happy-hours.mjs .\data\happy-hours.json --schedule-sql .\happy-hours-upsert.sql
+```
+
+The existing direct service-role upsert is still available for a short rolling
+window:
 
 ```powershell
 $env:SUPABASE_URL="https://iglzcjtklryapmcpyoam.supabase.co"
