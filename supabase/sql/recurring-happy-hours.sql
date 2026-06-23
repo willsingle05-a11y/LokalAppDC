@@ -34,7 +34,7 @@ begin
   insert into public.events (
     source, external_id, title, description, category, tag, tags, venue_name, venue,
     venue_address, neighborhood, date, time, price, ticket_url, external_url, timezone,
-    is_free, status, last_seen_at, raw_json, starts_at, ends_at, is_recurring
+    is_free, status, last_seen_at, raw_json, starts_at, ends_at, is_recurring, image_url
   )
   select
     'happy-hours',
@@ -51,8 +51,8 @@ begin
     occurrence.event_date,
     trim(to_char(schedule.starts_at, 'FMHH12:MI AM')) || ' - ' || trim(to_char(schedule.ends_at, 'FMHH12:MI AM')),
     schedule.price_label,
-    schedule.source_url,
-    schedule.source_url,
+    source.website_url,
+    source.website_url,
     'America/New_York',
     false,
     'published',
@@ -60,8 +60,23 @@ begin
     jsonb_build_object('happy_hour', true, 'source_name', schedule.source_name),
     ((occurrence.event_date + schedule.starts_at) at time zone 'America/New_York'),
     ((occurrence.event_date + schedule.ends_at + case when schedule.ends_at <= schedule.starts_at then interval '1 day' else interval '0 day' end) at time zone 'America/New_York'),
-    true
+    true,
+    case
+      when source.website_url is null or source.website_url = '' then null
+      else 'https://www.google.com/s2/favicons?domain=' || regexp_replace(source.website_url, '^https?://([^/]+).*$', '\1') || '&sz=256'
+    end
   from public.recurring_happy_hour_schedules schedule
+  left join lateral (
+    select venue.website_url
+    from public.venues venue
+    where lower(regexp_replace(venue.name, '[^a-z0-9]+', '', 'g')) = lower(regexp_replace(schedule.venue_name, '[^a-z0-9]+', '', 'g'))
+      and venue.website_url is not null
+      and venue.website_url <> ''
+    limit 1
+  ) venue_lookup on true
+  cross join lateral (
+    select coalesce(schedule.source_url, venue_lookup.website_url) as website_url
+  ) source
   cross join lateral (
     select local_today + day_offset as event_date
     from generate_series(0, greatest(days_ahead, 1)) as day_offset
@@ -91,6 +106,7 @@ begin
     starts_at = excluded.starts_at,
     ends_at = excluded.ends_at,
     is_recurring = true,
+    image_url = excluded.image_url,
     updated_at = now();
 
   get diagnostics rows_written = row_count;

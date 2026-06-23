@@ -496,6 +496,15 @@ function performingArtsDetailTags(row) {
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
+  if (category === "happy-hours") {
+    return [...rawTags, ...labels]
+      .map(normalizeTagValue)
+      .map(tag => String(tag || "").trim())
+      .filter(tag => tag && tag !== "[object Object]")
+      .filter(tag => !/^(happy hours?|weekday deal)$/i.test(tag) && !/sport/i.test(tag))
+      .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+      .slice(0, 8);
+  }
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
