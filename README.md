@@ -215,6 +215,19 @@ $env:SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 npm run import:happy-hours
 ```
 
+## Venue address verification
+
+The `public.venues` table stores the local venue directory independently from
+the app. To find missing street addresses from the venues' official websites,
+export the unresolved rows to JSON and run:
+
+```powershell
+node .\tools\resolve-venue-addresses.mjs unresolved-venues.json resolved-venues.json
+```
+
+Only rows with `status: "resolved"` and `confidence: "official-jsonld"` or
+`"official-page-text"` should be written back to Supabase.
+
 ## Design system
 
 Round 2 uses a warm local-editorial palette: paper cream, district green,
