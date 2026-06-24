@@ -27,8 +27,8 @@ function parseCsv(text) {
 const rows = parseCsv(await readFile(inputFile, "utf8"));
 const [header, ...data] = rows;
 const venueIndex = header.findIndex(value => value.trim().toLowerCase() === "venue");
-const imageIndex = header.findIndex(value => value.trim().toLowerCase() === "image url");
-if (venueIndex < 0 || imageIndex < 0) throw new Error("CSV needs Venue and Image Url columns.");
+const imageIndex = header.findIndex(value => ["image url", "image"].includes(value.trim().toLowerCase()));
+if (venueIndex < 0 || imageIndex < 0) throw new Error("CSV needs Venue and either Image Url or Image columns.");
 
 const images = data
   .map(row => ({ venue: String(row[venueIndex] || "").trim(), image_url: String(row[imageIndex] || "").trim() }))
