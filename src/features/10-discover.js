@@ -25,6 +25,7 @@ function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
   if (/music|concert|jazz|dj|karaoke/.test(text)) return "concerts";
   if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
+  if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/museum/.test(text)) return "museums";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
@@ -35,7 +36,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "happy-hours", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }

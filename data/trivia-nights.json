@@ -1,0 +1,1181 @@
+[
+  {
+    "source_key": "wunder-garten-mon-1900",
+    "venue_name": "Wunder Garten",
+    "venue_address": "NoMa, Washington, DC",
+    "neighborhood": "NoMa",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "District Trivia",
+    "description": "Trivia hosted by District Trivia. Team size: 35. Format: 5 rounds of questions with 4 bonus rounds.",
+    "tags": [
+      "District Trivia",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "red-bear-brewing-company-mon-1900",
+    "venue_name": "Red Bear Brewing Company",
+    "venue_address": "NoMa, Washington, DC",
+    "neighborhood": "NoMa",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "District Trivia",
+    "description": "Trivia hosted by District Trivia. Team size: 35. Format: 5 rounds of questions with 4 bonus rounds.",
+    "tags": [
+      "District Trivia",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "tap99-mon-1900",
+    "venue_name": "Tap99",
+    "venue_address": "Navy Yard, Washington, DC",
+    "neighborhood": "Navy Yard",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "District Trivia",
+    "description": "Trivia hosted by District Trivia.",
+    "tags": [
+      "District Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "the-wonderland-ballroom-mon-1930",
+    "venue_name": "The Wonderland Ballroom",
+    "venue_address": "Columbia Heights, Washington, DC",
+    "neighborhood": "Columbia Heights",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent. Team size: Unlimited team size but only teams 5 and under can win prizes.",
+    "tags": [
+      "Independent",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Facebook"
+  },
+  {
+    "source_key": "shaw-s-tavern-mon-1930",
+    "venue_name": "Shaw's Tavern",
+    "venue_address": "Shaw, Washington, DC",
+    "neighborhood": "Shaw",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent.",
+    "tags": [
+      "Independent"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "tonic-mon-1930",
+    "venue_name": "Tonic",
+    "venue_address": "Foggy Bottom, Washington, DC",
+    "neighborhood": "Foggy Bottom",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent. Prizes: Various",
+    "tags": [
+      "Independent",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Facebook"
+  },
+  {
+    "source_key": "breadsoda-mon-1900",
+    "venue_name": "Breadsoda",
+    "venue_address": "Glover Park, Washington, DC",
+    "neighborhood": "Glover Park",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 off their team’s tab 2nd place gets $15 off their team’s tab",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "dacha-mon-1900",
+    "venue_name": "Dacha",
+    "venue_address": "Navy Yard, Washington, DC",
+    "neighborhood": "Navy Yard",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Prizes: $50 gift card 2nd: A round of lagers 3rd: A giant pretzel Team size: Varies but typically around 6 and below. Format: 6 rounds 4 toss ups Halftime puzzle round Final round.",
+    "tags": [
+      "Cap City Trivia",
+      "Prizes",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "dew-drop-inn-mon-1930",
+    "venue_name": "Dew Drop Inn",
+    "venue_address": "Edgewood, Washington, DC",
+    "neighborhood": "Edgewood",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Dew Drop Trivia",
+    "description": "Trivia hosted by Dew Drop Trivia. Prizes: $50 gift card 2nd: $25 gift card Best Team Name: Round of drinks Last Place: Gets to pick a category for the next week's game",
+    "tags": [
+      "Dew Drop Trivia",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Facebook"
+  },
+  {
+    "source_key": "prost-mon-1930",
+    "venue_name": "Prost",
+    "venue_address": "Mount Vernon Triangle, Washington, DC",
+    "neighborhood": "Mount Vernon Triangle",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Geeks Who Drink",
+    "description": "Trivia hosted by Geeks Who Drink.",
+    "tags": [
+      "Geeks Who Drink"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "the-pub-the-people-mon-1900",
+    "venue_name": "The Pub & The People",
+    "venue_address": "Truxton Circle, Washington, DC",
+    "neighborhood": "Truxton Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Geeks Who Drink",
+    "description": "Trivia hosted by Geeks Who Drink.",
+    "tags": [
+      "Geeks Who Drink"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "suzie-q-s-mon-1900",
+    "venue_name": "Suzie Q's",
+    "venue_address": "Navy Yard, Washington, DC",
+    "neighborhood": "Navy Yard",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "J Street Trivia",
+    "description": "Trivia hosted by J Street Trivia.",
+    "tags": [
+      "J Street Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "songbyrd-mon-1800",
+    "venue_name": "Songbyrd",
+    "venue_address": "Union Market, Washington, DC",
+    "neighborhood": "Union Market",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "18:00",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent. Prizes: Usually vinyls and other promo materials sent to them by record labels",
+    "tags": [
+      "Independent",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "town-tavern-tue-2000",
+    "venue_name": "Town Tavern",
+    "venue_address": "Adams Morgan, Washington, DC",
+    "neighborhood": "Adams Morgan",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "20:00",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent. Prizes: Free drinks for everyone on winning team Last place team picks a round theme for next week's game Team size: 6. Format: 6.",
+    "tags": [
+      "Independent",
+      "Prizes",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "atlas-brew-works-navy-yard-tue-1900",
+    "venue_name": "Atlas Brew Works (Navy Yard)",
+    "venue_address": "Navy Yard, Washington, DC",
+    "neighborhood": "Navy Yard",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 Atlas Brew Works gift card Runner-ups get a six-pack of Atlas Beer",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "exiles-bar-tue-1900",
+    "venue_name": "Exiles Bar",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 Exiles gift card 2nd place gets $15 Exiles gift card",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "tryst-tue-1900",
+    "venue_name": "Tryst",
+    "venue_address": "Adams Morgan, Washington, DC",
+    "neighborhood": "Adams Morgan",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Team size: Varies but typically around 6 and below. Format: 6 rounds 4 toss ups Halftime puzzle round Final round.",
+    "tags": [
+      "Cap City Trivia",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "sudhouse-tue-1930",
+    "venue_name": "Sudhouse",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Prizes: $50 off your bar tab Team size: Varies but typically around 6 and below. Format: 6 rounds 4 toss ups Halftime puzzle round Final round.",
+    "tags": [
+      "Cap City Trivia",
+      "Prizes",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "electric-cool-aid-tue-1900",
+    "venue_name": "Electric Cool Aid",
+    "venue_address": "Shaw, Washington, DC",
+    "neighborhood": "Shaw",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Prizes: Various but typically drink tickets Team size: Varies but typically around 6 and below. Format: 6 rounds 4 toss ups Halftime puzzle round Final round.",
+    "tags": [
+      "Cap City Trivia",
+      "Prizes",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "open-city-tue-1900",
+    "venue_name": "Open City",
+    "venue_address": "Woodley Park, Washington, DC",
+    "neighborhood": "Woodley Park",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Team size: Varies but typically around 6 and below. Format: 6 rounds 4 toss ups Halftime puzzle round Final round.",
+    "tags": [
+      "Cap City Trivia",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "last-call-bar-tue-1900",
+    "venue_name": "Last Call Bar",
+    "venue_address": "Union Market, Washington, DC",
+    "neighborhood": "Union Market",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 off their team’s tab 2nd place gets $15 off their team’s tab",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "calico-tue-1900",
+    "venue_name": "Calico",
+    "venue_address": "Shaw, Washington, DC",
+    "neighborhood": "Shaw",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent. Prizes: $50 credit on their tab 2nd place: $20 tab credit 3rd place: Gets to request an upcoming theme",
+    "tags": [
+      "Independent",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Facebook"
+  },
+  {
+    "source_key": "sonny-s-pizza-tue-1900",
+    "venue_name": "Sonny's Pizza",
+    "venue_address": "Columbia Heights, Washington, DC",
+    "neighborhood": "Columbia Heights",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "J Street Trivia",
+    "description": "Trivia hosted by J Street Trivia.",
+    "tags": [
+      "J Street Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "barrel-house-tue-1900",
+    "venue_name": "Barrel House",
+    "venue_address": "Logan Circle, Washington, DC",
+    "neighborhood": "Logan Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "J Street Trivia",
+    "description": "Trivia hosted by J Street Trivia.",
+    "tags": [
+      "J Street Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "franklin-hall-tue-1900",
+    "venue_name": "Franklin Hall",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "District Trivia",
+    "description": "Trivia hosted by District Trivia. Prizes: $50 off your bar tab",
+    "tags": [
+      "District Trivia",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": null
+  },
+  {
+    "source_key": "jake-s-tavern-tue-1930",
+    "venue_name": "Jake's Tavern",
+    "venue_address": "Shaw, Washington, DC",
+    "neighborhood": "Shaw",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Shaw Showdown",
+    "description": "Trivia hosted by Shaw Showdown.",
+    "tags": [
+      "Shaw Showdown"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "kingfisher-dc-tue-2000",
+    "venue_name": "Kingfisher DC",
+    "venue_address": "Logan Circle, Washington, DC",
+    "neighborhood": "Logan Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "20:00",
+    "host": "Geeks Who Drink",
+    "description": "Trivia hosted by Geeks Who Drink. Team size: 6.",
+    "tags": [
+      "Geeks Who Drink",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "nanny-o-briens-irish-pub-tue-1930",
+    "venue_name": "Nanny O'Briens Irish Pub",
+    "venue_address": "Cleveland Park, Washington, DC",
+    "neighborhood": "Cleveland Park",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Trivia Kings",
+    "description": "Trivia hosted by Trivia Kings. Team size: Technically no limit but teams larger than 6 don't qualify for a prize.",
+    "tags": [
+      "Trivia Kings",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "american-ice-company-tue-1930",
+    "venue_name": "American Ice Company",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Trivia Kings",
+    "description": "Trivia hosted by Trivia Kings. Team size: Technically no limit but teams larger than 6 don't qualify for a prize.",
+    "tags": [
+      "Trivia Kings",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "kirwan-s-on-the-wharf-tue-1930",
+    "venue_name": "Kirwan's On The Wharf",
+    "venue_address": "Wharf, Washington, DC",
+    "neighborhood": "Wharf",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Trivia Kings",
+    "description": "Trivia hosted by Trivia Kings. Team size: Technically no limit but teams larger than 6 don't qualify for a prize.",
+    "tags": [
+      "Trivia Kings",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "trusty-s-tue-2000",
+    "venue_name": "Trusty's",
+    "venue_address": "Capitol Hill, Washington, DC",
+    "neighborhood": "Capitol Hill",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "20:00",
+    "host": "Trivia Kings",
+    "description": "Trivia hosted by Trivia Kings. Team size: Technically no limit but teams larger than 6 don't qualify for a prize.",
+    "tags": [
+      "Trivia Kings",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "union-pub-tue-1900",
+    "venue_name": "Union Pub",
+    "venue_address": "Capitol Hill, Washington, DC",
+    "neighborhood": "Capitol Hill",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Two Girls Trivia",
+    "description": "Trivia hosted by Two Girls Trivia. Prizes: 1st: Percentage off tab 2nd: Pitcher of Beer of Your Choice 3rd: Round of Mystery Shots Team size: 8. Format: 6 rounds of 5 questions; 2 lightning rounds (1 question with multiple answers).",
+    "tags": [
+      "Two Girls Trivia",
+      "Prizes",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "lulu-s-wine-garden-tue-1900",
+    "venue_name": "Lulu's Wine Garden",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Team size: Varies but typically around 6 and below. Format: 6 rounds 4 toss ups Halftime puzzle round Final round.",
+    "tags": [
+      "Cap City Trivia",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "conduit-road-public-house-tue-1800",
+    "venue_name": "Conduit Road Public House",
+    "venue_address": "Palisades, Washington, DC",
+    "neighborhood": "Palisades",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "18:00",
+    "host": "Pour House Trivia",
+    "description": "Trivia hosted by Pour House Trivia. Team size: Only team sizes of 7 and below are allowed to win prizes.",
+    "tags": [
+      "Pour House Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "mi-vida-restaurante-tue-1900",
+    "venue_name": "Mi Vida Restaurante",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Pour House Trivia",
+    "description": "Trivia hosted by Pour House Trivia. Team size: Only team sizes of 7 and below are allowed to win prizes.",
+    "tags": [
+      "Pour House Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "solace-outpost-tue-1900",
+    "venue_name": "Solace Outpost",
+    "venue_address": "Navy Yard, Washington, DC",
+    "neighborhood": "Navy Yard",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Pour House Trivia",
+    "description": "Trivia hosted by Pour House Trivia. Team size: Only team sizes of 7 and below are allowed to win prizes.",
+    "tags": [
+      "Pour House Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "present-company-tue-1900",
+    "venue_name": "Present Company",
+    "venue_address": "Mount Vernon Triangle, Washington, DC",
+    "neighborhood": "Mount Vernon Triangle",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Geeks Who Drink",
+    "description": "Trivia hosted by Geeks Who Drink.",
+    "tags": [
+      "Geeks Who Drink"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "boundary-stone-tue-1900",
+    "venue_name": "Boundary Stone",
+    "venue_address": "Shaw, Washington, DC",
+    "neighborhood": "Shaw",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Geeks Who Drink",
+    "description": "Trivia hosted by Geeks Who Drink.",
+    "tags": [
+      "Geeks Who Drink"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "muni-s-tue-1900",
+    "venue_name": "Muni's",
+    "venue_address": "Logan Circle, Washington, DC",
+    "neighborhood": "Logan Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "King Trivia",
+    "description": "Trivia hosted by King Trivia. Team size: None. Format: 7 rounds, including a Picture round, a Guess Who round, and General Knowledge rounds.",
+    "tags": [
+      "King Trivia",
+      "Team play",
+      "Picture round"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "the-brig-tue-2000",
+    "venue_name": "The Brig",
+    "venue_address": "Navy Yard, Washington, DC",
+    "neighborhood": "Navy Yard",
+    "recurrence_kind": "weekly",
+    "weekday": 2,
+    "ordinal_week": null,
+    "starts_at": "20:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Team size: Varies but typically around 6 and below.",
+    "tags": [
+      "Cap City Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "solly-s-wed-1900",
+    "venue_name": "Solly's",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent.",
+    "tags": [
+      "Independent"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": null
+  },
+  {
+    "source_key": "looking-glass-lounge-wed-1900",
+    "venue_name": "Looking Glass Lounge",
+    "venue_address": "Petworth, Washington, DC",
+    "neighborhood": "Petworth",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 off their team’s tab 2nd place gets $15 off their team’s tab",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "easy-tiger-tavern-wed-1900",
+    "venue_name": "Easy Tiger Tavern",
+    "venue_address": "Adams Morgan, Washington, DC",
+    "neighborhood": "Adams Morgan",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 Easy Tiger gift card 2nd place gets $15 Easy Tiger gift card",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "red-derby-wed-1900",
+    "venue_name": "Red Derby",
+    "venue_address": "Columbia Heights, Washington, DC",
+    "neighborhood": "Columbia Heights",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 off their team’s tab 2nd place gets $15 off their team’s tab",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "crooked-run-fermentation-wed-1900",
+    "venue_name": "Crooked Run Fermentation",
+    "venue_address": "Union Market, Washington, DC",
+    "neighborhood": "Union Market",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Team size: Varies but typically around 6 and below.",
+    "tags": [
+      "Cap City Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "big-bear-cafe-wed-1900",
+    "venue_name": "Big Bear Cafe",
+    "venue_address": "Bloomingdale, Washington, DC",
+    "neighborhood": "Bloomingdale",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "New Columbia Pub Quiz",
+    "description": "Trivia hosted by New Columbia Pub Quiz. Prizes: $50 gift certificate 2nd Place: $25 gift certificate Best Team Name: 4 bonus points automatically applied to your score next week Best Wrong Answer(s) - Something Awesome Team size: To win prizes, max team size of 8.",
+    "tags": [
+      "New Columbia Pub Quiz",
+      "Prizes",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "walter-s-wed-1900",
+    "venue_name": "Walter's",
+    "venue_address": "Navy Yard, Washington, DC",
+    "neighborhood": "Navy Yard",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Team size: Varies but typically around 6 and below.",
+    "tags": [
+      "Cap City Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "metrobar-wed-1900",
+    "venue_name": "Metrobar",
+    "venue_address": "Edgewood, Washington, DC",
+    "neighborhood": "Edgewood",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital Trivia",
+    "description": "Trivia hosted by Capital Trivia.",
+    "tags": [
+      "Capital Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "other-half-brewing-wed-1830",
+    "venue_name": "Other Half Brewing",
+    "venue_address": "Ivy City, Washington, DC",
+    "neighborhood": "Ivy City",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "18:30",
+    "host": "Capital Trivia",
+    "description": "Trivia hosted by Capital Trivia.",
+    "tags": [
+      "Capital Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "nellie-s-sports-bar-wed-1930",
+    "venue_name": "Nellie's Sports Bar",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "Out of Bounds Trivia",
+    "description": "Trivia hosted by Out of Bounds Trivia. Prizes: $30 2nd Place: $15 3rd Place: Free drink tickets Best Team Name: Free bucket of beer Team size: 8.",
+    "tags": [
+      "Out of Bounds Trivia",
+      "Prizes",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "roofer-s-union-wed-1930",
+    "venue_name": "Roofer's Union",
+    "venue_address": "Adams Morgan, Washington, DC",
+    "neighborhood": "Adams Morgan",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "District Trivia",
+    "description": "Trivia hosted by District Trivia.",
+    "tags": [
+      "District Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "stoney-s-on-p-wed-2000",
+    "venue_name": "Stoney's on P",
+    "venue_address": "Logan Circle, Washington, DC",
+    "neighborhood": "Logan Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "20:00",
+    "host": "Trivia Kings",
+    "description": "Trivia hosted by Trivia Kings. Team size: Technically no limit but teams larger than 6 don't qualify for a prize.",
+    "tags": [
+      "Trivia Kings",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "across-the-pond-wed-1930",
+    "venue_name": "Across the Pond",
+    "venue_address": "Dupont Circle, Washington, DC",
+    "neighborhood": "Dupont Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "District Trivia",
+    "description": "Trivia hosted by District Trivia.",
+    "tags": [
+      "District Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "henceforth-wed-1900",
+    "venue_name": "Henceforth,",
+    "venue_address": "H Street, Washington, DC",
+    "neighborhood": "H Street",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Two Girls Trivia",
+    "description": "Trivia hosted by Two Girls Trivia. Prizes: 1st: Entire tab for free Team size: 6. Format: 6 rounds of 5 questions; 2 lightning rounds (1 question with multiple answers).",
+    "tags": [
+      "Two Girls Trivia",
+      "Prizes",
+      "Team play",
+      "Bonus rounds"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "crown-crow-wed-1930",
+    "venue_name": "Crown & Crow",
+    "venue_address": "Logan Circle, Washington, DC",
+    "neighborhood": "Logan Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:30",
+    "host": "District Trivia",
+    "description": "Trivia hosted by District Trivia.",
+    "tags": [
+      "District Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": null
+  },
+  {
+    "source_key": "her-diner-wed-2000",
+    "venue_name": "Her Diner",
+    "venue_address": "Adams Morgan, Washington, DC",
+    "neighborhood": "Adams Morgan",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "20:00",
+    "host": "Smartass Trivia",
+    "description": "Trivia hosted by Smartass Trivia. Prizes: Two games, prizes for each game: $20 off tab/1st place, $15/2nd place, $10/3rd place, $10/best team name Team size: 8. Format: 2 games, 4 rounds each.",
+    "tags": [
+      "Smartass Trivia",
+      "Prizes",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "il-campione-wed-1900",
+    "venue_name": "Il Campione",
+    "venue_address": "Foggy Bottom, Washington, DC",
+    "neighborhood": "Foggy Bottom",
+    "recurrence_kind": "weekly",
+    "weekday": 3,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent. Prizes: 1st: $30 voucher for the bar 2nd:$15 voucher Team size: Only team sizes 6 and below are allowed to win first place. Format: 5 rounds (3 general knowledge, 1 theme round, 1 music round) plus a weekly picture round.",
+    "tags": [
+      "Independent",
+      "Prizes",
+      "Team play",
+      "Music round",
+      "Picture round"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Instagram"
+  },
+  {
+    "source_key": "whitlow-s-thu-1900",
+    "venue_name": "Whitlow's",
+    "venue_address": "U Street, Washington, DC",
+    "neighborhood": "U Street",
+    "recurrence_kind": "weekly",
+    "weekday": 4,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Pour House Trivia",
+    "description": "Trivia hosted by Pour House Trivia. Team size: Only team sizes of 7 and below are allowed to win prizes.",
+    "tags": [
+      "Pour House Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "atlas-brew-works-ivy-city-thu-1900",
+    "venue_name": "Atlas Brew Works (Ivy City)",
+    "venue_address": "Ivy City, Washington, DC",
+    "neighborhood": "Ivy City",
+    "recurrence_kind": "weekly",
+    "weekday": 4,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $50 Atlas Brew Works gift card Runner-ups get a six-pack of Atlas Beer",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "the-coupe-thu-1900",
+    "venue_name": "The Coupe",
+    "venue_address": "Columbia Heights, Washington, DC",
+    "neighborhood": "Columbia Heights",
+    "recurrence_kind": "weekly",
+    "weekday": 4,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Cap City Trivia",
+    "description": "Trivia hosted by Cap City Trivia. Team size: Varies but typically around 6 and below.",
+    "tags": [
+      "Cap City Trivia",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "jackie-lee-s-thu-2015",
+    "venue_name": "Jackie Lee's",
+    "venue_address": "Brightwood, Washington, DC",
+    "neighborhood": "Brightwood",
+    "recurrence_kind": "weekly",
+    "weekday": 4,
+    "ordinal_week": null,
+    "starts_at": "20:15",
+    "host": "Independent",
+    "description": "Trivia hosted by Independent. Prizes: $50 off tab 2nd place: round of shots Team size: 6.",
+    "tags": [
+      "Independent",
+      "Prizes",
+      "Team play"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": null
+  },
+  {
+    "source_key": "surfside-thu-2000",
+    "venue_name": "Surfside",
+    "venue_address": "Tenleytown, Washington, DC",
+    "neighborhood": "Tenleytown",
+    "recurrence_kind": "weekly",
+    "weekday": 4,
+    "ordinal_week": null,
+    "starts_at": "20:00",
+    "host": "J Street Trivia",
+    "description": "Trivia hosted by J Street Trivia. Format: 6 rounds of 10-12 questions.",
+    "tags": [
+      "J Street Trivia"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "queen-vic-sun-1800",
+    "venue_name": "Queen Vic",
+    "venue_address": "H Street, Washington, DC",
+    "neighborhood": "H Street",
+    "recurrence_kind": "weekly",
+    "weekday": 0,
+    "ordinal_week": null,
+    "starts_at": "18:00",
+    "host": "King Trivia",
+    "description": "Trivia hosted by King Trivia. Team size: None. Format: 7 rounds, including a Picture round, a Guess Who round, and General Knowledge rounds.",
+    "tags": [
+      "King Trivia",
+      "Team play",
+      "Picture round"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "lost-generation-brewing-company-sun-1900",
+    "venue_name": "Lost Generation Brewing Company",
+    "venue_address": "Eckington, Washington, DC",
+    "neighborhood": "Eckington",
+    "recurrence_kind": "weekly",
+    "weekday": 0,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Capital City Showcase",
+    "description": "Trivia hosted by Capital City Showcase. Prizes: $75 off their team’s tab 2nd place gets $25 off their team’s tab",
+    "tags": [
+      "Capital City Showcase",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  },
+  {
+    "source_key": "madhatter-mon-1900",
+    "venue_name": "Madhatter",
+    "venue_address": "Dupont Circle, Washington, DC",
+    "neighborhood": "Dupont Circle",
+    "recurrence_kind": "weekly",
+    "weekday": 1,
+    "ordinal_week": null,
+    "starts_at": "19:00",
+    "host": "Trivia Kings",
+    "description": "Trivia hosted by Trivia Kings. Prizes: 1st place: $20 2nd place: $10 3rd place: $5",
+    "tags": [
+      "Trivia Kings",
+      "Prizes"
+    ],
+    "source_name": "DC Trivia Spread Sheet",
+    "social_source": "Website"
+  }
+]

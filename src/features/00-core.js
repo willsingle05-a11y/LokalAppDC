@@ -60,7 +60,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife" };
+  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -68,7 +68,7 @@ function eventArtKind(event) {
   const tags = eventTags(event).join(" ").toLowerCase();
   const titleText = `${event.title || ""} ${event.venue || ""} ${event.cat || ""} ${tags}`.toLowerCase();
   let key = event.cat || "community";
-  if (key === "happy-hours") key = "nightlife";
+  if (["happy-hours", "trivia-nights"].includes(key)) key = "nightlife";
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(titleText)) return "museum";
   if (/run club|running|run\b|5k|10k|marathon|jog/.test(titleText)) return "run";
   if (/baseball|mlb|nationals|nats\b/.test(titleText)) return "baseball";
@@ -157,7 +157,7 @@ function seededConcertFallbackTags(seedText) {
 }
 
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours" };
+  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -228,7 +228,7 @@ function eventTagChips(event, limit = 3) {
 }
 
 function eventPriceLabel(event) {
-  return String(event.cat || event.category || "").toLowerCase() === "happy-hours" ? "" : String(event.price || "");
+  return ["happy-hours", "trivia-nights"].includes(String(event.cat || event.category || "").toLowerCase()) ? "" : String(event.price || "");
 }
 
 function eventMetaLine(event) {
@@ -256,7 +256,8 @@ function eventArtLabel(event) {
     community: "Community",
     expos: "Expo",
     nightlife: "Night out",
-    "happy-hours": "Happy hour"
+    "happy-hours": "Happy hour",
+    "trivia-nights": "Trivia night"
   };
   if (labels[category]) return labels[category];
   const tagText = eventTags(event).join(" ").toLowerCase();
@@ -402,13 +403,13 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 
