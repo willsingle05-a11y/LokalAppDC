@@ -10,12 +10,14 @@ create table if not exists public.recurring_happy_hour_schedules (
   price_label text not null,
   tags text[] not null default '{}',
   source_url text,
+  logo_url text,
   source_name text,
   is_active boolean not null default true,
   updated_at timestamptz not null default now()
 );
 
 alter table public.recurring_happy_hour_schedules enable row level security;
+alter table public.recurring_happy_hour_schedules add column if not exists logo_url text;
 
 create or replace function public.refresh_recurring_happy_hour_events(days_ahead integer default 60)
 returns integer
@@ -62,8 +64,8 @@ begin
     ((occurrence.event_date + schedule.ends_at + case when schedule.ends_at <= schedule.starts_at then interval '1 day' else interval '0 day' end) at time zone 'America/New_York'),
     true,
     case
-      when source.website_url is null or source.website_url = '' then null
-      else 'https://www.google.com/s2/favicons?domain=' || regexp_replace(source.website_url, '^https?://([^/]+).*$', '\1') || '&sz=256'
+      when schedule.logo_url is not null and schedule.logo_url <> '' then schedule.logo_url
+      else null
     end
   from public.recurring_happy_hour_schedules schedule
   left join lateral (

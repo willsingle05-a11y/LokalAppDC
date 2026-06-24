@@ -81,6 +81,7 @@ function normalizeSource(row) {
     price: row.price_label?.trim() || "Happy hour specials",
     tags: happyHourTags(row),
     sourceUrl: row.source_url || null,
+    logoUrl: row.logo_url || null,
     sourceUpdatedAt: row.source_updated_at || null
   };
 }
@@ -184,19 +185,20 @@ function buildScheduleUpsertSql(schedules) {
     price_label: schedule.price,
     tags: schedule.tags,
     source_url: schedule.sourceUrl,
+    logo_url: schedule.logoUrl,
     source_name: "Lokal curated happy-hour CSV"
   }));
   const json = JSON.stringify(rows).replace(/'/g, "''");
   return `
 insert into public.recurring_happy_hour_schedules (
   source_key, venue_name, venue_address, neighborhood, weekday, starts_at, ends_at,
-  specials, price_label, tags, source_url, source_name
+  specials, price_label, tags, source_url, logo_url, source_name
 )
 select
   item->>'source_key', item->>'venue_name', item->>'venue_address', item->>'neighborhood',
   (item->>'weekday')::smallint, (item->>'starts_at')::time, (item->>'ends_at')::time,
   item->>'specials', item->>'price_label', array(select jsonb_array_elements_text(item->'tags')),
-  item->>'source_url', item->>'source_name'
+  item->>'source_url', item->>'logo_url', item->>'source_name'
 from jsonb_array_elements('${json}'::jsonb) as item
 on conflict (source_key) do update set
   venue_name = excluded.venue_name,
@@ -209,6 +211,7 @@ on conflict (source_key) do update set
   price_label = excluded.price_label,
   tags = excluded.tags,
   source_url = excluded.source_url,
+  logo_url = excluded.logo_url,
   source_name = excluded.source_name,
   is_active = true,
   updated_at = now();

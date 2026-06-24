@@ -281,7 +281,7 @@ function eventRow(event) {
   const image = eventArtImage(event);
   const tags = eventTags(event);
   const artStyle = event.image
-    ? `background-image: linear-gradient(180deg, rgba(17,24,39,.02), rgba(17,24,39,.14)), ${image}; background-size: cover, 72%; background-repeat: no-repeat; background-position: center;`
+    ? `background-image: linear-gradient(180deg, rgba(17,24,39,.02), rgba(17,24,39,.14)), ${image}; background-size: cover, contain; background-repeat: no-repeat; background-position: center; background-color: #f7f2e9;`
     : `background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};`;
   return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <span class="event-art cat-${eventVisualCategory(event)}${event.image ? " has-logo" : ""}" style="${artStyle}">${event.image ? "" : eventArtScene(event)}<span class="art-label">${escapeHtml(eventArtLabel(event))}</span></span>
