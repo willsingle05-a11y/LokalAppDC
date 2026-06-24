@@ -1,5 +1,16 @@
 alter table public.venues add column if not exists image_url text;
 
+create or replace function public.venue_image_key(value text)
+returns text
+language sql
+immutable
+as $$
+  select regexp_replace(
+    regexp_replace(regexp_replace(lower(trim(coalesce(value, ''))), '^the ', ''), ' (bar|cafe|lounge|tavern)$', ''),
+    '[^a-z0-9]+', '', 'g'
+  );
+$$;
+
 create or replace function public.apply_venue_image_to_event()
 returns trigger
 language plpgsql
@@ -12,7 +23,7 @@ begin
     from public.venues venue
     where venue.image_url is not null
       and venue.image_url <> ''
-      and regexp_replace(lower(venue.name), '[^a-z0-9]+', '', 'g') = regexp_replace(lower(coalesce(new.venue_name, new.venue, '')), '[^a-z0-9]+', '', 'g')
+      and public.venue_image_key(venue.name) = public.venue_image_key(coalesce(new.venue_name, new.venue, ''))
     limit 1;
   end if;
   return new;
@@ -39,7 +50,7 @@ begin
   from public.venues venue
   where venue.image_url is not null
     and venue.image_url <> ''
-    and regexp_replace(lower(venue.name), '[^a-z0-9]+', '', 'g') = regexp_replace(lower(coalesce(event.venue_name, event.venue, '')), '[^a-z0-9]+', '', 'g')
+    and public.venue_image_key(venue.name) = public.venue_image_key(coalesce(event.venue_name, event.venue, ''))
     and event.image_url is distinct from venue.image_url;
   get diagnostics rows_updated = row_count;
   return rows_updated;

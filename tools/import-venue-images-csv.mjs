@@ -39,7 +39,7 @@ update public.venues venue
 set image_url = item->>'image_url',
     updated_at = now()
 from jsonb_array_elements('${json}'::jsonb) item
-where regexp_replace(lower(venue.name), '[^a-z0-9]+', '', 'g') = regexp_replace(lower(item->>'venue'), '[^a-z0-9]+', '', 'g');
+where public.venue_image_key(venue.name) = public.venue_image_key(item->>'venue');
 
 select public.refresh_venue_event_images();
 `;
