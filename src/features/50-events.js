@@ -1,8 +1,8 @@
-﻿function openDetail(id) {
+function openDetail(id) {
   const e = events.find(event => event.id === Number(id));
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${e.title}">
-    <div class="detail-hero cat-${e.cat}"><button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))} / ${e.area}</p><h1>${e.title}</h1></div>
-    <div class="detail-body"><p class="event-meta">${eventMetaLine(e)}</p><h2>${e.venue}</h2>
+    <div class="detail-hero cat-${e.cat}"><button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))}</p><h1>${e.title}</h1><span class="detail-location">${escapeHtml(eventLocationLine(e))}</span></div>
+    <div class="detail-body"><p class="event-meta">${eventMetaLine(e)}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
@@ -31,7 +31,7 @@ function openShareSheet(id) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
     <p class="eyebrow">Send a Lokal event</p><h2>Share ${e.title}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
-    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(e.venue)}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" · ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
+    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" · ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
     <div class="share-channel-grid">
       <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
       <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
@@ -45,7 +45,7 @@ function openShareSheet(id) {
 
 function shareMessageForEvent(event) {
   const price = eventPriceLabel(event);
-  return `Want to go to ${event.title}? ${event.time} at ${event.venue} in ${event.area}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
+  return `Want to go to ${event.title}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
 }
 
 function lokalEventShareUrl(event) {
@@ -57,7 +57,7 @@ function lokalEventSharePayload(event) {
     "Lokal event",
     event.title,
     eventMetaLine(event),
-    `${event.venue} / ${event.area}`,
+    eventLocationLine(event),
     eventTags(event).slice(0, 5).join(", "),
     lokalEventShareUrl(event)
   ].filter(Boolean).join("\n");

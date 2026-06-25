@@ -100,12 +100,12 @@ function groupSuggestedEvents(name, limit = 4) {
 
 function groupEventList(name) {
   const suggested = groupSuggestedEvents(name);
-  return suggested.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+  return suggested.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
 }
 
 function groupSharePicker(name) {
   const suggested = groupSuggestedEvents(name, 6);
-  return suggested.map(event => `<button class="interest-event" data-send-event="${event.id}" data-group-name="${escapeHtml(name)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+  return suggested.map(event => `<button class="interest-event" data-send-event="${event.id}" data-group-name="${escapeHtml(name)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
 }
 
 function currentUserName() {
@@ -212,7 +212,7 @@ function rankingContent() {
     return `<article class="ranking-card">
       <button class="rank-main" data-event="${event.id}">
         <span class="rank-number">${index + 1}</span>
-        <span class="rank-copy"><span class="rank-badge">${item.badge}</span><h3>${event.title}</h3><p>${event.time} / ${event.area}</p><small>${item.note}</small></span>
+        <span class="rank-copy"><span class="rank-badge">${item.badge}</span><h3>${event.title}</h3><p>${event.time} / ${escapeHtml(eventLocationLine(event))}</p><small>${item.note}</small></span>
         <span class="rank-score"><b>${item.score + (hyped ? 2 : 0)}</b><small>pulse</small></span>
       </button>
       <div class="rank-footer"><span>${item.trend}</span><button class="hype-button ${hyped ? "selected" : ""}" data-hype="${event.id}">${hyped ? "You're in" : "Want in"}</button></div>
@@ -281,7 +281,7 @@ function savedPlannerEvents(mode = "all") {
 function plannerList(plans, emptyText, statusLabel) {
   if (!plans.length) return `<p class="section-helper empty-planner">${emptyText}</p>`;
   return `<div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}">
-    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button>
+    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
     <div class="planner-actions"><span>${statusLabel}</span><button class="text-button" data-share="${event.id}">Share</button></div>
   </article>`).join("")}</div>`;
 }
@@ -318,7 +318,7 @@ function openCalendarPlans(iso) {
     return;
   }
   const date = new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your calendar</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button></article>`).join("")}</div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your calendar</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button></article>`).join("")}</div></section></div>`;
 }
 
 function friendInterestEvents(name, limit = 4) {
@@ -344,7 +344,7 @@ function openFriend(name) {
     <div class="friendship-status ${isFriend ? "" : "pending"}"><b>${isFriend ? "Friends" : "Not friends yet"}</b><p>${isFriend ? `${name} shares event interests with you.` : "Add them to see more profile activity in a full app."}</p></div>
     <div class="friend-profile-actions"><button class="secondary" data-share-profile="${name}">Share profile</button></div>
     <p class="eyebrow">Interested in</p><div class="chips profile-taste-chips">${tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("")}</div>
-    <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
+    <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
   </section></div>`;
 }
 
