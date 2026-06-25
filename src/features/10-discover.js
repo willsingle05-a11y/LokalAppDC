@@ -68,7 +68,7 @@ function renderDiscoverFeedContent(filtered) {
   const base = displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
   const rails = orderedDiscoverCategories()
     .map(category => [category, base.filter(event => matchesFilter(event, category))])
-    .filter(([, railEvents]) => railEvents.length);
+    .filter(([category, railEvents]) => railEvents.length || category === "museums");
   return `<div class="discovery-sections">${rails.map(([category, railEvents]) => discoverRail(category, railEvents)).join("")}</div>`;
 }
 

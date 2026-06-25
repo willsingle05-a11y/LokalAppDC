@@ -738,8 +738,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 
 .rail-title { display: grid; gap: 2px; min-width: 0; padding: 0; color: inherit; background: transparent; text-align: left; }
 .rail-title h3 { display: inline-flex; align-items: center; gap: 7px; }
-.rail-title h3::after { color: var(--green); content: "View all"; font-size: 10px; font-weight: 900; }
-.rail-title:disabled h3::after { content: ""; }
+.rail-title:not(:disabled) h3 { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .category-detail-heading { align-items: center; justify-content: flex-start; }
 .category-detail-heading .route-badge { margin-left: auto; }
 .back-button { display: inline-grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border-radius: 50%; color: var(--green); background: var(--green-soft); font-size: 18px; font-weight: 900; }
