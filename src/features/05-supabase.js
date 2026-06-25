@@ -342,12 +342,14 @@ function localDateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function discoveryWindowQueryParams() {
+function discoveryWindowQueries() {
   const start = new Date(startOfTodaySortValue());
   const end = new Date(endOfDiscoveryWindowSortValue());
-  const dateWindow = `and(date.gte.${localDateKey(start)},date.lte.${localDateKey(end)})`;
-  const startWindow = `and(starts_at.gte.${encodeURIComponent(start.toISOString())},starts_at.lte.${encodeURIComponent(end.toISOString())})`;
-  return `or=(${dateWindow},${startWindow})`;
+  const selectAndStatus = "select=*&status=eq.published";
+  return [
+    `${selectAndStatus}&date=gte.${localDateKey(start)}&date=lte.${localDateKey(end)}`,
+    `${selectAndStatus}&starts_at=gte.${encodeURIComponent(start.toISOString())}&starts_at=lte.${encodeURIComponent(end.toISOString())}`
+  ];
 }
 
 
@@ -573,11 +575,14 @@ async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   if (state.route === "home") renderHome();
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&${discoveryWindowQueryParams()}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
-      headers: { apikey: supabaseConfig.publishableKey }
-    });
-    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
-    const rows = await response.json();
+    const responses = await Promise.all(discoveryWindowQueries().map(query => fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
+      cache: "no-store",
+      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
+    })));
+    const failedResponse = responses.find(response => !response.ok);
+    if (failedResponse) throw new Error(`Supabase returned ${failedResponse.status}`);
+    const rowSets = await Promise.all(responses.map(response => response.json()));
+    const rows = [...new Map(rowSets.flat().map(row => [row.id, row])).values()];
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
       const normalized = dcRows.map(normalizeSupabaseEvent);
