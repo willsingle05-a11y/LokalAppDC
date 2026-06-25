@@ -153,7 +153,7 @@ function openPublicGroupDirectory() {
 function groupMessage(message) {
   if (message.type === "event") {
     const event = events.find(item => item.id === message.eventId);
-    return `<div class="message me event-message"><small>You shared an event / now</small><button class="message-event-link" data-event="${event.id}"><b>${event.title}</b><span>${event.time} / ${event.venue}</span><em>Open event &rarr;</em></button></div>`;
+    return `<div class="message me event-message"><small>You shared an event / now</small><button class="message-event-link" data-event="${event.id}"><b>${event.title}</b><span>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</span><em>Open event &rarr;</em></button></div>`;
   }
   return `<div class="message me">${message.text}<small>You / now</small></div>`;
 }
