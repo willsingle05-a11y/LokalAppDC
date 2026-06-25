@@ -260,8 +260,6 @@ function Convert-Event {
   $description = $description -replace '^Sourced from predicthq\.com\.?\s*', ''
   $description = $description.Trim()
   $address = Get-EventAddress $Event
-  if ($address -and $description -and -not $description.Contains($address)) { $description = "$description`n`nAddress: $address" }
-  if ($address -and -not $description) { $description = "Address: $address" }
   if (-not $description) { $description = $null }
 
   [ordered]@{

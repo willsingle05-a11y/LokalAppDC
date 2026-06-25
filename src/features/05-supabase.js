@@ -215,13 +215,33 @@ function isAddressOnlyVenue(value) {
   return /United States of America|Washington, DC 20|Street |Avenue |Road |Northwest|Northeast|Southwest|Southeast|^\d+\s/i.test(String(value || ""));
 }
 
+function extractLocationFromDescription(value) {
+  const description = cleanImportedText(value);
+  const details = { venue: "", address: "", description };
+  if (!description) return details;
+  const labeled = description.match(/(?:^|\n)\s*(address|location|where|venue)\s*:\s*([^\n\r]+)/i);
+  if (labeled) {
+    const label = labeled[1].toLowerCase();
+    const location = labeled[2].trim().replace(/[.;,]+$/g, "");
+    if (location) {
+      if (label === "address" || isAddressOnlyVenue(location)) details.address = location;
+      else details.venue = location;
+    }
+    details.description = description
+      .replace(new RegExp(`\\n?\\s*${labeled[1]}\\s*:\\s*${labeled[2].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*`, "i"), "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+  return details;
+}
+
 function rawEventApiAddress(row) {
-  return row.raw_json?.geo?.address?.formatted_address || row.raw_json?.entities?.find(entity => entity.formatted_address)?.formatted_address || "";
+  return row.raw_json?.geo?.address?.formatted_address || row.raw_json?.entities?.find(entity => entity.formatted_address)?.formatted_address || extractLocationFromDescription(row.description || row.desc).address || "";
 }
 
 function rawEventApiVenueName(row) {
   const entity = row.raw_json?.entities?.find(item => ["venue", "place"].includes(item.type) && item.name && !isAddressOnlyVenue(item.name));
-  return entity?.name || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
+  return entity?.name || extractLocationFromDescription(row.description || row.desc).venue || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
 }
 
 function rawImageUrl(value) {
@@ -256,9 +276,15 @@ function inferVenueNameFromText(value) {
 }
 
 function normalizeSupabaseVenue(row) {
+  const extracted = extractLocationFromDescription(row.description || row.desc);
   const venue = cleanImportedText(row.venue_name || row.venue || row.location_name || "");
-  if (row.source !== "manual" && isAddressOnlyVenue(venue)) return rawEventApiVenueName(row) || "Location in description";
-  return venue || rawEventApiVenueName(row) || "Location in description";
+  if (row.source !== "manual" && isAddressOnlyVenue(venue)) return rawEventApiVenueName(row) || extracted.venue || "Location in description";
+  return venue || rawEventApiVenueName(row) || extracted.venue || "Location in description";
+}
+
+function normalizeSupabaseArea(row) {
+  const extracted = extractLocationFromDescription(row.description || row.desc);
+  return row.neighborhood || row.area || row.location || extracted.address || "Washington, DC";
 }
 
 function supabaseLocationText(row) {
@@ -284,10 +310,8 @@ function isSupabaseEventInDc(row) {
 }
 
 function normalizeSupabaseDescription(row) {
-  const description = cleanSupabaseDescription(row.description || row.desc);
-  const address = rawEventApiAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
-  if (!address || description.includes(address)) return description;
-  return `${description}\n\nAddress: ${address}`;
+  const extracted = extractLocationFromDescription(row.description || row.desc);
+  return cleanSupabaseDescription(extracted.description);
 }
 
 function hasReliableSupabaseStart(row) {
@@ -559,7 +583,7 @@ function normalizeSupabaseEvent(row, index) {
     source: row.source || "manual",
     title: row.title || row.name || "Untitled Lokal event",
     venue: normalizeSupabaseVenue(row),
-    area: row.neighborhood || row.area || row.location || "Washington, DC",
+    area: normalizeSupabaseArea(row),
     time: hasReliableSupabaseStart(row) ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : "Ongoing / time varies",
     startDate: row.date || "",
     startHour: eventStartHourFromRow(row),

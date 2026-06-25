@@ -214,12 +214,10 @@ function convertEvent(event: PredictHqEvent) {
   const eventCategory = category(event.category);
   const tags = logicalTags(event, eventCategory, venueName);
   const address = eventAddress(event);
-  let description = String(event.description || "")
+  const description = String(event.description || "")
     .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
     .replace(/^Sourced from [\w.-]+(?:\.com)?\.?\s*/i, "")
     .trim();
-  if (address && description && !description.includes(address)) description = `${description}\n\nAddress: ${address}`;
-  if (address && !description) description = `Address: ${address}`;
   return {
     title: event.title || "Untitled event",
     description: description || null,

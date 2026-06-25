@@ -210,12 +210,8 @@ function cleanDescription(value) {
   return cleaned || null;
 }
 
-function descriptionWithAddress(event) {
-  const description = cleanDescription(event.description);
-  const address = eventAddress(event);
-  if (!address) return description;
-  if (description && description.includes(address)) return description;
-  return `${description || ""}${description ? "\n\n" : ""}Address: ${address}`;
+function descriptionWithoutEmbeddedLocation(event) {
+  return cleanDescription(event.description);
 }
 
 function normalizePredictHqEvent(event) {
@@ -228,7 +224,7 @@ function normalizePredictHqEvent(event) {
   const localDate = event.start_local || event.start;
   return {
     title: event.title || "Untitled event",
-    description: descriptionWithAddress(event) || event.phq_labels?.join(", ") || null,
+    description: descriptionWithoutEmbeddedLocation(event) || event.phq_labels?.join(", ") || null,
     category,
     tag: tags[0] || event.labels?.[0] || event.category || "Local event",
     tags,
