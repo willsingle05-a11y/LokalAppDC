@@ -338,6 +338,16 @@ function endOfDiscoveryWindowSortValue() {
   end.setHours(23, 59, 59, 999);
   return end.getTime();
 }
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function discoveryWindowDateParams() {
+  const start = new Date(startOfTodaySortValue());
+  const end = new Date(endOfDiscoveryWindowSortValue());
+  return `date=gte.${localDateKey(start)}&date=lte.${localDateKey(end)}`;
+}
+
 
 function isEventInDiscoveryWindow(event) {
   if (!Number.isFinite(event.startSort)) return true;
@@ -561,7 +571,7 @@ async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   if (state.route === "home") renderHome();
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&${discoveryWindowDateParams()}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
       headers: { apikey: supabaseConfig.publishableKey }
     });
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
