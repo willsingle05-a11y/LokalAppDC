@@ -276,6 +276,19 @@ function eventArtLabel(event) {
   return "Community";
 }
 
+function cleanLocationPart(value) {
+  const text = String(value || "").trim();
+  if (!text || /^location in description$/i.test(text) || /^undefined|null$/i.test(text)) return "";
+  return text;
+}
+
+function eventLocationLine(event) {
+  const venue = cleanLocationPart(event.venue);
+  const area = cleanLocationPart(event.area);
+  if (venue && area && venue.toLowerCase() !== area.toLowerCase()) return `${venue} / ${area}`;
+  return venue || area || "Washington, DC";
+}
+
 function eventRow(event) {
   const signal = eventInterestSignal(event);
   const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
@@ -287,7 +300,7 @@ function eventRow(event) {
     : `background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};`;
   return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <span class="event-art cat-${eventVisualCategory(event)}${event.image ? " has-logo" : ""}" style="${artStyle}">${event.image ? "" : eventArtScene(event)}<span class="art-label">${escapeHtml(eventArtLabel(event))}</span></span>
-    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${eventMetaLine(event)}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
+    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${eventMetaLine(event)}</span><h3>${event.title}</h3><p class="event-location">${escapeHtml(eventLocationLine(event))}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
   </button>`;
 }
 
