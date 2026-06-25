@@ -174,10 +174,12 @@ function startsAtIso(date, time) {
   return localAsUtc.toISOString();
 }
 
-function priceFields(value) {
+function priceFields(value, ticketLink = "") {
   const clean = String(value || "").trim();
+  const ticketText = String(ticketLink || "").trim();
   if (!clean) return { price: null, price_min: null, price_max: null, is_free: false };
-  if (/^free$/i.test(clean)) return { price: "Free", price_min: 0, price_max: null, is_free: true };
+  if (/^free$/i.test(clean) && !/buy\s*tickets?/i.test(ticketText)) return { price: "Free", price_min: 0, price_max: null, is_free: true };
+  if (/^free$/i.test(clean)) return { price: null, price_min: null, price_max: null, is_free: false };
   const prices = [...clean.matchAll(/\$?([0-9]+(?:\.[0-9]{1,2})?)/g)].map(match => Number(match[1])).filter(Number.isFinite);
   if (!prices.length) return { price: clean, price_min: null, price_max: null, is_free: false };
   return { price: clean.startsWith("$") ? clean : `$${clean}`, price_min: Math.min(...prices), price_max: prices.length > 1 ? Math.max(...prices) : null, is_free: false };
@@ -227,7 +229,7 @@ for (const row of data) {
   const start = startsAtIso(date, time);
   const venueLower = venue.toLowerCase();
   const category = concertVenues.has(venueKey) || concertVenues.has(venueLower) ? "concerts" : "live-music";
-  const prices = priceFields(row[col.Price]);
+  const prices = priceFields(row[col.Price], row[col["Ticket Link"]]);
   const soldOut = /^yes$/i.test(String(row[col["Sold Out"]] || "").trim());
   const external_id = `dc-music-live:${slug(`${title}-${date}-${time.label}-${venue}`)}`;
   included.push({

@@ -33,6 +33,7 @@ function formatSupabaseDateAndTime(dateValue, timeValue) {
 function rowIsExplicitlyFree(row) {
   const tags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
   const text = `${row.price || ""} ${row.price_label || ""} ${row.title || ""} ${row.description || ""} ${tags} ${row.raw_json?.description || ""} ${Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : ""}`.toLowerCase();
+  if (String(row.source || "").toLowerCase() === "dc-music-live") return /\b(free admission|free concert|free show|rsvp free|no cover)\b/.test(text);
   return row.is_free === true || /\b(free|no cover|complimentary|free admission)\b/.test(text);
 }
 
@@ -89,6 +90,7 @@ function formatListedPriceRange(range) {
 }
 
 function normalizeSupabasePriceFromRow(row) {
+  if (["concerts", "live-music"].includes(normalizeImportedCategory(row)) && String(row.source || "").toLowerCase() === "dc-music-live" && /^free$/i.test(String(row.price || row.raw_json?.source_price || "").trim())) return "Price unknown";
   const isExplicitlyFree = rowIsExplicitlyFree(row);
   const listedTicketmasterPrice = String(row.source || "").toLowerCase() === "ticketmaster" ? formatListedPriceRange(ticketmasterPriceRange(row)) : "";
   if (listedTicketmasterPrice) return listedTicketmasterPrice;
@@ -315,6 +317,7 @@ function normalizeSupabaseDescription(row) {
 }
 
 function hasReliableSupabaseStart(row) {
+  if (row.source === "smithsonian" && !row.raw_json && !row.date && !row.time && !row.start_time && !row.start_at) return false;
   if (row.date || row.time || row.start_time || row.start_at) return true;
   if (row.source === "smithsonian" && !row.raw_json) return false;
   return Boolean(row.starts_at);
