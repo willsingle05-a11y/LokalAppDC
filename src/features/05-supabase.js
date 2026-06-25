@@ -561,7 +561,7 @@ async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   if (state.route === "home") renderHome();
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast`, {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
       headers: { apikey: supabaseConfig.publishableKey }
     });
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
