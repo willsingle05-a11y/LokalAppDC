@@ -280,8 +280,10 @@ function inferVenueNameFromText(value) {
 function normalizeSupabaseVenue(row) {
   const extracted = extractLocationFromDescription(row.description || row.desc);
   const venue = cleanImportedText(row.venue_name || row.venue || row.location_name || "");
-  if (row.source !== "manual" && isAddressOnlyVenue(venue)) return rawEventApiVenueName(row) || extracted.venue || "Location in description";
-  return venue || rawEventApiVenueName(row) || extracted.venue || "Location in description";
+  const inferredVenue = rawEventApiVenueName(row) || extracted.venue || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
+  const genericVenue = isAddressOnlyVenue(venue) || (typeof isGenericLocationName === "function" && isGenericLocationName(venue));
+  if (row.source !== "manual" && genericVenue) return inferredVenue || venue || "Location in description";
+  return venue || inferredVenue || "Location in description";
 }
 
 function normalizeSupabaseArea(row) {

@@ -282,11 +282,28 @@ function cleanLocationPart(value) {
   return text;
 }
 
+function isGenericLocationName(value) {
+  return /^(washington,?\s*dc|dc|district of columbia|wharf|shaw|noma|downtown|national mall|u street|h street|navy yard|penn quarter|georgetown|dupont(?: circle)?|logan circle|adams morgan|capitol hill|columbia heights|petworth|brookland|ivy city|foggy bottom|waterfront|southwest|northeast|northwest|southeast|southwest)$/i.test(String(value || "").trim());
+}
+
+function venueFromEventDescription(event) {
+  const description = String(event?.desc || "").replace(/&amp;/g, "&").trim();
+  if (!description) return "";
+  const matches = [...description.matchAll(/\bat\s+([A-Z0-9][A-Za-z0-9&'\u2019.,+\- ]{2,80}?)(?:[.!?]|$)/g)];
+  for (const match of matches.reverse()) {
+    const candidate = cleanLocationPart(match[1].replace(/\s+/g, " ").replace(/[,.;:]+$/g, ""));
+    if (candidate && !isGenericLocationName(candidate) && !/^(the )?(source|event|show|door|venue)$/i.test(candidate)) return candidate;
+  }
+  return "";
+}
+
 function eventLocationLine(event) {
   const venue = cleanLocationPart(event.venue);
   const area = cleanLocationPart(event.area);
-  if (venue && area && venue.toLowerCase() !== area.toLowerCase()) return `${venue} / ${area}`;
-  return venue || area || "Washington, DC";
+  const describedVenue = venueFromEventDescription(event);
+  const displayVenue = (!venue || venue.toLowerCase() === area.toLowerCase() || isGenericLocationName(venue)) && describedVenue ? describedVenue : venue;
+  if (displayVenue && area && displayVenue.toLowerCase() !== area.toLowerCase()) return `${displayVenue} / ${area}`;
+  return displayVenue || area || "Washington, DC";
 }
 
 function eventRow(event) {
