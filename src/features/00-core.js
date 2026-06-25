@@ -228,7 +228,7 @@ function eventTagChips(event, limit = 3) {
 }
 
 function eventPriceLabel(event) {
-  return ["happy-hours", "trivia-nights"].includes(String(event.cat || event.category || "").toLowerCase()) ? "" : String(event.price || "");
+  return ["happy-hours", "trivia-nights", "museums"].includes(String(event.cat || event.category || "").toLowerCase()) ? "" : String(event.price || "");
 }
 
 function eventMetaLine(event) {

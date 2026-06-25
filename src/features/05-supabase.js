@@ -547,7 +547,7 @@ function normalizeSupabaseEvent(row, index) {
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
     hasPreciseStart: hasReliableSupabaseStart(row) && Boolean(row.starts_at || row.start_time || row.start_at),
-    price: ["happy-hours", "trivia-nights"].includes(category) ? "" : normalizeSupabasePriceFromRow(row),
+    price: ["happy-hours", "trivia-nights", "museums"].includes(category) ? "" : normalizeSupabasePriceFromRow(row),
     cat: category,
     tag: tags[0] || row.tag || row.category || "Local event",
     tags,
