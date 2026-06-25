@@ -1,4 +1,4 @@
-﻿/* Round 2: palette, typography, and feature overrides */
+/* Round 2: palette, typography, and feature overrides */
 body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .app-shell { overflow-x: hidden; overflow-y: visible; padding-bottom: 78px; }
 .bottom-nav { position: fixed; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -635,7 +635,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .planner-day span { color: var(--muted); font-size: 8px; font-weight: 900; text-transform: uppercase; }
 .planner-day b { color: #326f91; font-size: 15px; }
 .planner-day em { display: flex; justify-content: center; flex-wrap: wrap; gap: 2px; min-height: 12px; font-style: normal; }
-.planner-dot.concerts, .planner-legend i.concerts, .planner-day i.concerts { background: #00c897; }
+.planner-dot.concerts, .planner-legend i.concerts, .planner-day i.concerts, .planner-dot.live-music, .planner-legend i.live-music, .planner-day i.live-music { background: #00c897; }
 .planner-dot.nightlife, .planner-legend i.nightlife, .planner-day i.nightlife { background: #326f91; }
 .planner-dot.happy-hours, .planner-legend i.happy-hours, .planner-day i.happy-hours { background: #e26f4f; }
 .planner-dot.trivia-nights, .planner-legend i.trivia-nights, .planner-day i.trivia-nights { background: #4d8c8c; }

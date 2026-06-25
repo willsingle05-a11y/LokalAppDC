@@ -1,4 +1,4 @@
-﻿function activityCard(initials, copy, time) {
+function activityCard(initials, copy, time) {
   return `<div class="activity-card"><span class="avatar">${initials}</span><div><p>${copy}</p><span class="activity-time">${time}</span></div></div>`;
 }
 
@@ -137,7 +137,7 @@ function groupContent() {
   const archivedGroups = baseGroups.filter(item => ["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name) && !state.pinnedGroups.has(item.name));
   const moreGroups = state.showAllGroups ? archivedGroups.map(renderGroup).join("") : "";
   const publicCatalog = publicDirectoryNames().slice(0, 3).map(name => { const meta = publicGroupMeta[name]; return card(name,"Public",meta.count,meta.note,meta.icon,meta.style); }).join("");
-  return `<label class="search-box social-search"><span>⌕</span><input data-group-search placeholder="Search private or public groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("")}${moreGroups}</div><button class="text-button view-more-groups" data-view-more-groups>${state.showAllGroups ? "Show fewer groups" : "View more groups"}</button><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">You have joined all suggested public groups.</p>`}</div><button class="text-button see-more-public" data-see-more-public-groups>See more public groups</button><p class="search-empty" data-group-empty>No groups match that search.</p>`;
+  return `<label class="search-box social-search"><span>&#8981;</span><input data-group-search placeholder="Search private or public groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("")}${moreGroups}</div><button class="text-button view-more-groups" data-view-more-groups>${state.showAllGroups ? "Show fewer groups" : "View more groups"}</button><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">You have joined all suggested public groups.</p>`}</div><button class="text-button see-more-public" data-see-more-public-groups>See more public groups</button><p class="search-empty" data-group-empty>No groups match that search.</p>`;
 }
 
 function publicDirectoryCard(name) {
@@ -147,13 +147,13 @@ function publicDirectoryCard(name) {
 
 function openPublicGroupDirectory() {
   const groups = publicDirectoryNames();
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="All public groups"><button class="modal-close" aria-label="Close public groups">&times;</button><p class="eyebrow">Explore groups</p><h2>Public groups</h2><label class="search-box social-search"><span>⌕</span><input data-public-group-search placeholder="Search public groups" aria-label="Search public groups"></label><div class="community-grid public-directory">${groups.map(publicDirectoryCard).join("")}</div><p class="search-empty" data-public-group-empty>No public groups match that search.</p></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="All public groups"><button class="modal-close" aria-label="Close public groups">&times;</button><p class="eyebrow">Explore groups</p><h2>Public groups</h2><label class="search-box social-search"><span>&#8981;</span><input data-public-group-search placeholder="Search public groups" aria-label="Search public groups"></label><div class="community-grid public-directory">${groups.map(publicDirectoryCard).join("")}</div><p class="search-empty" data-public-group-empty>No public groups match that search.</p></section></div>`;
 }
 
 function groupMessage(message) {
   if (message.type === "event") {
     const event = events.find(item => item.id === message.eventId);
-    return `<div class="message me event-message"><small>You shared an event / now</small><button class="message-event-link" data-event="${event.id}"><b>${event.title}</b><span>${event.time} / ${event.venue}</span><em>Open event →</em></button></div>`;
+    return `<div class="message me event-message"><small>You shared an event / now</small><button class="message-event-link" data-event="${event.id}"><b>${event.title}</b><span>${event.time} / ${event.venue}</span><em>Open event &rarr;</em></button></div>`;
   }
   return `<div class="message me">${message.text}<small>You / now</small></div>`;
 }
@@ -180,13 +180,13 @@ function openGroup(name) {
     <div class="group-detail-actions"><button class="secondary" data-invite data-group-name="${name}">+ Invite people</button><button class="secondary" data-share-group-event="${name}">+ Share event</button></div>
     <p class="eyebrow group-divider">Messages</p><div class="message-list">${(state.groupMessages[name] || []).map(groupMessage).join("") || `<p class="message-empty">No messages yet. Share an event or start the conversation.</p>`}</div><div class="message-compose"><input data-message placeholder="Message the group" aria-label="Message the group"><button class="primary" data-send-message data-group-name="${name}">Send</button></div>
     <p class="eyebrow group-divider">${isEventChat ? "Plan options" : "Suggested events"}</p><div class="interest-list">${eventList}</div>
-    <button class="options-button" data-group-options="${name}">•••</button>
+    <button class="options-button" data-group-options="${name}">&bull;&bull;&bull;</button>
   </section></div>`;
 }
 
 function openInvite(name = "Friday crew") {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal invite-sheet" role="dialog" aria-modal="true" aria-label="Invite people"><button class="modal-close" aria-label="Close invite">&times;</button><button class="text-button" data-back-group="${name}">← Back to group</button><p class="eyebrow">Invite people</p><h2>Share ${name}.</h2><label class="settings-field">Invite URL<input value="https://lokal.app/join/${slug}" readonly></label><button class="wide-button" data-copy-invite>Copy invite link</button><label class="search-box social-search"><span>⌕</span><input data-invite-people-search data-group-name="${name}" placeholder="Search friends" aria-label="Search invite friends"></label><div class="autocomplete invite-autocomplete" data-invite-people-results hidden></div><div class="selected-group-friends" data-selected-invite-people></div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal invite-sheet" role="dialog" aria-modal="true" aria-label="Invite people"><button class="modal-close" aria-label="Close invite">&times;</button><button class="text-button" data-back-group="${name}">&larr; Back to group</button><p class="eyebrow">Invite people</p><h2>Share ${name}.</h2><label class="settings-field">Invite URL<input value="https://lokal.app/join/${slug}" readonly></label><button class="wide-button" data-copy-invite>Copy invite link</button><label class="search-box social-search"><span>&#8981;</span><input data-invite-people-search data-group-name="${name}" placeholder="Search friends" aria-label="Search invite friends"></label><div class="autocomplete invite-autocomplete" data-invite-people-results hidden></div><div class="selected-group-friends" data-selected-invite-people></div></section></div>`;
 }
 
 function openCreateGroup() {
@@ -223,7 +223,7 @@ function rankingContent() {
 function friendsContent() {
   const myFriends = friendDirectory.filter(friend => state.friends.has(friend[1])).slice(0, 5);
   const suggestions = friendDirectory.filter(friend => !state.friends.has(friend[1])).slice(0, 5);
-  return `<label class="search-box social-search"><span>⌕</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label>
+  return `<label class="search-box social-search"><span>&#8981;</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label>
   <p class="eyebrow">My friends</p><div class="follow-list">${myFriends.map(friend => friendCard(friend)).join("")}</div><button class="text-button see-all-friends" data-see-all-friends>See all friends</button>
   <p class="eyebrow group-divider">Find adventure partners</p><div class="follow-list">${suggestions.map(friend => friendCard(friend, "add")).join("") || `<p class="section-helper">You have added everyone suggested for now.</p>`}</div><p class="search-empty" data-friend-empty>No people match that search.</p>`;
 }
@@ -232,7 +232,7 @@ function directMessageRow(name) {
   const friend = friendDirectory.find(item => item[1] === name) || ["FR", name, "@lokalfriend", ""];
   const messages = state.directMessages[name] || [];
   const latest = messages[messages.length - 1];
-  return `<button class="direct-chat-row" data-open-direct-chat="${name}"><span class="avatar">${friend[0]}</span><span><b>${name}</b><small>${latest ? latest.text : "Start a conversation"}</small></span><em>›</em></button>`;
+  return `<button class="direct-chat-row" data-open-direct-chat="${name}"><span class="avatar">${friend[0]}</span><span><b>${name}</b><small>${latest ? latest.text : "Start a conversation"}</small></span><em>&rsaquo;</em></button>`;
 }
 
 function openDirectInbox() {
@@ -242,7 +242,7 @@ function openDirectInbox() {
 
 function openDirectChat(name) {
   const messages = state.directMessages[name] || [];
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet direct-chat-sheet" role="dialog" aria-modal="true" aria-label="${name} chat"><button class="modal-close" aria-label="Close ${name} chat">&times;</button><button class="text-button" data-direct-inbox>← All messages</button><p class="eyebrow">Direct message</p><h2>${name}</h2><div class="direct-chat-messages">${messages.map(message => `<div class="message ${message.from === "You" ? "me" : ""}">${message.text}<small>${message.from} / now</small></div>`).join("") || `<p class="message-empty">No messages yet. Start the conversation.</p>`}</div><div class="message-compose"><input data-direct-message data-friend-name="${name}" placeholder="Message ${name}" aria-label="Message ${name}"><button class="primary" data-send-direct-message="${name}">Send</button></div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet direct-chat-sheet" role="dialog" aria-modal="true" aria-label="${name} chat"><button class="modal-close" aria-label="Close ${name} chat">&times;</button><button class="text-button" data-direct-inbox>&larr; All messages</button><p class="eyebrow">Direct message</p><h2>${name}</h2><div class="direct-chat-messages">${messages.map(message => `<div class="message ${message.from === "You" ? "me" : ""}">${message.text}<small>${message.from} / now</small></div>`).join("") || `<p class="message-empty">No messages yet. Start the conversation.</p>`}</div><div class="message-compose"><input data-direct-message data-friend-name="${name}" placeholder="Message ${name}" aria-label="Message ${name}"><button class="primary" data-send-direct-message="${name}">Send</button></div></section></div>`;
 }
 
 function openAllFriends() {
@@ -301,7 +301,7 @@ function plannerCalendar(plans) {
     days.push({ date: new Date(date), iso, plans: dayPlans });
   }
   return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
-  <div class="planner-legend">${["concerts","happy-hours","trivia-nights","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
+  <div class="planner-legend">${["concerts","live-music","happy-hours","trivia-nights","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
     const disabled = !day.plans.length;
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });

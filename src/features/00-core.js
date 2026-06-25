@@ -1,4 +1,4 @@
-﻿const icons = {
+const icons = {
   compass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="m15.4 8.6-2.1 4.7-4.7 2.1 2.1-4.7 4.7-2.1Z"/></svg>',
   map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18-6 3V6l6-3 6 3 6-3v15l-6 3-6-3Z"/><path d="M9 3v15M15 6v15"/></svg>',
   spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/><path d="m19 17 .7 2.3L22 20l-2.3.7L19 23l-.7-2.3L16 20l2.3-.7L19 17Z"/></svg>',
@@ -60,7 +60,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -157,7 +157,7 @@ function seededConcertFallbackTags(seedText) {
 }
 
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -165,7 +165,7 @@ function eventTags(event) {
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
-  if (String(event.cat || "").toLowerCase() === "concerts") {
+  if (["concerts", "live-music"].includes(String(event.cat || "").toLowerCase())) {
     const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
     const inferred = [];
     const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
@@ -178,7 +178,7 @@ function eventTags(event) {
     add("Indie", /indie|alt[- ]|alternative|of montreal|son little|bixby|flawed mangoes/);
     add("Folk", /folk|americana|singer[- ]songwriter|josiah and the bonnevilles|orville peck/);
     add("Country", /music - country|country music|orville peck|kolby cooper/);
-    add("Electronic", /electronic|edm|dance music|dj set|rufus|rüfüs|echostage|soundcheck/);
+    add("Electronic", /electronic|edm|dance music|dj set|rufus|r.f.s|echostage|soundcheck/);
     add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel/);
     add("Soul", /soul|funk|big freedia|tank and the bangas/);
     add("DJ Set", /\bdj\b|deejay|turntable|vinyl/);
@@ -244,6 +244,7 @@ function eventArtLabel(event) {
   const labels = {
     music: "Concert",
     concerts: "Concert",
+    "live-music": "Live music",
     art: "Arts",
     "performing-arts": "Arts",
     museums: "Museums",
@@ -403,13 +404,13 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 

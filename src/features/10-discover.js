@@ -1,4 +1,4 @@
-﻿function renderHome() {
+function renderHome() {
   const dcEvents = displayableDcEvents();
   const filtered = dcEvents.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
@@ -7,7 +7,7 @@
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
-    <label class="search-box"><span>⌕</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <label class="search-box"><span>&#8981;</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     <p class="eyebrow">Following</p><div class="following-rail">${activeFollowingStories().map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
@@ -23,7 +23,8 @@ function discoverCategoryLabel(category) {
 
 function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
-  if (/music|concert|jazz|dj|karaoke/.test(text)) return "concerts";
+  if (/concert/.test(text)) return "concerts";
+  if (/music|jazz|dj|karaoke/.test(text)) return "live-music";
   if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
@@ -36,7 +37,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
@@ -236,7 +237,7 @@ function openStory(index) {
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.name}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
     <div class="event-stack">${storyEvents.map(eventRow).join("")}</div>
-    <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">← Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next →</button></div>
+    <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }
 

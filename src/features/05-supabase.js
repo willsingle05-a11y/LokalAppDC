@@ -359,7 +359,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights"]);
+  const importedCategories = new Set(["concerts", "live-music", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -382,6 +382,8 @@ function normalizeImportedCategory(row) {
     soccer: "sports",
     museum: "museums",
     museums: "museums",
+    "live music": "live-music",
+    "live-music": "live-music",
     rock: "concerts",
     pop: "concerts",
     "r&b": "concerts",
@@ -392,6 +394,7 @@ function normalizeImportedCategory(row) {
     "dance/electronic": "concerts",
     religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
   };
+  if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
   if (/comedy|comedian|stand[- ]?up|improv/.test(classificationText)) return "performing-arts";
   if (/sports|baseball|basketball|football|hockey|soccer/.test(classificationText)) return "sports";
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
@@ -404,12 +407,13 @@ function normalizeImportedCategory(row) {
   if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
   if (importedCategories.has(directCategory)) return directCategory;
   if (/signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera|stage play|pippin|what became of us/.test(text)) return "performing-arts";
-  if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
+  if (/concert/.test(text)) return "concerts";
+  if (/music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "live-music";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "expos";
   if (/showcase/.test(text)) return "performing-arts";
-  if (/band|artist|singer|songwriter/.test(text)) return "concerts";
+  if (/band|artist|singer|songwriter/.test(text)) return "live-music";
   if (row.source !== "manual" && importedCategories.has(tag) && tag !== "community") return tag;
   return "community";
 }
@@ -523,10 +527,10 @@ function normalizeSupabaseTags(row, category) {
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", "happy-hours": "", "trivia-nights": "" };
+  const categoryLabels = { concerts: "", "live-music": "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", "happy-hours": "", "trivia-nights": "" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
-  if (category === "concerts") inferredTags.push(...concertDetailTags(row));
+  if (["concerts", "live-music"].includes(category)) inferredTags.push(...concertDetailTags(row));
   if (/theatre|theater|performance art|performing|arts & theatre|gallery|art|exhibit|exhibition|musical|opera/.test(text)) inferredTags.push("Arts");
   if (/comedy|stand up|stand-up|improv/.test(text)) inferredTags.push("Comedy");
   if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
@@ -540,7 +544,7 @@ function normalizeSupabaseTags(row, category) {
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
-    .filter(tag => category !== "concerts" || !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()))
+    .filter(tag => !["concerts", "live-music"].includes(category) || !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()))
     .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, 8);
