@@ -26,15 +26,62 @@ function parseCsv(text) {
 
 const rows = parseCsv(await readFile(inputFile, "utf8"));
 const [header, ...data] = rows;
-const venueIndex = header.findIndex(value => value.trim().toLowerCase() === "venue");
-const imageIndex = header.findIndex(value => ["image url", "image"].includes(value.trim().toLowerCase()));
-if (venueIndex < 0 || imageIndex < 0) throw new Error("CSV needs Venue and either Image Url or Image columns.");
+const normalizedHeader = header.map(value => value.trim().toLowerCase());
+const venueIndex = normalizedHeader.findIndex(value => ["venue", "name"].includes(value));
+const addressIndex = normalizedHeader.findIndex(value => value === "address");
+const priceIndex = normalizedHeader.findIndex(value => value === "price");
+const imageIndex = normalizedHeader.findIndex(value => ["image url", "image"].includes(value));
+if (venueIndex < 0 || imageIndex < 0) throw new Error("CSV needs Venue/Name and either Image Url or Image columns.");
 
 const images = data
-  .map(row => ({ venue: String(row[venueIndex] || "").trim(), image_url: String(row[imageIndex] || "").trim() }))
+  .map(row => ({
+    venue: String(row[venueIndex] || "").trim(),
+    address: addressIndex >= 0 ? String(row[addressIndex] || "").trim() : "",
+    price: priceIndex >= 0 ? String(row[priceIndex] || "").trim() : "",
+    image_url: String(row[imageIndex] || "").trim()
+  }))
   .filter(row => row.venue && /^(data:image\/(jpeg|jpg|png|webp);base64,|https?:\/\/)/i.test(row.image_url));
 const json = JSON.stringify(images).replace(/'/g, "''");
 const sql = `
+insert into public.venues (
+  name,
+  address,
+  venue_type,
+  neighborhood,
+  source_name,
+  source_key,
+  raw_data,
+  image_url,
+  imported_at,
+  created_at,
+  updated_at
+)
+select
+  item->>'venue',
+  nullif(item->>'address', ''),
+  case when nullif(item->>'address', '') is not null then 'museum' else null end,
+  case when nullif(item->>'address', '') is not null then 'DC' else null end,
+  case when nullif(item->>'address', '') is not null then 'Lokal museum venue import' else 'Lokal venue image import' end,
+  'venue:' || public.venue_image_key(item->>'venue'),
+  jsonb_strip_nulls(jsonb_build_object(
+    'address', nullif(item->>'address', ''),
+    'price', nullif(item->>'price', '')
+  )),
+  item->>'image_url',
+  now(),
+  now(),
+  now()
+from jsonb_array_elements('${json}'::jsonb) item
+where nullif(item->>'address', '') is not null
+on conflict (source_key) do update
+set address = coalesce(excluded.address, public.venues.address),
+    venue_type = coalesce(excluded.venue_type, public.venues.venue_type),
+    neighborhood = coalesce(excluded.neighborhood, public.venues.neighborhood),
+    source_name = excluded.source_name,
+    raw_data = public.venues.raw_data || excluded.raw_data,
+    image_url = excluded.image_url,
+    updated_at = now();
+
 update public.venues venue
 set image_url = item->>'image_url',
     updated_at = now()
