@@ -1,12 +1,14 @@
-﻿document.addEventListener("click", async event => {
+document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
   const t = event.target.closest("button");
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  if (t.dataset.route) { mark(); setRoute(t.dataset.route); }
-  if (t.dataset.homeFilter) { state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; setRoute(t.dataset.route); }
+  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
+  if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
+  if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; renderHome(); }
   if (t.dataset.event) { mark(); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.save) {
@@ -330,4 +332,3 @@ syncSupabaseGroups();
 updateProfileShortcut();
 checkPhoneSignupStatus();
 showWelcomeBanner();
-

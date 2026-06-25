@@ -735,3 +735,15 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-weight: 900;
 }
 
+
+.rail-title { display: grid; gap: 2px; min-width: 0; padding: 0; color: inherit; background: transparent; text-align: left; }
+.rail-title h3 { display: inline-flex; align-items: center; gap: 7px; }
+.rail-title h3::after { color: var(--green); content: "View all"; font-size: 10px; font-weight: 900; }
+.rail-title:disabled h3::after { content: ""; }
+.category-detail-heading { align-items: center; justify-content: flex-start; }
+.category-detail-heading .route-badge { margin-left: auto; }
+.back-button { display: inline-grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border-radius: 50%; color: var(--green); background: var(--green-soft); font-size: 18px; font-weight: 900; }
+.category-list-page .category-event-list { display: grid; gap: 12px; margin: 14px 0 0; padding: 0; overflow: visible; }
+.category-list-page .event-row { grid-template-columns: 116px 1fr; min-height: 0; }
+.category-list-page .event-art { min-height: 116px; }
+.category-list-page .event-copy { min-height: 0; }

@@ -1,4 +1,5 @@
 function renderHome() {
+  if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
   const filtered = dcEvents.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
@@ -21,6 +22,15 @@ function discoverCategoryLabel(category) {
   return item ? item[1] : category;
 }
 
+
+function renderDiscoverCategoryPage(category) {
+  const label = discoverCategoryLabel(category);
+  const categoryEvents = displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart);
+  app.innerHTML = `<section class="page category-list-page">
+    <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><p class="eyebrow">Browse by category</p><h1>${escapeHtml(label)}</h1></div><span class="route-badge">${categoryEvents.length} event${categoryEvents.length === 1 ? "" : "s"}</span></div>
+    <div class="event-stack category-event-list">${categoryEvents.length ? categoryEvents.map(eventRow).join("") : `<p class="section-helper">No events in this category right now.</p>`}</div>
+  </section>`;
+}
 function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
   if (/concert/.test(text)) return "concerts";
@@ -46,7 +56,7 @@ function discoverRail(category, railEvents) {
   const sorted = railEvents.sort(sortEventsByStart);
   const emptyText = category === "for-you" ? "No events matched that search yet." : "No events in this section yet.";
   return `<section class="discover-rail" data-discover-rail="${category}">
-    <div class="rail-heading"><div><p class="eyebrow">${category === "for-you" ? "Search results" : "Browse by category"}</p><h3>${escapeHtml(discoverCategoryLabel(category))}</h3></div><span>${sorted.length}</span></div>
+    <div class="rail-heading"><button class="rail-title" data-discover-category="${category}" ${category === "for-you" ? "disabled" : ""}><p class="eyebrow">${category === "for-you" ? "Search results" : "Browse by category"}</p><h3>${escapeHtml(discoverCategoryLabel(category))}</h3></button><span>${sorted.length}</span></div>
     <div class="event-stack">${sorted.length ? sorted.map(eventRow).join("") : `<p class="section-helper">${emptyText}</p>`}</div>
   </section>`;
 }
@@ -85,7 +95,7 @@ function renderDiscoverEventSearch(query) {
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
-  const dcEvents = displayableDcEvents();
+  const dcEvents = displayableDcEvents().filter(event => matchesFilter(event, "all"));
   const pool = normalizedQuery
     ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
     : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
@@ -240,5 +250,3 @@ function openStory(index) {
     <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }
-
-
