@@ -12,7 +12,7 @@ function renderHome() {
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     <p class="eyebrow">Following</p><div class="following-rail">${activeFollowingStories().map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Swipe your feed</p><h2>${escapeHtml(feedTitle)}</h2></div><span class="route-badge">${filtered.length} event${filtered.length === 1 ? "" : "s"}</span></div>
+    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Swipe your feed</p><h2>${escapeHtml(feedTitle)}</h2></div></div>
     <div data-feed-content>${feedContent}</div></section>
   </section>`;
 }
@@ -27,7 +27,7 @@ function renderDiscoverCategoryPage(category) {
   const label = discoverCategoryLabel(category);
   const categoryEvents = displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart);
   app.innerHTML = `<section class="page category-list-page">
-    <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><p class="eyebrow">Browse by category</p><h1>${escapeHtml(label)}</h1></div><span class="route-badge">${categoryEvents.length} event${categoryEvents.length === 1 ? "" : "s"}</span></div>
+    <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
     <div class="event-stack category-event-list">${categoryEvents.length ? categoryEvents.map(eventRow).join("") : `<p class="section-helper">No events in this category right now.</p>`}</div>
   </section>`;
 }
@@ -56,7 +56,7 @@ function discoverRail(category, railEvents) {
   const sorted = railEvents.sort(sortEventsByStart);
   const emptyText = category === "for-you" ? "No events matched that search yet." : "No events in this section yet.";
   return `<section class="discover-rail" data-discover-rail="${category}">
-    <div class="rail-heading"><button class="rail-title" data-discover-category="${category}" ${category === "for-you" ? "disabled" : ""}><p class="eyebrow">${category === "for-you" ? "Search results" : "Browse by category"}</p><h3>${escapeHtml(discoverCategoryLabel(category))}</h3></button><span>${sorted.length}</span></div>
+    <div class="rail-heading"><button class="rail-title" data-discover-category="${category}" ${category === "for-you" ? "disabled" : ""}><h3>${escapeHtml(discoverCategoryLabel(category))}</h3></button></div>
     <div class="event-stack">${sorted.length ? sorted.map(eventRow).join("") : `<p class="section-helper">${emptyText}</p>`}</div>
   </section>`;
 }
@@ -102,8 +102,6 @@ function renderDiscoverEventSearch(query) {
     : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
   const matches = pool.sort(sortEventsByStart);
   content.innerHTML = discoverRail("for-you", matches);
-  const count = document.querySelector(".feed-section .route-badge");
-  if (count) count.textContent = `${matches.length} result${matches.length === 1 ? "" : "s"}`;
   return matches.length;
 }
 

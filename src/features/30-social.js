@@ -261,7 +261,7 @@ function renderSocial() {
   const rsvpPlans = savedPlannerEvents("rsvp");
   const allPlans = savedPlannerEvents("all");
   app.innerHTML = `<section class="page">
-    <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div><span class="route-badge">${allPlans.length} plan${allPlans.length === 1 ? "" : "s"}</span></div>
+    <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div></div>
     <p class="lede">Keep saved ideas and RSVPs in one place, then use the calendar to see what your week actually looks like.</p>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved events</p><h2>For later</h2></div></div>${plannerList(savedPlans, "No saved events yet. Tap Save on any event in Discover.", "Saved")}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">RSVPs</p><h2>Going</h2></div></div>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
@@ -303,11 +303,11 @@ function plannerCalendar(plans) {
   return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
   <div class="planner-legend">${["concerts","live-music","happy-hours","trivia-nights","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
-    const disabled = !day.plans.length;
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
-    return `<button class="planner-day ${disabled ? "empty" : ""}" ${disabled ? "disabled" : `data-calendar-day="${day.iso}"`} aria-label="${label} ${day.date.getDate()}${disabled ? "" : `, ${day.plans.length} plan${day.plans.length === 1 ? "" : "s"}`}">
-      <span>${label}</span><b>${day.date.getDate()}</b><em>${day.plans.map(event => `<i class="${event.cat}"></i>`).join("")}</em>
-    </button>`;
+    return `<article class="planner-day ${day.plans.length ? "" : "empty"}">
+      <div class="planner-day-head"><span>${label}</span><b>${day.date.getDate()}</b></div>
+      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<p>No plans</p>`}</div>
+    </article>`;
   }).join("")}</div>`;
 }
 

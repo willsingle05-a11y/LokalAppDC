@@ -617,24 +617,48 @@ h1, h2, h3, .brand b { color: #326f91; }
 }
 .planner-calendar {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px;
+  grid-template-columns: repeat(7, minmax(150px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 .planner-day {
   display: grid;
-  min-height: 68px;
+  min-height: 162px;
   align-content: start;
-  gap: 3px;
-  padding: 7px 4px;
+  gap: 8px;
+  padding: 9px;
   border: 1px solid rgba(58, 124, 165, .13);
   border-radius: 10px;
   background: #ffffff;
-  text-align: center;
+  text-align: left;
 }
-.planner-day.empty { opacity: .42; cursor: default; }
-.planner-day span { color: var(--muted); font-size: 8px; font-weight: 900; text-transform: uppercase; }
-.planner-day b { color: #326f91; font-size: 15px; }
-.planner-day em { display: flex; justify-content: center; flex-wrap: wrap; gap: 2px; min-height: 12px; font-style: normal; }
+.planner-day.empty { opacity: 1; }
+.planner-day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.planner-day-head span { color: var(--muted); font-size: 8px; font-weight: 900; text-transform: uppercase; }
+.planner-day-head b { color: #326f91; font-size: 15px; }
+.planner-day-events { display: grid; gap: 6px; }
+.planner-day-events p { margin: 0; color: var(--muted); font-size: 10px; font-weight: 800; }
+.planner-day-event {
+  display: grid;
+  grid-template-columns: 8px 1fr;
+  gap: 7px;
+  width: 100%;
+  padding: 7px;
+  border: 1px solid rgba(17,24,39,.08);
+  border-radius: 9px;
+  background: #f7fafc;
+  text-align: left;
+}
+.planner-day-event i { width: 8px; min-height: 100%; border-radius: 999px; }
+.planner-day-event span { min-width: 0; }
+.planner-day-event strong { display: block; color: #0f172a; font-size: 10px; line-height: 1.2; }
+.planner-day-event small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; line-height: 1.25; }
 .planner-dot.concerts, .planner-legend i.concerts, .planner-day i.concerts, .planner-dot.live-music, .planner-legend i.live-music, .planner-day i.live-music { background: #00c897; }
 .planner-dot.nightlife, .planner-legend i.nightlife, .planner-day i.nightlife { background: #326f91; }
 .planner-dot.happy-hours, .planner-legend i.happy-hours, .planner-day i.happy-hours { background: #e26f4f; }
