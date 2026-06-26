@@ -190,7 +190,7 @@ function eventTags(event) {
     add("21+", /\b21\+\b|ages 21/);
     add("Club Show", /9:30 club|930 club|the atlantis|union stage|black cat|dc9|songbyrd/);
     add("Big Room", /the anthem|echostage|arena|stadium|audi field/);
-    const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()));
+    const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()));
     const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
     return [...clean, ...inferred, ...fallback]
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)

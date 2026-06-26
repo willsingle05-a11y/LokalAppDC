@@ -424,6 +424,7 @@ function normalizeImportedCategory(row) {
     religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
   };
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
+  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife"].includes(directCategory)) return directCategory;
   if (/comedy|comedian|stand[- ]?up|improv/.test(classificationText)) return "performing-arts";
   if (/sports|baseball|basketball|football|hockey|soccer/.test(classificationText)) return "sports";
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
@@ -565,7 +566,7 @@ function normalizeSupabaseTags(row, category) {
   if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
   const sportTags = sportsLeagueTags(row);
   if (sportTags.length || /baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl|mls|wnba|nationals|mystics|wizards|capitals|commanders|d\.?c\.? united|dc united/.test(text)) inferredTags.push("Sports", ...sportTags);
-  if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) inferredTags.push("Nightlife");
+  if (category === "nightlife" && (/flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|club promo|club night|bar crawl|cocktail|speakeasy|lounge|rooftop party|dance party|after dark|late night|pride party)\b/.test(text))) inferredTags.push("Nightlife");
   if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
   if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
   if (category === "performing-arts") inferredTags.push(...performingArtsDetailTags(row));
@@ -573,7 +574,7 @@ function normalizeSupabaseTags(row, category) {
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
-    .filter(tag => !["concerts", "live-music"].includes(category) || !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()))
+    .filter(tag => !["concerts", "live-music"].includes(category) || !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()))
     .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, 8);
