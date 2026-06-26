@@ -300,7 +300,7 @@ function plannerCalendar(plans) {
     const dayPlans = plans.filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
     days.push({ date: new Date(date), iso, plans: dayPlans });
   }
-  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
+  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1">Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
   <div class="planner-legend">${["concerts","live-music","happy-hours","trivia-nights","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
