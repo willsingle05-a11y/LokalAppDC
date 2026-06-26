@@ -1,3 +1,49 @@
+function friendsActivityFeed(limit = 10) {
+  const times = ["just now", "8m ago", "23m ago", "1h ago", "2h ago", "4h ago", "yesterday"];
+  const verbs = ["saved", "is going", "saved", "RSVPed"];
+  return Array.from(state.friends).map(name => {
+    const event = (typeof friendInterestEvents === "function" ? friendInterestEvents(name, 1)[0] : null) || displayableDcEvents()[0];
+    if (!event) return null;
+    const seed = Array.from(String(name)).reduce((total, character) => total + character.charCodeAt(0), 0);
+    return {
+      name,
+      first: String(name).split(" ")[0],
+      initials: friendInitials(name),
+      eventId: event.id,
+      time: `${times[seed % times.length]}`,
+      verb: verbs[seed % verbs.length]
+    };
+  }).filter(Boolean).slice(0, limit);
+}
+
+function activityChip(activity) {
+  return `<button class="activity-chip" data-event="${activity.eventId}"><span class="activity-ring"><span class="avatar">${escapeHtml(activity.initials)}</span></span><b>${escapeHtml(activity.first)}</b><small>${escapeHtml(activity.verb)} / ${escapeHtml(activity.time)}</small></button>`;
+}
+
+function happeningTonightEvents(limit = 2) {
+  const tonight = displayableDcEvents()
+    .filter(event => matchesFilter(event, "all"))
+    .filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"))
+    .sort(sortEventsByStart);
+  return dedupeFeedEvents(tonight).slice(0, limit);
+}
+
+function eventFeedPattern(list) {
+  if (!list.length) return `<p class="section-helper">No events match that filter right now.</p>`;
+  const blocks = [];
+  let index = 0;
+  while (index < list.length) {
+    blocks.push(`<div class="feed-hero-row">${eventRow(list[index], "hero")}</div>`);
+    index++;
+    if (index < list.length) {
+      const pair = list.slice(index, index + 2);
+      blocks.push(`<div class="feed-pair-row">${pair.map(event => eventRow(event, "half")).join("")}</div>`);
+      index += pair.length;
+    }
+  }
+  return `<div class="feed-grid">${blocks.join("")}</div>`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -5,14 +51,17 @@ function renderHome() {
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
   const feedContent = renderDiscoverFeedContent(filtered);
-  app.innerHTML = `<section class="page">
-    <div class="discover-heading"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
-    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
-    <label class="search-box"><span>&#8981;</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
+  const activity = friendsActivityFeed();
+  const tonight = happeningTonightEvents();
+  app.innerHTML = `<section class="page discover-page">
+    <div class="discover-heading discover-cover"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
-    <p class="eyebrow">Following</p><div class="following-rail">${activeFollowingStories().map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
+    ${activity.length ? `<p class="eyebrow">Friends activity</p><div class="activity-strip">${activity.map(activityChip).join("")}</div>` : ""}
+    ${tonight.length ? `<section class="tonight-section"><div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div><div class="feed-grid">${tonight.map(event => eventRow(event, "hero")).join("")}</div></section>` : ""}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Swipe your feed</p><h2>${escapeHtml(feedTitle)}</h2></div></div>
+    <label class="search-box discover-search-box"><span>&#8981;</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
+    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Your feed</p><h2>${escapeHtml(feedTitle)}</h2></div></div>
     <div data-feed-content>${feedContent}</div></section>
   </section>`;
 }
@@ -163,18 +212,11 @@ function discoverRail(category, railEvents) {
 }
 
 function renderDiscoverFeedContent(filtered) {
-  if (!["all", "nearby"].includes(state.homeFilter)) {
-    const hasCategorySearch = searchableDiscoverCategory(state.homeFilter);
-    const visibleEvents = hasCategorySearch && state.discoverGenreFilter
-      ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
-      : filtered;
-    return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${discoverRail(state.homeFilter, visibleEvents)}`;
-  }
-  const base = displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
-  const rails = orderedDiscoverCategories()
-    .map(category => [category, base.filter(event => matchesFilter(event, category))])
-    .filter(([category, railEvents]) => railEvents.length || category === "museums");
-  return `<div class="discovery-sections">${rails.map(([category, railEvents]) => discoverRail(category, railEvents)).join("")}</div>`;
+  const hasCategorySearch = !["all", "nearby"].includes(state.homeFilter) && searchableDiscoverCategory(state.homeFilter);
+  const visibleEvents = hasCategorySearch && state.discoverGenreFilter
+    ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
+    : filtered;
+  return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${eventFeedPattern(dedupeFeedEvents(visibleEvents))}`;
 }
 
 function discoverSearchText(event) {
@@ -206,8 +248,8 @@ function renderDiscoverEventSearch(query) {
   const pool = normalizedQuery
     ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
     : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
-  const matches = pool.sort(sortEventsByStart);
-  content.innerHTML = discoverRail("for-you", matches);
+  const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
+  content.innerHTML = eventFeedPattern(matches);
   return matches.length;
 }
 
