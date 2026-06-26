@@ -325,6 +325,28 @@ function eventLocationLine(event) {
   return displayVenue || area || "Washington, DC";
 }
 
+function eventNeighborhoodLine(event) {
+  return [event.area, event.neighborhood, event.venue_address, event.address, eventLocationLine(event)]
+    .map(value => cleanLocationPart(value))
+    .filter(Boolean)
+    .filter((value, index, all) => all.findIndex(item => item.toLowerCase() === value.toLowerCase()) === index)
+    .join(" ");
+}
+
+function eventNeighborhoodMatches(event, value) {
+  if (!value || value === "Any neighborhood") return true;
+  const normalized = String(value || "").trim().toLowerCase();
+  return eventNeighborhoodLine(event).toLowerCase().includes(normalized);
+}
+
+function discoverNeighborhoodOptions(sourceEvents = events) {
+  const blocked = /^(washington,?\s*d\.?c\.?|dc|d\.c\.|district of columbia|location in description|unknown)$/i;
+  return sourceEvents
+    .map(event => cleanLocationPart(event.area || event.neighborhood))
+    .filter(area => area && !blocked.test(area))
+    .filter((area, index, all) => all.findIndex(item => item.toLowerCase() === area.toLowerCase()) === index)
+    .sort((a, b) => a.localeCompare(b));
+}
 function eventRow(event) {
   const signal = eventInterestSignal(event);
   const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
@@ -451,6 +473,7 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (state.age < 21 && ["nightlife", "happy-hours"].includes(event.cat)) return false;
   if (applyDiscoverFilters && state.highlightedOnly && !isHighlighted(event)) return false;
   if (applyDiscoverFilters && state.filter.category && state.filter.category !== "All categories" && event.cat !== state.filter.category) return false;
+  if (applyDiscoverFilters && !eventNeighborhoodMatches(event, state.filter.neighborhood)) return false;
   if (applyDiscoverFilters && !matchesDateFilter(event, state.filter.date)) return false;
   if (applyDiscoverFilters && !matchesTimeFilter(event, state.filter.time)) return false;
   if (applyDiscoverFilters && state.filter.price === "Free" && event.price !== "Free") return false;

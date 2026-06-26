@@ -197,6 +197,7 @@ function activeFilterValue(label) {
   return state.filter[key] || {
     date: "Any date",
     time: "Any time",
+    neighborhood: "Any neighborhood",
     category: "All categories",
     price: "Any price"
   }[key];
@@ -209,12 +210,14 @@ function activeFilterSummary() {
   if (state.filter.time && state.filter.time !== "Any time") items.push(`Time: ${state.filter.time}`);
   if (state.highlightedOnly) items.push("Highlighted only");
   if (state.filter.category && state.filter.category !== "All categories") items.push(`Category: ${state.filter.category}`);
+  if (state.filter.neighborhood && state.filter.neighborhood !== "Any neighborhood") items.push(`Neighborhood: ${state.filter.neighborhood}`);
   if (state.filter.price && state.filter.price !== "Any price") items.push(`Price: ${state.filter.price}`);
   return items.length ? items : ["No filters selected"];
 }
 
 function openFilters() {
-  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  const neighborhoodOptions = ["Any neighborhood", ...discoverNeighborhoodOptions(displayableDcEvents())];
+  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
     ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
