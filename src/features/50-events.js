@@ -1,7 +1,11 @@
 function openDetail(id) {
   const e = events.find(event => event.id === Number(id));
+  const heroImage = eventArtImage(e);
+  const heroStyle = e.image
+    ? `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage}; background-size: cover, contain; background-repeat: no-repeat; background-position: center; background-color: #f7f2e9;`
+    : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${e.title}">
-    <div class="detail-hero cat-${e.cat}"><button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))}</p><h1>${e.title}</h1><span class="detail-location">${escapeHtml(eventLocationLine(e))}</span></div>
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}"><button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))}</p><h1>${e.title}</h1><span class="detail-location">${escapeHtml(eventLocationLine(e))}</span></div>
     <div class="detail-body"><p class="event-meta">${eventMetaLine(e)}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
