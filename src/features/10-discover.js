@@ -25,10 +25,39 @@ function discoverCategoryLabel(category) {
 
 function renderDiscoverCategoryPage(category) {
   const label = discoverCategoryLabel(category);
+  const isMusicCategory = ["concerts", "live-music"].includes(category);
+  if (!isMusicCategory) state.discoverGenreFilter = "";
   const categoryEvents = displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart);
+  const visibleEvents = isMusicCategory && state.discoverGenreFilter
+    ? categoryEvents.filter(event => eventMatchesMusicGenre(event, state.discoverGenreFilter))
+    : categoryEvents;
   app.innerHTML = `<section class="page category-list-page">
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
-    <div class="event-stack category-event-list">${categoryEvents.length ? categoryEvents.map(eventRow).join("") : `<p class="section-helper">No events in this category right now.</p>`}</div>
+    ${isMusicCategory ? musicGenreControls(categoryEvents) : ""}
+    <div class="event-stack category-event-list">${visibleEvents.length ? visibleEvents.map(eventRow).join("") : `<p class="section-helper">No events match that genre right now.</p>`}</div>
+  </section>`;
+}
+
+function eventMatchesMusicGenre(event, query) {
+  const normalized = String(query || "").trim().toLowerCase();
+  if (!normalized) return true;
+  return eventTags(event).some(tag => tag.toLowerCase().includes(normalized));
+}
+
+function musicGenreOptions(categoryEvents) {
+  return categoryEvents
+    .flatMap(eventTags)
+    .filter(isMusicGenreTag)
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function musicGenreControls(categoryEvents) {
+  const active = state.discoverGenreFilter || "";
+  const genres = musicGenreOptions(categoryEvents);
+  return `<section class="genre-filter-panel" aria-label="Search by music genre">
+    <label class="search-box genre-search"><span>&#8981;</span><input data-category-genre-search placeholder="Search by genre" value="${escapeHtml(active)}" aria-label="Search by genre"></label>
+    <div class="genre-chips"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">All genres</button>${genres.map(genre => `<button class="filter-chip ${genre.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(genre)}">${escapeHtml(genre)}</button>`).join("")}</div>
   </section>`;
 }
 function categoryFromTaste(taste) {
@@ -63,7 +92,11 @@ function discoverRail(category, railEvents) {
 
 function renderDiscoverFeedContent(filtered) {
   if (!["all", "nearby"].includes(state.homeFilter)) {
-    return discoverRail(state.homeFilter, filtered);
+    const isMusicCategory = ["concerts", "live-music"].includes(state.homeFilter);
+    const visibleEvents = isMusicCategory && state.discoverGenreFilter
+      ? filtered.filter(event => eventMatchesMusicGenre(event, state.discoverGenreFilter))
+      : filtered;
+    return `${isMusicCategory ? musicGenreControls(filtered) : ""}${discoverRail(state.homeFilter, visibleEvents)}`;
   }
   const base = displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
   const rails = orderedDiscoverCategories()
@@ -186,6 +219,7 @@ function renderMap() {
 }
 
 const followingStories = [
+  { id: "featured-today", icon: "5", name: "5 featured events in DC today", type: "Today", intro: "Five DC events worth knowing about today.", todayOnly: true },
   { id: "songbyrd", icon: "S", name: "Songbyrd", type: "Venue", intro: "What's coming up at Songbyrd over the next few days.", eventIds: [1, 11], venueKeywords: ["songbyrd"] },
   { id: "dcafterdark", icon: "D", name: "@dcafterdark", type: "Curator", intro: "A few things @dcafterdark thinks are worth leaving the house for this week.", eventIds: [4, 6, 7], categories: ["concerts", "performing-arts"], tagKeywords: ["Nightlife", "Comedy", "Live Music", "Late Night", "Evening"] },
   { id: "smithsonian", icon: "M", name: "Smithsonian", type: "Venue", intro: "A Smithsonian event to catch over the next couple of days.", eventIds: [9], venueKeywords: ["smithsonian", "hirshhorn", "national gallery", "saam", "portrait gallery"] },
@@ -194,6 +228,15 @@ const followingStories = [
 ];
 
 function storyEventPool(story) {
+  if (story.todayOnly) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dcEvents = displayableDcEvents().sort(sortEventsByStart);
+    const todaysEvents = dcEvents
+      .filter(event => sameCalendarDate(eventDateValue(event), today))
+      .slice(0, 5);
+    return (todaysEvents.length ? todaysEvents : dcEvents.slice(0, 5));
+  }
   const venueKeywords = story.venueKeywords || [];
   const textKeywords = story.textKeywords || [];
   const tagKeywords = story.tagKeywords || [];

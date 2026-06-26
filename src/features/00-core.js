@@ -29,7 +29,7 @@ const defaultReceipts = [
   { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
   { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
 ];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -156,6 +156,16 @@ function seededConcertFallbackTags(seedText) {
   return [pool[seed % pool.length], pool[(seed + 5) % pool.length]];
 }
 
+
+const MUSIC_GENRE_TAGS = ["Hip-Hop", "R&B", "Jazz", "Go-Go", "Pop", "Rock", "Indie", "Folk", "Country", "Electronic", "Latin", "Soul", "Singer-Songwriter", "Classical", "Punk", "Metal", "Reggae", "Blues", "House", "Funk"];
+function isMusicGenreTag(tag) {
+  return MUSIC_GENRE_TAGS.some(genre => genre.toLowerCase() === String(tag || "").toLowerCase());
+}
+function seededMusicGenreTag(seedText) {
+  const pool = ["Indie", "Rock", "Pop", "Jazz", "R&B", "Electronic", "Folk", "Hip-Hop", "Soul", "Latin", "Singer-Songwriter"];
+  const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return pool[seed % pool.length];
+}
 function eventTags(event) {
   const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
@@ -176,11 +186,19 @@ function eventTags(event) {
     add("Pop", /\bpop\b|dorian electra|fulton lee|flawed mangoes|daniela andrade/);
     add("Rock", /music - rock|\brock band\b|\balt[- ]rock\b|\bindie rock\b|the church|the kills|of montreal/);
     add("Indie", /indie|alt[- ]|alternative|of montreal|son little|bixby|flawed mangoes/);
-    add("Folk", /folk|americana|singer[- ]songwriter|josiah and the bonnevilles|orville peck/);
+    add("Folk", /folk|americana|singer[- ]songwriter|songwriter|acoustic|josiah and the bonnevilles|orville peck/);
+    add("Singer-Songwriter", /singer[- ]songwriter|songwriter|solo acoustic|porchlight/);
     add("Country", /music - country|country music|orville peck|kolby cooper/);
-    add("Electronic", /electronic|edm|dance music|dj set|rufus|r.f.s|echostage|soundcheck/);
-    add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel/);
+    add("Electronic", /electronic|edm|dance music|dj set|rufus|r.f.s|echostage|soundcheck|nü androids|transmission|flash/);
+    add("House", /house music|deep house|tech house/);
+    add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel|tumbao/);
     add("Soul", /soul|funk|big freedia|tank and the bangas/);
+    add("Funk", /funk|go-go/);
+    add("Classical", /classical|orchestra|symphony|chamber|nso/);
+    add("Punk", /punk|hardcore/);
+    add("Metal", /metal/);
+    add("Reggae", /reggae|dancehall/);
+    add("Blues", /blues/);
     add("DJ Set", /\bdj\b|deejay|turntable|vinyl/);
     add("Album Tour", /album|record release|new release|listening session|playlist/);
     add("Tour Stop", /\btour\b|world tour|north america/);
@@ -191,10 +209,11 @@ function eventTags(event) {
     add("Club Show", /9:30 club|930 club|the atlantis|union stage|black cat|dc9|songbyrd/);
     add("Big Room", /the anthem|echostage|arena|stadium|audi field/);
     const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()));
+    const genre = [...clean, ...inferred].find(isMusicGenreTag) || seededMusicGenreTag(`${event.title || ""} ${event.venue || ""} ${event.desc || ""}`);
     const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
-    return [...clean, ...inferred, ...fallback]
+    return [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length));
+      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1));
   }
   if (String(event.cat || "").toLowerCase() !== "performing-arts") return tags;
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();

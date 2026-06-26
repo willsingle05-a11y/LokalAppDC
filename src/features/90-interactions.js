@@ -4,11 +4,12 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; setRoute(t.dataset.route); }
-  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; setRoute(t.dataset.route); }
+  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
-  if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
-  if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; renderHome(); }
+  if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
+  if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; renderHome(); }
+  if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; renderHome(); }
   if (t.dataset.event) { mark(); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.save) {
@@ -212,6 +213,12 @@ document.addEventListener("input", event => {
     const matches = query ? friendDirectory.filter(friend => friend[1].toLowerCase().includes(query) || friend[2].toLowerCase().includes(query)).slice(0, 5) : [];
     results.hidden = !matches.length;
     results.innerHTML = matches.map(friend => `<button data-invite-people-option="${friend[1]}" data-group-name="${input.dataset.groupName}">${friend[1]} <small>${friend[2]}</small></button>`).join("");
+  }
+  if (input.matches("[data-category-genre-search]")) {
+    state.discoverGenreFilter = input.value.trim();
+    renderHome();
+    const nextInput = document.querySelector("[data-category-genre-search]");
+    if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
   }
   if (input.matches("[data-discover-search]")) {
     const query = input.value.trim().toLowerCase();

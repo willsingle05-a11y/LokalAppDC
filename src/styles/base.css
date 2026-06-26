@@ -21,7 +21,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: #e7edf2;
-  font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 button { border: 0; color: inherit; cursor: pointer; font: inherit; }
 button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
@@ -61,7 +61,7 @@ button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
   border-radius: 14px;
   color: var(--paper);
   background: var(--orange);
-  font-family: Georgia, serif;
+  font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 23px;
   font-weight: 700;
 }
@@ -74,7 +74,7 @@ main { min-height: calc(100vh - 68px); padding-bottom: 92px; }
 
 .eyebrow { margin: 0 0 5px; color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.6px; text-transform: uppercase; }
 h1, h2, h3, p { margin-top: 0; }
-h1, h2 { font-family: Georgia, serif; font-weight: 500; letter-spacing: -.6px; }
+h1, h2 { font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-weight: 500; letter-spacing: -.6px; }
 h1 { margin-bottom: 9px; font-size: 37px; line-height: 1.02; }
 h2 { margin-bottom: 12px; font-size: 25px; line-height: 1.05; }
 h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
@@ -86,7 +86,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .discover-heading h1 { margin-bottom: 12px; font-size: 31px; }
 .filter-button { padding: 8px 11px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }
 .search-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 3px 11px rgba(42,57,52,.04); }
-.search-box span { color: var(--orange); font-family: Georgia, serif; font-size: 24px; line-height: .5; }
+.search-box span { color: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 24px; line-height: .5; }
 .search-box input { width: 100%; border: 0; color: var(--ink); background: transparent; font: inherit; font-size: 12px; outline: 0; }
 .age-note { margin: 8px 0 11px; padding: 9px 11px; border-radius: 11px; color: var(--green); background: var(--green-soft); font-size: 11px; font-weight: 800; line-height: 1.35; }
 .mini-lists { display: flex; gap: 8px; overflow-x: auto; margin-top: 12px; padding-bottom: 2px; scrollbar-width: none; }
@@ -179,7 +179,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 
 .feature-card { position: relative; overflow: hidden; border-radius: 22px; color: white; background: var(--navy); text-align: left; }
 .feature-card .hero-art { min-height: 196px; padding: 20px; background: linear-gradient(145deg, rgba(34,60,82,.1), rgba(34,60,82,.8)), linear-gradient(135deg, #c97759, #233d53 67%); }
-.feature-card h3 { position: relative; z-index: 1; max-width: 260px; margin-top: 45px; font-family: Georgia, serif; font-size: 30px; font-weight: 500; }
+.feature-card h3 { position: relative; z-index: 1; max-width: 260px; margin-top: 45px; font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 500; }
 .feature-card p { position: relative; z-index: 1; margin: 0; font-size: 12px; opacity: .88; }
 .feature-signal { position: absolute; top: 16px; left: 16px; z-index: 2; padding: 7px 10px; border-radius: 999px; background: rgba(255,253,248,.95); color: var(--ink); font-size: 10px; font-weight: 900; }
 
@@ -221,7 +221,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .action.selected { color: white; background: var(--green); }
 .primary { color: white; background: var(--orange); }
 .secondary { color: var(--green); background: var(--green-soft); }
-.detail-description { color: var(--muted); font-family: Georgia, serif; font-size: 17px; line-height: 1.45; }
+.detail-description { color: var(--muted); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.45; }
 .attendee-line { display: flex; align-items: center; gap: 9px; margin: 14px 0; font-size: 12px; font-weight: 800; }
 
 .map-page { padding: 0; }
@@ -261,7 +261,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .activity-time { display: block; margin-top: 4px; color: #a09c94; font-size: 10px; }
 .group-card { margin-top: 14px; }
 .group-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.group-icon { display: grid; width: 45px; height: 45px; place-items: center; border-radius: 15px; color: white; background: var(--navy); font-family: Georgia, serif; font-size: 22px; }
+.group-icon { display: grid; width: 45px; height: 45px; place-items: center; border-radius: 15px; color: white; background: var(--navy); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
 .group-head div:nth-child(2) { flex: 1; }
 .group-head p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
 .group-divider { margin-top: 24px; }
@@ -342,13 +342,13 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .ranking-list { display: grid; gap: 9px; margin-top: 11px; }
 .ranking-card { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 3px 11px rgba(42,57,52,.045); }
 .rank-main { display: grid; grid-template-columns: 31px 1fr 45px; gap: 9px; width: 100%; align-items: center; padding: 12px; background: transparent; text-align: left; }
-.rank-number { color: var(--orange); font-family: Georgia, serif; font-size: 29px; }
+.rank-number { color: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 29px; }
 .rank-badge { color: var(--orange); font-size: 8px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
 .rank-copy h3 { margin: 4px 0 3px; font-size: 15px; }
 .rank-copy p { margin: 0; color: var(--muted); font-size: 10px; }
 .rank-copy small { display: block; margin-top: 6px; color: var(--green); font-size: 10px; font-weight: 800; }
 .rank-score { text-align: center; }
-.rank-score b { display: block; color: var(--green); font-family: Georgia, serif; font-size: 25px; line-height: 1; }
+.rank-score b { display: block; color: var(--green); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 25px; line-height: 1; }
 .rank-score small { color: var(--muted); font-size: 8px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
 .rank-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 800; }
 .hype-button { padding: 6px 9px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }
@@ -421,7 +421,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .share-arrow { color: var(--orange); font-size: 22px; }
 
 .profile-card { display: flex; gap: 13px; align-items: center; margin: 14px 0 20px; }
-.profile-avatar { display: grid; width: 74px; height: 74px; place-items: center; border-radius: 24px; color: white; background: var(--navy); font-family: Georgia, serif; font-size: 28px; }
+.profile-avatar { display: grid; width: 74px; height: 74px; place-items: center; border-radius: 24px; color: white; background: var(--navy); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 28px; }
 .profile-card p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 .settings-sheet { padding: 21px 18px 25px; }
 .settings-sheet h2 { margin-bottom: 12px; font-size: 31px; }
@@ -433,17 +433,17 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .danger-button { width: 100%; padding: 12px; color: #a4564a; background: transparent; font-size: 11px; font-weight: 900; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; }
 .stat-card { text-align: center; }
-.stat-card b { display: block; color: var(--orange); font-family: Georgia, serif; font-size: 24px; }
+.stat-card b { display: block; color: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 24px; }
 .stat-card small { color: var(--muted); font-size: 9px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
 .receipt { display: grid; grid-template-columns: auto 1fr; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--line); }
 .date-block { width: 38px; color: var(--orange); text-align: center; font-size: 10px; font-weight: 900; text-transform: uppercase; }
-.date-block b { display: block; color: var(--ink); font-family: Georgia, serif; font-size: 22px; }
+.date-block b { display: block; color: var(--ink); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
 .receipt h3 { margin: 1px 0 3px; }
 .receipt p { margin: 0; color: var(--muted); font-size: 11px; }
 
 .onboarding { position: fixed; inset: 0; z-index: 40; display: grid; align-items: start; justify-items: center; overflow-y: auto; overscroll-behavior: contain; padding: 18px; background: var(--cream); -webkit-overflow-scrolling: touch; }
 .onboard-card { width: min(100%, 560px); max-height: none; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
-.onboard-logo { display: grid; width: 54px; height: 54px; margin-bottom: 34px; place-items: center; border-radius: 18px; color: white; background: var(--orange); font-family: Georgia, serif; font-size: 33px; font-weight: 700; }
+.onboard-logo { display: grid; width: 54px; height: 54px; margin-bottom: 34px; place-items: center; border-radius: 18px; color: white; background: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 33px; font-weight: 700; }
 .step-count { color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.5px; }
 .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 22px 0; }
 .compact-select-grid { margin: 10px 0 18px; }
@@ -454,7 +454,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .onboard-card .lede { font-size: 15px; }
 .intro-art { position: relative; display: grid; width: 100%; height: 205px; margin: 24px 0 20px; place-items: center; overflow: hidden; border-radius: 23px; color: white; background: linear-gradient(140deg, var(--orange), var(--navy)); }
 .intro-art:before, .intro-art:after { position: absolute; width: 190px; height: 190px; border: 22px solid rgba(255,255,255,.16); border-radius: 50%; content: ""; }.intro-art:before { top: -72px; right: -62px; }.intro-art:after { bottom: -104px; left: -60px; }
-.intro-art span { z-index: 1; font-family: Georgia, serif; font-size: 77px; font-weight: 800; }
+.intro-art span { z-index: 1; font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 77px; font-weight: 800; }
 .account-fields { display: grid; gap: 9px; margin: 20px 0; }
 .account-fields small { color: var(--muted); font-size: 10px; line-height: 1.4; }
 .birth-field { display: grid; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
