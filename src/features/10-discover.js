@@ -340,7 +340,9 @@ function activeFollowingStories() {
     intro: "Events you shared with your friends on Lokal.",
     eventIds: state.storyPosts.map(post => post.eventId)
   }] : [];
-  return [...ownStory, ...followingStories]
+  const [featuredStory, ...otherStories] = followingStories;
+  return [featuredStory, ...ownStory, ...otherStories]
+    .filter(Boolean)
     .map(story => ({ ...story, storyEvents: storyEventPool(story) }))
     .filter(story => story.storyEvents.length);
 }
