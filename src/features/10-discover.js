@@ -45,7 +45,8 @@ function searchableDiscoverCategory(category) {
 function eventMatchesCategoryFacet(event, query) {
   const normalized = String(query || "").trim().toLowerCase();
   if (!normalized) return true;
-  const text = `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+  const neighborhood = typeof eventNeighborhoodLine === "function" ? eventNeighborhoodLine(event) : "";
+  const text = `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
   return text.includes(normalized);
 }
 
@@ -177,7 +178,8 @@ function renderDiscoverFeedContent(filtered) {
 }
 
 function discoverSearchText(event) {
-  return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+  const neighborhood = typeof eventNeighborhoodLine === "function" ? eventNeighborhoodLine(event) : "";
+  return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
 }
 
 function displayableDcEvents() {

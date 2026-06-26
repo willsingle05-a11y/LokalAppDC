@@ -215,7 +215,7 @@ document.addEventListener("input", event => {
     results.innerHTML = matches.map(friend => `<button data-invite-people-option="${friend[1]}" data-group-name="${input.dataset.groupName}">${friend[1]} <small>${friend[2]}</small></button>`).join("");
   }
   if (input.matches("[data-category-genre-search]")) {
-    state.discoverGenreFilter = input.value.trim();
+    state.discoverGenreFilter = input.value;
     renderHome();
     const nextInput = document.querySelector("[data-category-genre-search]");
     if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
