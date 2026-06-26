@@ -14,9 +14,11 @@ document.addEventListener("click", async event => {
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.save) {
     const id = Number(t.dataset.save);
+    const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
-    openDetail(id);
+    if (inDetail) openDetail(id);
+    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     saveEventInteraction(id, "save", isSaved);
     toast(isSaved ? "Saved for later" : "Removed from saved");
   }
@@ -83,6 +85,10 @@ document.addEventListener("click", async event => {
   if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; state.filterDatePickerOpen = true; openFilters(); }
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
+  if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
+  if (t.dataset.shareYear !== undefined) { mark(); openYearShareSheet(); }
+  if (t.dataset.copyYear !== undefined) { mark(); try { await navigator.clipboard?.writeText(lokalYearSummary()); } catch {} toast("Lokal year copied"); }
+  if (t.dataset.nativeShareYear !== undefined) { mark(); const text = lokalYearSummary(); try { if (navigator.share) await navigator.share({ title: "My Lokal year", text }); else await navigator.clipboard?.writeText(text); toast(navigator.share ? "Share sheet opened" : "Lokal year copied"); } catch { toast("Share canceled"); } }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {
     mark();

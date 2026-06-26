@@ -256,6 +256,29 @@ function followingContent() {
   <div class="follow-list">${accounts.map(account => { const followed = state.follows.has(account[0]); return `<div class="follow-card"><span class="group-icon">${account[1]}</span><span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button ${followed ? "selected" : ""}" data-follow="${account[0]}">${followed ? "Following" : "Follow"}</button></div>`; }).join("")}</div>`;
 }
 
+function personalizedEvents(limit = 3) {
+  const tastes = (state.tastes || []).map(taste => taste.toLowerCase());
+  const cats = (state.tastes || []).map(taste => typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "").filter(Boolean);
+  const pool = displayableDcEvents().filter(event => matchesFilter(event, "all", false));
+  const scored = pool.map(event => {
+    const text = `${event.cat} ${eventTags(event).join(" ")} ${event.title}`.toLowerCase();
+    let score = 0;
+    cats.forEach(category => { if (event.cat === category) score += 4; });
+    tastes.forEach(taste => { if (taste && text.includes(taste)) score += 2; });
+    return { event, score };
+  }).filter(item => item.score > 0).sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event));
+  // collapse recurring occurrences so a single event isn't recommended repeatedly
+  return dedupeFeedEvents([...scored.map(item => item.event), ...pool]
+    .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index))
+    .slice(0, limit);
+}
+
+function personalizedSection() {
+  const picks = personalizedEvents(3);
+  if (!picks.length) return "";
+  return `<section class="section saved-plans-section personalized-block"><div class="section-heading"><div><p class="eyebrow personalized-eyebrow">Personalized for you</p><h2>Picked for your tastes</h2></div></div><div class="event-stack personalized-list">${picks.map(event => eventRow(event)).join("")}</div></section>`;
+}
+
 function renderSocial() {
   const savedPlans = savedPlannerEvents("saved");
   const rsvpPlans = savedPlannerEvents("rsvp");
@@ -263,9 +286,11 @@ function renderSocial() {
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div></div>
     <p class="lede">Keep saved ideas and RSVPs in one place, then use the calendar to see what your week actually looks like.</p>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">Calendar</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved events</p><h2>For later</h2></div></div>${plannerList(savedPlans, "No saved events yet. Tap Save on any event in Discover.", "Saved")}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">RSVPs</p><h2>Going</h2></div></div>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
-    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">Calendar</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
+    ${personalizedSection()}
+    <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
 

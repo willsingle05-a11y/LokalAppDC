@@ -1,16 +1,109 @@
-function renderProfile() {
-  const tasteChips = state.tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("");
+function scoreLevel(score) {
+  if (score >= 500) return { name: "Local Legend", min: 500, next: null };
+  if (score >= 200) return { name: "Insider", min: 200, next: 500 };
+  return { name: "Explorer", min: 0, next: 200 };
+}
+
+function nextLevelName(level) {
+  return level.next === 500 ? "Local Legend" : "Insider";
+}
+
+function tasteColor(taste) {
+  const category = typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "";
+  if (category && CATEGORY_COLORS[category]) return CATEGORY_COLORS[category];
+  const palette = ["#00C9A7", "#FF7B54", "#B07EDB", "#5F9FC3", "#F59E0B", "#FF6B9D", "#7BC67E", "#7C6BFF"];
+  const seed = Array.from(String(taste || "")).reduce((total, character) => total + character.charCodeAt(0), 0);
+  return palette[seed % palette.length];
+}
+
+function receiptThumbStyle(receipt) {
+  const event = events.find(item => String(item.id) === String(receipt.id));
+  const art = event ? eventArtImage(event) : genericEventArt({ cat: receipt.cat, title: receipt.title, venue: receipt.venue });
+  return `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
+}
+
+function attendanceRow(receipt, index = 0) {
+  const date = receipt.attendedAt ? new Date(receipt.attendedAt) : new Date();
+  const label = date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return `<button class="attend-row" style="--i:${index}" data-receipt-event="${receipt.id}"><span class="attend-thumb" style="${receiptThumbStyle(receipt)}"></span><span class="attend-copy"><b>${escapeHtml(receipt.title)}</b><small>${escapeHtml(label)} / ${escapeHtml(receipt.cat || "event")}</small></span></button>`;
+}
+
+function groupReceiptsByMonth(receipts) {
+  const groups = [];
+  receipts.forEach(receipt => {
+    const date = receipt.attendedAt ? new Date(receipt.attendedAt) : new Date();
+    const label = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    let group = groups.find(item => item.label === label);
+    if (!group) { group = { label, items: [] }; groups.push(group); }
+    group.items.push(receipt);
+  });
+  return groups;
+}
+
+function attendanceHistorySection() {
   const receipts = profileReceipts();
-  const friends = profileFriendRows();
+  if (!receipts.length) return `<p class="section-helper">Mark an event as attended and it will show up here.</p>`;
+  const expanded = Boolean(state.profileReceiptsExpanded);
+  let order = 0;
+  const body = expanded
+    ? groupReceiptsByMonth(receipts).map(group => `<p class="eyebrow attend-month">${escapeHtml(group.label)}</p><div class="attend-list">${group.items.map(receipt => attendanceRow(receipt, order++)).join("")}</div>`).join("")
+    : `<div class="attend-list">${receipts.slice(0, 3).map((receipt, index) => attendanceRow(receipt, index)).join("")}</div>`;
+  const toggle = receipts.length > 3
+    ? `<button class="text-button view-all-receipts" data-toggle-receipts>${expanded ? "Show less" : `View all ${receipts.length}`}</button>`
+    : "";
+  return `${body}${toggle}`;
+}
+
+function lokalYearSummary() {
+  const receipts = profileReceipts();
+  const count = receipts.length;
+  const categories = new Set(receipts.map(receipt => receipt.cat).filter(Boolean)).size;
+  const withFriends = receiptFriendUnits(receipts);
+  const score = lokalScore();
+  const level = scoreLevel(score).name;
+  return `My Lokal year so far: ${count} event${count === 1 ? "" : "s"} across ${categories} kind${categories === 1 ? "" : "s"} of night out, ${withFriends} plan${withFriends === 1 ? "" : "s"} with friends, and a Lokal score of ${score} (${level}). See what's happening in DC on Lokal.`;
+}
+
+function openYearShareSheet() {
+  const summary = lokalYearSummary();
+  const score = lokalScore();
+  const level = scoreLevel(score).name;
+  const receipts = profileReceipts();
+  const smsBody = encodeURIComponent(summary);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share my Lokal year">
+    <button class="modal-close" aria-label="Close sharing">&times;</button>
+    <p class="eyebrow">Your year on Lokal</p><h2>Share my Lokal year</h2><p class="lede">Send a recap of everywhere you have been around DC.</p>
+    <div class="share-preview"><b>${escapeHtml(state.profile.fullName)} on Lokal</b><span>${receipts.length} events attended / ${level}</span><small>Lokal score ${score}</small><em>${escapeHtml(summary)}</em></div>
+    <div class="share-channel-grid">
+      <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
+      <button class="share-channel" data-native-share-year>Share sheet</button>
+      <a class="share-channel" href="mailto:?subject=${encodeURIComponent("My Lokal year")}&body=${smsBody}">Email</a>
+      <button class="share-channel" data-copy-year>Copy recap</button>
+    </div>
+    <button class="wide-button" data-copy-year>Copy my Lokal year</button>
+  </section></div>`;
+}
+
+function renderProfile() {
+  const score = lokalScore();
+  const level = scoreLevel(score);
+  const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
+  const toNext = level.next ? Math.max(0, level.next - score) : 0;
+  const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><span class="lokal-score">${lokalScore()} <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(state.bio)}</p>
-    <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tasteChips}<button class="chip" data-edit-tastes>Edit</button></div>
-    <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="friends"><b>${state.friends.size}</b><small>Friends</small></button></div>
-    <p class="eyebrow">Friends</p><div class="follow-list profile-friends-list">${friends.map(friend => friendCard(friend)).join("")}</div><button class="text-button see-all-friends" data-profile-list="friends">See all friends</button>
-    <p class="eyebrow">Your receipt</p><h2>Recently attended</h2>
-    <div class="receipt-list">${receipts.map(receiptRow).join("") || `<p class="section-helper">Mark an event as attended and it will show here.</p>`}</div>
+    <section class="score-block">
+      <p class="eyebrow">Lokal score</p>
+      <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
+      <div class="score-progress"><i style="width:${Math.round(progress * 100)}%"></i></div>
+      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached — you're a Local Legend"}</p>
+      <button class="text-button" data-settings-page="faq">How scoring works</button>
+    </section>
+    <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>
+    <div class="attend-head"><div><p class="eyebrow">Your receipts</p><h2>Attendance history</h2></div><button class="text-button" data-share-year>Share my Lokal year</button></div>
+    ${attendanceHistorySection()}
   </section>`;
 }
 

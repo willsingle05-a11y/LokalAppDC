@@ -189,7 +189,7 @@ function eventTags(event) {
     add("Folk", /folk|americana|singer[- ]songwriter|songwriter|acoustic|josiah and the bonnevilles|orville peck/);
     add("Singer-Songwriter", /singer[- ]songwriter|songwriter|solo acoustic|porchlight/);
     add("Country", /music - country|country music|orville peck|kolby cooper/);
-    add("Electronic", /electronic|edm|dance music|dj set|rufus|r.f.s|echostage|soundcheck|nü androids|transmission|flash/);
+    add("Electronic", /electronic|edm|dance music|dj set|rufus|r.f.s|echostage|soundcheck|nï¿½ androids|transmission|flash/);
     add("House", /house music|deep house|tech house/);
     add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel|tumbao/);
     add("Soul", /soul|funk|big freedia|tank and the bangas/);
@@ -347,19 +347,98 @@ function discoverNeighborhoodOptions(sourceEvents = events) {
     .filter((area, index, all) => all.findIndex(item => item.toLowerCase() === area.toLowerCase()) === index)
     .sort((a, b) => a.localeCompare(b));
 }
-function eventRow(event) {
-  const signal = eventInterestSignal(event);
-  const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
-  const attachedGroup = event.id === 4 ? `<div class="signal">Join the Skyline Social event chat</div>` : "";
+const CATEGORY_COLORS = {
+  concerts: "#00C9A7",
+  "live-music": "#00C9A7",
+  music: "#00C9A7",
+  "happy-hours": "#FF7B54",
+  "trivia-nights": "#4DB6AC",
+  nightlife: "#7C6BFF",
+  "performing-arts": "#B07EDB",
+  art: "#B07EDB",
+  museums: "#5F9FC3",
+  sports: "#F59E0B",
+  fitness: "#27AE60",
+  festivals: "#FF6B9D",
+  food: "#FF7B54",
+  community: "#7BC67E",
+  expos: "#64748B"
+};
+
+const cardShareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/></svg>';
+const cardHeartIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1l1.7 1.7L12 21.5l7.1-7.1 1.7-1.7a5 5 0 0 0 0-7.1Z"/></svg>';
+
+function categoryColor(event) {
+  return CATEGORY_COLORS[String(event.cat || event.category || "").toLowerCase()]
+    || CATEGORY_COLORS[eventVisualCategory(event)]
+    || "var(--accent)";
+}
+
+function cardFriendAvatars(event) {
+  const friends = interestedFriendsForEvent(event);
+  if (!friends.length) return "";
+  return `<span class="card-friends">${friends.map(initials => `<span class="card-friend-avatar">${escapeHtml(initials)}</span>`).join("")}</span>`;
+}
+
+function eventUrgency(event) {
+  if (eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""))) return { label: "Free", cls: "urgency-free" };
+  const seed = Array.from(String(event.sourceId || event.id || event.title || "lokal")).reduce((total, character) => total + character.charCodeAt(0), 0);
+  const mode = seed % 5;
+  if (mode === 0) return { label: `${(seed % 6) + 2} spots left`, cls: "urgency-spots" };
+  if (mode === 1) return { label: "Selling fast", cls: "urgency-fast" };
+  return null;
+}
+
+function eventRow(event, variant = "") {
+  const variantClass = variant ? ` event-card-${variant}` : "";
+  const accent = categoryColor(event);
   const image = eventArtImage(event);
   const tags = eventTags(event);
-  const artStyle = event.image
-    ? `background-image: linear-gradient(180deg, rgba(17,24,39,.02), rgba(17,24,39,.14)), ${image}; background-size: cover, contain; background-repeat: no-repeat; background-position: center; background-color: #f7f2e9;`
-    : `background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};`;
-  return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-art cat-${eventVisualCategory(event)}${event.image ? " has-logo" : ""}" style="${artStyle}">${event.image ? "" : eventArtScene(event)}<span class="art-label">${escapeHtml(eventArtLabel(event))}</span></span>
-    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${eventMetaLine(event)}</span><h3>${event.title}</h3><p class="event-location">${escapeHtml(eventLocationLine(event))}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
-  </button>`;
+  const cardStyle = `background-image: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 60%), ${image};`;
+  const urgency = eventUrgency(event);
+  const urgencyPill = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
+  return `<article class="event-card cat-${eventVisualCategory(event)}${event.image ? " has-image" : ""}${variantClass}" style="${cardStyle}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+    <span class="event-card-badge" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>
+    <span class="event-card-actions">
+      <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
+      <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+    </span>
+    <span class="event-card-bottom">
+      ${cardFriendAvatars(event)}
+      <span class="event-card-meta">${eventMetaLine(event)}</span>
+      <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
+      <span class="event-card-tags">${eventTagChips(event, 2)}</span>
+      ${urgencyPill}
+    </span>
+  </article>`;
+}
+
+function eventDedupeKey(event) {
+  return `${String(event.title || "").trim().toLowerCase()}|${String(event.venue || "").trim().toLowerCase()}`;
+}
+
+// Feed-only dedupe: collapse repeated title+venue occurrences to a single card.
+// Assumes `list` is already sorted ascending by start, so the first match kept
+// is the next upcoming occurrence.
+function dedupeFeedEvents(list) {
+  const seen = new Set();
+  return list.filter(event => {
+    const key = eventDedupeKey(event);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// All occurrences of the same title+venue across the loaded event set, sorted
+// by start. Used by the detail modal so the full recurring schedule stays
+// visible even though the feed only shows one card.
+function occurrencesForEvent(event) {
+  const key = eventDedupeKey(event);
+  return events
+    .filter(item => eventDedupeKey(item) === key)
+    .sort(sortEventsByStart);
 }
 
 function isHighlighted(event) { return [4, 5].includes(event.id); }

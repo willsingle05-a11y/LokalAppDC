@@ -1,0 +1,455 @@
+/* ============================================================
+   UI Redesign v2 — teal design system + new components.
+   Loaded after base.css and round2.css, so it intentionally
+   overrides earlier rules. Light background is preserved.
+   ============================================================ */
+
+:root {
+  --accent: #00C9A7;
+  --accent-strong: #00b294;
+  --heart: #FF6B9D;
+  --urgent: #FF4757;
+  --warm: #FF7B54;
+  --display: "Barlow Condensed", "Aptos Display", Aptos, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ---- Typography ---- */
+h1, h2, h3,
+.brand b, .sidebar-brand b,
+.event-card-title, .score-big, .score-level-tag,
+.tonight-head h2, .attend-copy b {
+  font-family: var(--display);
+}
+h1 { font-weight: 900; }
+h2 { font-weight: 800; }
+h3 { font-weight: 700; }
+
+.eyebrow,
+.feed-label, .event-meta, .settings-label, .suggestion-type,
+.stop-label, .rank-badge, .step-count {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---- Teal accent: replace remaining mint surfaces ---- */
+.brand-mark, .wide-button, .primary,
+.chip.active, .filter-chip.active, .action.selected, .group-type.selected,
+.message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
+.profile-avatar, .avatar-me, .group-icon,
+.feature-card, .stop-card.anchor, .anchor-summary,
+.attended-button.selected, .share-channel,
+.taste-choice.selected, .privacy-toggle input {
+  background: var(--accent);
+}
+.privacy-toggle input { accent-color: var(--accent); }
+.nav-item.active { color: var(--accent); }
+.header-icon i, .story-progress span.active,
+.chip.active, .filter-chip.active { box-shadow: inset 0 -3px 0 var(--accent); }
+.following-chip .group-icon, .community-card.pinned { border-color: rgba(0, 201, 167, .7); }
+.lokal-score { color: var(--accent-strong); }
+
+/* ============================================================
+   CHANGE 1 — Event cards (used everywhere eventRow renders)
+   ============================================================ */
+.event-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 165px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background-color: var(--green);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, .12);
+  isolation: isolate;
+  text-align: left;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(17, 24, 39, .16); }
+
+/* full-bleed tap target that opens the detail modal */
+.event-card-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.event-card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 4px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .55);
+  font-family: var(--display);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.event-card-actions {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+.card-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(0, 0, 0, .42);
+  backdrop-filter: blur(5px);
+  pointer-events: auto;
+  transition: background .15s ease, transform .15s ease;
+}
+.card-icon-btn:hover { background: rgba(0, 0, 0, .62); transform: scale(1.06); }
+.card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+.card-save svg { fill: none; }
+.card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
+
+.event-card-bottom {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  display: grid;
+  gap: 6px;
+  padding: 12px 13px 13px;
+  pointer-events: none;
+}
+.card-friends { display: flex; padding-left: 5px; }
+.card-friend-avatar {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: -5px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--accent);
+  font-size: 7px;
+  font-weight: 900;
+}
+.card-friend-avatar:nth-child(2n) { background: var(--warm); }
+.card-friend-avatar:nth-child(3n) { background: #5f9fc3; }
+
+.event-card-meta {
+  color: rgba(255, 255, 255, .88);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.event-card-title {
+  margin: 0;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.0;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .35);
+}
+.event-card-hero .event-card-title { font-size: 24px; }
+.event-card-half .event-card-title { font-size: 17px; }
+
+.event-card .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.event-card .event-tag {
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, .14);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.event-card-urgency {
+  justify-self: start;
+  margin-top: 1px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.event-card-urgency.urgency-free { background: var(--accent); }
+.event-card-urgency.urgency-spots { background: var(--urgent); }
+.event-card-urgency.urgency-fast { background: var(--warm); }
+
+/* card size variants */
+.event-card-hero { min-height: 200px; }
+.event-card-half { min-height: 165px; }
+
+/* ============================================================
+   CHANGE 2 — Discover screen
+   ============================================================ */
+/* Friends activity strip */
+.activity-strip {
+  display: flex;
+  gap: 13px;
+  margin: 0 -18px 16px;
+  padding: 2px 18px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.activity-strip::-webkit-scrollbar { display: none; }
+.activity-chip {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  width: 64px;
+  background: transparent;
+  text-align: center;
+}
+.activity-ring {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: #fff;
+}
+.activity-ring .avatar {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border: 0;
+  font-size: 13px;
+}
+.activity-chip b { font-family: var(--display); font-size: 12px; font-weight: 700; }
+.activity-chip small { color: var(--muted); font-size: 8px; font-weight: 800; line-height: 1.25; }
+
+/* Happening tonight */
+.tonight-section { margin: 4px 0 18px; }
+.tonight-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+.tonight-head h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.tonight-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--urgent);
+  animation: tonightPulse 1.5s ease-in-out infinite;
+}
+@keyframes tonightPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, .55); opacity: 1; }
+  50% { box-shadow: 0 0 0 7px rgba(255, 71, 87, 0); opacity: .65; }
+}
+
+/* Hero / pair feed pattern */
+.feed-grid { display: grid; gap: 12px; }
+.feed-pair-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ============================================================
+   CHANGE 3 — Saved screen
+   ============================================================ */
+.personalized-block { margin-top: 4px; }
+.personalized-eyebrow { color: var(--accent-strong); }
+.personalized-list { display: grid; gap: 12px; }
+.explore-cta {
+  display: block;
+  width: 100%;
+  margin: 26px 0 4px;
+  padding: 16px;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--accent);
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 18px rgba(0, 201, 167, .25);
+}
+.explore-cta:hover { background: var(--accent-strong); }
+
+/* ============================================================
+   CHANGE 4 — Profile screen
+   ============================================================ */
+.score-block {
+  margin: 6px 0 22px;
+  padding: 18px;
+  border: 1px solid rgba(58, 124, 165, .14);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, .05);
+}
+.score-block .eyebrow { margin-bottom: 8px; }
+.score-row-top { display: flex; align-items: baseline; gap: 12px; }
+.score-big {
+  font-family: var(--display);
+  font-size: 52px;
+  font-weight: 900;
+  line-height: .85;
+  color: var(--accent);
+}
+.score-level-tag {
+  padding: 6px 11px;
+  border-radius: 999px;
+  color: var(--accent-strong);
+  background: rgba(0, 201, 167, .12);
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.score-progress {
+  height: 10px;
+  margin: 13px 0 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7edf2;
+}
+.score-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #57e0c6);
+  transition: width .4s ease;
+}
+.score-next { margin: 0 0 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.score-block .text-button { padding: 0; }
+
+/* Taste pills (colored per category) */
+.profile-taste-chips .taste-pill {
+  padding: 7px 12px;
+  border: 1px solid color-mix(in srgb, var(--c) 38%, #fff);
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--c) 78%, #1f2937);
+  background: color-mix(in srgb, var(--c) 15%, #fff);
+  font-size: 11px;
+  font-weight: 800;
+}
+.taste-edit-chip { font-weight: 800; }
+
+/* Attendance history */
+.attend-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+}
+.attend-head h2 { margin: 0; }
+.attend-head .text-button { flex: 0 0 auto; color: var(--accent-strong); }
+.attend-list { display: grid; gap: 8px; margin-top: 12px; }
+.attend-row {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid rgba(58, 124, 165, .13);
+  border-radius: 13px;
+  background: #fff;
+  text-align: left;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.attend-row:hover { border-color: var(--accent); }
+.attend-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  background-position: center;
+  background-size: cover;
+}
+.attend-copy { display: grid; gap: 3px; min-width: 0; }
+.attend-copy b { font-size: 16px; font-weight: 800; line-height: 1.1; }
+.attend-copy small { color: var(--muted); font-size: 11px; text-transform: capitalize; }
+.attend-month { margin: 16px 0 2px; color: var(--accent-strong); }
+.view-all-receipts { display: block; margin: 12px auto 0; color: var(--accent-strong); font-weight: 900; }
+
+/* ---- Category-detail page cards stay full-bleed too ---- */
+.category-list-page .category-event-list { display: grid; gap: 12px; }
+.category-list-page .event-card { min-height: 168px; }
+
+/* ============================================================
+   CHANGE 1 (v2) — Discover header: bigger logo, cover title,
+   larger stories avatars, search moved below chips
+   ============================================================ */
+.topbar { height: 86px; }
+.topbar .brand b { font-size: 42px; line-height: .88; letter-spacing: 2.5px; }
+.topbar .brand small { margin-top: 5px; font-size: 9px; }
+
+.discover-cover { margin-bottom: 18px; }
+.discover-cover h1 { margin-bottom: 4px; font-size: 56px; line-height: .9; }
+.discover-cover .eyebrow { margin-bottom: 7px; }
+
+.activity-strip { margin-bottom: 18px; }
+.activity-chip { width: 78px; }
+.activity-ring { width: 66px; height: 66px; }
+.activity-ring .avatar { width: 56px; height: 56px; font-size: 17px; }
+.activity-chip b { font-size: 13px; }
+
+.discover-search-box { margin-top: 4px; margin-bottom: 10px; }
+
+/* ============================================================
+   CHANGE 2 (v2) — all-occurrences list in the detail modal
+   ============================================================ */
+.detail-occurrences { margin: 16px 0 4px; }
+.detail-occurrences .eyebrow { margin-bottom: 8px; }
+.occurrence-list { display: grid; gap: 7px; }
+.occurrence-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgba(58, 124, 165, .16);
+  border-radius: 12px;
+  background: #f5f7fa;
+  text-align: left;
+}
+.occurrence-row:hover { border-color: var(--accent); }
+.occurrence-row span { font-size: 12px; font-weight: 800; }
+.occurrence-row small { color: var(--muted); font-size: 10px; }
+.occurrence-row.current { border-color: var(--accent); background: rgba(0, 201, 167, .08); }
+
+/* ============================================================
+   CHANGE 4 (v2) — floating / bobbing attendance receipts
+   ============================================================ */
+@keyframes receiptRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes receiptBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.attend-row {
+  animation: receiptRise .4s ease-out backwards, receiptBob 4.2s ease-in-out infinite;
+  /* entrance cascades slightly; the slow bob is staggered 0.3s per card */
+  animation-delay: calc(var(--i, 0) * .08s), calc(.4s + var(--i, 0) * .3s);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .attend-row { animation: none; }
+}
