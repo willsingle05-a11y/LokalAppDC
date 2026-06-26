@@ -623,9 +623,7 @@ async function syncSupabaseEvents(showToast = false) {
       const normalized = dcRows.map(normalizeSupabaseEvent);
       const discoveryWindowEvents = normalized.filter(isEventInDiscoveryWindow);
       events = discoveryWindowEvents;
-      const hiddenCount = rows.length - events.length;
-      const shownLabel = `${events.length} next-week DC event${events.length === 1 ? "" : "s"} shown`;
-      state.eventSync = { status: "synced", label: hiddenCount > 0 ? `${shownLabel} / ${hiddenCount} outside-window or outside-DC row${hiddenCount === 1 ? "" : "s"} hidden` : shownLabel };
+      state.eventSync = { status: "synced", label: `${events.length} event${events.length === 1 ? "" : "s"} this week in DC` };
     } else {
       events = [...demoEvents];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
