@@ -1,5 +1,6 @@
 import "./styles/base.css";
 import "./styles/round2.css";
+import "./styles/redesign.css";
 
 import coreSource from "./features/00-core.js?raw";
 import demoProfilesSource from "./features/01-demo-profiles.js?raw";
