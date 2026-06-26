@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f5f7fa" />
     <title>Lokal DC</title>
-        <style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet" />
+    <style>
 :root {
   --cream: #f5f7fa;
   --paper: #ffffff;
@@ -29,7 +32,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: #e7edf2;
-  font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 button { border: 0; color: inherit; cursor: pointer; font: inherit; }
 button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
@@ -69,7 +72,7 @@ button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
   border-radius: 14px;
   color: var(--paper);
   background: var(--orange);
-  font-family: Georgia, serif;
+  font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 23px;
   font-weight: 700;
 }
@@ -82,7 +85,7 @@ main { min-height: calc(100vh - 68px); padding-bottom: 92px; }
 
 .eyebrow { margin: 0 0 5px; color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.6px; text-transform: uppercase; }
 h1, h2, h3, p { margin-top: 0; }
-h1, h2 { font-family: Georgia, serif; font-weight: 500; letter-spacing: -.6px; }
+h1, h2 { font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-weight: 500; letter-spacing: -.6px; }
 h1 { margin-bottom: 9px; font-size: 37px; line-height: 1.02; }
 h2 { margin-bottom: 12px; font-size: 25px; line-height: 1.05; }
 h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
@@ -94,7 +97,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .discover-heading h1 { margin-bottom: 12px; font-size: 31px; }
 .filter-button { padding: 8px 11px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }
 .search-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 3px 11px rgba(42,57,52,.04); }
-.search-box span { color: var(--orange); font-family: Georgia, serif; font-size: 24px; line-height: .5; }
+.search-box span { color: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 24px; line-height: .5; }
 .search-box input { width: 100%; border: 0; color: var(--ink); background: transparent; font: inherit; font-size: 12px; outline: 0; }
 .age-note { margin: 8px 0 11px; padding: 9px 11px; border-radius: 11px; color: var(--green); background: var(--green-soft); font-size: 11px; font-weight: 800; line-height: 1.35; }
 .mini-lists { display: flex; gap: 8px; overflow-x: auto; margin-top: 12px; padding-bottom: 2px; scrollbar-width: none; }
@@ -162,6 +165,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .event-copy { display: flex; flex-direction: column; justify-content: center; padding: 12px; }
 .event-meta { margin: 0 0 4px; color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
 .event-copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.event-location { display: block; margin-top: 2px; color: var(--ink); font-size: 12px; font-weight: 850; line-height: 1.35; }
 .event-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .event-tag { display: inline-flex; align-items: center; padding: 4px 7px; border: 1px solid rgba(17,24,39,.18); border-radius: 999px; color: var(--ink); background: var(--bg); font-size: 9px; font-weight: 800; }
 .detail-tags { margin: 2px 0 12px; }
@@ -186,7 +190,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 
 .feature-card { position: relative; overflow: hidden; border-radius: 22px; color: white; background: var(--navy); text-align: left; }
 .feature-card .hero-art { min-height: 196px; padding: 20px; background: linear-gradient(145deg, rgba(34,60,82,.1), rgba(34,60,82,.8)), linear-gradient(135deg, #c97759, #233d53 67%); }
-.feature-card h3 { position: relative; z-index: 1; max-width: 260px; margin-top: 45px; font-family: Georgia, serif; font-size: 30px; font-weight: 500; }
+.feature-card h3 { position: relative; z-index: 1; max-width: 260px; margin-top: 45px; font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 500; }
 .feature-card p { position: relative; z-index: 1; margin: 0; font-size: 12px; opacity: .88; }
 .feature-signal { position: absolute; top: 16px; left: 16px; z-index: 2; padding: 7px 10px; border-radius: 999px; background: rgba(255,253,248,.95); color: var(--ink); font-size: 10px; font-weight: 900; }
 
@@ -220,6 +224,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .detail-hero { position: relative; min-height: 210px; padding: 22px; color: white; }
 .detail-hero h1 { position: relative; z-index: 1; max-width: 360px; margin-top: 75px; font-size: 35px; }
 .detail-hero p { position: relative; z-index: 1; margin: 0; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.detail-location { position: relative; z-index: 1; display: block; max-width: 360px; margin-top: 8px; font-size: 13px; font-weight: 900; }
 .detail-body { padding: 20px 18px 30px; }
 .detail-actions { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 7px; margin: 16px 0; }
 .action, .primary, .secondary { padding: 11px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; }
@@ -227,7 +232,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .action.selected { color: white; background: var(--green); }
 .primary { color: white; background: var(--orange); }
 .secondary { color: var(--green); background: var(--green-soft); }
-.detail-description { color: var(--muted); font-family: Georgia, serif; font-size: 17px; line-height: 1.45; }
+.detail-description { color: var(--muted); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.45; }
 .attendee-line { display: flex; align-items: center; gap: 9px; margin: 14px 0; font-size: 12px; font-weight: 800; }
 
 .map-page { padding: 0; }
@@ -267,7 +272,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .activity-time { display: block; margin-top: 4px; color: #a09c94; font-size: 10px; }
 .group-card { margin-top: 14px; }
 .group-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.group-icon { display: grid; width: 45px; height: 45px; place-items: center; border-radius: 15px; color: white; background: var(--navy); font-family: Georgia, serif; font-size: 22px; }
+.group-icon { display: grid; width: 45px; height: 45px; place-items: center; border-radius: 15px; color: white; background: var(--navy); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
 .group-head div:nth-child(2) { flex: 1; }
 .group-head p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
 .group-divider { margin-top: 24px; }
@@ -348,13 +353,13 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .ranking-list { display: grid; gap: 9px; margin-top: 11px; }
 .ranking-card { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 3px 11px rgba(42,57,52,.045); }
 .rank-main { display: grid; grid-template-columns: 31px 1fr 45px; gap: 9px; width: 100%; align-items: center; padding: 12px; background: transparent; text-align: left; }
-.rank-number { color: var(--orange); font-family: Georgia, serif; font-size: 29px; }
+.rank-number { color: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 29px; }
 .rank-badge { color: var(--orange); font-size: 8px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
 .rank-copy h3 { margin: 4px 0 3px; font-size: 15px; }
 .rank-copy p { margin: 0; color: var(--muted); font-size: 10px; }
 .rank-copy small { display: block; margin-top: 6px; color: var(--green); font-size: 10px; font-weight: 800; }
 .rank-score { text-align: center; }
-.rank-score b { display: block; color: var(--green); font-family: Georgia, serif; font-size: 25px; line-height: 1; }
+.rank-score b { display: block; color: var(--green); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 25px; line-height: 1; }
 .rank-score small { color: var(--muted); font-size: 8px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
 .rank-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 800; }
 .hype-button { padding: 6px 9px; border-radius: 999px; color: var(--green); background: var(--green-soft); font-size: 10px; font-weight: 900; }
@@ -427,7 +432,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .share-arrow { color: var(--orange); font-size: 22px; }
 
 .profile-card { display: flex; gap: 13px; align-items: center; margin: 14px 0 20px; }
-.profile-avatar { display: grid; width: 74px; height: 74px; place-items: center; border-radius: 24px; color: white; background: var(--navy); font-family: Georgia, serif; font-size: 28px; }
+.profile-avatar { display: grid; width: 74px; height: 74px; place-items: center; border-radius: 24px; color: white; background: var(--navy); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 28px; }
 .profile-card p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 .settings-sheet { padding: 21px 18px 25px; }
 .settings-sheet h2 { margin-bottom: 12px; font-size: 31px; }
@@ -439,17 +444,17 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .danger-button { width: 100%; padding: 12px; color: #a4564a; background: transparent; font-size: 11px; font-weight: 900; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; }
 .stat-card { text-align: center; }
-.stat-card b { display: block; color: var(--orange); font-family: Georgia, serif; font-size: 24px; }
+.stat-card b { display: block; color: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 24px; }
 .stat-card small { color: var(--muted); font-size: 9px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
 .receipt { display: grid; grid-template-columns: auto 1fr; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--line); }
 .date-block { width: 38px; color: var(--orange); text-align: center; font-size: 10px; font-weight: 900; text-transform: uppercase; }
-.date-block b { display: block; color: var(--ink); font-family: Georgia, serif; font-size: 22px; }
+.date-block b { display: block; color: var(--ink); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
 .receipt h3 { margin: 1px 0 3px; }
 .receipt p { margin: 0; color: var(--muted); font-size: 11px; }
 
 .onboarding { position: fixed; inset: 0; z-index: 40; display: grid; align-items: start; justify-items: center; overflow-y: auto; overscroll-behavior: contain; padding: 18px; background: var(--cream); -webkit-overflow-scrolling: touch; }
 .onboard-card { width: min(100%, 560px); max-height: none; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
-.onboard-logo { display: grid; width: 54px; height: 54px; margin-bottom: 34px; place-items: center; border-radius: 18px; color: white; background: var(--orange); font-family: Georgia, serif; font-size: 33px; font-weight: 700; }
+.onboard-logo { display: grid; width: 54px; height: 54px; margin-bottom: 34px; place-items: center; border-radius: 18px; color: white; background: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 33px; font-weight: 700; }
 .step-count { color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 1.5px; }
 .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 22px 0; }
 .compact-select-grid { margin: 10px 0 18px; }
@@ -460,7 +465,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .onboard-card .lede { font-size: 15px; }
 .intro-art { position: relative; display: grid; width: 100%; height: 205px; margin: 24px 0 20px; place-items: center; overflow: hidden; border-radius: 23px; color: white; background: linear-gradient(140deg, var(--orange), var(--navy)); }
 .intro-art:before, .intro-art:after { position: absolute; width: 190px; height: 190px; border: 22px solid rgba(255,255,255,.16); border-radius: 50%; content: ""; }.intro-art:before { top: -72px; right: -62px; }.intro-art:after { bottom: -104px; left: -60px; }
-.intro-art span { z-index: 1; font-family: Georgia, serif; font-size: 77px; font-weight: 800; }
+.intro-art span { z-index: 1; font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 77px; font-weight: 800; }
 .account-fields { display: grid; gap: 9px; margin: 20px 0; }
 .account-fields small { color: var(--muted); font-size: 10px; line-height: 1.4; }
 .birth-field { display: grid; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
@@ -494,7 +499,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 
 
 /* Round 2: palette, typography, and feature overrides */
-body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body { font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 .app-shell { overflow-x: hidden; overflow-y: visible; padding-bottom: 78px; }
 .bottom-nav { position: fixed; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .nav-item { min-width: 0; }
@@ -516,7 +521,7 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .request-notification { display: block; }
 .request-actions { margin-top: 8px; }
 .request-actions button:last-child { color: #a4564a; background: #f7e9e4; }
-.lokal-score { display: inline-flex; align-items: baseline; gap: 5px; padding: 7px 9px; border-radius: 12px; font-family: Georgia, serif; font-size: 24px; }
+.lokal-score { display: inline-flex; align-items: baseline; gap: 5px; padding: 7px 9px; border-radius: 12px; font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 24px; }
 .lokal-score small { font-size: 9px; letter-spacing: .6px; text-transform: uppercase; }
 .score-breakdown { display: grid; gap: 8px; margin: 14px 0; }
 .score-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px; border: 1px solid rgba(58, 124, 165, .14); border-radius: 13px; background: #f5f7fa; }
@@ -548,7 +553,7 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .profile-card .text-button { display: block; margin-top: 5px; }
 .best-friends-list { display: grid; gap: 7px; margin-bottom: 20px; }
 .best-friend-row { display: grid; grid-template-columns: 18px 28px 1fr; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
-.best-friend-row > b { color: var(--orange); font-family: Georgia, serif; font-size: 18px; }
+.best-friend-row > b { color: var(--orange); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; }
 .best-friend-row .avatar { width: 28px; height: 28px; }
 .best-friend-row span:last-child { display: grid; gap: 2px; }.best-friend-row strong { font-size: 12px; }.best-friend-row small { color: var(--muted); font-size: 10px; }
 .view-more-groups { display: block; margin: 9px auto 0; color: var(--green); font-weight: 900; }
@@ -582,14 +587,14 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 .feed-section .event-stack::-webkit-scrollbar { display: none; }
 .feed-section .event-row {
   grid-template-columns: 1fr;
-  flex: 0 0 min(82vw, 330px);
-  min-height: 360px;
+  flex: 0 0 min(88vw, 380px);
+  min-height: 430px;
   scroll-snap-align: start;
 }
-.feed-section .event-art { min-height: 172px; }
+.feed-section .event-art { min-height: 220px; }
 .feed-section .event-copy {
   justify-content: flex-start;
-  min-height: 188px;
+  min-height: 210px;
 }
 .feed-section .section-helper {
   flex: 0 0 calc(100vw - 36px);
@@ -631,7 +636,7 @@ body { font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif,
 
 /* Ink & Steel visual system */
 h1, h2, .brand-mark, .search-box span, .feature-card h3, .group-icon, .profile-avatar, .stat-card b, .date-block b, .onboard-logo, .intro-art span, .rank-number, .rank-score b, .lokal-score, .best-friend-row > b {
-  font-family: "Electric Atlas Light", "Avenir Next", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 .topbar { background: rgba(245, 247, 250, .94); border-bottom-color: rgba(220, 230, 237, .9); }
 .brand-mark, .wide-button, .primary { background: var(--ink); }
@@ -1112,27 +1117,52 @@ h1, h2, h3, .brand b { color: #326f91; }
 }
 .planner-calendar {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px;
+  grid-template-columns: repeat(7, minmax(150px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 .planner-day {
   display: grid;
-  min-height: 68px;
+  min-height: 162px;
   align-content: start;
-  gap: 3px;
-  padding: 7px 4px;
+  gap: 8px;
+  padding: 9px;
   border: 1px solid rgba(58, 124, 165, .13);
   border-radius: 10px;
   background: #ffffff;
-  text-align: center;
+  text-align: left;
 }
-.planner-day.empty { opacity: .42; cursor: default; }
-.planner-day span { color: var(--muted); font-size: 8px; font-weight: 900; text-transform: uppercase; }
-.planner-day b { color: #326f91; font-size: 15px; }
-.planner-day em { display: flex; justify-content: center; flex-wrap: wrap; gap: 2px; min-height: 12px; font-style: normal; }
-.planner-dot.concerts, .planner-legend i.concerts, .planner-day i.concerts { background: #00c897; }
+.planner-day.empty { opacity: 1; }
+.planner-day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.planner-day-head span { color: var(--muted); font-size: 8px; font-weight: 900; text-transform: uppercase; }
+.planner-day-head b { color: #326f91; font-size: 15px; }
+.planner-day-events { display: grid; gap: 6px; }
+.planner-day-events p { margin: 0; color: var(--muted); font-size: 10px; font-weight: 800; }
+.planner-day-event {
+  display: grid;
+  grid-template-columns: 8px 1fr;
+  gap: 7px;
+  width: 100%;
+  padding: 7px;
+  border: 1px solid rgba(17,24,39,.08);
+  border-radius: 9px;
+  background: #f7fafc;
+  text-align: left;
+}
+.planner-day-event i { width: 8px; min-height: 100%; border-radius: 999px; }
+.planner-day-event span { min-width: 0; }
+.planner-day-event strong { display: block; color: #0f172a; font-size: 10px; line-height: 1.2; }
+.planner-day-event small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; line-height: 1.25; }
+.planner-dot.concerts, .planner-legend i.concerts, .planner-day i.concerts, .planner-dot.live-music, .planner-legend i.live-music, .planner-day i.live-music { background: #00c897; }
 .planner-dot.nightlife, .planner-legend i.nightlife, .planner-day i.nightlife { background: #326f91; }
 .planner-dot.happy-hours, .planner-legend i.happy-hours, .planner-day i.happy-hours { background: #e26f4f; }
+.planner-dot.trivia-nights, .planner-legend i.trivia-nights, .planner-day i.trivia-nights { background: #4d8c8c; }
 .planner-dot.performing-arts, .planner-legend i.performing-arts, .planner-day i.performing-arts { background: #9b7edb; }
 .planner-dot.museums, .planner-legend i.museums, .planner-day i.museums { background: #5f9fc3; }
 .planner-dot.sports, .planner-legend i.sports, .planner-day i.sports { background: #f59e0b; }
@@ -1230,6 +1260,482 @@ h1, h2, h3, .brand b { color: #326f91; }
 }
 
 
+.rail-title { display: grid; gap: 2px; min-width: 0; padding: 0; color: inherit; background: transparent; text-align: left; }
+.rail-title h3 { display: inline-flex; align-items: center; gap: 7px; }
+.rail-title:not(:disabled) h3 { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.category-detail-heading { align-items: center; justify-content: flex-start; }
+.category-detail-heading .route-badge { margin-left: auto; }
+.back-button { display: inline-grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border-radius: 50%; color: var(--green); background: var(--green-soft); font-size: 18px; font-weight: 900; }
+.category-list-page .category-event-list { display: grid; gap: 12px; margin: 14px 0 0; padding: 0; overflow: visible; }
+.category-list-page .event-row { grid-template-columns: 136px 1fr; min-height: 150px; }
+.category-list-page .event-art { min-height: 150px; }
+.category-list-page .event-copy { min-height: 0; }
+
+.genre-filter-panel { display: grid; gap: 8px; margin: 2px 0 14px; }
+.genre-search { margin-bottom: 0; }
+.genre-chips { display: flex; gap: 7px; overflow-x: auto; padding: 1px 1px 7px; scrollbar-width: none; }
+.genre-chips::-webkit-scrollbar { display: none; }
+.event-copy h3 { font-size: 17px; line-height: 1.18; }
+.feed-section .event-copy h3 { font-size: 20px; line-height: 1.14; }
+.feed-section .event-location { font-size: 13px; line-height: 1.35; }
+.feed-section .event-tags { gap: 6px; margin-top: 8px; }
+.feed-section .event-tag { padding: 6px 8px; font-size: 10px; }
+/* ============================================================
+   UI Redesign v2 â€” teal design system + new components.
+   Loaded after base.css and round2.css, so it intentionally
+   overrides earlier rules. Light background is preserved.
+   ============================================================ */
+
+:root {
+  --accent: #00C9A7;
+  --accent-strong: #00b294;
+  --heart: #FF6B9D;
+  --urgent: #FF4757;
+  --warm: #FF7B54;
+  --display: "Barlow Condensed", "Aptos Display", Aptos, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ---- Typography ---- */
+h1, h2, h3,
+.brand b, .sidebar-brand b,
+.event-card-title, .score-big, .score-level-tag,
+.tonight-head h2, .attend-copy b {
+  font-family: var(--display);
+}
+h1 { font-weight: 900; }
+h2 { font-weight: 800; }
+h3 { font-weight: 700; }
+
+.eyebrow,
+.feed-label, .event-meta, .settings-label, .suggestion-type,
+.stop-label, .rank-badge, .step-count {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---- Teal accent: replace remaining mint surfaces ---- */
+.brand-mark, .wide-button, .primary,
+.chip.active, .filter-chip.active, .action.selected, .group-type.selected,
+.message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
+.profile-avatar, .avatar-me, .group-icon,
+.feature-card, .stop-card.anchor, .anchor-summary,
+.attended-button.selected, .share-channel,
+.taste-choice.selected, .privacy-toggle input {
+  background: var(--accent);
+}
+.privacy-toggle input { accent-color: var(--accent); }
+.nav-item.active { color: var(--accent); }
+.header-icon i, .story-progress span.active,
+.chip.active, .filter-chip.active { box-shadow: inset 0 -3px 0 var(--accent); }
+.following-chip .group-icon, .community-card.pinned { border-color: rgba(0, 201, 167, .7); }
+.lokal-score { color: var(--accent-strong); }
+
+/* ============================================================
+   CHANGE 1 â€” Event cards (used everywhere eventRow renders)
+   ============================================================ */
+.event-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 165px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background-color: var(--green);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, .12);
+  isolation: isolate;
+  text-align: left;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(17, 24, 39, .16); }
+
+/* full-bleed tap target that opens the detail modal */
+.event-card-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.event-card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 4px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .55);
+  font-family: var(--display);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.event-card-actions {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+.card-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(0, 0, 0, .42);
+  backdrop-filter: blur(5px);
+  pointer-events: auto;
+  transition: background .15s ease, transform .15s ease;
+}
+.card-icon-btn:hover { background: rgba(0, 0, 0, .62); transform: scale(1.06); }
+.card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+.card-save svg { fill: none; }
+.card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
+
+.event-card-bottom {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  display: grid;
+  gap: 6px;
+  padding: 12px 13px 13px;
+  pointer-events: none;
+}
+.card-friends { display: flex; padding-left: 5px; }
+.card-friend-avatar {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: -5px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--accent);
+  font-size: 7px;
+  font-weight: 900;
+}
+.card-friend-avatar:nth-child(2n) { background: var(--warm); }
+.card-friend-avatar:nth-child(3n) { background: #5f9fc3; }
+
+.event-card-meta {
+  color: rgba(255, 255, 255, .88);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.event-card-title {
+  margin: 0;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.0;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .35);
+}
+.event-card-hero .event-card-title { font-size: 24px; }
+.event-card-half .event-card-title { font-size: 17px; }
+
+.event-card .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.event-card .event-tag {
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, .14);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.event-card-urgency {
+  justify-self: start;
+  margin-top: 1px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.event-card-urgency.urgency-free { background: var(--accent); }
+.event-card-urgency.urgency-spots { background: var(--urgent); }
+.event-card-urgency.urgency-fast { background: var(--warm); }
+
+/* card size variants */
+.event-card-hero { min-height: 200px; }
+.event-card-half { min-height: 165px; }
+
+/* ============================================================
+   CHANGE 2 â€” Discover screen
+   ============================================================ */
+/* Friends activity strip */
+.activity-strip {
+  display: flex;
+  gap: 13px;
+  margin: 0 -18px 16px;
+  padding: 2px 18px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.activity-strip::-webkit-scrollbar { display: none; }
+.activity-chip {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  width: 64px;
+  background: transparent;
+  text-align: center;
+}
+.activity-ring {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: #fff;
+}
+.activity-ring .avatar {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border: 0;
+  font-size: 13px;
+}
+.activity-chip b { font-family: var(--display); font-size: 12px; font-weight: 700; }
+.activity-chip small { color: var(--muted); font-size: 8px; font-weight: 800; line-height: 1.25; }
+
+/* Happening tonight */
+.tonight-section { margin: 4px 0 18px; }
+.tonight-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+.tonight-head h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.tonight-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--urgent);
+  animation: tonightPulse 1.5s ease-in-out infinite;
+}
+@keyframes tonightPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, .55); opacity: 1; }
+  50% { box-shadow: 0 0 0 7px rgba(255, 71, 87, 0); opacity: .65; }
+}
+
+/* Hero / pair feed pattern */
+.feed-grid { display: grid; gap: 12px; }
+.feed-pair-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ============================================================
+   CHANGE 3 â€” Saved screen
+   ============================================================ */
+.personalized-block { margin-top: 4px; }
+.personalized-eyebrow { color: var(--accent-strong); }
+.personalized-list { display: grid; gap: 12px; }
+.explore-cta {
+  display: block;
+  width: 100%;
+  margin: 26px 0 4px;
+  padding: 16px;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--accent);
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 18px rgba(0, 201, 167, .25);
+}
+.explore-cta:hover { background: var(--accent-strong); }
+
+/* ============================================================
+   CHANGE 4 â€” Profile screen
+   ============================================================ */
+.score-block {
+  margin: 6px 0 22px;
+  padding: 18px;
+  border: 1px solid rgba(58, 124, 165, .14);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, .05);
+}
+.score-block .eyebrow { margin-bottom: 8px; }
+.score-row-top { display: flex; align-items: baseline; gap: 12px; }
+.score-big {
+  font-family: var(--display);
+  font-size: 52px;
+  font-weight: 900;
+  line-height: .85;
+  color: var(--accent);
+}
+.score-level-tag {
+  padding: 6px 11px;
+  border-radius: 999px;
+  color: var(--accent-strong);
+  background: rgba(0, 201, 167, .12);
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.score-progress {
+  height: 10px;
+  margin: 13px 0 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7edf2;
+}
+.score-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #57e0c6);
+  transition: width .4s ease;
+}
+.score-next { margin: 0 0 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.score-block .text-button { padding: 0; }
+
+/* Taste pills (colored per category) */
+.profile-taste-chips .taste-pill {
+  padding: 7px 12px;
+  border: 1px solid color-mix(in srgb, var(--c) 38%, #fff);
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--c) 78%, #1f2937);
+  background: color-mix(in srgb, var(--c) 15%, #fff);
+  font-size: 11px;
+  font-weight: 800;
+}
+.taste-edit-chip { font-weight: 800; }
+
+/* Attendance history */
+.attend-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+}
+.attend-head h2 { margin: 0; }
+.attend-head .text-button { flex: 0 0 auto; color: var(--accent-strong); }
+.attend-list { display: grid; gap: 8px; margin-top: 12px; }
+.attend-row {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid rgba(58, 124, 165, .13);
+  border-radius: 13px;
+  background: #fff;
+  text-align: left;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.attend-row:hover { border-color: var(--accent); }
+.attend-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  background-position: center;
+  background-size: cover;
+}
+.attend-copy { display: grid; gap: 3px; min-width: 0; }
+.attend-copy b { font-size: 16px; font-weight: 800; line-height: 1.1; }
+.attend-copy small { color: var(--muted); font-size: 11px; text-transform: capitalize; }
+.attend-month { margin: 16px 0 2px; color: var(--accent-strong); }
+.view-all-receipts { display: block; margin: 12px auto 0; color: var(--accent-strong); font-weight: 900; }
+
+/* ---- Category-detail page cards stay full-bleed too ---- */
+.category-list-page .category-event-list { display: grid; gap: 12px; }
+.category-list-page .event-card { min-height: 168px; }
+
+/* ============================================================
+   CHANGE 1 (v2) â€” Discover header: bigger logo, cover title,
+   larger stories avatars, search moved below chips
+   ============================================================ */
+.topbar { height: 86px; }
+.topbar .brand b { font-size: 42px; line-height: .88; letter-spacing: 2.5px; }
+.topbar .brand small { margin-top: 5px; font-size: 9px; }
+
+.discover-cover { margin-bottom: 18px; }
+.discover-cover h1 { margin-bottom: 4px; font-size: 56px; line-height: .9; }
+.discover-cover .eyebrow { margin-bottom: 7px; }
+
+.activity-strip { margin-bottom: 18px; }
+.activity-chip { width: 78px; }
+.activity-ring { width: 66px; height: 66px; }
+.activity-ring .avatar { width: 56px; height: 56px; font-size: 17px; }
+.activity-chip b { font-size: 13px; }
+
+.discover-search-box { margin-top: 4px; margin-bottom: 10px; }
+
+/* ============================================================
+   CHANGE 2 (v2) â€” all-occurrences list in the detail modal
+   ============================================================ */
+.detail-occurrences { margin: 16px 0 4px; }
+.detail-occurrences .eyebrow { margin-bottom: 8px; }
+.occurrence-list { display: grid; gap: 7px; }
+.occurrence-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgba(58, 124, 165, .16);
+  border-radius: 12px;
+  background: #f5f7fa;
+  text-align: left;
+}
+.occurrence-row:hover { border-color: var(--accent); }
+.occurrence-row span { font-size: 12px; font-weight: 800; }
+.occurrence-row small { color: var(--muted); font-size: 10px; }
+.occurrence-row.current { border-color: var(--accent); background: rgba(0, 201, 167, .08); }
+
+/* ============================================================
+   CHANGE 4 (v2) â€” floating / bobbing attendance receipts
+   ============================================================ */
+@keyframes receiptRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes receiptBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.attend-row {
+  animation: receiptRise .4s ease-out backwards, receiptBob 4.2s ease-in-out infinite;
+  /* entrance cascades slightly; the slow bob is staggered 0.3s per card */
+  animation-delay: calc(var(--i, 0) * .08s), calc(.4s + var(--i, 0) * .3s);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .attend-row { animation: none; }
+}
+
     </style>
   </head>
   <body>
@@ -1307,7 +1813,7 @@ const defaultReceipts = [
   { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
   { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
 ];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -1338,7 +1844,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -1346,7 +1852,7 @@ function eventArtKind(event) {
   const tags = eventTags(event).join(" ").toLowerCase();
   const titleText = `${event.title || ""} ${event.venue || ""} ${event.cat || ""} ${tags}`.toLowerCase();
   let key = event.cat || "community";
-  if (key === "happy-hours") key = "nightlife";
+  if (["happy-hours", "trivia-nights"].includes(key)) key = "nightlife";
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(titleText)) return "museum";
   if (/run club|running|run\b|5k|10k|marathon|jog/.test(titleText)) return "run";
   if (/baseball|mlb|nationals|nats\b/.test(titleText)) return "baseball";
@@ -1434,8 +1940,18 @@ function seededConcertFallbackTags(seedText) {
   return [pool[seed % pool.length], pool[(seed + 5) % pool.length]];
 }
 
+
+const MUSIC_GENRE_TAGS = ["Hip-Hop", "R&B", "Jazz", "Go-Go", "Pop", "Rock", "Indie", "Folk", "Country", "Electronic", "Latin", "Soul", "Singer-Songwriter", "Classical", "Punk", "Metal", "Reggae", "Blues", "House", "Funk"];
+function isMusicGenreTag(tag) {
+  return MUSIC_GENRE_TAGS.some(genre => genre.toLowerCase() === String(tag || "").toLowerCase());
+}
+function seededMusicGenreTag(seedText) {
+  const pool = ["Indie", "Rock", "Pop", "Jazz", "R&B", "Electronic", "Folk", "Hip-Hop", "Soul", "Latin", "Singer-Songwriter"];
+  const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return pool[seed % pool.length];
+}
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -1443,7 +1959,7 @@ function eventTags(event) {
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
-  if (String(event.cat || "").toLowerCase() === "concerts") {
+  if (["concerts", "live-music"].includes(String(event.cat || "").toLowerCase())) {
     const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
     const inferred = [];
     const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
@@ -1454,11 +1970,19 @@ function eventTags(event) {
     add("Pop", /\bpop\b|dorian electra|fulton lee|flawed mangoes|daniela andrade/);
     add("Rock", /music - rock|\brock band\b|\balt[- ]rock\b|\bindie rock\b|the church|the kills|of montreal/);
     add("Indie", /indie|alt[- ]|alternative|of montreal|son little|bixby|flawed mangoes/);
-    add("Folk", /folk|americana|singer[- ]songwriter|josiah and the bonnevilles|orville peck/);
+    add("Folk", /folk|americana|singer[- ]songwriter|songwriter|acoustic|josiah and the bonnevilles|orville peck/);
+    add("Singer-Songwriter", /singer[- ]songwriter|songwriter|solo acoustic|porchlight/);
     add("Country", /music - country|country music|orville peck|kolby cooper/);
-    add("Electronic", /electronic|edm|dance music|dj set|rufus|rüfüs|echostage|soundcheck/);
-    add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel/);
+    add("Electronic", /electronic|edm|dance music|dj set|rufus|r.f.s|echostage|soundcheck|nï¿½ androids|transmission|flash/);
+    add("House", /house music|deep house|tech house/);
+    add("Latin", /latin|reggaeton|salsa|bachata|cumbia|paco amoroso|ca7riel|tumbao/);
     add("Soul", /soul|funk|big freedia|tank and the bangas/);
+    add("Funk", /funk|go-go/);
+    add("Classical", /classical|orchestra|symphony|chamber|nso/);
+    add("Punk", /punk|hardcore/);
+    add("Metal", /metal/);
+    add("Reggae", /reggae|dancehall/);
+    add("Blues", /blues/);
     add("DJ Set", /\bdj\b|deejay|turntable|vinyl/);
     add("Album Tour", /album|record release|new release|listening session|playlist/);
     add("Tour Stop", /\btour\b|world tour|north america/);
@@ -1468,11 +1992,12 @@ function eventTags(event) {
     add("21+", /\b21\+\b|ages 21/);
     add("Club Show", /9:30 club|930 club|the atlantis|union stage|black cat|dc9|songbyrd/);
     add("Big Room", /the anthem|echostage|arena|stadium|audi field/);
-    const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()));
+    const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()));
+    const genre = [...clean, ...inferred].find(isMusicGenreTag) || seededMusicGenreTag(`${event.title || ""} ${event.venue || ""} ${event.desc || ""}`);
     const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
-    return [...clean, ...inferred, ...fallback]
+    return [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length));
+      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1));
   }
   if (String(event.cat || "").toLowerCase() !== "performing-arts") return tags;
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
@@ -1505,6 +2030,14 @@ function eventTagChips(event, limit = 3) {
   return eventTags(event).slice(0, limit).map(tag => `<span class="event-tag">${escapeHtml(tag)}</span>`).join("");
 }
 
+function eventPriceLabel(event) {
+  return ["happy-hours", "trivia-nights", "museums"].includes(String(event.cat || event.category || "").toLowerCase()) ? "" : String(event.price || "");
+}
+
+function eventMetaLine(event) {
+  return [event.time, eventPriceLabel(event)].filter(Boolean).join(" / ");
+}
+
 function primaryEventTag(event) {
   return eventTags(event)[0] || event.tag || event.cat || "Local event";
 }
@@ -1514,6 +2047,7 @@ function eventArtLabel(event) {
   const labels = {
     music: "Concert",
     concerts: "Concert",
+    "live-music": "Live music",
     art: "Arts",
     "performing-arts": "Arts",
     museums: "Museums",
@@ -1526,7 +2060,8 @@ function eventArtLabel(event) {
     community: "Community",
     expos: "Expo",
     nightlife: "Night out",
-    "happy-hours": "Happy hour"
+    "happy-hours": "Happy hour",
+    "trivia-nights": "Trivia night"
   };
   if (labels[category]) return labels[category];
   const tagText = eventTags(event).join(" ").toLowerCase();
@@ -1544,16 +2079,150 @@ function eventArtLabel(event) {
   return "Community";
 }
 
-function eventRow(event) {
-  const signal = eventInterestSignal(event);
-  const label = event.id === 5 ? "Featured partner" : event.id === 7 ? "Curated by @dcafterdark" : event.id === 8 ? "Popular near you" : "Trending";
-  const attachedGroup = event.id === 4 ? `<div class="signal">Join the Skyline Social event chat</div>` : "";
+function cleanLocationPart(value) {
+  const text = String(value || "").trim();
+  if (!text || /^location in description$/i.test(text) || /^undefined|null$/i.test(text)) return "";
+  return text;
+}
+
+function isGenericLocationName(value) {
+  return /^(washington,?\s*dc|dc|district of columbia|wharf|shaw|noma|downtown|national mall|u street|h street|navy yard|penn quarter|georgetown|dupont(?: circle)?|logan circle|adams morgan|capitol hill|columbia heights|petworth|brookland|ivy city|foggy bottom|waterfront|southwest|northeast|northwest|southeast|southwest)$/i.test(String(value || "").trim());
+}
+
+function venueFromEventDescription(event) {
+  const description = String(event?.desc || "").replace(/&amp;/g, "&").trim();
+  if (!description) return "";
+  const matches = [...description.matchAll(/\bat\s+([A-Z0-9][A-Za-z0-9&'\u2019.,+\- ]{2,80}?)(?:[.!?]|$)/g)];
+  for (const match of matches.reverse()) {
+    const candidate = cleanLocationPart(match[1].replace(/\s+/g, " ").replace(/[,.;:]+$/g, ""));
+    if (candidate && !isGenericLocationName(candidate) && !/^(the )?(source|event|show|door|venue)$/i.test(candidate)) return candidate;
+  }
+  return "";
+}
+
+function eventLocationLine(event) {
+  const venue = cleanLocationPart(event.venue);
+  const area = cleanLocationPart(event.area);
+  const describedVenue = venueFromEventDescription(event);
+  const displayVenue = (!venue || venue.toLowerCase() === area.toLowerCase() || isGenericLocationName(venue)) && describedVenue ? describedVenue : venue;
+  if (displayVenue && area && displayVenue.toLowerCase() !== area.toLowerCase()) return `${displayVenue} / ${area}`;
+  return displayVenue || area || "Washington, DC";
+}
+
+function eventNeighborhoodLine(event) {
+  return [event.area, event.neighborhood, event.venue_address, event.address, eventLocationLine(event)]
+    .map(value => cleanLocationPart(value))
+    .filter(Boolean)
+    .filter((value, index, all) => all.findIndex(item => item.toLowerCase() === value.toLowerCase()) === index)
+    .join(" ");
+}
+
+function eventNeighborhoodMatches(event, value) {
+  if (!value || value === "Any neighborhood") return true;
+  const normalized = String(value || "").trim().toLowerCase();
+  return eventNeighborhoodLine(event).toLowerCase().includes(normalized);
+}
+
+function discoverNeighborhoodOptions(sourceEvents = events) {
+  const blocked = /^(washington,?\s*d\.?c\.?|dc|d\.c\.|district of columbia|location in description|unknown)$/i;
+  return sourceEvents
+    .map(event => cleanLocationPart(event.area || event.neighborhood))
+    .filter(area => area && !blocked.test(area))
+    .filter((area, index, all) => all.findIndex(item => item.toLowerCase() === area.toLowerCase()) === index)
+    .sort((a, b) => a.localeCompare(b));
+}
+const CATEGORY_COLORS = {
+  concerts: "#00C9A7",
+  "live-music": "#00C9A7",
+  music: "#00C9A7",
+  "happy-hours": "#FF7B54",
+  "trivia-nights": "#4DB6AC",
+  nightlife: "#7C6BFF",
+  "performing-arts": "#B07EDB",
+  art: "#B07EDB",
+  museums: "#5F9FC3",
+  sports: "#F59E0B",
+  fitness: "#27AE60",
+  festivals: "#FF6B9D",
+  food: "#FF7B54",
+  community: "#7BC67E",
+  expos: "#64748B"
+};
+
+const cardShareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/></svg>';
+const cardHeartIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1l1.7 1.7L12 21.5l7.1-7.1 1.7-1.7a5 5 0 0 0 0-7.1Z"/></svg>';
+
+function categoryColor(event) {
+  return CATEGORY_COLORS[String(event.cat || event.category || "").toLowerCase()]
+    || CATEGORY_COLORS[eventVisualCategory(event)]
+    || "var(--accent)";
+}
+
+function cardFriendAvatars(event) {
+  const friends = interestedFriendsForEvent(event);
+  if (!friends.length) return "";
+  return `<span class="card-friends">${friends.map(initials => `<span class="card-friend-avatar">${escapeHtml(initials)}</span>`).join("")}</span>`;
+}
+
+function eventUrgency(event) {
+  if (eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""))) return { label: "Free", cls: "urgency-free" };
+  const seed = Array.from(String(event.sourceId || event.id || event.title || "lokal")).reduce((total, character) => total + character.charCodeAt(0), 0);
+  const mode = seed % 5;
+  if (mode === 0) return { label: `${(seed % 6) + 2} spots left`, cls: "urgency-spots" };
+  if (mode === 1) return { label: "Selling fast", cls: "urgency-fast" };
+  return null;
+}
+
+function eventRow(event, variant = "") {
+  const variantClass = variant ? ` event-card-${variant}` : "";
+  const accent = categoryColor(event);
   const image = eventArtImage(event);
   const tags = eventTags(event);
-  return `<button class="event-row feed-event" data-event="${event.id}" data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-art cat-${eventVisualCategory(event)}" style="background-image: linear-gradient(180deg, rgba(17,24,39,.06), rgba(17,24,39,.34)), ${image};">${eventArtScene(event)}<span class="art-label">${escapeHtml(eventArtLabel(event))}</span></span>
-    <span class="event-copy"><span class="feed-label">${label}</span><span class="event-meta">${event.time} / ${event.price}</span><h3>${event.title}</h3><p>${event.venue} / ${event.area}</p><span class="event-tags">${eventTagChips(event)}</span>${signal}${attachedGroup}</span>
-  </button>`;
+  const cardStyle = `background-image: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 60%), ${image};`;
+  const urgency = eventUrgency(event);
+  const urgencyPill = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
+  return `<article class="event-card cat-${eventVisualCategory(event)}${event.image ? " has-image" : ""}${variantClass}" style="${cardStyle}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+    <span class="event-card-badge" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>
+    <span class="event-card-actions">
+      <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
+      <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+    </span>
+    <span class="event-card-bottom">
+      ${cardFriendAvatars(event)}
+      <span class="event-card-meta">${eventMetaLine(event)}</span>
+      <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
+      <span class="event-card-tags">${eventTagChips(event, 2)}</span>
+      ${urgencyPill}
+    </span>
+  </article>`;
+}
+
+function eventDedupeKey(event) {
+  return `${String(event.title || "").trim().toLowerCase()}|${String(event.venue || "").trim().toLowerCase()}`;
+}
+
+// Feed-only dedupe: collapse repeated title+venue occurrences to a single card.
+// Assumes `list` is already sorted ascending by start, so the first match kept
+// is the next upcoming occurrence.
+function dedupeFeedEvents(list) {
+  const seen = new Set();
+  return list.filter(event => {
+    const key = eventDedupeKey(event);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// All occurrences of the same title+venue across the loaded event set, sorted
+// by start. Used by the detail modal so the full recurring schedule stays
+// visible even though the feed only shows one card.
+function occurrencesForEvent(event) {
+  const key = eventDedupeKey(event);
+  return events
+    .filter(item => eventDedupeKey(item) === key)
+    .sort(sortEventsByStart);
 }
 
 function isHighlighted(event) { return [4, 5].includes(event.id); }
@@ -1650,11 +2319,24 @@ function matchesTimeFilter(event, value) {
   return true;
 }
 
+
+function isMuseumDisplayEvent(event) {
+  if (String(event.cat || "").toLowerCase() !== "museums") return true;
+  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+  if (/ongoing\s*\/\s*time varies|time varies|date to be announced/.test(String(event.time || "").toLowerCase())) return false;
+  const hasSetSchedule = Boolean(event.hasPreciseStart || (event.startDate && eventStartHour(event) !== null));
+  if (!hasSetSchedule) return false;
+  const scheduledCue = /\b(after hours?|lecture|talk|tour|guided|workshop|class|screening|film|performance|concert|festival|opening|reception|panel|story time|event|program|demo|demonstration)\b/.test(text);
+  const ongoingExhibit = /\b(ongoing|on view|exhibition|exhibit|gallery|collection|installation|display)\b/.test(text);
+  return !ongoingExhibit || scheduledCue;
+}
 function matchesFilter(event, filter, applyDiscoverFilters = true) {
+  if (!isMuseumDisplayEvent(event)) return false;
   const priceValue = eventNumericPrice(event);
   if (state.age < 21 && ["nightlife", "happy-hours"].includes(event.cat)) return false;
   if (applyDiscoverFilters && state.highlightedOnly && !isHighlighted(event)) return false;
   if (applyDiscoverFilters && state.filter.category && state.filter.category !== "All categories" && event.cat !== state.filter.category) return false;
+  if (applyDiscoverFilters && !eventNeighborhoodMatches(event, state.filter.neighborhood)) return false;
   if (applyDiscoverFilters && !matchesDateFilter(event, state.filter.date)) return false;
   if (applyDiscoverFilters && !matchesTimeFilter(event, state.filter.time)) return false;
   if (applyDiscoverFilters && state.filter.price === "Free" && event.price !== "Free") return false;
@@ -1669,17 +2351,15 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["happy-hours", "Happy hours"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
-
-
 
 const demoProfileSeeds = [
   { initials: "AL", fullName: "Ana Lopez", username: "analopes", phone: "+12025550101", birthdate: "1998-04-18", mutuals: "8 mutual friends", bio: "New to DC / Live music + food" },
@@ -1758,6 +2438,7 @@ function formatSupabaseDateAndTime(dateValue, timeValue) {
 function rowIsExplicitlyFree(row) {
   const tags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
   const text = `${row.price || ""} ${row.price_label || ""} ${row.title || ""} ${row.description || ""} ${tags} ${row.raw_json?.description || ""} ${Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : ""}`.toLowerCase();
+  if (String(row.source || "").toLowerCase() === "dc-music-live") return /\b(free admission|free concert|free show|rsvp free|no cover)\b/.test(text);
   return row.is_free === true || /\b(free|no cover|complimentary|free admission)\b/.test(text);
 }
 
@@ -1814,6 +2495,7 @@ function formatListedPriceRange(range) {
 }
 
 function normalizeSupabasePriceFromRow(row) {
+  if (["concerts", "live-music"].includes(normalizeImportedCategory(row)) && String(row.source || "").toLowerCase() === "dc-music-live" && /^free$/i.test(String(row.price || row.raw_json?.source_price || "").trim())) return "Price unknown";
   const isExplicitlyFree = rowIsExplicitlyFree(row);
   const listedTicketmasterPrice = String(row.source || "").toLowerCase() === "ticketmaster" ? formatListedPriceRange(ticketmasterPriceRange(row)) : "";
   if (listedTicketmasterPrice) return listedTicketmasterPrice;
@@ -1940,13 +2622,33 @@ function isAddressOnlyVenue(value) {
   return /United States of America|Washington, DC 20|Street |Avenue |Road |Northwest|Northeast|Southwest|Southeast|^\d+\s/i.test(String(value || ""));
 }
 
+function extractLocationFromDescription(value) {
+  const description = cleanImportedText(value);
+  const details = { venue: "", address: "", description };
+  if (!description) return details;
+  const labeled = description.match(/(?:^|\n)\s*(address|location|where|venue)\s*:\s*([^\n\r]+)/i);
+  if (labeled) {
+    const label = labeled[1].toLowerCase();
+    const location = labeled[2].trim().replace(/[.;,]+$/g, "");
+    if (location) {
+      if (label === "address" || isAddressOnlyVenue(location)) details.address = location;
+      else details.venue = location;
+    }
+    details.description = description
+      .replace(new RegExp(`\\n?\\s*${labeled[1]}\\s*:\\s*${labeled[2].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*`, "i"), "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+  return details;
+}
+
 function rawEventApiAddress(row) {
-  return row.raw_json?.geo?.address?.formatted_address || row.raw_json?.entities?.find(entity => entity.formatted_address)?.formatted_address || "";
+  return row.raw_json?.geo?.address?.formatted_address || row.raw_json?.entities?.find(entity => entity.formatted_address)?.formatted_address || extractLocationFromDescription(row.description || row.desc).address || "";
 }
 
 function rawEventApiVenueName(row) {
   const entity = row.raw_json?.entities?.find(item => ["venue", "place"].includes(item.type) && item.name && !isAddressOnlyVenue(item.name));
-  return entity?.name || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
+  return entity?.name || extractLocationFromDescription(row.description || row.desc).venue || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
 }
 
 function rawImageUrl(value) {
@@ -1981,9 +2683,17 @@ function inferVenueNameFromText(value) {
 }
 
 function normalizeSupabaseVenue(row) {
+  const extracted = extractLocationFromDescription(row.description || row.desc);
   const venue = cleanImportedText(row.venue_name || row.venue || row.location_name || "");
-  if (row.source !== "manual" && isAddressOnlyVenue(venue)) return rawEventApiVenueName(row) || "Location in description";
-  return venue || rawEventApiVenueName(row) || "Location in description";
+  const inferredVenue = rawEventApiVenueName(row) || extracted.venue || inferVenueNameFromText(`${row.title || ""} ${row.description || ""} ${row.raw_json?.description || ""}`);
+  const genericVenue = isAddressOnlyVenue(venue) || (typeof isGenericLocationName === "function" && isGenericLocationName(venue));
+  if (row.source !== "manual" && genericVenue) return inferredVenue || venue || "Location in description";
+  return venue || inferredVenue || "Location in description";
+}
+
+function normalizeSupabaseArea(row) {
+  const extracted = extractLocationFromDescription(row.description || row.desc);
+  return row.neighborhood || row.area || row.location || extracted.address || "Washington, DC";
 }
 
 function supabaseLocationText(row) {
@@ -2009,13 +2719,12 @@ function isSupabaseEventInDc(row) {
 }
 
 function normalizeSupabaseDescription(row) {
-  const description = cleanSupabaseDescription(row.description || row.desc);
-  const address = rawEventApiAddress(row) || (isAddressOnlyVenue(row.venue_name || row.venue) ? (row.venue_name || row.venue) : "");
-  if (!address || description.includes(address)) return description;
-  return `${description}\n\nAddress: ${address}`;
+  const extracted = extractLocationFromDescription(row.description || row.desc);
+  return cleanSupabaseDescription(extracted.description);
 }
 
 function hasReliableSupabaseStart(row) {
+  if (row.source === "smithsonian" && !row.raw_json && !row.date && !row.time && !row.start_time && !row.start_at) return false;
   if (row.date || row.time || row.start_time || row.start_at) return true;
   if (row.source === "smithsonian" && !row.raw_json) return false;
   return Boolean(row.starts_at);
@@ -2063,6 +2772,20 @@ function endOfDiscoveryWindowSortValue() {
   end.setHours(23, 59, 59, 999);
   return end.getTime();
 }
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function discoveryWindowQueries() {
+  const start = new Date(startOfTodaySortValue());
+  const end = new Date(endOfDiscoveryWindowSortValue());
+  const selectAndStatus = "select=*&status=eq.published";
+  return [
+    `${selectAndStatus}&date=gte.${localDateKey(start)}&date=lte.${localDateKey(end)}`,
+    `${selectAndStatus}&starts_at=gte.${encodeURIComponent(start.toISOString())}&starts_at=lte.${encodeURIComponent(end.toISOString())}`
+  ];
+}
+
 
 function isEventInDiscoveryWindow(event) {
   if (!Number.isFinite(event.startSort)) return true;
@@ -2070,7 +2793,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours"]);
+  const importedCategories = new Set(["concerts", "live-music", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -2093,6 +2816,8 @@ function normalizeImportedCategory(row) {
     soccer: "sports",
     museum: "museums",
     museums: "museums",
+    "live music": "live-music",
+    "live-music": "live-music",
     rock: "concerts",
     pop: "concerts",
     "r&b": "concerts",
@@ -2103,23 +2828,28 @@ function normalizeImportedCategory(row) {
     "dance/electronic": "concerts",
     religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
   };
+  if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
+  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife"].includes(directCategory)) return directCategory;
   if (/comedy|comedian|stand[- ]?up|improv/.test(classificationText)) return "performing-arts";
   if (/sports|baseball|basketball|football|hockey|soccer/.test(classificationText)) return "sports";
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
   if (/arts|theatre|theater|performance|play|musical/.test(classificationText)) return "performing-arts";
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
   if (directCategory === "happy-hours") return "happy-hours";
+  if (directCategory === "trivia-nights") return "trivia-nights";
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
+  if (/\b(9:30 club|930 club|the anthem|capital one arena|dar constitution hall|constitution hall|the howard theatre|howard theatre|echostage|nationals park|union stage)\b/.test(venueText)) return "concerts";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
   if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
   if (importedCategories.has(directCategory)) return directCategory;
   if (/signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera|stage play|pippin|what became of us/.test(text)) return "performing-arts";
-  if (/concert|music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "concerts";
+  if (/concert/.test(text)) return "concerts";
+  if (/music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "live-music";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "expos";
   if (/showcase/.test(text)) return "performing-arts";
-  if (/band|artist|singer|songwriter/.test(text)) return "concerts";
+  if (/band|artist|singer|songwriter/.test(text)) return "live-music";
   if (row.source !== "manual" && importedCategories.has(tag) && tag !== "community") return tag;
   return "community";
 }
@@ -2221,19 +2951,28 @@ function performingArtsDetailTags(row) {
 function normalizeSupabaseTags(row, category) {
   const rawTags = Array.isArray(row.tags) ? row.tags : [];
   const labels = row.raw_json?.labels || row.raw_json?.phq_labels || [];
+  if (["happy-hours", "trivia-nights"].includes(category)) {
+    return [...rawTags, ...labels]
+      .map(normalizeTagValue)
+      .map(tag => String(tag || "").trim())
+      .filter(tag => tag && tag !== "[object Object]")
+      .filter(tag => !/^(happy hours?|weekday deal)$/i.test(tag) && !/sport/i.test(tag))
+      .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+      .slice(0, 8);
+  }
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", "happy-hours": "" };
+  const categoryLabels = { concerts: "", "live-music": "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", "happy-hours": "", "trivia-nights": "" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
-  if (category === "concerts") inferredTags.push(...concertDetailTags(row));
+  if (["concerts", "live-music"].includes(category)) inferredTags.push(...concertDetailTags(row));
   if (/theatre|theater|performance art|performing|arts & theatre|gallery|art|exhibit|exhibition|musical|opera/.test(text)) inferredTags.push("Arts");
   if (/comedy|stand up|stand-up|improv/.test(text)) inferredTags.push("Comedy");
   if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
   const sportTags = sportsLeagueTags(row);
   if (sportTags.length || /baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl|mls|wnba|nationals|mystics|wizards|capitals|commanders|d\.?c\.? united|dc united/.test(text)) inferredTags.push("Sports", ...sportTags);
-  if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) inferredTags.push("Nightlife");
+  if (category === "nightlife" && (/flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|club promo|club night|bar crawl|cocktail|speakeasy|lounge|rooftop party|dance party|after dark|late night|pride party)\b/.test(text))) inferredTags.push("Nightlife");
   if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
   if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
   if (category === "performing-arts") inferredTags.push(...performingArtsDetailTags(row));
@@ -2241,7 +2980,7 @@ function normalizeSupabaseTags(row, category) {
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
-    .filter(tag => category !== "concerts" || !["concert", "concerts", "live music", "music", "arts", "art", "free"].includes(tag.toLowerCase()))
+    .filter(tag => !["concerts", "live-music"].includes(category) || !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()))
     .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, 8);
@@ -2256,13 +2995,13 @@ function normalizeSupabaseEvent(row, index) {
     source: row.source || "manual",
     title: row.title || row.name || "Untitled Lokal event",
     venue: normalizeSupabaseVenue(row),
-    area: row.neighborhood || row.area || row.location || "Washington, DC",
+    area: normalizeSupabaseArea(row),
     time: hasReliableSupabaseStart(row) ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : "Ongoing / time varies",
     startDate: row.date || "",
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
     hasPreciseStart: hasReliableSupabaseStart(row) && Boolean(row.starts_at || row.start_time || row.start_at),
-    price: normalizeSupabasePriceFromRow(row),
+    price: ["happy-hours", "trivia-nights", "museums"].includes(category) ? "" : normalizeSupabasePriceFromRow(row),
     cat: category,
     tag: tags[0] || row.tag || row.category || "Local event",
     tags,
@@ -2276,11 +3015,14 @@ async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   if (state.route === "home") renderHome();
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?select=*&status=eq.published&order=starts_at.asc.nullslast,date.asc.nullslast`, {
-      headers: { apikey: supabaseConfig.publishableKey }
-    });
-    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
-    const rows = await response.json();
+    const responses = await Promise.all(discoveryWindowQueries().map(query => fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
+      cache: "no-store",
+      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
+    })));
+    const failedResponse = responses.find(response => !response.ok);
+    if (failedResponse) throw new Error(`Supabase returned ${failedResponse.status}`);
+    const rowSets = await Promise.all(responses.map(response => response.json()));
+    const rows = [...new Map(rowSets.flat().map(row => [row.id, row])).values()];
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
       const normalized = dcRows.map(normalizeSupabaseEvent);
@@ -2640,20 +3382,70 @@ refreshScores().then((res) => {
   }
 });
 
+function friendsActivityFeed(limit = 10) {
+  const times = ["just now", "8m ago", "23m ago", "1h ago", "2h ago", "4h ago", "yesterday"];
+  const verbs = ["saved", "is going", "saved", "RSVPed"];
+  return Array.from(state.friends).map(name => {
+    const event = (typeof friendInterestEvents === "function" ? friendInterestEvents(name, 1)[0] : null) || displayableDcEvents()[0];
+    if (!event) return null;
+    const seed = Array.from(String(name)).reduce((total, character) => total + character.charCodeAt(0), 0);
+    return {
+      name,
+      first: String(name).split(" ")[0],
+      initials: friendInitials(name),
+      eventId: event.id,
+      time: `${times[seed % times.length]}`,
+      verb: verbs[seed % verbs.length]
+    };
+  }).filter(Boolean).slice(0, limit);
+}
+
+function activityChip(activity) {
+  return `<button class="activity-chip" data-event="${activity.eventId}"><span class="activity-ring"><span class="avatar">${escapeHtml(activity.initials)}</span></span><b>${escapeHtml(activity.first)}</b><small>${escapeHtml(activity.verb)} / ${escapeHtml(activity.time)}</small></button>`;
+}
+
+function happeningTonightEvents(limit = 2) {
+  const tonight = displayableDcEvents()
+    .filter(event => matchesFilter(event, "all"))
+    .filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"))
+    .sort(sortEventsByStart);
+  return dedupeFeedEvents(tonight).slice(0, limit);
+}
+
+function eventFeedPattern(list) {
+  if (!list.length) return `<p class="section-helper">No events match that filter right now.</p>`;
+  const blocks = [];
+  let index = 0;
+  while (index < list.length) {
+    blocks.push(`<div class="feed-hero-row">${eventRow(list[index], "hero")}</div>`);
+    index++;
+    if (index < list.length) {
+      const pair = list.slice(index, index + 2);
+      blocks.push(`<div class="feed-pair-row">${pair.map(event => eventRow(event, "half")).join("")}</div>`);
+      index += pair.length;
+    }
+  }
+  return `<div class="feed-grid">${blocks.join("")}</div>`;
+}
+
 function renderHome() {
+  if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
   const filtered = dcEvents.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
   const feedContent = renderDiscoverFeedContent(filtered);
-  app.innerHTML = `<section class="page">
-    <div class="discover-heading"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
-    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
-    <label class="search-box"><span>⌕</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
+  const activity = friendsActivityFeed();
+  const tonight = happeningTonightEvents();
+  app.innerHTML = `<section class="page discover-page">
+    <div class="discover-heading discover-cover"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
-    <p class="eyebrow">Following</p><div class="following-rail">${activeFollowingStories().map((story,index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${story.name}</b><small>${story.type}</small></button>`).join("")}</div>
+    ${activity.length ? `<p class="eyebrow">Friends activity</p><div class="activity-strip">${activity.map(activityChip).join("")}</div>` : ""}
+    ${tonight.length ? `<section class="tonight-section"><div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div><div class="feed-grid">${tonight.map(event => eventRow(event, "hero")).join("")}</div></section>` : ""}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Swipe your feed</p><h2>${escapeHtml(feedTitle)}</h2></div><span class="route-badge">${filtered.length} event${filtered.length === 1 ? "" : "s"}</span></div>
+    <label class="search-box discover-search-box"><span>&#8981;</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
+    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Your feed</p><h2>${escapeHtml(feedTitle)}</h2></div></div>
     <div data-feed-content>${feedContent}</div></section>
   </section>`;
 }
@@ -2663,10 +3455,122 @@ function discoverCategoryLabel(category) {
   return item ? item[1] : category;
 }
 
+
+function renderDiscoverCategoryPage(category) {
+  const label = discoverCategoryLabel(category);
+  const hasCategorySearch = searchableDiscoverCategory(category);
+  if (!hasCategorySearch) state.discoverGenreFilter = "";
+  const categoryEvents = displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart);
+  const visibleEvents = hasCategorySearch && state.discoverGenreFilter
+    ? categoryEvents.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
+    : categoryEvents;
+  app.innerHTML = `<section class="page category-list-page">
+    <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
+    ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
+    <div class="event-stack category-event-list">${visibleEvents.length ? visibleEvents.map(eventRow).join("") : `<p class="section-helper">No events match that search right now.</p>`}</div>
+  </section>`;
+}
+
+function searchableDiscoverCategory(category) {
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
+}
+
+function eventMatchesCategoryFacet(event, query) {
+  const normalized = String(query || "").trim().toLowerCase();
+  if (!normalized) return true;
+  const neighborhood = typeof eventNeighborhoodLine === "function" ? eventNeighborhoodLine(event) : "";
+  const text = `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+  return text.includes(normalized);
+}
+
+function categoryFacetLabel(category) {
+  const labels = {
+    concerts: "genre",
+    "live-music": "genre",
+    "performing-arts": "arts type",
+    sports: "sport or league",
+    "happy-hours": "happy hour type",
+    "trivia-nights": "trivia type",
+    nightlife: "nightlife type",
+    museums: "museum type",
+    festivals: "festival type",
+    community: "community type",
+    expos: "expo type",
+    free: "type"
+  };
+  return labels[category] || "type";
+}
+
+function categoryFacetAllLabel(category) {
+  const labels = {
+    concerts: "All genres",
+    "live-music": "All genres",
+    "performing-arts": "All arts",
+    sports: "All sports/leagues",
+    "happy-hours": "All deals",
+    "trivia-nights": "All trivia",
+    nightlife: "All nightlife",
+    museums: "All museum types",
+    festivals: "All festival types",
+    community: "All community types",
+    expos: "All expos",
+    free: "All free events"
+  };
+  return labels[category] || "All types";
+}
+
+function categoryFacetPriorityList(category) {
+  return {
+    concerts: MUSIC_GENRE_TAGS,
+    "live-music": MUSIC_GENRE_TAGS,
+    "performing-arts": ["Comedy", "Broadway", "Play", "Musical", "Dance", "Film", "Classical", "Cabaret", "Drag", "Magic", "Storytelling", "Spoken Word", "Family Friendly"],
+    sports: ["MLB", "NBA", "NFL", "NHL", "MLS", "WNBA", "Baseball", "Basketball", "Football", "Hockey", "Soccer", "Tennis", "Running"],
+    "happy-hours": ["Cocktails", "Beer", "Wine", "Rooftop", "Patio", "Food Specials", "All Night", "Date Spot", "Dive Bar", "Upscale"],
+    "trivia-nights": ["Weekly", "Monthly", "Team Trivia", "Pop Culture", "General Knowledge", "Prizes", "Bar Trivia"],
+    nightlife: ["DJ Set", "Dance Floor", "Club Night", "Rooftop", "Late Night", "Pride", "Lounge", "Cocktails"],
+    museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
+    festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
+    community: ["Volunteer", "Networking", "Book Club", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
+    expos: ["Convention", "Expo", "Trade Show", "Marketplace", "Workshop", "Networking"],
+    free: ["Comedy", "Museum", "Outdoor", "Family Friendly", "Live music", "Festival", "Workshop", "Talk", "Community"]
+  }[category] || [];
+}
+
+function categoryFacetPriority(category, tag) {
+  const value = String(tag || "").toLowerCase();
+  const priority = categoryFacetPriorityList(category);
+  const index = priority.findIndex(item => item.toLowerCase() === value);
+  return index === -1 ? 1000 : index;
+}
+
+function categoryFacetOptions(category, categoryEvents) {
+  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
+  const taggedOptions = categoryEvents
+    .flatMap(eventTags)
+    .map(tag => String(tag || "").trim())
+    .filter(tag => tag && !blocked.includes(tag.toLowerCase()));
+  const priorityOptions = categoryFacetPriorityList(category).filter(option => categoryEvents.some(event => eventMatchesCategoryFacet(event, option)));
+  return [...priorityOptions, ...taggedOptions]
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
+    .sort((a, b) => categoryFacetPriority(category, a) - categoryFacetPriority(category, b) || a.localeCompare(b))
+    .slice(0, 18);
+}
+
+function categoryFacetControls(category, categoryEvents) {
+  const active = state.discoverGenreFilter || "";
+  const facetLabel = categoryFacetLabel(category);
+  const options = categoryFacetOptions(category, categoryEvents);
+  return `<section class="genre-filter-panel" aria-label="Search by ${facetLabel}">
+    <label class="search-box genre-search"><span>&#8981;</span><input data-category-genre-search placeholder="Search by ${escapeHtml(facetLabel)}" value="${escapeHtml(active)}" aria-label="Search by ${escapeHtml(facetLabel)}"></label>
+    <div class="genre-chips"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(categoryFacetAllLabel(category))}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>
+  </section>`;
+}
 function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
-  if (/music|concert|jazz|dj|karaoke/.test(text)) return "concerts";
+  if (/concert/.test(text)) return "concerts";
+  if (/music|jazz|dj|karaoke/.test(text)) return "live-music";
   if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
+  if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/museum/.test(text)) return "museums";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
@@ -2677,7 +3581,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "happy-hours", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
@@ -2686,24 +3590,22 @@ function discoverRail(category, railEvents) {
   const sorted = railEvents.sort(sortEventsByStart);
   const emptyText = category === "for-you" ? "No events matched that search yet." : "No events in this section yet.";
   return `<section class="discover-rail" data-discover-rail="${category}">
-    <div class="rail-heading"><div><p class="eyebrow">${category === "for-you" ? "Search results" : "Browse by category"}</p><h3>${escapeHtml(discoverCategoryLabel(category))}</h3></div><span>${sorted.length}</span></div>
+    <div class="rail-heading"><button class="rail-title" data-discover-category="${category}" ${category === "for-you" ? "disabled" : ""}><h3>${escapeHtml(discoverCategoryLabel(category))}</h3></button></div>
     <div class="event-stack">${sorted.length ? sorted.map(eventRow).join("") : `<p class="section-helper">${emptyText}</p>`}</div>
   </section>`;
 }
 
 function renderDiscoverFeedContent(filtered) {
-  if (!["all", "nearby"].includes(state.homeFilter)) {
-    return discoverRail(state.homeFilter, filtered);
-  }
-  const base = displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
-  const rails = orderedDiscoverCategories()
-    .map(category => [category, base.filter(event => matchesFilter(event, category))])
-    .filter(([, railEvents]) => railEvents.length);
-  return `<div class="discovery-sections">${rails.map(([category, railEvents]) => discoverRail(category, railEvents)).join("")}</div>`;
+  const hasCategorySearch = !["all", "nearby"].includes(state.homeFilter) && searchableDiscoverCategory(state.homeFilter);
+  const visibleEvents = hasCategorySearch && state.discoverGenreFilter
+    ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
+    : filtered;
+  return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${eventFeedPattern(dedupeFeedEvents(visibleEvents))}`;
 }
 
 function discoverSearchText(event) {
-  return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+  const neighborhood = typeof eventNeighborhoodLine === "function" ? eventNeighborhoodLine(event) : "";
+  return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
 }
 
 function displayableDcEvents() {
@@ -2711,6 +3613,7 @@ function displayableDcEvents() {
 }
 
 function isDisplayableDcEvent(event) {
+  if (!isMuseumDisplayEvent(event)) return false;
   const text = `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""}`.toLowerCase();
   const outsideDc = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore)\b|,\s*(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy)\b|\bvirginia\b/.test(text);
   if (outsideDc) return false;
@@ -2725,14 +3628,12 @@ function renderDiscoverEventSearch(query) {
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
-  const dcEvents = displayableDcEvents();
+  const dcEvents = displayableDcEvents().filter(event => matchesFilter(event, "all"));
   const pool = normalizedQuery
     ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
     : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
-  const matches = pool.sort(sortEventsByStart);
-  content.innerHTML = discoverRail("for-you", matches);
-  const count = document.querySelector(".feed-section .route-badge");
-  if (count) count.textContent = `${matches.length} result${matches.length === 1 ? "" : "s"}`;
+  const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
+  content.innerHTML = eventFeedPattern(matches);
   return matches.length;
 }
 
@@ -2817,6 +3718,7 @@ function renderMap() {
 }
 
 const followingStories = [
+  { id: "featured-today", icon: "5", name: "5 featured events in DC today", type: "Today", intro: "Five DC events worth knowing about today.", todayOnly: true },
   { id: "songbyrd", icon: "S", name: "Songbyrd", type: "Venue", intro: "What's coming up at Songbyrd over the next few days.", eventIds: [1, 11], venueKeywords: ["songbyrd"] },
   { id: "dcafterdark", icon: "D", name: "@dcafterdark", type: "Curator", intro: "A few things @dcafterdark thinks are worth leaving the house for this week.", eventIds: [4, 6, 7], categories: ["concerts", "performing-arts"], tagKeywords: ["Nightlife", "Comedy", "Live Music", "Late Night", "Evening"] },
   { id: "smithsonian", icon: "M", name: "Smithsonian", type: "Venue", intro: "A Smithsonian event to catch over the next couple of days.", eventIds: [9], venueKeywords: ["smithsonian", "hirshhorn", "national gallery", "saam", "portrait gallery"] },
@@ -2825,6 +3727,15 @@ const followingStories = [
 ];
 
 function storyEventPool(story) {
+  if (story.todayOnly) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dcEvents = displayableDcEvents().sort(sortEventsByStart);
+    const todaysEvents = dcEvents
+      .filter(event => sameCalendarDate(eventDateValue(event), today))
+      .slice(0, 5);
+    return (todaysEvents.length ? todaysEvents : dcEvents.slice(0, 5));
+  }
   const venueKeywords = story.venueKeywords || [];
   const textKeywords = story.textKeywords || [];
   const tagKeywords = story.tagKeywords || [];
@@ -2857,7 +3768,9 @@ function activeFollowingStories() {
     intro: "Events you shared with your friends on Lokal.",
     eventIds: state.storyPosts.map(post => post.eventId)
   }] : [];
-  return [...ownStory, ...followingStories]
+  const [featuredStory, ...otherStories] = followingStories;
+  return [featuredStory, ...ownStory, ...otherStories]
+    .filter(Boolean)
     .map(story => ({ ...story, storyEvents: storyEventPool(story) }))
     .filter(story => story.storyEvents.length);
 }
@@ -2877,11 +3790,9 @@ function openStory(index) {
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.name}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
     <div class="event-stack">${storyEvents.map(eventRow).join("")}</div>
-    <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">← Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next →</button></div>
+    <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }
-
-
 
 function activityCard(initials, copy, time) {
   return `<div class="activity-card"><span class="avatar">${initials}</span><div><p>${copy}</p><span class="activity-time">${time}</span></div></div>`;
@@ -2985,12 +3896,12 @@ function groupSuggestedEvents(name, limit = 4) {
 
 function groupEventList(name) {
   const suggested = groupSuggestedEvents(name);
-  return suggested.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+  return suggested.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
 }
 
 function groupSharePicker(name) {
   const suggested = groupSuggestedEvents(name, 6);
-  return suggested.map(event => `<button class="interest-event" data-send-event="${event.id}" data-group-name="${escapeHtml(name)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
+  return suggested.map(event => `<button class="interest-event" data-send-event="${event.id}" data-group-name="${escapeHtml(name)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No matching events yet.</p>`;
 }
 
 function currentUserName() {
@@ -3022,7 +3933,7 @@ function groupContent() {
   const archivedGroups = baseGroups.filter(item => ["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name) && !state.pinnedGroups.has(item.name));
   const moreGroups = state.showAllGroups ? archivedGroups.map(renderGroup).join("") : "";
   const publicCatalog = publicDirectoryNames().slice(0, 3).map(name => { const meta = publicGroupMeta[name]; return card(name,"Public",meta.count,meta.note,meta.icon,meta.style); }).join("");
-  return `<label class="search-box social-search"><span>⌕</span><input data-group-search placeholder="Search private or public groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("")}${moreGroups}</div><button class="text-button view-more-groups" data-view-more-groups>${state.showAllGroups ? "Show fewer groups" : "View more groups"}</button><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">You have joined all suggested public groups.</p>`}</div><button class="text-button see-more-public" data-see-more-public-groups>See more public groups</button><p class="search-empty" data-group-empty>No groups match that search.</p>`;
+  return `<label class="search-box social-search"><span>&#8981;</span><input data-group-search placeholder="Search private or public groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("")}${moreGroups}</div><button class="text-button view-more-groups" data-view-more-groups>${state.showAllGroups ? "Show fewer groups" : "View more groups"}</button><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">You have joined all suggested public groups.</p>`}</div><button class="text-button see-more-public" data-see-more-public-groups>See more public groups</button><p class="search-empty" data-group-empty>No groups match that search.</p>`;
 }
 
 function publicDirectoryCard(name) {
@@ -3032,13 +3943,13 @@ function publicDirectoryCard(name) {
 
 function openPublicGroupDirectory() {
   const groups = publicDirectoryNames();
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="All public groups"><button class="modal-close" aria-label="Close public groups">&times;</button><p class="eyebrow">Explore groups</p><h2>Public groups</h2><label class="search-box social-search"><span>⌕</span><input data-public-group-search placeholder="Search public groups" aria-label="Search public groups"></label><div class="community-grid public-directory">${groups.map(publicDirectoryCard).join("")}</div><p class="search-empty" data-public-group-empty>No public groups match that search.</p></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="All public groups"><button class="modal-close" aria-label="Close public groups">&times;</button><p class="eyebrow">Explore groups</p><h2>Public groups</h2><label class="search-box social-search"><span>&#8981;</span><input data-public-group-search placeholder="Search public groups" aria-label="Search public groups"></label><div class="community-grid public-directory">${groups.map(publicDirectoryCard).join("")}</div><p class="search-empty" data-public-group-empty>No public groups match that search.</p></section></div>`;
 }
 
 function groupMessage(message) {
   if (message.type === "event") {
     const event = events.find(item => item.id === message.eventId);
-    return `<div class="message me event-message"><small>You shared an event / now</small><button class="message-event-link" data-event="${event.id}"><b>${event.title}</b><span>${event.time} / ${event.venue}</span><em>Open event →</em></button></div>`;
+    return `<div class="message me event-message"><small>You shared an event / now</small><button class="message-event-link" data-event="${event.id}"><b>${event.title}</b><span>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</span><em>Open event &rarr;</em></button></div>`;
   }
   return `<div class="message me">${message.text}<small>You / now</small></div>`;
 }
@@ -3065,13 +3976,13 @@ function openGroup(name) {
     <div class="group-detail-actions"><button class="secondary" data-invite data-group-name="${name}">+ Invite people</button><button class="secondary" data-share-group-event="${name}">+ Share event</button></div>
     <p class="eyebrow group-divider">Messages</p><div class="message-list">${(state.groupMessages[name] || []).map(groupMessage).join("") || `<p class="message-empty">No messages yet. Share an event or start the conversation.</p>`}</div><div class="message-compose"><input data-message placeholder="Message the group" aria-label="Message the group"><button class="primary" data-send-message data-group-name="${name}">Send</button></div>
     <p class="eyebrow group-divider">${isEventChat ? "Plan options" : "Suggested events"}</p><div class="interest-list">${eventList}</div>
-    <button class="options-button" data-group-options="${name}">•••</button>
+    <button class="options-button" data-group-options="${name}">&bull;&bull;&bull;</button>
   </section></div>`;
 }
 
 function openInvite(name = "Friday crew") {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal invite-sheet" role="dialog" aria-modal="true" aria-label="Invite people"><button class="modal-close" aria-label="Close invite">&times;</button><button class="text-button" data-back-group="${name}">← Back to group</button><p class="eyebrow">Invite people</p><h2>Share ${name}.</h2><label class="settings-field">Invite URL<input value="https://lokal.app/join/${slug}" readonly></label><button class="wide-button" data-copy-invite>Copy invite link</button><label class="search-box social-search"><span>⌕</span><input data-invite-people-search data-group-name="${name}" placeholder="Search friends" aria-label="Search invite friends"></label><div class="autocomplete invite-autocomplete" data-invite-people-results hidden></div><div class="selected-group-friends" data-selected-invite-people></div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal invite-sheet" role="dialog" aria-modal="true" aria-label="Invite people"><button class="modal-close" aria-label="Close invite">&times;</button><button class="text-button" data-back-group="${name}">&larr; Back to group</button><p class="eyebrow">Invite people</p><h2>Share ${name}.</h2><label class="settings-field">Invite URL<input value="https://lokal.app/join/${slug}" readonly></label><button class="wide-button" data-copy-invite>Copy invite link</button><label class="search-box social-search"><span>&#8981;</span><input data-invite-people-search data-group-name="${name}" placeholder="Search friends" aria-label="Search invite friends"></label><div class="autocomplete invite-autocomplete" data-invite-people-results hidden></div><div class="selected-group-friends" data-selected-invite-people></div></section></div>`;
 }
 
 function openCreateGroup() {
@@ -3097,7 +4008,7 @@ function rankingContent() {
     return `<article class="ranking-card">
       <button class="rank-main" data-event="${event.id}">
         <span class="rank-number">${index + 1}</span>
-        <span class="rank-copy"><span class="rank-badge">${item.badge}</span><h3>${event.title}</h3><p>${event.time} / ${event.area}</p><small>${item.note}</small></span>
+        <span class="rank-copy"><span class="rank-badge">${item.badge}</span><h3>${event.title}</h3><p>${event.time} / ${escapeHtml(eventLocationLine(event))}</p><small>${item.note}</small></span>
         <span class="rank-score"><b>${item.score + (hyped ? 2 : 0)}</b><small>pulse</small></span>
       </button>
       <div class="rank-footer"><span>${item.trend}</span><button class="hype-button ${hyped ? "selected" : ""}" data-hype="${event.id}">${hyped ? "You're in" : "Want in"}</button></div>
@@ -3108,7 +4019,7 @@ function rankingContent() {
 function friendsContent() {
   const myFriends = friendDirectory.filter(friend => state.friends.has(friend[1])).slice(0, 5);
   const suggestions = friendDirectory.filter(friend => !state.friends.has(friend[1])).slice(0, 5);
-  return `<label class="search-box social-search"><span>⌕</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label>
+  return `<label class="search-box social-search"><span>&#8981;</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label>
   <p class="eyebrow">My friends</p><div class="follow-list">${myFriends.map(friend => friendCard(friend)).join("")}</div><button class="text-button see-all-friends" data-see-all-friends>See all friends</button>
   <p class="eyebrow group-divider">Find adventure partners</p><div class="follow-list">${suggestions.map(friend => friendCard(friend, "add")).join("") || `<p class="section-helper">You have added everyone suggested for now.</p>`}</div><p class="search-empty" data-friend-empty>No people match that search.</p>`;
 }
@@ -3117,7 +4028,7 @@ function directMessageRow(name) {
   const friend = friendDirectory.find(item => item[1] === name) || ["FR", name, "@lokalfriend", ""];
   const messages = state.directMessages[name] || [];
   const latest = messages[messages.length - 1];
-  return `<button class="direct-chat-row" data-open-direct-chat="${name}"><span class="avatar">${friend[0]}</span><span><b>${name}</b><small>${latest ? latest.text : "Start a conversation"}</small></span><em>›</em></button>`;
+  return `<button class="direct-chat-row" data-open-direct-chat="${name}"><span class="avatar">${friend[0]}</span><span><b>${name}</b><small>${latest ? latest.text : "Start a conversation"}</small></span><em>&rsaquo;</em></button>`;
 }
 
 function openDirectInbox() {
@@ -3127,7 +4038,7 @@ function openDirectInbox() {
 
 function openDirectChat(name) {
   const messages = state.directMessages[name] || [];
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet direct-chat-sheet" role="dialog" aria-modal="true" aria-label="${name} chat"><button class="modal-close" aria-label="Close ${name} chat">&times;</button><button class="text-button" data-direct-inbox>← All messages</button><p class="eyebrow">Direct message</p><h2>${name}</h2><div class="direct-chat-messages">${messages.map(message => `<div class="message ${message.from === "You" ? "me" : ""}">${message.text}<small>${message.from} / now</small></div>`).join("") || `<p class="message-empty">No messages yet. Start the conversation.</p>`}</div><div class="message-compose"><input data-direct-message data-friend-name="${name}" placeholder="Message ${name}" aria-label="Message ${name}"><button class="primary" data-send-direct-message="${name}">Send</button></div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet direct-chat-sheet" role="dialog" aria-modal="true" aria-label="${name} chat"><button class="modal-close" aria-label="Close ${name} chat">&times;</button><button class="text-button" data-direct-inbox>&larr; All messages</button><p class="eyebrow">Direct message</p><h2>${name}</h2><div class="direct-chat-messages">${messages.map(message => `<div class="message ${message.from === "You" ? "me" : ""}">${message.text}<small>${message.from} / now</small></div>`).join("") || `<p class="message-empty">No messages yet. Start the conversation.</p>`}</div><div class="message-compose"><input data-direct-message data-friend-name="${name}" placeholder="Message ${name}" aria-label="Message ${name}"><button class="primary" data-send-direct-message="${name}">Send</button></div></section></div>`;
 }
 
 function openAllFriends() {
@@ -3141,16 +4052,41 @@ function followingContent() {
   <div class="follow-list">${accounts.map(account => { const followed = state.follows.has(account[0]); return `<div class="follow-card"><span class="group-icon">${account[1]}</span><span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button ${followed ? "selected" : ""}" data-follow="${account[0]}">${followed ? "Following" : "Follow"}</button></div>`; }).join("")}</div>`;
 }
 
+function personalizedEvents(limit = 3) {
+  const tastes = (state.tastes || []).map(taste => taste.toLowerCase());
+  const cats = (state.tastes || []).map(taste => typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "").filter(Boolean);
+  const pool = displayableDcEvents().filter(event => matchesFilter(event, "all", false));
+  const scored = pool.map(event => {
+    const text = `${event.cat} ${eventTags(event).join(" ")} ${event.title}`.toLowerCase();
+    let score = 0;
+    cats.forEach(category => { if (event.cat === category) score += 4; });
+    tastes.forEach(taste => { if (taste && text.includes(taste)) score += 2; });
+    return { event, score };
+  }).filter(item => item.score > 0).sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event));
+  // collapse recurring occurrences so a single event isn't recommended repeatedly
+  return dedupeFeedEvents([...scored.map(item => item.event), ...pool]
+    .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index))
+    .slice(0, limit);
+}
+
+function personalizedSection() {
+  const picks = personalizedEvents(3);
+  if (!picks.length) return "";
+  return `<section class="section saved-plans-section personalized-block"><div class="section-heading"><div><p class="eyebrow personalized-eyebrow">Personalized for you</p><h2>Picked for your tastes</h2></div></div><div class="event-stack personalized-list">${picks.map(event => eventRow(event)).join("")}</div></section>`;
+}
+
 function renderSocial() {
   const savedPlans = savedPlannerEvents("saved");
   const rsvpPlans = savedPlannerEvents("rsvp");
   const allPlans = savedPlannerEvents("all");
   app.innerHTML = `<section class="page">
-    <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div><span class="route-badge">${allPlans.length} plan${allPlans.length === 1 ? "" : "s"}</span></div>
+    <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div></div>
     <p class="lede">Keep saved ideas and RSVPs in one place, then use the calendar to see what your week actually looks like.</p>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">Calendar</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved events</p><h2>For later</h2></div></div>${plannerList(savedPlans, "No saved events yet. Tap Save on any event in Discover.", "Saved")}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">RSVPs</p><h2>Going</h2></div></div>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
-    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">Calendar</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
+    ${personalizedSection()}
+    <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
 
@@ -3166,7 +4102,7 @@ function savedPlannerEvents(mode = "all") {
 function plannerList(plans, emptyText, statusLabel) {
   if (!plans.length) return `<p class="section-helper empty-planner">${emptyText}</p>`;
   return `<div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}">
-    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button>
+    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
     <div class="planner-actions"><span>${statusLabel}</span><button class="text-button" data-share="${event.id}">Share</button></div>
   </article>`).join("")}</div>`;
 }
@@ -3185,14 +4121,14 @@ function plannerCalendar(plans) {
     const dayPlans = plans.filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
     days.push({ date: new Date(date), iso, plans: dayPlans });
   }
-  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1" ${state.plannerWeekOffset <= 0 ? "disabled" : ""}>Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
-  <div class="planner-legend">${["concerts","happy-hours","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
+  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1">Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
+  <div class="planner-legend">${["concerts","live-music","happy-hours","trivia-nights","nightlife","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
   <div class="planner-calendar">${days.map(day => {
-    const disabled = !day.plans.length;
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
-    return `<button class="planner-day ${disabled ? "empty" : ""}" ${disabled ? "disabled" : `data-calendar-day="${day.iso}"`} aria-label="${label} ${day.date.getDate()}${disabled ? "" : `, ${day.plans.length} plan${day.plans.length === 1 ? "" : "s"}`}">
-      <span>${label}</span><b>${day.date.getDate()}</b><em>${day.plans.map(event => `<i class="${event.cat}"></i>`).join("")}</em>
-    </button>`;
+    return `<article class="planner-day ${day.plans.length ? "" : "empty"}">
+      <div class="planner-day-head"><span>${label}</span><b>${day.date.getDate()}</b></div>
+      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<p>No plans</p>`}</div>
+    </article>`;
   }).join("")}</div>`;
 }
 
@@ -3203,7 +4139,7 @@ function openCalendarPlans(iso) {
     return;
   }
   const date = new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your calendar</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span></button></article>`).join("")}</div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your calendar</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button></article>`).join("")}</div></section></div>`;
 }
 
 function friendInterestEvents(name, limit = 4) {
@@ -3229,24 +4165,117 @@ function openFriend(name) {
     <div class="friendship-status ${isFriend ? "" : "pending"}"><b>${isFriend ? "Friends" : "Not friends yet"}</b><p>${isFriend ? `${name} shares event interests with you.` : "Add them to see more profile activity in a full app."}</p></div>
     <div class="friend-profile-actions"><button class="secondary" data-share-profile="${name}">Share profile</button></div>
     <p class="eyebrow">Interested in</p><div class="chips profile-taste-chips">${tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("")}</div>
-    <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(event.venue)}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
+    <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
   </section></div>`;
 }
 
 
-function renderProfile() {
-  const tasteChips = state.tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("");
+function scoreLevel(score) {
+  if (score >= 500) return { name: "Local Legend", min: 500, next: null };
+  if (score >= 200) return { name: "Insider", min: 200, next: 500 };
+  return { name: "Explorer", min: 0, next: 200 };
+}
+
+function nextLevelName(level) {
+  return level.next === 500 ? "Local Legend" : "Insider";
+}
+
+function tasteColor(taste) {
+  const category = typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "";
+  if (category && CATEGORY_COLORS[category]) return CATEGORY_COLORS[category];
+  const palette = ["#00C9A7", "#FF7B54", "#B07EDB", "#5F9FC3", "#F59E0B", "#FF6B9D", "#7BC67E", "#7C6BFF"];
+  const seed = Array.from(String(taste || "")).reduce((total, character) => total + character.charCodeAt(0), 0);
+  return palette[seed % palette.length];
+}
+
+function receiptThumbStyle(receipt) {
+  const event = events.find(item => String(item.id) === String(receipt.id));
+  const art = event ? eventArtImage(event) : genericEventArt({ cat: receipt.cat, title: receipt.title, venue: receipt.venue });
+  return `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
+}
+
+function attendanceRow(receipt, index = 0) {
+  const date = receipt.attendedAt ? new Date(receipt.attendedAt) : new Date();
+  const label = date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return `<button class="attend-row" style="--i:${index}" data-receipt-event="${receipt.id}"><span class="attend-thumb" style="${receiptThumbStyle(receipt)}"></span><span class="attend-copy"><b>${escapeHtml(receipt.title)}</b><small>${escapeHtml(label)} / ${escapeHtml(receipt.cat || "event")}</small></span></button>`;
+}
+
+function groupReceiptsByMonth(receipts) {
+  const groups = [];
+  receipts.forEach(receipt => {
+    const date = receipt.attendedAt ? new Date(receipt.attendedAt) : new Date();
+    const label = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    let group = groups.find(item => item.label === label);
+    if (!group) { group = { label, items: [] }; groups.push(group); }
+    group.items.push(receipt);
+  });
+  return groups;
+}
+
+function attendanceHistorySection() {
   const receipts = profileReceipts();
-  const friends = profileFriendRows();
+  if (!receipts.length) return `<p class="section-helper">Mark an event as attended and it will show up here.</p>`;
+  const expanded = Boolean(state.profileReceiptsExpanded);
+  let order = 0;
+  const body = expanded
+    ? groupReceiptsByMonth(receipts).map(group => `<p class="eyebrow attend-month">${escapeHtml(group.label)}</p><div class="attend-list">${group.items.map(receipt => attendanceRow(receipt, order++)).join("")}</div>`).join("")
+    : `<div class="attend-list">${receipts.slice(0, 3).map((receipt, index) => attendanceRow(receipt, index)).join("")}</div>`;
+  const toggle = receipts.length > 3
+    ? `<button class="text-button view-all-receipts" data-toggle-receipts>${expanded ? "Show less" : `View all ${receipts.length}`}</button>`
+    : "";
+  return `${body}${toggle}`;
+}
+
+function lokalYearSummary() {
+  const receipts = profileReceipts();
+  const count = receipts.length;
+  const categories = new Set(receipts.map(receipt => receipt.cat).filter(Boolean)).size;
+  const withFriends = receiptFriendUnits(receipts);
+  const score = lokalScore();
+  const level = scoreLevel(score).name;
+  return `My Lokal year so far: ${count} event${count === 1 ? "" : "s"} across ${categories} kind${categories === 1 ? "" : "s"} of night out, ${withFriends} plan${withFriends === 1 ? "" : "s"} with friends, and a Lokal score of ${score} (${level}). See what's happening in DC on Lokal.`;
+}
+
+function openYearShareSheet() {
+  const summary = lokalYearSummary();
+  const score = lokalScore();
+  const level = scoreLevel(score).name;
+  const receipts = profileReceipts();
+  const smsBody = encodeURIComponent(summary);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share my Lokal year">
+    <button class="modal-close" aria-label="Close sharing">&times;</button>
+    <p class="eyebrow">Your year on Lokal</p><h2>Share my Lokal year</h2><p class="lede">Send a recap of everywhere you have been around DC.</p>
+    <div class="share-preview"><b>${escapeHtml(state.profile.fullName)} on Lokal</b><span>${receipts.length} events attended / ${level}</span><small>Lokal score ${score}</small><em>${escapeHtml(summary)}</em></div>
+    <div class="share-channel-grid">
+      <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
+      <button class="share-channel" data-native-share-year>Share sheet</button>
+      <a class="share-channel" href="mailto:?subject=${encodeURIComponent("My Lokal year")}&body=${smsBody}">Email</a>
+      <button class="share-channel" data-copy-year>Copy recap</button>
+    </div>
+    <button class="wide-button" data-copy-year>Copy my Lokal year</button>
+  </section></div>`;
+}
+
+function renderProfile() {
+  const score = lokalScore();
+  const level = scoreLevel(score);
+  const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
+  const toNext = level.next ? Math.max(0, level.next - score) : 0;
+  const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><span class="lokal-score">${lokalScore()} <small>Lokal score</small></span><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(state.bio)}</p>
-    <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tasteChips}<button class="chip" data-edit-tastes>Edit</button></div>
-    <div class="stats section profile-stats"><button class="stat-card" data-profile-list="plans"><b>${profilePlanIds().length}</b><small>Plans</small></button><button class="stat-card" data-profile-list="friends"><b>${state.friends.size}</b><small>Friends</small></button></div>
-    <p class="eyebrow">Friends</p><div class="follow-list profile-friends-list">${friends.map(friend => friendCard(friend)).join("")}</div><button class="text-button see-all-friends" data-profile-list="friends">See all friends</button>
-    <p class="eyebrow">Your receipt</p><h2>Recently attended</h2>
-    <div class="receipt-list">${receipts.map(receiptRow).join("") || `<p class="section-helper">Mark an event as attended and it will show here.</p>`}</div>
+    <section class="score-block">
+      <p class="eyebrow">Lokal score</p>
+      <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
+      <div class="score-progress"><i style="width:${Math.round(progress * 100)}%"></i></div>
+      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached â€” you're a Local Legend"}</p>
+      <button class="text-button" data-settings-page="faq">How scoring works</button>
+    </section>
+    <p class="eyebrow">Your tastes</p><div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>
+    <div class="attend-head"><div><p class="eyebrow">Your receipts</p><h2>Attendance history</h2></div><button class="text-button" data-share-year>Share my Lokal year</button></div>
+    ${attendanceHistorySection()}
   </section>`;
 }
 
@@ -3322,7 +4351,7 @@ function profileReceipts() {
   const attendedRows = Array.from(state.attended || []).map(id => {
     const event = events.find(item => item.id === Number(id));
     if (!event) return null;
-    return { id: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+    return { id: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
   }).filter(Boolean);
   return [...stored, ...attendedRows]
     .filter((receipt, index, all) => all.findIndex(item => receiptEventKey(item) === receiptEventKey(receipt)) === index)
@@ -3356,7 +4385,7 @@ function markEventAttended(id) {
   if (state.attended.has(event.id) || profileReceipts().some(receipt => receiptEventKey(receipt) === receiptEventKey(event))) return { ok: false, message: "This event is already counted once" };
   state.attended.add(event.id);
   state.rsvps.delete(event.id);
-  const receipt = { id: event.id, eventId: event.id, title: event.title, time: event.time, venue: event.venue, price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  const receipt = { id: event.id, eventId: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
   state.receipts = [receipt, ...(state.receipts || []).filter(item => Number(item.id) !== Number(event.id))];
   localStorage.setItem("lokalAttended", JSON.stringify(Array.from(state.attended)));
   localStorage.setItem("lokalReceipts", JSON.stringify(state.receipts));
@@ -3368,7 +4397,7 @@ function openReceipt(id) {
   const event = events.find(item => item.id === Number(id)) || receipt;
   const people = receipt?.friends?.length ? receipt.friends.map(fullFriendName).join(", ") : "Just you";
   const eventButton = events.some(item => item.id === Number(id)) ? `<button class="wide-button" data-event="${event.id}">Open event details</button>` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(event.time || "")} / ${escapeHtml(event.price || "")}</p><h3>${escapeHtml(event.venue || "")}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(eventMetaLine(event))}</p><h3>${escapeHtml(eventLocationLine(event))}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
 }
 
 function openTasteEditor() {
@@ -3433,6 +4462,7 @@ function activeFilterValue(label) {
   return state.filter[key] || {
     date: "Any date",
     time: "Any time",
+    neighborhood: "Any neighborhood",
     category: "All categories",
     price: "Any price"
   }[key];
@@ -3445,12 +4475,14 @@ function activeFilterSummary() {
   if (state.filter.time && state.filter.time !== "Any time") items.push(`Time: ${state.filter.time}`);
   if (state.highlightedOnly) items.push("Highlighted only");
   if (state.filter.category && state.filter.category !== "All categories") items.push(`Category: ${state.filter.category}`);
+  if (state.filter.neighborhood && state.filter.neighborhood !== "Any neighborhood") items.push(`Neighborhood: ${state.filter.neighborhood}`);
   if (state.filter.price && state.filter.price !== "Any price") items.push(`Price: ${state.filter.price}`);
   return items.length ? items : ["No filters selected"];
 }
 
 function openFilters() {
-  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Category",["All categories","concerts","happy-hours","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  const neighborhoodOptions = ["Any neighborhood", ...discoverNeighborhoodOptions(displayableDcEvents())];
+  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
     ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
@@ -3461,7 +4493,7 @@ function openNotifications() {
     .filter(request => request.type === "friend")
     .map(request => `<div class="notification-card request-notification"><b>${escapeHtml(request.from)} sent you a friend request</b><p>${escapeHtml(request.detail)}</p><small>${escapeHtml(request.time)}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`)
     .join("");
-  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted near ${escapeHtml(event.area)}.</p><small>${escapeHtml(event.time)} / ${escapeHtml(event.price)}</small></button>`).join("");
+  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted at ${escapeHtml(eventLocationLine(event))}.</p><small>${escapeHtml(eventMetaLine(event))}</small></button>`).join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests || `<p class="section-helper">No new friend requests right now.</p>`}${recommended}</section></div>`;
 }
 
@@ -3501,19 +4533,28 @@ function openProfileList(type) {
   const rows = type === "friends"
     ? friendDirectory.filter(friend => state.friends.has(friend[1])).map(friend => friendCard(friend)).join("")
     : plans.map(event => {
-      return `<div class="managed-list-row managed-plan-row"><button class="managed-plan-main" data-event="${event.id}"><span><b>${event.title}</b><small>${event.time} / ${event.venue}</small></span></button><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`;
+      return `<div class="managed-list-row managed-plan-row"><button class="managed-plan-main" data-event="${event.id}"><span><b>${event.title}</b><small>${event.time} / ${escapeHtml(eventLocationLine(event))}</small></span></button><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`;
     }).join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${type[0].toUpperCase()+type.slice(1)}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
 }
 
 function openDetail(id) {
   const e = events.find(event => event.id === Number(id));
+  const occurrences = occurrencesForEvent(e);
+  const occurrencesBlock = occurrences.length > 1
+    ? `<div class="detail-occurrences"><p class="eyebrow">All dates / ${occurrences.length} occurrences</p><div class="occurrence-list">${occurrences.map(occurrence => `<button class="occurrence-row${occurrence.id === e.id ? " current" : ""}" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}${occurrence.id === e.id ? " / Showing" : ""}</small></button>`).join("")}</div></div>`
+    : "";
+  const heroImage = eventArtImage(e);
+  const heroStyle = e.image
+    ? `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage}; background-size: cover, contain; background-repeat: no-repeat; background-position: center; background-color: #f7f2e9;`
+    : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${e.title}">
-    <div class="detail-hero cat-${e.cat}"><button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))} / ${e.area}</p><h1>${e.title}</h1></div>
-    <div class="detail-body"><p class="event-meta">${e.time} / ${e.price}</p><h2>${e.venue}</h2>
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}"><button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))}</p><h1>${e.title}</h1><span class="detail-location">${escapeHtml(eventLocationLine(e))}</span></div>
+    <div class="detail-body"><p class="event-meta">${eventMetaLine(e)}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
+    ${occurrencesBlock}
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved" : "Save"}</button><button class="action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going" : "RSVP"}</button><button class="primary" data-share="${e.id}">Share</button></div>
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
     <button class="wide-button" data-ticket>Get tickets / details</button></div>
@@ -3539,7 +4580,7 @@ function openShareSheet(id) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
     <p class="eyebrow">Send a Lokal event</p><h2>Share ${e.title}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
-    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(e.venue)}</span><small>${escapeHtml(e.price)} / ${escapeHtml(eventTags(e).slice(0, 3).join(" · "))}</small><em>${escapeHtml(shareUrl)}</em></div>
+    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" Â· ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
     <div class="share-channel-grid">
       <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
       <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
@@ -3552,7 +4593,8 @@ function openShareSheet(id) {
 }
 
 function shareMessageForEvent(event) {
-  return `Want to go to ${event.title}? ${event.time} at ${event.venue} in ${event.area}. ${event.price}. Open it in Lokal: ${lokalEventShareUrl(event)}`;
+  const price = eventPriceLabel(event);
+  return `Want to go to ${event.title}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
 }
 
 function lokalEventShareUrl(event) {
@@ -3563,8 +4605,8 @@ function lokalEventSharePayload(event) {
   return [
     "Lokal event",
     event.title,
-    `${event.time} / ${event.price}`,
-    `${event.venue} / ${event.area}`,
+    eventMetaLine(event),
+    eventLocationLine(event),
     eventTags(event).slice(0, 5).join(", "),
     lokalEventShareUrl(event)
   ].filter(Boolean).join("\n");
@@ -3624,16 +4666,21 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  if (t.dataset.route) { mark(); setRoute(t.dataset.route); }
-  if (t.dataset.homeFilter) { state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; setRoute(t.dataset.route); }
+  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
+  if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
+  if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; renderHome(); }
+  if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; renderHome(); }
   if (t.dataset.event) { mark(); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.save) {
     const id = Number(t.dataset.save);
+    const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
-    openDetail(id);
+    if (inDetail) openDetail(id);
+    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     saveEventInteraction(id, "save", isSaved);
     toast(isSaved ? "Saved for later" : "Removed from saved");
   }
@@ -3650,7 +4697,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.share) openShareSheet(t.dataset.share);
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }
   if (t.dataset.calendarDay) { mark(); openCalendarPlans(t.dataset.calendarDay); }
-  if (t.dataset.plannerWeek) { mark(); state.plannerWeekOffset = Math.max(0, state.plannerWeekOffset + Number(t.dataset.plannerWeek)); renderSocial(); }
+  if (t.dataset.plannerWeek) { mark(); state.plannerWeekOffset += Number(t.dataset.plannerWeek); renderSocial(); }
   if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await navigator.clipboard?.writeText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast("Share canceled"); } }
   if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await navigator.clipboard?.writeText(lokalEventSharePayload(eventToShare)); } catch {} toast("Lokal event copied"); }
   if (t.dataset.postStory) { mark(); const eventId = Number(t.dataset.postStory); state.storyPosts = [{ eventId, postedAt: Date.now() }, ...state.storyPosts.filter(post => post.eventId !== eventId)].slice(0, 12); localStorage.setItem("lokalStoryPosts", JSON.stringify(state.storyPosts)); modalRoot.innerHTML = ""; if (state.route === "home") renderHome(); toast("Added to your story"); }
@@ -3700,6 +4747,10 @@ document.addEventListener("click", async event => {
   if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; state.filterDatePickerOpen = true; openFilters(); }
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
+  if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
+  if (t.dataset.shareYear !== undefined) { mark(); openYearShareSheet(); }
+  if (t.dataset.copyYear !== undefined) { mark(); try { await navigator.clipboard?.writeText(lokalYearSummary()); } catch {} toast("Lokal year copied"); }
+  if (t.dataset.nativeShareYear !== undefined) { mark(); const text = lokalYearSummary(); try { if (navigator.share) await navigator.share({ title: "My Lokal year", text }); else await navigator.clipboard?.writeText(text); toast(navigator.share ? "Share sheet opened" : "Lokal year copied"); } catch { toast("Share canceled"); } }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {
     mark();
@@ -3731,7 +4782,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.openDirectChat) { mark(); openDirectChat(t.dataset.openDirectChat); }
   if (t.dataset.messageFriend) { mark(); toast("Direct messages are not part of this demo flow"); }
   if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text: input.value.trim() }]; openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
-  if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>⌕</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
+  if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>âŒ•</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
   if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
   if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
@@ -3830,6 +4881,12 @@ document.addEventListener("input", event => {
     const matches = query ? friendDirectory.filter(friend => friend[1].toLowerCase().includes(query) || friend[2].toLowerCase().includes(query)).slice(0, 5) : [];
     results.hidden = !matches.length;
     results.innerHTML = matches.map(friend => `<button data-invite-people-option="${friend[1]}" data-group-name="${input.dataset.groupName}">${friend[1]} <small>${friend[2]}</small></button>`).join("");
+  }
+  if (input.matches("[data-category-genre-search]")) {
+    state.discoverGenreFilter = input.value;
+    renderHome();
+    const nextInput = document.querySelector("[data-category-genre-search]");
+    if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
   }
   if (input.matches("[data-discover-search]")) {
     const query = input.value.trim().toLowerCase();
@@ -3950,7 +5007,6 @@ syncSupabaseGroups();
 updateProfileShortcut();
 checkPhoneSignupStatus();
 showWelcomeBanner();
-
 
     </script>
   </body>
