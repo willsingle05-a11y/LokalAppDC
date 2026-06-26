@@ -44,6 +44,40 @@ function eventFeedPattern(list) {
   return `<div class="feed-grid">${blocks.join("")}</div>`;
 }
 
+// Per-category copy + filter chips. The first chip in each list is the
+// "all/clear" option. Categories beyond the original brief (museums, festivals,
+// community, expos, free) are inferred following the same pattern.
+const categoryFeedConfig = {
+  concerts: { label: "Concerts", searchPlaceholder: "Search by artist, venue, or date…", chips: ["All shows", "This week", "This month", "Pop", "Rock", "Hip-Hop", "Country", "Classical"] },
+  "live-music": { label: "Live music", searchPlaceholder: "Search by genre, venue, or artist…", chips: ["All shows", "Jazz", "Indie", "R&B", "Blues", "Folk", "Electronic", "Soul"] },
+  "happy-hours": { label: "Happy hours", searchPlaceholder: "Search by type, vibe, or venue…", chips: ["All deals", "Cocktails", "Beer", "Wine", "Rooftop", "Patio", "Food deals", "After work"] },
+  "trivia-nights": { label: "Trivia nights", searchPlaceholder: "Search by bar, theme, or night…", chips: ["All nights", "Free to play", "Pop culture", "Sports", "Music", "Science", "80s", "90s"] },
+  nightlife: { label: "Nightlife", searchPlaceholder: "Search by venue, vibe, or night…", chips: ["All venues", "Clubs", "Bars", "Rooftop", "DJ nights", "Late night", "21+"] },
+  "performing-arts": { label: "Arts and culture", searchPlaceholder: "Search by museum, gallery, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
+  sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
+  museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or show…", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
+  festivals: { label: "Festivals", searchPlaceholder: "Search by festival, neighborhood, or type…", chips: ["All festivals", "Food & drink", "Music", "Art", "Cultural", "Outdoor", "Family"] },
+  community: { label: "Community", searchPlaceholder: "Search by cause, group, or neighborhood…", chips: ["All events", "Volunteer", "Networking", "Book club", "Outdoor", "Free", "Neighborhood"] },
+  expos: { label: "Expos", searchPlaceholder: "Search by expo, theme, or venue…", chips: ["All expos", "Convention", "Trade show", "Marketplace", "Workshop", "Networking"] },
+  free: { label: "Free events", searchPlaceholder: "Search free events by type or venue…", chips: ["All free", "Comedy", "Museums", "Outdoor", "Live music", "Festivals", "Workshops", "Talks"] }
+};
+
+function getCategoryFeedConfig(category) {
+  return categoryFeedConfig[category] || { label: discoverCategoryLabel(category), searchPlaceholder: `Search ${discoverCategoryLabel(category)}…`, chips: [] };
+}
+
+// Hero (first event) + "More near you" compact list (the rest). Used on the
+// Discover home feed and every category detail page. Pass showBadge:false on
+// single-category pages, where the event-type badge is redundant.
+function renderHeroAndList(list, opts = {}) {
+  if (!list.length) return `<p class="section-helper">No events match that filter right now.</p>`;
+  const [hero, ...rest] = list;
+  const heroHtml = eventRow(hero, "hero", { showBadge: opts.showBadge !== false });
+  if (!rest.length) return `<div class="hero-list">${heroHtml}</div>`;
+  const rows = rest.map((event, index) => eventListRow(event, { isFirst: index === 0, isLast: index === rest.length - 1 })).join("");
+  return `<div class="hero-list">${heroHtml}<p class="section-label more-near-you">More near you</p><div class="list-group">${rows}</div></div>`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -73,7 +107,7 @@ function discoverCategoryLabel(category) {
 
 
 function renderDiscoverCategoryPage(category) {
-  const label = discoverCategoryLabel(category);
+  const label = getCategoryFeedConfig(category).label || discoverCategoryLabel(category);
   const hasCategorySearch = searchableDiscoverCategory(category);
   if (!hasCategorySearch) state.discoverGenreFilter = "";
   const categoryEvents = displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart);
@@ -82,8 +116,9 @@ function renderDiscoverCategoryPage(category) {
     : categoryEvents;
   app.innerHTML = `<section class="page category-list-page">
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
+    <p class="feed-count">${visibleEvents.length} event${visibleEvents.length === 1 ? "" : "s"} this week in DC</p>
     ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
-    <div class="event-stack category-event-list">${visibleEvents.length ? visibleEvents.map(eventRow).join("") : `<p class="section-helper">No events match that search right now.</p>`}</div>
+    ${renderHeroAndList(visibleEvents, { showBadge: false })}
   </section>`;
 }
 
@@ -174,11 +209,13 @@ function categoryFacetOptions(category, categoryEvents) {
 
 function categoryFacetControls(category, categoryEvents) {
   const active = state.discoverGenreFilter || "";
-  const facetLabel = categoryFacetLabel(category);
-  const options = categoryFacetOptions(category, categoryEvents);
-  return `<section class="genre-filter-panel" aria-label="Search by ${facetLabel}">
-    <label class="search-box genre-search"><span>&#8981;</span><input data-category-genre-search placeholder="Search by ${escapeHtml(facetLabel)}" value="${escapeHtml(active)}" aria-label="Search by ${escapeHtml(facetLabel)}"></label>
-    <div class="genre-chips"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(categoryFacetAllLabel(category))}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>
+  const config = getCategoryFeedConfig(category);
+  const placeholder = config.searchPlaceholder || `Search by ${categoryFacetLabel(category)}`;
+  const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(category);
+  const options = (config.chips && config.chips.length > 1) ? config.chips.slice(1) : categoryFacetOptions(category, categoryEvents);
+  return `<section class="genre-filter-panel" aria-label="${escapeHtml(placeholder)}">
+    <label class="search-box genre-search"><span>&#8981;</span><input data-category-genre-search placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(active)}" aria-label="${escapeHtml(placeholder)}"></label>
+    <div class="genre-chips"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(allLabel)}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>
   </section>`;
 }
 function categoryFromTaste(taste) {
@@ -216,7 +253,9 @@ function renderDiscoverFeedContent(filtered) {
   const visibleEvents = hasCategorySearch && state.discoverGenreFilter
     ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
     : filtered;
-  return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${eventFeedPattern(dedupeFeedEvents(visibleEvents))}`;
+  // When a single category chip is active the feed is dedicated to that category,
+  // so the event-type badge is redundant (hide it). The mixed all/nearby feed keeps it.
+  return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${renderHeroAndList(dedupeFeedEvents(visibleEvents), { showBadge: !hasCategorySearch })}`;
 }
 
 function discoverSearchText(event) {
@@ -249,7 +288,7 @@ function renderDiscoverEventSearch(query) {
     ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
     : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
-  content.innerHTML = eventFeedPattern(matches);
+  content.innerHTML = renderHeroAndList(matches, { showBadge: true });
   return matches.length;
 }
 

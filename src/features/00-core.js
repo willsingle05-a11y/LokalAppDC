@@ -389,17 +389,22 @@ function eventUrgency(event) {
   return null;
 }
 
-function eventRow(event, variant = "") {
+function eventRow(event, variant = "", opts = {}) {
+  const showBadge = opts.showBadge !== false;
   const variantClass = variant ? ` event-card-${variant}` : "";
   const accent = categoryColor(event);
   const image = eventArtImage(event);
   const tags = eventTags(event);
   const cardStyle = `background-image: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 60%), ${image};`;
   const urgency = eventUrgency(event);
-  const urgencyPill = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
+  const urgencyHtml = !urgency ? ""
+    : variant === "hero"
+      ? `<span class="event-card-urgency-dot ${urgency.cls}"><i></i>${escapeHtml(urgency.label)}</span>`
+      : `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>`;
+  const badgeHtml = showBadge ? `<span class="event-card-badge" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>` : "";
   return `<article class="event-card cat-${eventVisualCategory(event)}${event.image ? " has-image" : ""}${variantClass}" style="${cardStyle}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
-    <span class="event-card-badge" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>
+    ${badgeHtml}
     <span class="event-card-actions">
       <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
       <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
@@ -409,7 +414,40 @@ function eventRow(event, variant = "") {
       <span class="event-card-meta">${eventMetaLine(event)}</span>
       <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
       <span class="event-card-tags">${eventTagChips(event, 2)}</span>
-      ${urgencyPill}
+      ${urgencyHtml}
+    </span>
+  </article>`;
+}
+
+function eventThumbStyle(event) {
+  return `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${eventArtImage(event)};`;
+}
+
+// Compact horizontal list row used below the hero in the hero-then-list feeds.
+// Urgency only renders when meaningfully scarce (<=10 spots); otherwise a price
+// badge shows the ticket cost at a glance for paid events.
+function eventListSideBadge(event) {
+  const urgency = eventUrgency(event);
+  if (urgency) return `<span class="elr-badge ${urgency.cls}">${escapeHtml(urgency.label)}</span>`;
+  const price = eventPriceLabel(event);
+  if (price) return `<span class="elr-badge elr-price">${escapeHtml(price)}</span>`;
+  return "";
+}
+
+function eventListRow(event, opts = {}) {
+  const tags = eventTags(event);
+  const meta = [event.time, eventLocationLine(event)].filter(Boolean).join(" · ");
+  return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+    <span class="elr-thumb" style="${eventThumbStyle(event)}"></span>
+    <span class="elr-copy">
+      <b class="elr-venue">${escapeHtml(event.title)}</b>
+      <span class="elr-meta">${escapeHtml(meta)}</span>
+      <span class="elr-tags">${eventTagChips(event, 2)}</span>
+    </span>
+    <span class="elr-side">
+      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+      ${eventListSideBadge(event)}
     </span>
   </article>`;
 }

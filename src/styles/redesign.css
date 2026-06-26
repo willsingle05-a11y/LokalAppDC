@@ -453,3 +453,86 @@ h3 { font-weight: 700; }
 @media (prefers-reduced-motion: reduce) {
   .attend-row { animation: none; }
 }
+
+/* ============================================================
+   Hero-then-list feed layout (category pages + Discover home).
+   Adapted from the "category feed" brief; keeps the teal system.
+   ============================================================ */
+.hero-list { display: grid; gap: 0; }
+.feed-count { margin: 2px 0 12px; color: var(--muted); font-size: 12px; }
+.section-label.more-near-you {
+  margin: 16px 2px 8px;
+  color: #9A9A8A;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* hero urgency rendered as dot + text (no pill) */
+.event-card-urgency-dot { display: inline-flex; align-items: center; gap: 5px; justify-self: start; font-size: 11px; font-weight: 700; }
+.event-card-urgency-dot i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.event-card-urgency-dot.urgency-spots { color: #ff8088; }
+.event-card-urgency-dot.urgency-fast { color: #ffb088; }
+.event-card-urgency-dot.urgency-free { color: #19e6c4; }
+
+/* compact list rows */
+.list-group { display: grid; overflow: hidden; border-radius: 14px; box-shadow: 0 3px 10px rgba(17, 24, 39, .05); }
+.event-list-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(58, 124, 165, .13);
+  border-top: 0;
+  background: #fff;
+  text-align: left;
+}
+.event-list-row.is-first { border-top: 1px solid rgba(58, 124, 165, .13); border-radius: 14px 14px 0 0; }
+.event-list-row.is-last { border-radius: 0 0 14px 14px; }
+.event-list-row:hover { background: #fbfdfc; }
+.event-list-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
+.elr-thumb { width: 54px; height: 54px; border-radius: 10px; background-position: center; background-size: cover; }
+.elr-copy { display: grid; gap: 3px; min-width: 0; }
+.elr-venue {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #1C2B1C;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.elr-meta { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.elr-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.event-list-row .event-tag {
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0, 201, 167, .12);
+  color: var(--accent-strong);
+  font-size: 11px;
+  font-weight: 700;
+}
+.elr-side { position: relative; z-index: 2; display: grid; gap: 6px; justify-items: end; pointer-events: none; }
+.elr-save {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #D6D2C4;
+  border-radius: 50%;
+  background: #fff;
+  color: #8a8a7a;
+  pointer-events: auto;
+}
+.elr-save svg { width: 15px; height: 15px; fill: none; }
+.elr-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
+.elr-badge { padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; white-space: nowrap; }
+.elr-badge.urgency-spots { color: var(--urgent); background: #FDECEC; }
+.elr-badge.urgency-fast { color: var(--warm); background: #FFF0E8; }
+.elr-badge.urgency-free,
+.elr-badge.elr-price { color: var(--accent-strong); background: rgba(0, 201, 167, .12); }
