@@ -25,39 +25,110 @@ function discoverCategoryLabel(category) {
 
 function renderDiscoverCategoryPage(category) {
   const label = discoverCategoryLabel(category);
-  const isMusicCategory = ["concerts", "live-music"].includes(category);
-  if (!isMusicCategory) state.discoverGenreFilter = "";
+  const hasCategorySearch = searchableDiscoverCategory(category);
+  if (!hasCategorySearch) state.discoverGenreFilter = "";
   const categoryEvents = displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart);
-  const visibleEvents = isMusicCategory && state.discoverGenreFilter
-    ? categoryEvents.filter(event => eventMatchesMusicGenre(event, state.discoverGenreFilter))
+  const visibleEvents = hasCategorySearch && state.discoverGenreFilter
+    ? categoryEvents.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
     : categoryEvents;
   app.innerHTML = `<section class="page category-list-page">
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
-    ${isMusicCategory ? musicGenreControls(categoryEvents) : ""}
-    <div class="event-stack category-event-list">${visibleEvents.length ? visibleEvents.map(eventRow).join("") : `<p class="section-helper">No events match that genre right now.</p>`}</div>
+    ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
+    <div class="event-stack category-event-list">${visibleEvents.length ? visibleEvents.map(eventRow).join("") : `<p class="section-helper">No events match that search right now.</p>`}</div>
   </section>`;
 }
 
-function eventMatchesMusicGenre(event, query) {
+function searchableDiscoverCategory(category) {
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
+}
+
+function eventMatchesCategoryFacet(event, query) {
   const normalized = String(query || "").trim().toLowerCase();
   if (!normalized) return true;
-  return eventTags(event).some(tag => tag.toLowerCase().includes(normalized));
+  const text = `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+  return text.includes(normalized);
 }
 
-function musicGenreOptions(categoryEvents) {
-  return categoryEvents
+function categoryFacetLabel(category) {
+  const labels = {
+    concerts: "genre",
+    "live-music": "genre",
+    "performing-arts": "arts type",
+    sports: "sport or league",
+    "happy-hours": "happy hour type",
+    "trivia-nights": "trivia type",
+    nightlife: "nightlife type",
+    museums: "museum type",
+    festivals: "festival type",
+    community: "community type",
+    expos: "expo type",
+    free: "type"
+  };
+  return labels[category] || "type";
+}
+
+function categoryFacetAllLabel(category) {
+  const labels = {
+    concerts: "All genres",
+    "live-music": "All genres",
+    "performing-arts": "All arts",
+    sports: "All sports/leagues",
+    "happy-hours": "All deals",
+    "trivia-nights": "All trivia",
+    nightlife: "All nightlife",
+    museums: "All museum types",
+    festivals: "All festival types",
+    community: "All community types",
+    expos: "All expos",
+    free: "All free events"
+  };
+  return labels[category] || "All types";
+}
+
+function categoryFacetPriorityList(category) {
+  return {
+    concerts: MUSIC_GENRE_TAGS,
+    "live-music": MUSIC_GENRE_TAGS,
+    "performing-arts": ["Comedy", "Broadway", "Play", "Musical", "Dance", "Film", "Classical", "Cabaret", "Drag", "Magic", "Storytelling", "Spoken Word", "Family Friendly"],
+    sports: ["MLB", "NBA", "NFL", "NHL", "MLS", "WNBA", "Baseball", "Basketball", "Football", "Hockey", "Soccer", "Tennis", "Running"],
+    "happy-hours": ["Cocktails", "Beer", "Wine", "Rooftop", "Patio", "Food Specials", "All Night", "Date Spot", "Dive Bar", "Upscale"],
+    "trivia-nights": ["Weekly", "Monthly", "Team Trivia", "Pop Culture", "General Knowledge", "Prizes", "Bar Trivia"],
+    nightlife: ["DJ Set", "Dance Floor", "Club Night", "Rooftop", "Late Night", "Pride", "Lounge", "Cocktails"],
+    museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
+    festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
+    community: ["Volunteer", "Networking", "Book Club", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
+    expos: ["Convention", "Expo", "Trade Show", "Marketplace", "Workshop", "Networking"],
+    free: ["Comedy", "Museum", "Outdoor", "Family Friendly", "Live music", "Festival", "Workshop", "Talk", "Community"]
+  }[category] || [];
+}
+
+function categoryFacetPriority(category, tag) {
+  const value = String(tag || "").toLowerCase();
+  const priority = categoryFacetPriorityList(category);
+  const index = priority.findIndex(item => item.toLowerCase() === value);
+  return index === -1 ? 1000 : index;
+}
+
+function categoryFacetOptions(category, categoryEvents) {
+  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
+  const taggedOptions = categoryEvents
     .flatMap(eventTags)
-    .filter(isMusicGenreTag)
+    .map(tag => String(tag || "").trim())
+    .filter(tag => tag && !blocked.includes(tag.toLowerCase()));
+  const priorityOptions = categoryFacetPriorityList(category).filter(option => categoryEvents.some(event => eventMatchesCategoryFacet(event, option)));
+  return [...priorityOptions, ...taggedOptions]
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-    .sort((a, b) => a.localeCompare(b));
+    .sort((a, b) => categoryFacetPriority(category, a) - categoryFacetPriority(category, b) || a.localeCompare(b))
+    .slice(0, 18);
 }
 
-function musicGenreControls(categoryEvents) {
+function categoryFacetControls(category, categoryEvents) {
   const active = state.discoverGenreFilter || "";
-  const genres = musicGenreOptions(categoryEvents);
-  return `<section class="genre-filter-panel" aria-label="Search by music genre">
-    <label class="search-box genre-search"><span>&#8981;</span><input data-category-genre-search placeholder="Search by genre" value="${escapeHtml(active)}" aria-label="Search by genre"></label>
-    <div class="genre-chips"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">All genres</button>${genres.map(genre => `<button class="filter-chip ${genre.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(genre)}">${escapeHtml(genre)}</button>`).join("")}</div>
+  const facetLabel = categoryFacetLabel(category);
+  const options = categoryFacetOptions(category, categoryEvents);
+  return `<section class="genre-filter-panel" aria-label="Search by ${facetLabel}">
+    <label class="search-box genre-search"><span>&#8981;</span><input data-category-genre-search placeholder="Search by ${escapeHtml(facetLabel)}" value="${escapeHtml(active)}" aria-label="Search by ${escapeHtml(facetLabel)}"></label>
+    <div class="genre-chips"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(categoryFacetAllLabel(category))}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>
   </section>`;
 }
 function categoryFromTaste(taste) {
@@ -92,11 +163,11 @@ function discoverRail(category, railEvents) {
 
 function renderDiscoverFeedContent(filtered) {
   if (!["all", "nearby"].includes(state.homeFilter)) {
-    const isMusicCategory = ["concerts", "live-music"].includes(state.homeFilter);
-    const visibleEvents = isMusicCategory && state.discoverGenreFilter
-      ? filtered.filter(event => eventMatchesMusicGenre(event, state.discoverGenreFilter))
+    const hasCategorySearch = searchableDiscoverCategory(state.homeFilter);
+    const visibleEvents = hasCategorySearch && state.discoverGenreFilter
+      ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
       : filtered;
-    return `${isMusicCategory ? musicGenreControls(filtered) : ""}${discoverRail(state.homeFilter, visibleEvents)}`;
+    return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${discoverRail(state.homeFilter, visibleEvents)}`;
   }
   const base = displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart);
   const rails = orderedDiscoverCategories()
