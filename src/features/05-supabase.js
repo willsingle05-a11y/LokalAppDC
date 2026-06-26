@@ -433,6 +433,7 @@ function normalizeImportedCategory(row) {
   if (directCategory === "happy-hours") return "happy-hours";
   if (directCategory === "trivia-nights") return "trivia-nights";
   if (/museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) return "museums";
+  if (/\b(9:30 club|930 club|the anthem|capital one arena|dar constitution hall|constitution hall|the howard theatre|howard theatre|echostage|nationals park|union stage)\b/.test(venueText)) return "concerts";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
   if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
   if (importedCategories.has(directCategory)) return directCategory;
