@@ -389,7 +389,12 @@ function eventUrgency(event) {
   if (eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""))) return { label: "Free", cls: "urgency-free" };
   const seed = Array.from(String(event.sourceId || event.id || event.title || "lokal")).reduce((total, character) => total + character.charCodeAt(0), 0);
   const mode = seed % 5;
-  if (mode === 0) return { label: `${(seed % 6) + 2} spots left`, cls: "urgency-spots" };
+  if (mode === 0) {
+    const count = (seed % 6) + 2;
+    // Social venue events feel friendlier as "people going"; ticketed ones keep "spots left".
+    const social = ["happy-hours", "trivia-nights", "nightlife"].includes(String(event.cat || "").toLowerCase());
+    return social ? { label: `${count} people going`, cls: "urgency-going" } : { label: `${count} spots left`, cls: "urgency-spots" };
+  }
   if (mode === 1) return { label: "Selling fast", cls: "urgency-fast" };
   return null;
 }
