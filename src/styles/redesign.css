@@ -60,7 +60,7 @@ h3 { font-weight: 700; }
   padding: 0;
   overflow: hidden;
   border-radius: 16px;
-  background-color: var(--green);
+  background-color: var(--blue);
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -536,3 +536,182 @@ h3 { font-weight: 700; }
 .elr-badge.urgency-fast { color: var(--warm); background: #FFF0E8; }
 .elr-badge.urgency-free,
 .elr-badge.elr-price { color: var(--accent-strong); background: rgba(0, 201, 167, .12); }
+
+/* ============================================================
+   Discover: following stories strip, subtle search, card area
+   ============================================================ */
+.following-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 2px 8px; }
+.following-head .eyebrow { margin: 0; }
+.following-rail { display: flex; gap: 10px; margin: 0 -18px 4px; padding: 2px 18px 8px; overflow-x: auto; scrollbar-width: none; }
+.following-rail::-webkit-scrollbar { display: none; }
+.following-chip {
+  display: grid;
+  flex: 0 0 auto;
+  width: 84px;
+  min-height: 0;
+  align-content: start;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 1px solid rgba(58, 124, 165, .13);
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+}
+.following-chip .group-icon { width: 48px; height: 48px; border: 2px solid var(--accent); border-radius: 50%; font-size: 18px; }
+.following-chip b { font-size: 11px; font-weight: 800; line-height: 1.12; }
+.following-chip small { color: var(--accent-strong); font-size: 8px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+.following-hint { margin: 4px 2px 16px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+.discover-search-box.subtle-search {
+  margin-top: 2px;
+  margin-bottom: 12px;
+  padding: 9px 11px;
+  border-color: rgba(58, 124, 165, .18);
+  background: rgba(255, 255, 255, .72);
+  box-shadow: none;
+}
+.discover-search-box.subtle-search span { font-size: 18px; }
+.discover-search-box.subtle-search input { font-size: 11px; }
+
+.event-card-loc { color: rgba(255, 255, 255, .9); font-size: 11px; font-weight: 700; }
+
+/* ============================================================
+   Event detail: RSVP/Save feedback, hint, social urgency
+   ============================================================ */
+.rsvp-hint { margin: -6px 0 14px; color: var(--muted); font-size: 11px; text-align: center; }
+@keyframes btnPop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
+.btn-pop { animation: btnPop .32s ease; }
+.action.rsvp-action.selected { background: var(--accent); color: #fff; }
+/* "people going" — friendly/teal instead of scarcity red */
+.event-card-urgency.urgency-going { color: #fff; background: var(--accent); }
+.event-card-urgency-dot.urgency-going { color: #19e6c4; }
+.elr-badge.urgency-going { color: var(--accent-strong); background: rgba(0, 201, 167, .12); }
+@media (prefers-reduced-motion: reduce) { .btn-pop { animation: none; } }
+
+/* ============================================================
+   Saved tab: section explainers, empty state, calendar explore
+   ============================================================ */
+.section-subnote { margin: -6px 0 11px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.saved-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1px dashed rgba(58, 124, 165, .24);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .6);
+  text-align: center;
+}
+.saved-empty-icon { font-size: 40px; line-height: 1; }
+.saved-empty h3 { margin: 2px 0 0; font-size: 21px; }
+.saved-empty p { max-width: 280px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.saved-empty-cta { width: auto; margin: 8px 0 0; padding: 12px 24px; box-shadow: none; }
+.day-explore { padding: 0; color: var(--accent-strong); background: transparent; font-size: 10px; font-weight: 800; }
+
+/* ============================================================
+   Profile: score context, taste prompt, invite banner, settings
+   ============================================================ */
+.score-block { display: block; width: 100%; cursor: pointer; text-align: left; }
+.score-context { margin: 9px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.taste-prompt {
+  display: block;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 11px 13px;
+  border: 1px solid rgba(0, 201, 167, .38);
+  border-radius: 12px;
+  background: rgba(0, 201, 167, .1);
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: left;
+}
+.profile-taste-chips .taste-pill { padding: 8px 16px; font-size: 13px; }
+.invite-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 22px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), #19c2a6);
+}
+.invite-banner-copy b { font-size: 13px; }
+.invite-banner-copy p { margin: 3px 0 0; font-size: 11px; line-height: 1.35; opacity: .92; }
+.invite-banner-btn { flex: 0 0 auto; padding: 9px 14px; border-radius: 999px; color: var(--accent-strong); background: #fff; font-size: 11px; font-weight: 900; }
+.settings-group-label { margin: 18px 0 6px; color: var(--muted); font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.settings-divider { margin: 12px 0 0; border: 0; border-top: 1px solid var(--line); }
+.settings-danger { display: grid; gap: 2px; margin-top: 16px; }
+.settings-minor { padding: 9px; color: var(--muted); background: transparent; font-size: 11px; font-weight: 700; }
+.settings-minor.danger { color: #a4564a; }
+
+/* ============================================================
+   Font consistency: every event title uses the display font
+   ============================================================ */
+.planner-main b,
+.planner-day-event strong,
+.interest-event b,
+.message-event-link b,
+.direct-chat-row b,
+.occurrence-row span,
+.share-preview b {
+  font-family: var(--display);
+  font-weight: 800;
+}
+
+/* ============================================================
+   Loading skeleton + connection error
+   ============================================================ */
+.feed-skeleton { display: grid; gap: 12px; }
+.skeleton-card {
+  position: relative;
+  height: 165px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #e9eef3;
+}
+.skeleton-card:first-child { height: 200px; }
+.skeleton-card::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .65), transparent);
+  content: "";
+  transform: translateX(-100%);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.feed-error { display: grid; gap: 12px; padding: 22px 16px; text-align: center; }
+.feed-error p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.feed-error .wide-button { width: auto; justify-self: center; padding: 11px 22px; }
+
+/* ============================================================
+   First-run Discover hint (bottom sheet, auto-dismiss)
+   ============================================================ */
+.discover-hint {
+  position: fixed;
+  right: 12px;
+  bottom: 84px;
+  left: 12px;
+  z-index: 70;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  border-radius: 16px;
+  color: #fff;
+  background: rgba(17, 24, 39, .94);
+  box-shadow: 0 12px 30px rgba(17, 24, 39, .25);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .25s ease, transform .25s ease;
+  cursor: pointer;
+}
+.discover-hint.visible { opacity: 1; transform: translateY(0); }
+.discover-hint p { margin: 0; font-size: 12.5px; line-height: 1.45; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-card::after { animation: none; }
+  .discover-hint { transition: none; }
+}

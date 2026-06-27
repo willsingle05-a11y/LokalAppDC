@@ -279,16 +279,29 @@ function personalizedSection() {
   return `<section class="section saved-plans-section personalized-block"><div class="section-heading"><div><p class="eyebrow personalized-eyebrow">Personalized for you</p><h2>Picked for your tastes</h2></div></div><div class="event-stack personalized-list">${picks.map(event => eventRow(event)).join("")}</div></section>`;
 }
 
+function openFollowingManager() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Manage following"><button class="modal-close" aria-label="Close following">&times;</button>${followingContent()}</section></div>`;
+}
+
+function savedEmptyState() {
+  return `<div class="saved-empty">
+    <div class="saved-empty-icon" aria-hidden="true">📅</div>
+    <h3>Nothing saved yet</h3>
+    <p>Browse Discover and tap the heart on anything that catches your eye.</p>
+    <button class="explore-cta saved-empty-cta" data-route="home">Browse events</button>
+  </div>`;
+}
+
 function renderSocial() {
   const savedPlans = savedPlannerEvents("saved");
   const rsvpPlans = savedPlannerEvents("rsvp");
   const allPlans = savedPlannerEvents("all");
+  const savedBlock = savedPlans.length ? plannerList(savedPlans, "", "Saved") : savedEmptyState();
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div></div>
-    <p class="lede">Keep saved ideas and RSVPs in one place, then use the calendar to see what your week actually looks like.</p>
-    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">Calendar</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
-    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved events</p><h2>For later</h2></div></div>${plannerList(savedPlans, "No saved events yet. Tap Save on any event in Discover.", "Saved")}</section>
-    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">RSVPs</p><h2>Going</h2></div></div>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved</p><h2>Saved events</h2></div></div><p class="section-subnote">Events you're interested in but haven't committed to yet.</p>${savedBlock}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Plans</p><h2>RSVPs &amp; plans</h2></div></div><p class="section-subnote">Events you're planning to go to.</p>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
     ${personalizedSection()}
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
@@ -331,7 +344,7 @@ function plannerCalendar(plans) {
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
     return `<article class="planner-day ${day.plans.length ? "" : "empty"}">
       <div class="planner-day-head"><span>${label}</span><b>${day.date.getDate()}</b></div>
-      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<p>No plans</p>`}</div>
+      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<button class="day-explore" data-route="home">Explore &rarr;</button>`}</div>
     </article>`;
   }).join("")}</div>`;
 }

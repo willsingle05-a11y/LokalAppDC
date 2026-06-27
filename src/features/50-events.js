@@ -1,9 +1,14 @@
 function openDetail(id) {
   const e = events.find(event => event.id === Number(id));
-  const occurrences = occurrencesForEvent(e);
-  const occurrencesBlock = occurrences.length > 1
-    ? `<div class="detail-occurrences"><p class="eyebrow">All dates / ${occurrences.length} occurrences</p><div class="occurrence-list">${occurrences.map(occurrence => `<button class="occurrence-row${occurrence.id === e.id ? " current" : ""}" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}${occurrence.id === e.id ? " / Showing" : ""}</small></button>`).join("")}</div></div>`
+  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
+  const occurrencesBlock = otherOccurrences.length
+    ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
     : "";
+  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+  const shareButton = canNativeShare
+    ? `<button class="primary" data-share="${e.id}">Share event</button>`
+    : `<button class="primary" data-copy-detail-link="${e.id}">Copy link</button>`;
+  const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
   const heroImage = eventArtImage(e);
   const heroStyle = e.image
     ? `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage}; background-size: cover, contain; background-repeat: no-repeat; background-position: center; background-color: #f7f2e9;`
@@ -15,7 +20,8 @@ function openDetail(id) {
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
     ${occurrencesBlock}
-    <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved" : "Save"}</button><button class="action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going" : "RSVP"}</button><button class="primary" data-share="${e.id}">Share</button></div>
+    <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved ✓" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going ✓" : "RSVP"}</button>${shareButton}</div>
+    ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
     <button class="wide-button" data-ticket>Get tickets / details</button></div>
   </section></div>`;

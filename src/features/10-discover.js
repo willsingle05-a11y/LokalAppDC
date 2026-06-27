@@ -78,6 +78,16 @@ function renderHeroAndList(list, opts = {}) {
   return `<div class="hero-list">${heroHtml}<p class="section-label more-near-you">More near you</p><div class="list-group">${rows}</div></div>`;
 }
 
+// Following rail: a proper stories strip of followed venues/curators. Hidden
+// entirely when the user follows nothing, rather than showing an empty row.
+function followingRail() {
+  const stories = activeFollowingStories();
+  if (!stories.length) return "";
+  return `<div class="following-head"><p class="eyebrow">Following</p><button class="text-button" data-manage-following>Manage</button></div>
+    <div class="following-rail">${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.name)}</b><small>${escapeHtml(story.type)}</small></button>`).join("")}</div>
+    <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -91,11 +101,12 @@ function renderHome() {
     <div class="discover-heading discover-cover"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${activity.length ? `<p class="eyebrow">Friends activity</p><div class="activity-strip">${activity.map(activityChip).join("")}</div>` : ""}
+    ${followingRail()}
     ${tonight.length ? `<section class="tonight-section"><div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div><div class="feed-grid">${tonight.map(event => eventRow(event, "hero")).join("")}</div></section>` : ""}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    <label class="search-box discover-search-box"><span>&#8981;</span><input data-discover-search placeholder="Search events, friends, or curators" aria-label="Search Lokal"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><p class="eyebrow">Your feed</p><h2>${escapeHtml(feedTitle)}</h2></div></div>
+    <section class="section feed-section"><div class="section-heading"><div><h2>${escapeHtml(feedTitle)}</h2></div></div>
     <div data-feed-content>${feedContent}</div></section>
   </section>`;
 }
@@ -248,7 +259,17 @@ function discoverRail(category, railEvents) {
   </section>`;
 }
 
+function feedSkeleton() {
+  return `<div class="feed-skeleton">${[0, 1, 2].map(() => `<div class="skeleton-card"></div>`).join("")}</div>`;
+}
+
 function renderDiscoverFeedContent(filtered) {
+  // First-load states: nothing loaded yet -> shimmer skeleton; still empty after the
+  // timeout -> connection error with a refresh action.
+  if (!displayableDcEvents().length) {
+    if (state.eventSync.status === "loading" && !state.eventsLoadTimedOut) return feedSkeleton();
+    return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
+  }
   const hasCategorySearch = !["all", "nearby"].includes(state.homeFilter) && searchableDiscoverCategory(state.homeFilter);
   const visibleEvents = hasCategorySearch && state.discoverGenreFilter
     ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))

@@ -37,6 +37,20 @@ function showWelcomeBanner() {
   setTimeout(() => document.querySelector(".welcome-banner")?.remove(), 2600);
 }
 
+function showDiscoverHint() {
+  if (localStorage.getItem("lokalOnboardingShown")) return;
+  if (!localStorage.getItem("lokalAccountCreated")) return;
+  if (document.querySelector(".onboarding") || document.querySelector(".discover-hint")) return;
+  localStorage.setItem("lokalOnboardingShown", "true");
+  document.body.insertAdjacentHTML("beforeend", `<div class="discover-hint" role="status"><p>Tap any event to save it, RSVP, or share with friends. Use the chips above to filter by what you're in the mood for.</p></div>`);
+  const hint = document.querySelector(".discover-hint");
+  if (!hint) return;
+  setTimeout(() => hint.classList.add("visible"), 30);
+  const dismiss = () => { hint.classList.remove("visible"); setTimeout(() => hint.remove(), 300); };
+  hint.addEventListener("click", dismiss);
+  setTimeout(dismiss, 6000);
+}
+
 function setRoute(route) {
   if (route === "map") route = "home";
   state.route = route;

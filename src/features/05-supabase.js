@@ -608,6 +608,13 @@ function normalizeSupabaseEvent(row, index) {
 
 async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
+  state.eventsLoadTimedOut = false;
+  setTimeout(() => {
+    if (state.eventSync.status === "loading") {
+      state.eventsLoadTimedOut = true;
+      if (state.route === "home") renderHome();
+    }
+  }, 5000);
   if (state.route === "home") renderHome();
   try {
     const responses = await Promise.all(discoveryWindowQueries().map(query => fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
