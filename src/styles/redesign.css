@@ -588,3 +588,23 @@ h3 { font-weight: 700; }
 .event-card-urgency-dot.urgency-going { color: #19e6c4; }
 .elr-badge.urgency-going { color: var(--accent-strong); background: rgba(0, 201, 167, .12); }
 @media (prefers-reduced-motion: reduce) { .btn-pop { animation: none; } }
+
+/* ============================================================
+   Saved tab: section explainers, empty state, calendar explore
+   ============================================================ */
+.section-subnote { margin: -6px 0 11px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.saved-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1px dashed rgba(58, 124, 165, .24);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .6);
+  text-align: center;
+}
+.saved-empty-icon { font-size: 40px; line-height: 1; }
+.saved-empty h3 { margin: 2px 0 0; font-size: 21px; }
+.saved-empty p { max-width: 280px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.saved-empty-cta { width: auto; margin: 8px 0 0; padding: 12px 24px; box-shadow: none; }
+.day-explore { padding: 0; color: var(--accent-strong); background: transparent; font-size: 10px; font-weight: 800; }
