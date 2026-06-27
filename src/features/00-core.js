@@ -247,7 +247,12 @@ function eventTagChips(event, limit = 3) {
 }
 
 function eventPriceLabel(event) {
-  return ["happy-hours", "trivia-nights", "museums"].includes(String(event.cat || event.category || "").toLowerCase()) ? "" : String(event.price || "");
+  const category = String(event.cat || event.category || "").toLowerCase();
+  if (["happy-hours", "trivia-nights", "museums"].includes(category)) return "";
+  const price = String(event.price || "").trim();
+  // Never surface "Price unknown" — show nothing when the price isn't known.
+  if (!price || /^price unknown$/i.test(price)) return "";
+  return price;
 }
 
 function eventMetaLine(event) {

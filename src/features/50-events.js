@@ -1,8 +1,8 @@
 function openDetail(id) {
   const e = events.find(event => event.id === Number(id));
-  const occurrences = occurrencesForEvent(e);
-  const occurrencesBlock = occurrences.length > 1
-    ? `<div class="detail-occurrences"><p class="eyebrow">All dates / ${occurrences.length} occurrences</p><div class="occurrence-list">${occurrences.map(occurrence => `<button class="occurrence-row${occurrence.id === e.id ? " current" : ""}" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}${occurrence.id === e.id ? " / Showing" : ""}</small></button>`).join("")}</div></div>`
+  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
+  const occurrencesBlock = otherOccurrences.length
+    ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
     : "";
   const heroImage = eventArtImage(e);
   const heroStyle = e.image
