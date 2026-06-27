@@ -259,7 +259,17 @@ function discoverRail(category, railEvents) {
   </section>`;
 }
 
+function feedSkeleton() {
+  return `<div class="feed-skeleton">${[0, 1, 2].map(() => `<div class="skeleton-card"></div>`).join("")}</div>`;
+}
+
 function renderDiscoverFeedContent(filtered) {
+  // First-load states: nothing loaded yet -> shimmer skeleton; still empty after the
+  // timeout -> connection error with a refresh action.
+  if (!displayableDcEvents().length) {
+    if (state.eventSync.status === "loading" && !state.eventsLoadTimedOut) return feedSkeleton();
+    return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
+  }
   const hasCategorySearch = !["all", "nearby"].includes(state.homeFilter) && searchableDiscoverCategory(state.homeFilter);
   const visibleEvents = hasCategorySearch && state.discoverGenreFilter
     ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
