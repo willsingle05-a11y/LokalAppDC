@@ -608,3 +608,42 @@ h3 { font-weight: 700; }
 .saved-empty p { max-width: 280px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 .saved-empty-cta { width: auto; margin: 8px 0 0; padding: 12px 24px; box-shadow: none; }
 .day-explore { padding: 0; color: var(--accent-strong); background: transparent; font-size: 10px; font-weight: 800; }
+
+/* ============================================================
+   Profile: score context, taste prompt, invite banner, settings
+   ============================================================ */
+.score-block { display: block; width: 100%; cursor: pointer; text-align: left; }
+.score-context { margin: 9px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.taste-prompt {
+  display: block;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 11px 13px;
+  border: 1px solid rgba(0, 201, 167, .38);
+  border-radius: 12px;
+  background: rgba(0, 201, 167, .1);
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: left;
+}
+.profile-taste-chips .taste-pill { padding: 8px 16px; font-size: 13px; }
+.invite-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 22px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), #19c2a6);
+}
+.invite-banner-copy b { font-size: 13px; }
+.invite-banner-copy p { margin: 3px 0 0; font-size: 11px; line-height: 1.35; opacity: .92; }
+.invite-banner-btn { flex: 0 0 auto; padding: 9px 14px; border-radius: 999px; color: var(--accent-strong); background: #fff; font-size: 11px; font-weight: 900; }
+.settings-group-label { margin: 18px 0 6px; color: var(--muted); font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.settings-divider { margin: 12px 0 0; border: 0; border-top: 1px solid var(--line); }
+.settings-danger { display: grid; gap: 2px; margin-top: 16px; }
+.settings-minor { padding: 9px; color: var(--muted); background: transparent; font-size: 11px; font-weight: 700; }
+.settings-minor.danger { color: #a4564a; }
