@@ -536,3 +536,42 @@ h3 { font-weight: 700; }
 .elr-badge.urgency-fast { color: var(--warm); background: #FFF0E8; }
 .elr-badge.urgency-free,
 .elr-badge.elr-price { color: var(--accent-strong); background: rgba(0, 201, 167, .12); }
+
+/* ============================================================
+   Discover: following stories strip, subtle search, card area
+   ============================================================ */
+.following-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 2px 8px; }
+.following-head .eyebrow { margin: 0; }
+.following-rail { display: flex; gap: 10px; margin: 0 -18px 4px; padding: 2px 18px 8px; overflow-x: auto; scrollbar-width: none; }
+.following-rail::-webkit-scrollbar { display: none; }
+.following-chip {
+  display: grid;
+  flex: 0 0 auto;
+  width: 84px;
+  min-height: 0;
+  align-content: start;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 1px solid rgba(58, 124, 165, .13);
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+}
+.following-chip .group-icon { width: 48px; height: 48px; border: 2px solid var(--accent); border-radius: 50%; font-size: 18px; }
+.following-chip b { font-size: 11px; font-weight: 800; line-height: 1.12; }
+.following-chip small { color: var(--accent-strong); font-size: 8px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+.following-hint { margin: 4px 2px 16px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+.discover-search-box.subtle-search {
+  margin-top: 2px;
+  margin-bottom: 12px;
+  padding: 9px 11px;
+  border-color: rgba(58, 124, 165, .18);
+  background: rgba(255, 255, 255, .72);
+  box-shadow: none;
+}
+.discover-search-box.subtle-search span { font-size: 18px; }
+.discover-search-box.subtle-search input { font-size: 11px; }
+
+.event-card-loc { color: rgba(255, 255, 255, .9); font-size: 11px; font-weight: 700; }

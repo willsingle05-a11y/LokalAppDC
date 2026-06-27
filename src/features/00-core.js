@@ -389,8 +389,16 @@ function eventUrgency(event) {
   return null;
 }
 
+function eventCardArea(event) {
+  const area = cleanLocationPart(event.area || event.neighborhood);
+  if (area && !isGenericLocationName(area)) return area;
+  const line = cleanLocationPart(eventLocationLine(event));
+  return line && !isGenericLocationName(line) ? line : "";
+}
+
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
+  const area = eventCardArea(event);
   const variantClass = variant ? ` event-card-${variant}` : "";
   const accent = categoryColor(event);
   const image = eventArtImage(event);
@@ -413,6 +421,7 @@ function eventRow(event, variant = "", opts = {}) {
       ${cardFriendAvatars(event)}
       <span class="event-card-meta">${eventMetaLine(event)}</span>
       <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
+      ${area ? `<span class="event-card-loc">${escapeHtml(area)}</span>` : ""}
       <span class="event-card-tags">${eventTagChips(event, 2)}</span>
       ${urgencyHtml}
     </span>

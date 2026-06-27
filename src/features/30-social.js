@@ -279,6 +279,10 @@ function personalizedSection() {
   return `<section class="section saved-plans-section personalized-block"><div class="section-heading"><div><p class="eyebrow personalized-eyebrow">Personalized for you</p><h2>Picked for your tastes</h2></div></div><div class="event-stack personalized-list">${picks.map(event => eventRow(event)).join("")}</div></section>`;
 }
 
+function openFollowingManager() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Manage following"><button class="modal-close" aria-label="Close following">&times;</button>${followingContent()}</section></div>`;
+}
+
 function renderSocial() {
   const savedPlans = savedPlannerEvents("saved");
   const rsvpPlans = savedPlannerEvents("rsvp");
