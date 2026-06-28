@@ -715,3 +715,46 @@ h3 { font-weight: 700; }
   .skeleton-card::after { animation: none; }
   .discover-hint { transition: none; }
 }
+
+
+/* Cleaner event imagery: keep lower-res venue art sharp instead of cropped blurry. */
+.event-card.has-image.image-contain {
+  background-color: #f7fafc;
+  background-size: cover, contain !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-position: center, center !important;
+}
+.event-card.has-image.image-contain::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,.72), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(17,24,39,.22));
+  content: "";
+  pointer-events: none;
+}
+.event-card.has-image.image-contain .event-card-bottom {
+  background: linear-gradient(to top, rgba(17,24,39,.78), rgba(17,24,39,.28) 70%, transparent);
+}
+.event-card.has-image.image-contain .event-card-badge,
+.event-card.has-image.image-contain .card-icon-btn {
+  background: rgba(255,255,255,.88);
+  color: #111827;
+}
+.event-card.has-image.image-contain .event-tag {
+  border-color: rgba(255,255,255,.38);
+  background: rgba(255,255,255,.22);
+}
+.elr-thumb,
+.attend-thumb {
+  background-color: #f7fafc;
+  background-repeat: no-repeat;
+  image-rendering: auto;
+}
+.detail-hero.has-image {
+  background-size: cover, contain !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-position: center, center !important;
+  background-color: #f7fafc;
+}

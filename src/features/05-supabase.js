@@ -252,14 +252,36 @@ function rawImageUrl(value) {
   return value.url || value.image_url || value.thumbnail_url || value.original_url || "";
 }
 
+function imageCandidateScore(value) {
+  const url = rawImageUrl(value);
+  if (!url) return -1;
+  if (typeof value === "string") return /thumb|thumbnail|small|w_?\d{2,3}/i.test(value) ? 1 : 250000;
+  const width = Number(value.width || value.w || value.size?.width || 0);
+  const height = Number(value.height || value.h || value.size?.height || 0);
+  let score = width && height ? width * height : 250000;
+  if (/retina|large|original|master|source/i.test(url)) score += 250000;
+  if (/tablet|desktop|hero|banner/i.test(url)) score += 100000;
+  if (/thumb|thumbnail|small|icon|logo/i.test(url)) score -= 150000;
+  return score;
+}
+
+function bestRawImageUrl(value) {
+  const list = (Array.isArray(value) ? value : [value]).flat();
+  return list
+    .map(item => ({ url: rawImageUrl(item), score: imageCandidateScore(item) }))
+    .filter(item => item.url)
+    .sort((a, b) => b.score - a.score)[0]?.url || "";
+}
+
 function rawEventApiImage(row) {
-  const direct = rawImageUrl(row.image_url) || rawImageUrl(row.image) || rawImageUrl(row.raw_json?.image_url);
+  const direct = bestRawImageUrl([row.image_url, row.image, row.raw_json?.image_url, row.raw_json?.image]);
   if (direct) return direct;
-  const eventImage = Array.isArray(row.raw_json?.images) ? row.raw_json.images.map(rawImageUrl).find(Boolean) : rawImageUrl(row.raw_json?.images);
+  const eventImage = bestRawImageUrl(row.raw_json?.images);
   if (eventImage) return eventImage;
-  const entity = row.raw_json?.entities?.find(item => rawImageUrl(item.image) || rawImageUrl(item.image_url) || rawImageUrl(item.logo) || rawImageUrl(item.thumbnail) || (Array.isArray(item.images) && item.images.map(rawImageUrl).find(Boolean)));
-  if (!entity) return "";
-  return rawImageUrl(entity.image) || rawImageUrl(entity.image_url) || rawImageUrl(entity.logo) || rawImageUrl(entity.thumbnail) || (Array.isArray(entity.images) ? entity.images.map(rawImageUrl).find(Boolean) : rawImageUrl(entity.images)) || "";
+  const entities = Array.isArray(row.raw_json?.entities) ? row.raw_json.entities : [];
+  return entities
+    .map(entity => bestRawImageUrl([entity.image, entity.image_url, entity.logo, entity.thumbnail, entity.images]))
+    .filter(Boolean)[0] || "";
 }
 
 function inferVenueNameFromText(value) {

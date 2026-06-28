@@ -19,7 +19,7 @@ function tasteColor(taste) {
 function receiptThumbStyle(receipt) {
   const event = events.find(item => String(item.id) === String(receipt.id));
   const art = event ? eventArtImage(event) : genericEventArt({ cat: receipt.cat, title: receipt.title, venue: receipt.venue });
-  return `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
+  return event?.image ? cleanEventThumbStyle(art) : `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
 }
 
 function attendanceRow(receipt, index = 0) {

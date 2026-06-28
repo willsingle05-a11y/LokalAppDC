@@ -406,6 +406,14 @@ function eventCardArea(event) {
   return line && !isGenericLocationName(line) ? line : "";
 }
 
+function cleanEventImageStyle(image) {
+  return `background-image: linear-gradient(to top, rgba(17,24,39,.72) 0%, rgba(17,24,39,.28) 48%, rgba(255,255,255,.12) 100%), ${image}; background-size: cover, contain; background-repeat: no-repeat, no-repeat; background-position: center, center; background-color: #f7fafc;`;
+}
+
+function cleanEventThumbStyle(image) {
+  return `background-image: ${image}; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #f7fafc;`;
+}
+
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const area = eventCardArea(event);
@@ -413,14 +421,15 @@ function eventRow(event, variant = "", opts = {}) {
   const accent = categoryColor(event);
   const image = eventArtImage(event);
   const tags = eventTags(event);
-  const cardStyle = `background-image: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 60%), ${image};`;
+  const hasRealImage = Boolean(event.image);
+  const cardStyle = hasRealImage ? cleanEventImageStyle(image) : `background-image: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 60%), ${image};`;
   const urgency = eventUrgency(event);
   const urgencyHtml = !urgency ? ""
     : variant === "hero"
       ? `<span class="event-card-urgency-dot ${urgency.cls}"><i></i>${escapeHtml(urgency.label)}</span>`
       : `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>`;
   const badgeHtml = showBadge ? `<span class="event-card-badge" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>` : "";
-  return `<article class="event-card cat-${eventVisualCategory(event)}${event.image ? " has-image" : ""}${variantClass}" style="${cardStyle}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+  return `<article class="event-card cat-${eventVisualCategory(event)}${event.image ? " has-image image-contain" : ""}${variantClass}" style="${cardStyle}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
     ${badgeHtml}
     <span class="event-card-actions">
@@ -439,7 +448,8 @@ function eventRow(event, variant = "", opts = {}) {
 }
 
 function eventThumbStyle(event) {
-  return `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${eventArtImage(event)};`;
+  const image = eventArtImage(event);
+  return event.image ? cleanEventThumbStyle(image) : `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${image};`;
 }
 
 // Compact horizontal list row used below the hero in the hero-then-list feeds.
