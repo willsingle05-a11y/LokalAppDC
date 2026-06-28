@@ -1065,15 +1065,15 @@ h1, h2, h3, .brand b { color: #326f91; }
 }
 .saved-suggestion-rail .event-card-title,
 .saved-suggestion-rail .event-copy h3 {
-  font-size: 11px;
-  line-height: 1.12;
+  font-size: 13px;
+  line-height: 1.15;
 }
 .saved-suggestion-rail .event-card-meta,
 .saved-suggestion-rail .event-card-loc,
 .saved-suggestion-rail .event-meta,
 .saved-suggestion-rail .event-location {
-  font-size: 8px;
-  line-height: 1.15;
+  font-size: 9.5px;
+  line-height: 1.2;
 }
 .saved-suggestion-rail .event-card-tags,
 .saved-suggestion-rail .event-card-badge,
@@ -1083,7 +1083,7 @@ h1, h2, h3, .brand b { color: #326f91; }
   display: none;
 }
 .saved-suggestion-rail .event-card-bottom {
-  padding: 9px;
+  padding: 10px;
 }
 .saved-suggestion-rail .event-card-actions {
   top: 7px;
