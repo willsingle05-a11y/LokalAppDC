@@ -309,7 +309,6 @@ function renderSocial() {
     <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved</p><h2>Saved events</h2></div></div><p class="section-subnote">Events you're interested in but haven't committed to yet.</p>${savedBlock}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Plans</p><h2>RSVPs &amp; plans</h2></div></div><p class="section-subnote">Events you're planning to go to.</p>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
-    ${personalizedSection()}
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
