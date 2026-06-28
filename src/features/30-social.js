@@ -279,6 +279,12 @@ function personalizedSection() {
   return `<section class="section saved-plans-section personalized-block"><div class="section-heading"><div><p class="eyebrow personalized-eyebrow">Personalized for you</p><h2>Picked for your tastes</h2></div></div><div class="event-stack personalized-list">${picks.map(event => eventRow(event)).join("")}</div></section>`;
 }
 
+function savedSuggestionRail() {
+  const picks = personalizedEvents(5);
+  if (!picks.length) return "";
+  return `<div class="saved-suggestion-rail">${picks.map(event => eventRow(event, "suggestion", { showBadge: false })).join("")}</div>`;
+}
+
 function openFollowingManager() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Manage following"><button class="modal-close" aria-label="Close following">&times;</button>${followingContent()}</section></div>`;
 }
@@ -299,6 +305,7 @@ function renderSocial() {
   const savedBlock = savedPlans.length ? plannerList(savedPlans, "", "Saved") : savedEmptyState();
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div></div>
+    <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Next 5</h2></div></div>${savedSuggestionRail()}</section>
     <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved</p><h2>Saved events</h2></div></div><p class="section-subnote">Events you're interested in but haven't committed to yet.</p>${savedBlock}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Plans</p><h2>RSVPs &amp; plans</h2></div></div><p class="section-subnote">Events you're planning to go to.</p>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
