@@ -1034,3 +1034,156 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-size: 17px;
   line-height: 1.12;
 }
+
+/* Saved tab: three-up suggestions and full-width week calendar */
+.suggested-saved-section {
+  margin-top: 16px;
+}
+.saved-suggestion-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  overflow: visible;
+  padding: 0;
+}
+.saved-suggestion-rail .event-card,
+.saved-suggestion-rail .event-row {
+  width: 100%;
+  min-width: 0;
+  min-height: 210px;
+  flex: initial;
+  scroll-snap-align: unset;
+}
+.saved-suggestion-rail .event-card:nth-child(2n) {
+  min-height: 210px;
+  flex-basis: auto;
+}
+.saved-suggestion-rail .event-card:nth-child(n+4),
+.saved-suggestion-rail .event-row:nth-child(n+4) {
+  display: none;
+}
+.saved-suggestion-rail .event-card-title,
+.saved-suggestion-rail .event-copy h3 {
+  font-size: 11px;
+  line-height: 1.12;
+}
+.saved-suggestion-rail .event-card-meta,
+.saved-suggestion-rail .event-card-loc,
+.saved-suggestion-rail .event-meta,
+.saved-suggestion-rail .event-location {
+  font-size: 8px;
+  line-height: 1.15;
+}
+.saved-suggestion-rail .event-card-tags,
+.saved-suggestion-rail .event-card-badge,
+.saved-suggestion-rail .event-card-urgency,
+.saved-suggestion-rail .event-tags,
+.saved-suggestion-rail .signal {
+  display: none;
+}
+.saved-suggestion-rail .event-card-bottom {
+  padding: 9px;
+}
+.saved-suggestion-rail .event-card-actions {
+  top: 7px;
+  right: 7px;
+  gap: 4px;
+}
+.saved-suggestion-rail .card-icon-btn,
+.saved-suggestion-rail .event-icon-action {
+  width: 28px;
+  height: 28px;
+}
+.planner-calendar-section {
+  margin-top: 16px;
+}
+.planner-legend {
+  display: none;
+}
+.planner-week-controls {
+  grid-template-columns: 34px 1fr 34px;
+  gap: 6px;
+}
+.planner-week-controls span {
+  text-align: center;
+  font-size: 10px;
+}
+.planner-week-controls .secondary {
+  overflow: hidden;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  color: transparent;
+  white-space: nowrap;
+}
+.planner-week-controls .secondary:first-child::before,
+.planner-week-controls .secondary:last-child::before {
+  color: #008f6c;
+  font-size: 16px;
+  font-weight: 900;
+}
+.planner-week-controls .secondary:first-child::before { content: "\2190"; }
+.planner-week-controls .secondary:last-child::before { content: "\2192"; }
+.planner-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  overflow: visible;
+  padding-bottom: 0;
+}
+.planner-day {
+  min-width: 0;
+  min-height: 118px;
+  gap: 5px;
+  padding: 6px;
+  border-radius: 8px;
+}
+.planner-day-head span {
+  font-size: 7px;
+}
+.planner-day-head b {
+  font-size: 13px;
+}
+.planner-day-events {
+  gap: 4px;
+}
+.planner-day-event {
+  grid-template-columns: 4px 1fr;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 7px;
+}
+.planner-day-event i {
+  width: 4px;
+}
+.planner-day-event strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 8px;
+  line-height: 1.1;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.planner-day-event small {
+  display: none;
+}
+.day-explore {
+  min-height: 28px;
+  padding: 4px;
+  border-radius: 7px;
+  color: #008f6c;
+  background: #e0eef7;
+  font-size: 7px;
+  font-weight: 900;
+}
+@media (max-width: 430px) {
+  .saved-suggestion-rail { gap: 6px; }
+  .saved-suggestion-rail .event-card,
+  .saved-suggestion-rail .event-row { min-height: 190px; }
+  .planner-calendar { gap: 3px; }
+  .planner-day { min-height: 104px; padding: 5px 4px; }
+  .planner-day-head { display: grid; gap: 1px; justify-content: center; text-align: center; }
+  .planner-day-head span { font-size: 6px; }
+  .planner-day-head b { font-size: 12px; }
+}
