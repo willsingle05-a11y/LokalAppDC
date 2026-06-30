@@ -19,7 +19,7 @@ function tasteColor(taste) {
 function receiptThumbStyle(receipt) {
   const event = events.find(item => String(item.id) === String(receipt.id));
   const art = event ? eventArtImage(event) : genericEventArt({ cat: receipt.cat, title: receipt.title, venue: receipt.venue });
-  return `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
+  return event?.image ? cleanEventThumbStyle(art) : `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
 }
 
 function attendanceRow(receipt, index = 0) {
@@ -84,6 +84,23 @@ function openYearShareSheet() {
   </section></div>`;
 }
 
+function profileInsightPanel() {
+  const receipts = profileReceipts();
+  const breakdown = scoreBreakdown();
+  const categories = receipts.reduce((totals, receipt) => {
+    const label = discoverCategoryLabel(receipt.cat || "community");
+    totals[label] = (totals[label] || 0) + 1;
+    return totals;
+  }, {});
+  const categoryRows = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const topCount = Math.max(1, ...categoryRows.map(row => row[1]));
+  const friendsSeen = receiptFriendUnits(receipts);
+  return `<section class="section profile-insights"><div class="section-heading"><div><p class="eyebrow">Your stats</p><h2>Activity pulse</h2></div><span class="profile-pulse">Live</span></div>
+    <div class="insight-grid"><div class="insight-card"><b>${receipts.length}</b><small>Events attended</small></div><div class="insight-card"><b>${friendsSeen}</b><small>Friend overlaps</small></div><div class="insight-card"><b>${breakdown.total}</b><small>Lokal score</small></div></div>
+    <div class="category-bars">${categoryRows.map(([label, count], index) => `<div class="category-bar" style="--level:${Math.max(18, Math.round((count / topCount) * 100))}%; --delay:${index * 80}ms"><span><b>${escapeHtml(label)}</b><small>${count} visit${count === 1 ? "" : "s"}</small></span><i></i></div>`).join("") || `<p class="section-helper">Mark events as attended to build your category stats.</p>`}</div>
+  </section>`;
+}
+
 function renderProfile() {
   const score = lokalScore();
   const level = scoreLevel(score);
@@ -108,6 +125,7 @@ function renderProfile() {
     ${state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
     <div class="attend-head"><div><p class="eyebrow">Your history</p><h2>Events you've been to</h2></div><button class="text-button" data-share-year>Share my Lokal year</button></div>
     ${attendanceHistorySection()}
+    ${profileInsightPanel()}
   </section>`;
 }
 
