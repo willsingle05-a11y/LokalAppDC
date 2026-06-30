@@ -4,12 +4,15 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; setRoute(t.dataset.route); }
-  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.homeFilter = t.dataset.homeFilter; if (!["all", "nearby", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedExpanded = false; setRoute(t.dataset.route); }
+  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedExpanded = false; state.homeFilter = t.dataset.homeFilter; if (state.homeFilter !== "neighborhoods") state.neighborhoodFilter = ""; if (!["all", "neighborhoods", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
-  if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
-  if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; renderHome(); }
-  if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; renderHome(); }
+  if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedExpanded = false; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
+  if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedExpanded = false; renderHome(); }
+  if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedExpanded = false; renderHome(); }
+  if (t.dataset.feedMore !== undefined) { mark(); state.feedExpanded = true; renderHome(); }
+  if (t.dataset.neighborhood !== undefined) { mark(); state.neighborhoodFilter = t.dataset.neighborhood; state.feedExpanded = false; renderHome(); }
+  if (t.dataset.dayExplore) { mark(); state.filter.date = t.dataset.dayExplore; state.homeFilter = "all"; state.discoverCategoryView = ""; state.feedExpanded = false; setRoute("home"); toast("Showing events for that day"); }
   if (t.dataset.event) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.quickSave) {
@@ -239,6 +242,13 @@ document.addEventListener("input", event => {
     state.discoverGenreFilter = input.value;
     renderHome();
     const nextInput = document.querySelector("[data-category-genre-search]");
+    if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
+  }
+  if (input.matches("[data-neighborhood-search]")) {
+    state.neighborhoodFilter = input.value;
+    state.feedExpanded = false;
+    renderHome();
+    const nextInput = document.querySelector("[data-neighborhood-search]");
     if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
   }
   if (input.matches("[data-discover-search]")) {

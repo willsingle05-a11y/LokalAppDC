@@ -826,9 +826,67 @@ h3 { font-weight: 800; }
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 600;
-  animation: tickerScroll 40s linear infinite;
+  animation: tickerScroll 90s linear infinite;
 }
 .live-ticker-track span { display: inline-flex; align-items: center; gap: 7px; }
 .live-ticker-track i { width: 5px; height: 5px; border-radius: 50%; background: #08D99A; box-shadow: 0 0 8px rgba(8, 217, 154, .8); }
 @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .live-ticker-track { animation: none; } }
+
+/* ============================================================
+   Feed "View more", taller Saved calendar days, alive Profile
+   ============================================================ */
+.view-more-feed {
+  display: block;
+  width: 100%;
+  margin: 10px 0 2px;
+  padding: 12px;
+  border: 1px solid rgba(8, 217, 154, .35);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  background: rgba(8, 217, 154, .08);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.view-more-feed:hover { background: rgba(8, 217, 154, .15); }
+
+/* Saved calendar: taller day cells so multiple events are easy to see */
+.planner-day { min-height: 224px; }
+.planner-calendar { grid-template-columns: repeat(7, minmax(158px, 1fr)); }
+
+/* Profile, alive */
+@keyframes scoreGlow { 0%, 100% { text-shadow: 0 0 20px rgba(8, 217, 154, .3); } 50% { text-shadow: 0 0 34px rgba(8, 217, 154, .6); } }
+@keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes avatarPop { 0% { transform: scale(.85); opacity: 0; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+.profile-page .score-big { animation: scoreGlow 3s ease-in-out infinite; }
+.profile-page .score-progress i { transform-origin: left; animation: barGrow .9s cubic-bezier(.2, .8, .2, 1) both; }
+.profile-page .profile-avatar { animation: avatarPop .5s ease-out both; }
+.profile-page .profile-card,
+.profile-page .score-block,
+.profile-page .profile-taste-chips,
+.profile-page .invite-banner,
+.profile-page .attend-head,
+.profile-page .attend-list { animation: riseIn .5s ease-out both; }
+.profile-page .profile-card { animation-delay: .03s; }
+.profile-page .score-block { animation-delay: .09s; }
+.profile-page .profile-taste-chips { animation-delay: .15s; }
+.profile-page .invite-banner { animation-delay: .19s; }
+.profile-page .attend-head { animation-delay: .23s; }
+.profile-page .attend-list { animation-delay: .27s; }
+.profile-page .score-level-tag { animation: scoreGlow 3s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-page .score-big,
+  .profile-page .score-progress i,
+  .profile-page .profile-avatar,
+  .profile-page .score-level-tag,
+  .profile-page .profile-card,
+  .profile-page .score-block,
+  .profile-page .profile-taste-chips,
+  .profile-page .invite-banner,
+  .profile-page .attend-head,
+  .profile-page .attend-list { animation: none; }
+}

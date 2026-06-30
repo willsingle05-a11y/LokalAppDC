@@ -626,7 +626,7 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (applyDiscoverFilters && state.filter.price === "Under $20" && (priceValue === null || priceValue >= 20)) return false;
   if (applyDiscoverFilters && state.filter.price === "Under $50" && (priceValue === null || priceValue >= 50)) return false;
   if (filter === "all" || filter === "for-you") return true;
-  if (filter === "nearby") return true;
+  if (filter === "neighborhoods") return true;
   if (filter === "weekend") return !event.time.startsWith("Tonight");
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
@@ -634,7 +634,7 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["nearby", "Nearby"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["neighborhoods", "Neighborhoods"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {

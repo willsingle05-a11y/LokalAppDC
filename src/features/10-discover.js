@@ -74,8 +74,12 @@ function renderHeroAndList(list, opts = {}) {
   const [hero, ...rest] = list;
   const heroHtml = eventRow(hero, "hero", { showBadge: opts.showBadge !== false });
   if (!rest.length) return `<div class="hero-list">${heroHtml}</div>`;
-  const rows = rest.map((event, index) => eventListRow(event, { isFirst: index === 0, isLast: index === rest.length - 1 })).join("");
-  return `<div class="hero-list">${heroHtml}<p class="section-label more-near-you">More near you</p><div class="list-group">${rows}</div></div>`;
+  const limit = opts.limit || 0;
+  const collapsed = limit && !state.feedExpanded && rest.length > limit;
+  const shown = collapsed ? rest.slice(0, limit) : rest;
+  const rows = shown.map((event, index) => eventListRow(event, { isFirst: index === 0, isLast: index === shown.length - 1 })).join("");
+  const moreButton = collapsed ? `<button class="view-more-feed" data-feed-more>View ${rest.length - limit} more</button>` : "";
+  return `<div class="hero-list">${heroHtml}<p class="section-label more-near-you">More near you</p><div class="list-group">${rows}</div>${moreButton}</div>`;
 }
 
 // Following rail: a proper stories strip of followed venues/curators. Hidden
@@ -86,6 +90,34 @@ function followingRail() {
   return `<div class="following-head"><p class="eyebrow">Following</p><button class="text-button" data-manage-following>Manage</button></div>
     <div class="following-rail">${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.name)}</b><small>${escapeHtml(story.type)}</small></button>`).join("")}</div>
     <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
+}
+
+// How well an event matches the user's saved tastes (Profile → Your tastes).
+function eventTasteScore(event) {
+  const tastes = (state.tastes || []).map(taste => taste.toLowerCase());
+  if (!tastes.length) return 0;
+  const cats = tastes.map(taste => typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "").filter(Boolean);
+  const text = `${event.cat} ${eventTags(event).join(" ")} ${event.title}`.toLowerCase();
+  let score = 0;
+  cats.forEach(category => { if (event.cat === category) score += 3; });
+  tastes.forEach(taste => { if (taste && text.includes(taste)) score += 2; });
+  return score;
+}
+
+// Taste-personalized ordering for the main feed: events matching your tastes
+// float to the top, ties broken by soonest start (so dedupe still keeps the
+// next upcoming occurrence of a recurring event).
+function feedTasteSort(list) {
+  return list.slice().sort((a, b) => eventTasteScore(b) - eventTasteScore(a) || sortEventsByStart(a, b));
+}
+
+function neighborhoodControls(sourceEvents) {
+  const active = state.neighborhoodFilter || "";
+  const options = discoverNeighborhoodOptions(sourceEvents);
+  return `<section class="genre-filter-panel" aria-label="Search by neighborhood">
+    <label class="search-box genre-search"><span>&#8981;</span><input data-neighborhood-search placeholder="Search by neighborhood" value="${escapeHtml(active)}" aria-label="Search by neighborhood"></label>
+    <div class="genre-chips"><button class="filter-chip ${active ? "" : "active"}" data-neighborhood="">All neighborhoods</button>${options.map(name => `<button class="filter-chip ${name.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-neighborhood="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}</div>
+  </section>`;
 }
 
 // Live scrolling ticker of upcoming events (from the landing-page hero treatment).
@@ -100,17 +132,16 @@ function liveTicker() {
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
-  const filtered = dcEvents.filter(event => matchesFilter(event, state.homeFilter)).sort(sortEventsByStart);
+  const filtered = dcEvents.filter(event => matchesFilter(event, state.homeFilter));
+  const sorted = state.homeFilter === "all" ? feedTasteSort(filtered) : filtered.sort(sortEventsByStart);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
-  const feedContent = renderDiscoverFeedContent(filtered);
-  const activity = friendsActivityFeed();
+  const feedContent = renderDiscoverFeedContent(sorted);
   const tonight = happeningTonightEvents();
   app.innerHTML = `<section class="page discover-page">
-    <div class="discover-heading discover-cover"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
+    <div class="discover-heading discover-cover"><div><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     ${liveTicker()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
-    ${activity.length ? `<p class="eyebrow">Friends activity</p><div class="activity-strip">${activity.map(activityChip).join("")}</div>` : ""}
     ${followingRail()}
     ${tonight.length ? `<section class="tonight-section"><div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div><div class="feed-grid">${tonight.map(event => eventRow(event, "hero")).join("")}</div></section>` : ""}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
@@ -139,7 +170,7 @@ function renderDiscoverCategoryPage(category) {
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
     <p class="feed-count">${visibleEvents.length} event${visibleEvents.length === 1 ? "" : "s"} this week in DC</p>
     ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
-    ${renderHeroAndList(visibleEvents, { showBadge: false })}
+    ${renderHeroAndList(visibleEvents, { showBadge: false, limit: 10 })}
   </section>`;
 }
 
@@ -280,13 +311,19 @@ function renderDiscoverFeedContent(filtered) {
     if (state.eventSync.status === "loading" && !state.eventsLoadTimedOut) return feedSkeleton();
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
-  const hasCategorySearch = !["all", "nearby"].includes(state.homeFilter) && searchableDiscoverCategory(state.homeFilter);
+  // Neighborhoods tab: browse/search every event by neighborhood.
+  if (state.homeFilter === "neighborhoods") {
+    const base = feedTasteSort(displayableDcEvents().filter(event => matchesFilter(event, "all")));
+    const inNeighborhood = state.neighborhoodFilter ? base.filter(event => eventNeighborhoodMatches(event, state.neighborhoodFilter)) : base;
+    return `${neighborhoodControls(base)}${renderHeroAndList(dedupeFeedEvents(inNeighborhood), { showBadge: true, limit: 10 })}`;
+  }
+  const hasCategorySearch = state.homeFilter !== "all" && searchableDiscoverCategory(state.homeFilter);
   const visibleEvents = hasCategorySearch && state.discoverGenreFilter
     ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
     : filtered;
   // When a single category chip is active the feed is dedicated to that category,
-  // so the event-type badge is redundant (hide it). The mixed all/nearby feed keeps it.
-  return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${renderHeroAndList(dedupeFeedEvents(visibleEvents), { showBadge: !hasCategorySearch })}`;
+  // so the event-type badge is redundant (hide it). The mixed all feed keeps it.
+  return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${renderHeroAndList(dedupeFeedEvents(visibleEvents), { showBadge: !hasCategorySearch, limit: 10 })}`;
 }
 
 function discoverSearchText(event) {
