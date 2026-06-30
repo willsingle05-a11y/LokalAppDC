@@ -255,8 +255,15 @@ function eventPriceLabel(event) {
   return price;
 }
 
+function eventDisplayTime(event) {
+  // Recurring museum exhibits/programs read as "Ongoing"; true one-off museum
+  // events (a single occurrence) keep their actual date/time.
+  if (String(event.cat || "").toLowerCase() === "museums" && occurrencesForEvent(event).length > 1) return "Ongoing";
+  return event.time;
+}
+
 function eventMetaLine(event) {
-  return [event.time, eventPriceLabel(event)].filter(Boolean).join(" / ");
+  return [eventDisplayTime(event), eventPriceLabel(event)].filter(Boolean).join(" / ");
 }
 
 function primaryEventTag(event) {
@@ -417,33 +424,25 @@ function cleanEventThumbStyle(image) {
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const area = eventCardArea(event);
-  const variantClass = variant ? ` event-card-${variant}` : "";
   const accent = categoryColor(event);
   const image = eventArtImage(event);
   const tags = eventTags(event);
-  const hasRealImage = Boolean(event.image);
-  const cardStyle = hasRealImage ? cleanEventImageStyle(image) : `background-image: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 60%), ${image};`;
   const urgency = eventUrgency(event);
-  const urgencyHtml = !urgency ? ""
-    : variant === "hero"
-      ? `<span class="event-card-urgency-dot ${urgency.cls}"><i></i>${escapeHtml(urgency.label)}</span>`
-      : `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>`;
-  const badgeHtml = showBadge ? `<span class="event-card-badge" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>` : "";
-  return `<article class="event-card cat-${eventVisualCategory(event)}${event.image ? " has-image image-contain" : ""}${variantClass}" style="${cardStyle}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
-    ${badgeHtml}
-    <span class="event-card-actions">
-      <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
-      <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+  const urgencyHtml = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
+  return `<article class="event-card${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    <span class="event-card-media cat-${eventVisualCategory(event)}" style="background-image: ${image};">
+      <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+      <span class="event-card-actions">
+        <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
+        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+      </span>
     </span>
-    <span class="event-card-bottom">
-      ${cardFriendAvatars(event)}
-      <span class="event-card-meta">${eventMetaLine(event)}</span>
+    <button class="event-card-body" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+      <span class="event-card-toprow">${showBadge ? `<span class="event-card-cat" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>` : ""}<span class="event-card-meta">${eventMetaLine(event)}</span></span>
       <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
       ${area ? `<span class="event-card-loc">${escapeHtml(area)}</span>` : ""}
-      <span class="event-card-tags">${eventTagChips(event, 2)}</span>
-      ${urgencyHtml}
-    </span>
+      <span class="event-card-tagrow">${cardFriendAvatars(event)}<span class="event-card-tags">${eventTagChips(event, 2)}</span>${urgencyHtml}</span>
+    </button>
   </article>`;
 }
 
@@ -622,8 +621,10 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (applyDiscoverFilters && state.filter.price === "Free" && event.price !== "Free") return false;
   if (applyDiscoverFilters && state.filter.price === "Under $20" && (priceValue === null || priceValue >= 20)) return false;
   if (applyDiscoverFilters && state.filter.price === "Under $50" && (priceValue === null || priceValue >= 50)) return false;
-  if (filter === "all" || filter === "for-you") return true;
-  if (filter === "neighborhoods") return true;
+  // Museums are numerous and noisy in a mixed feed — only show them under the
+  // Museums tab, not under "All".
+  if (filter === "all" || filter === "for-you") return event.cat !== "museums";
+  if (filter === "neighborhoods") return event.cat !== "museums";
   if (filter === "weekend") return !event.time.startsWith("Tonight");
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
@@ -634,7 +635,7 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["neighborhoods", "Neighborhoods"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
