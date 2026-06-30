@@ -312,10 +312,10 @@ function combinedPlannerList(plans) {
 function renderSocial() {
   const allPlans = savedPlannerEvents("all");
   app.innerHTML = `<section class="page">
-    <div class="discover-heading"><div><p class="eyebrow">Your events</p><h1>Your events</h1></div></div>
+    <div class="discover-heading"><div><h1>Your Plans</h1></div></div>
     <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Top 3</h2></div></div>${savedSuggestionRail()}</section>
-    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Your events</h2></div></div>${plannerCalendar(allPlans)}</section>
-    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Your events</p><h2>Your events</h2></div></div><p class="section-subnote">Everything you're interested in or planning to attend, in one place.</p>${combinedPlannerList(allPlans)}</section>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Your Plans</h2></div></div>${plannerCalendar(allPlans)}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><h2>Your Plans</h2></div></div>${combinedPlannerList(allPlans)}</section>
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
@@ -338,7 +338,7 @@ function plannerList(plans, emptyText, statusLabel) {
 }
 
 function plannerCalendar(plans) {
-  if (!plans.length) return `<p class="section-helper empty-planner">Save or RSVP to an event and it will appear in your events.</p>`;
+  if (!plans.length) return `<p class="section-helper empty-planner">Save or RSVP to an event and it will appear in Your Plans.</p>`;
   const start = new Date();
   start.setHours(0, 0, 0, 0);
   start.setDate(start.getDate() + state.plannerWeekOffset * 7);
@@ -369,7 +369,7 @@ function openCalendarPlans(iso) {
     return;
   }
   const date = new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your events</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button></article>`).join("")}</div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button></article>`).join("")}</div></section></div>`;
 }
 
 function friendInterestEvents(name, limit = 4) {
