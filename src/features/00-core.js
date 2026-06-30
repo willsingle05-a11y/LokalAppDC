@@ -605,13 +605,10 @@ function matchesTimeFilter(event, value) {
 
 function isMuseumDisplayEvent(event) {
   if (String(event.cat || "").toLowerCase() !== "museums") return true;
-  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
-  if (/ongoing\s*\/\s*time varies|time varies|date to be announced/.test(String(event.time || "").toLowerCase())) return false;
-  const hasSetSchedule = Boolean(event.hasPreciseStart || (event.startDate && eventStartHour(event) !== null));
-  if (!hasSetSchedule) return false;
-  const scheduledCue = /\b(after hours?|lecture|talk|tour|guided|workshop|class|screening|film|performance|concert|festival|opening|reception|panel|story time|event|program|demo|demonstration)\b/.test(text);
-  const ongoingExhibit = /\b(ongoing|on view|exhibition|exhibit|gallery|collection|installation|display)\b/.test(text);
-  return !ongoingExhibit || scheduledCue;
+  // Show any museum event that has a concrete date/time; only hide the ones with
+  // no real schedule ("time varies" / "date to be announced").
+  if (/time varies|date to be announced/.test(String(event.time || "").toLowerCase())) return false;
+  return Boolean(event.startDate) || Number.isFinite(event.startSort) || eventStartHour(event) !== null;
 }
 function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (!isMuseumDisplayEvent(event)) return false;
@@ -630,11 +627,14 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (filter === "weekend") return !event.time.startsWith("Tonight");
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
+  // Food & drink is tag-aware: anything tagged/described with food or drink shows
+  // here, so a food-tagged happy hour appears under Food & drink too.
+  if (filter === "food") return /\b(food|drink|dining|restaurant|tasting|brunch|wine|beer|cocktail|happy hour|food deals?)\b/.test(`${event.cat} ${eventTags(event).join(" ")} ${event.title} ${event.desc || ""}`.toLowerCase());
   return event.cat === filter;
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["neighborhoods", "Neighborhoods"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["neighborhoods", "Neighborhoods"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {

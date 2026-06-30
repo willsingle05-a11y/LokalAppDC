@@ -52,6 +52,7 @@ const categoryFeedConfig = {
   "live-music": { label: "Live music", searchPlaceholder: "Search by genre, venue, or artist…", chips: ["All shows", "Jazz", "Indie", "R&B", "Blues", "Folk", "Electronic", "Soul"] },
   "happy-hours": { label: "Happy hours", searchPlaceholder: "Search by type, vibe, or venue…", chips: ["All deals", "Cocktails", "Beer", "Wine", "Rooftop", "Patio", "Food deals", "After work"] },
   "trivia-nights": { label: "Trivia nights", searchPlaceholder: "Search by bar, theme, or night…", chips: ["All nights", "Free to play", "Pop culture", "Sports", "Music", "Science", "80s", "90s"] },
+  food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or deal…", chips: ["All", "Happy hour", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails"] },
   nightlife: { label: "Nightlife", searchPlaceholder: "Search by venue, vibe, or night…", chips: ["All venues", "Clubs", "Bars", "Rooftop", "DJ nights", "Late night", "21+"] },
   "performing-arts": { label: "Arts and culture", searchPlaceholder: "Search by museum, gallery, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
@@ -84,12 +85,30 @@ function renderHeroAndList(list, opts = {}) {
 
 // Following rail: a proper stories strip of followed venues/curators. Hidden
 // entirely when the user follows nothing, rather than showing an empty row.
+function followedVenueNames() {
+  return Array.from(state.follows).filter(key => typeof key === "string" && key.startsWith("venue:")).map(key => key.slice(6));
+}
+
 function followingRail() {
   const stories = activeFollowingStories();
-  if (!stories.length) return "";
-  return `<div class="following-head"><p class="eyebrow">Following</p><button class="text-button" data-manage-following>Manage</button></div>
-    <div class="following-rail">${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.name)}</b><small>${escapeHtml(story.type)}</small></button>`).join("")}</div>
+  const venues = followedVenueNames();
+  if (!stories.length && !venues.length) return "";
+  const venueChips = venues.map(name => `<button class="following-chip" data-venue-events="${escapeHtml(name)}"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><b>${escapeHtml(name)}</b><small>Following</small></button>`).join("");
+  return `<div class="following-head"><p class="eyebrow">Following</p></div>
+    <div class="following-rail">${venueChips}${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.name)}</b><small>${escapeHtml(story.type)}</small></button>`).join("")}</div>
     <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
+}
+
+function openVenueEvents(name) {
+  const key = String(name).toLowerCase();
+  const venueEvents = displayableDcEvents().filter(event => `${event.venue} ${event.title}`.toLowerCase().includes(key)).sort(sortEventsByStart).slice(0, 8);
+  const following = state.follows.has(`venue:${name}`);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(name)}"><button class="modal-close" aria-label="Close venue">&times;</button>
+    <p class="eyebrow">Venue</p><h2>${escapeHtml(name)}</h2>
+    <button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(name)}">${following ? "Following" : "Follow"}</button>
+    <p class="eyebrow group-divider">Upcoming events</p>
+    <div class="interest-list">${venueEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No upcoming events listed for this venue.</p>`}</div>
+  </section></div>`;
 }
 
 // How well an event matches the user's saved tastes (Profile → Your tastes).
@@ -125,7 +144,7 @@ function neighborhoodControls(sourceEvents) {
 function liveTicker() {
   const items = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart)).slice(0, 12);
   if (!items.length) return "";
-  const line = items.map(event => `<span><i></i>${escapeHtml(eventCardArea(event) || "DC")} — ${escapeHtml(event.title)} — ${escapeHtml(event.time)}</span>`).join("");
+  const line = items.map(event => `<span><i></i>${escapeHtml(cleanLocationPart(event.area || event.neighborhood) || "DC")} · ${escapeHtml(event.title)} · ${escapeHtml(event.time)}</span>`).join("");
   return `<div class="live-ticker" aria-hidden="true"><div class="live-ticker-track">${line}${line}</div></div>`;
 }
 
@@ -168,14 +187,14 @@ function renderDiscoverCategoryPage(category) {
     : categoryEvents;
   app.innerHTML = `<section class="page category-list-page">
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
-    <p class="feed-count">${visibleEvents.length} event${visibleEvents.length === 1 ? "" : "s"} this week in DC</p>
+    <p class="feed-count">${visibleEvents.length} upcoming DC event${visibleEvents.length === 1 ? "" : "s"}</p>
     ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
     ${renderHeroAndList(visibleEvents, { showBadge: false, limit: 10 })}
   </section>`;
 }
 
 function searchableDiscoverCategory(category) {
-  return ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
 }
 
 function eventMatchesCategoryFacet(event, query) {

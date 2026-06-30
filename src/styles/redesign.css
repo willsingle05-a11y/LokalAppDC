@@ -852,9 +852,22 @@ h3 { font-weight: 800; }
 }
 .view-more-feed:hover { background: rgba(8, 217, 154, .15); }
 
-/* Saved calendar: taller day cells so multiple events are easy to see */
-.planner-day { min-height: 224px; }
-.planner-calendar { grid-template-columns: repeat(7, minmax(158px, 1fr)); }
+/* Saved calendar: show the full week at once (all 7 days, no horizontal scroll),
+   with taller cells so multiple events per day are easy to see. */
+.planner-calendar { grid-template-columns: repeat(7, 1fr); gap: 5px; overflow-x: visible; }
+.planner-day { min-height: 220px; padding: 6px 5px; }
+.planner-day-head b { font-size: 13px; }
+.planner-day-head span { font-size: 7px; }
+.planner-day-events { gap: 5px; }
+.planner-day-event { grid-template-columns: 6px 1fr; gap: 5px; padding: 5px; }
+.planner-day-event strong { font-size: 9px; line-height: 1.15; }
+.planner-day-event small { font-size: 8px; }
+.day-explore { font-size: 9px; }
+
+/* Followable venue result in Discover search + venue sheet */
+.venue-result { justify-content: space-between; }
+.venue-result .group-icon { width: 40px; height: 40px; border-radius: 12px; font-size: 16px; }
+.venue-follow-btn { display: inline-flex; margin: 2px 0 4px; padding: 9px 18px; }
 
 /* Profile, alive */
 @keyframes scoreGlow { 0%, 100% { text-shadow: 0 0 20px rgba(8, 217, 154, .3); } 50% { text-shadow: 0 0 34px rgba(8, 217, 154, .6); } }

@@ -341,10 +341,10 @@ function normalizeSupabaseDescription(row) {
 }
 
 function hasReliableSupabaseStart(row) {
-  if (row.source === "smithsonian" && !row.raw_json && !row.date && !row.time && !row.start_time && !row.start_at) return false;
-  if (row.date || row.time || row.start_time || row.start_at) return true;
-  if (row.source === "smithsonian" && !row.raw_json) return false;
-  return Boolean(row.starts_at);
+  // Any concrete start field (including starts_at) makes the event schedulable.
+  // Previously starts_at was ignored for Smithsonian rows, which hid hundreds of
+  // scheduled museum events as "ongoing".
+  return Boolean(row.date || row.time || row.start_time || row.start_at || row.starts_at);
 }
 
 function eventStartHourFromRow(row) {
@@ -385,7 +385,9 @@ function startOfTodaySortValue() {
 
 function endOfDiscoveryWindowSortValue() {
   const end = new Date();
-  end.setDate(end.getDate() + 7);
+  // 21-day window so concerts, live music, and museum events (most dated more
+  // than a week out) appear alongside the daily recurring happy hours/trivia.
+  end.setDate(end.getDate() + 21);
   end.setHours(23, 59, 59, 999);
   return end.getTime();
 }
@@ -603,6 +605,35 @@ function normalizeSupabaseTags(row, category) {
     .slice(0, 8);
 }
 
+// Venue images pulled from the Supabase `venues` table (venues.image_url),
+// used as a fallback when an event has no image of its own. Matched by a
+// normalized venue name, mirroring the server-side venue_image_key().
+let venueImageMap = {};
+function venueImageKeyName(value) {
+  // Mirrors the server-side public.venue_image_key() so client matches line up.
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s*\([^)]*\)\s*/g, " ")
+    .replace(/^the\s+/, "")
+    .replace(/\s+(bar|cafe|lounge|tavern|dc)$/, "")
+    .replace(/[^a-z0-9]+/g, "");
+}
+function venueImageForRow(row) {
+  const key = venueImageKeyName(row.venue_name || row.venue);
+  return key && venueImageMap[key] ? venueImageMap[key] : "";
+}
+async function syncSupabaseVenueImages() {
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/venues?select=name,image_url&image_url=not.is.null&limit=4000`, { headers: { apikey: supabaseConfig.publishableKey } });
+    if (!response.ok) return;
+    const rows = await response.json();
+    const map = {};
+    rows.forEach(venue => { const key = venueImageKeyName(venue.name); if (key && venue.image_url) map[key] = venue.image_url; });
+    venueImageMap = map;
+  } catch {}
+}
+
 function normalizeSupabaseEvent(row, index) {
   const category = normalizeImportedCategory(row);
   const tags = normalizeSupabaseTags(row, category);
@@ -622,7 +653,7 @@ function normalizeSupabaseEvent(row, index) {
     cat: category,
     tag: tags[0] || row.tag || row.category || "Local event",
     tags,
-    image: rawEventApiImage(row),
+    image: rawEventApiImage(row) || venueImageForRow(row),
     friends: Array.isArray(row.friends) ? row.friends : [],
     desc: normalizeSupabaseDescription(row)
   };
@@ -638,6 +669,7 @@ async function syncSupabaseEvents(showToast = false) {
     }
   }, 5000);
   if (state.route === "home") renderHome();
+  await syncSupabaseVenueImages();
   try {
     const responses = await Promise.all(discoveryWindowQueries().map(query => fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
       cache: "no-store",
@@ -652,7 +684,7 @@ async function syncSupabaseEvents(showToast = false) {
       const normalized = dcRows.map(normalizeSupabaseEvent);
       const discoveryWindowEvents = normalized.filter(isEventInDiscoveryWindow);
       events = discoveryWindowEvents;
-      state.eventSync = { status: "synced", label: `${events.length} event${events.length === 1 ? "" : "s"} this week in DC` };
+      state.eventSync = { status: "synced", label: `${events.length} upcoming DC event${events.length === 1 ? "" : "s"}` };
     } else {
       events = [...demoEvents];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
