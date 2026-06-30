@@ -2840,7 +2840,14 @@ h3 { font-weight: 800; }
 .venue-page-hero.has-image {
   min-height: 210px;
 }
-
+.venue-event-row {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.venue-event-row:hover {
+  background: rgba(8, 217, 154, .12);
+}
     </style>
   </head>
   <body>
@@ -4796,7 +4803,7 @@ function openVenueEvents(name) {
     <div class="venue-page-hero${directoryVenue.image_url ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
     <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
-    <div class="interest-list">${venueEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
+    <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
 }
 
