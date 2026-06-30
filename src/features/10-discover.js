@@ -499,7 +499,7 @@ function renderDiscoverFeedContent(list) {
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
   // The category badge is only useful in the mixed "All" feed.
-  return renderEventFeed(list.slice().sort(sortEventsByStart), { showBadge: state.homeFilter === "all" });
+  return renderEventFeed(list, { showBadge: state.homeFilter === "all" });
 }
 
 function discoverSearchText(event) {
