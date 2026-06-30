@@ -144,6 +144,15 @@ function eventArtImage(event) {
   return genericEventArt(event);
 }
 
+// Bare image URL/data-URI for use in an <img> (so cards size to the image's
+// natural aspect ratio). Falls back to the generated SVG art.
+function eventCardImageSrc(event) {
+  if (event.image) return String(event.image);
+  const art = genericEventArt(event);
+  const match = art.match(/^url\(['"]?([\s\S]*?)['"]?\)$/);
+  return match ? match[1] : art;
+}
+
 function seededPerformingArtsFallbackTags(seedText) {
   const pool = ["Curtain Call", "Limited Run", "Tour Stop", "Ensemble", "Solo Set", "Matinee", "Late Show", "New Work", "Classic Story", "Reserved Seating"];
   const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
@@ -425,12 +434,12 @@ function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const area = eventCardArea(event);
   const accent = categoryColor(event);
-  const image = eventArtImage(event);
   const tags = eventTags(event);
   const urgency = eventUrgency(event);
   const urgencyHtml = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
   return `<article class="event-card${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-card-media cat-${eventVisualCategory(event)}" style="background-image: ${image};">
+    <span class="event-card-media cat-${eventVisualCategory(event)}">
+      <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
       <span class="event-card-actions">
         <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>

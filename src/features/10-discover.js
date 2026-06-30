@@ -157,7 +157,33 @@ function renderEventFeed(list, opts = {}) {
   const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false })).join("");
   const remaining = list.length - shown;
   const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
-  return `<div class="feed-stack">${cards}${more}</div>`;
+  // Masonry: cards size to their image so they aren't all identical, packed into
+  // multiple columns. The "View more" button sits outside the columns.
+  return `<div class="feed-masonry">${cards}</div>${more}`;
+}
+
+function tonightMapEvents(limit = 5) {
+  const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
+  const tonight = dc.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
+  const pool = tonight.length >= limit ? tonight : [...tonight, ...dc.filter(event => !tonight.includes(event))];
+  return pool.slice(0, limit);
+}
+
+// Landing-page style: a DC photo with up to 5 events popping up across the city.
+// Each pin is tappable and opens that event's detail.
+function renderTonightMap() {
+  const events = tonightMapEvents(5);
+  if (!events.length) return "";
+  const spots = [[19, 26], [66, 19], [41, 49], [74, 63], [25, 75]];
+  const pins = events.map((event, index) => {
+    const [x, y] = spots[index % spots.length];
+    const loc = cleanLocationPart(event.area || event.neighborhood) || "DC";
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(loc)} · ${escapeHtml(event.title)} · ${escapeHtml(eventDisplayTime(event))}</button>`;
+  }).join("");
+  return `<section class="tonight-map">
+    <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div>
+    <div class="tonight-canvas">${pins}</div>
+  </section>`;
 }
 
 // Sub-filters shown directly under the main category chips. The genre/type facet
@@ -167,6 +193,13 @@ function discoverSubFilters() {
   const cat = state.homeFilter;
   const catEvents = displayableDcEvents().filter(event => matchesFilter(event, cat));
   const rows = [];
+  // Day / time row (combines with category + type + neighborhood)
+  const dayOpts = ["Today", "This weekend", "This week"];
+  const timeOpts = ["Morning", "Afternoon", "Evening", "Late night"];
+  const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+  const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+  const whenAny = !dateVal && !timeVal;
+  rows.push(`<div class="sub-filter-row" aria-label="Day and time"><button class="filter-chip ${whenAny ? "active" : ""}" data-daytime="">Any time</button>${dayOpts.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="${option}">${option}</button>`).join("")}${timeOpts.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="${option}">${option}</button>`).join("")}</div>`);
   if (searchableDiscoverCategory(cat)) {
     const config = getCategoryFeedConfig(cat);
     const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
@@ -194,13 +227,11 @@ function renderHome() {
   const deduped = dedupeFeedEvents(subFiltered);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
-  const tonight = happeningTonightEvents();
   app.innerHTML = `<section class="page discover-page">
-    <div class="discover-heading discover-cover"><div><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
+    ${renderTonightMap()}
     ${liveTicker()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${followingRail()}
-    ${tonight.length ? `<section class="tonight-section"><div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div><div class="feed-stack">${tonight.map(event => eventRow(event, "hero")).join("")}</div></section>` : ""}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
     ${discoverSubFilters()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>

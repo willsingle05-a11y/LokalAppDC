@@ -12,6 +12,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
   if (t.dataset.neighborhood !== undefined) { mark(); state.neighborhoodFilter = t.dataset.neighborhood; state.feedShown = 10; renderHome(); }
+  if (t.dataset.daytime !== undefined) { mark(); const when = t.dataset.daytime; if (!when) { state.filter.date = "Any date"; state.filter.time = "Any time"; } else if (["Morning", "Afternoon", "Evening", "Late night"].includes(when)) { state.filter.time = state.filter.time === when ? "Any time" : when; } else { state.filter.date = state.filter.date === when ? "Any date" : when; } state.feedShown = 10; renderHome(); }
   if (t.dataset.dayExplore) { mark(); state.filter.date = t.dataset.dayExplore; state.homeFilter = "all"; state.discoverCategoryView = ""; state.feedShown = 10; setRoute("home"); toast("Showing events for that day"); }
   if (t.dataset.event) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
