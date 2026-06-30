@@ -625,11 +625,22 @@ function venueImageForRow(row) {
 }
 async function syncSupabaseVenueImages() {
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/venues?select=name,image_url&image_url=not.is.null&limit=4000`, { headers: { apikey: supabaseConfig.publishableKey } });
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/venues?select=*&limit=4000`, { headers: { apikey: supabaseConfig.publishableKey } });
     if (!response.ok) return;
     const rows = await response.json();
     const map = {};
-    rows.forEach(venue => { const key = venueImageKeyName(venue.name); if (key && venue.image_url) map[key] = venue.image_url; });
+    venueDirectory = rows
+      .map(venue => ({
+        name: cleanLocationPart(venue.name || venue.title || venue.venue_name),
+        address: cleanLocationPart(venue.address || venue.venue_address || venue.street_address),
+        neighborhood: cleanLocationPart(venue.neighborhood || venue.area),
+        image_url: cleanLocationPart(venue.image_url || venue.photo_url),
+        website_url: cleanLocationPart(venue.website_url || venue.website || venue.url)
+      }))
+      .filter(venue => venue.name)
+      .filter((venue, index, all) => all.findIndex(item => venueImageKeyName(item.name) === venueImageKeyName(venue.name)) === index)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    venueDirectory.forEach(venue => { const key = venueImageKeyName(venue.name); if (key && venue.image_url) map[key] = venue.image_url; });
     venueImageMap = map;
   } catch {}
 }

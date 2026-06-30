@@ -99,20 +99,41 @@ function followingRail() {
     <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
 }
 
+function venueDirectoryMatch(name) {
+  const key = venueImageKeyName(name);
+  return venueDirectory.find(venue => venueImageKeyName(venue.name) === key) || null;
+}
+
+function venueSearchMatches(query, limit = 8) {
+  const terms = String(query || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
+  const fromEvents = displayableDcEvents().map(event => ({ name: cleanLocationPart(event.venue), neighborhood: cleanLocationPart(event.area || event.neighborhood), image_url: event.image || "" }));
+  const merged = [...venueDirectory, ...fromEvents]
+    .filter(venue => venue.name)
+    .filter((venue, index, all) => all.findIndex(item => venueImageKeyName(item.name) === venueImageKeyName(venue.name)) === index);
+  return merged
+    .filter(venue => terms.every(term => `${venue.name} ${venue.neighborhood || ""} ${venue.address || ""}`.toLowerCase().includes(term)))
+    .slice(0, limit);
+}
+
 function openVenueEvents(name) {
-  const key = String(name).toLowerCase();
-  const venueEvents = displayableDcEvents().filter(event => `${event.venue} ${event.title}`.toLowerCase().includes(key)).sort(sortEventsByStart).slice(0, 8);
-  const following = state.follows.has(`venue:${name}`);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(name)}"><button class="modal-close" aria-label="Close venue">&times;</button>
-    <p class="eyebrow">Venue</p><h2>${escapeHtml(name)}</h2>
-    <button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(name)}">${following ? "Following" : "Follow"}</button>
+  const directoryVenue = venueDirectoryMatch(name) || { name };
+  const displayName = directoryVenue.name || name;
+  const key = String(displayName).toLowerCase();
+  const venueEvents = displayableDcEvents().filter(event => `${event.venue} ${event.title}`.toLowerCase().includes(key) || venueImageKeyName(event.venue) === venueImageKeyName(displayName)).sort(sortEventsByStart).slice(0, 12);
+  const following = state.follows.has(`venue:${displayName}`);
+  const heroStyle = directoryVenue.image_url ? `style="background-image: linear-gradient(180deg, rgba(13,24,22,.05), rgba(13,24,22,.48)), url('${escapeHtml(directoryVenue.image_url)}')"` : "";
+  const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
+    <div class="venue-page-hero" ${heroStyle}><p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
-    <div class="interest-list">${venueEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No upcoming events listed for this venue.</p>`}</div>
+    <div class="interest-list">${venueEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
 }
 
-// Category weights built from the user's own data — tastes, saves, RSVPs, and
-// attended history — so the feed adapts to what each person actually engages with.
+// Category weights built from the user's own data: tastes, saves, RSVPs, and
+// attended history, so the feed adapts to what each person actually engages with.
 // How common each tag is across the whole catalog (cached per events load) so we
 // can reward specific tags (Jazz, Rooftop) over broad ones (Beer, Happy hour).
 let discoverTagFreqCache = null;
@@ -132,7 +153,7 @@ function userPreferenceWeights() {
   const tagWeights = {};
   const bumpCat = (cat, weight) => { const key = String(cat || "").toLowerCase(); if (key) catWeights[key] = (catWeights[key] || 0) + weight; };
   // Time-of-day tags are already their own filter dimension; keep preferences
-  // about genre/venue/vibe so reasons read like real tastes (Jazz, Rooftop…).
+  // about genre/venue/vibe so reasons read like real tastes (Jazz, Rooftop).
   const isTimeTag = key => /^(early|late|morning|afternoon|evening|night|all day|today|tonight|this weekend|weekend|this week)/i.test(key);
   const bumpTags = (event, weight) => eventTags(event).forEach(tag => { const key = String(tag || "").toLowerCase(); if (key && !isTimeTag(key)) tagWeights[key] = (tagWeights[key] || 0) + weight; });
   (state.tastes || []).forEach(taste => { bumpCat(typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "", 2); const key = taste.toLowerCase(); tagWeights[key] = (tagWeights[key] || 0) + 2; });
@@ -230,7 +251,27 @@ function renderTonightMap() {
     <div class="tonight-canvas">${pins}</div>
   </section>`;
 }
+function dateRailLabel(event) {
+  const date = eventDateValue(event);
+  if (!date) return "Date TBA";
+  return date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+}
 
+function renderDateRailFeed(list, opts = {}) {
+  if (!list.length) return `<p class="section-helper">No events match those filters right now.</p>`;
+  const shown = Math.max(10, state.feedShown || 10);
+  const visible = list.slice(0, shown);
+  const groups = visible.reduce((map, event) => {
+    const key = event.startDate || dateRailLabel(event);
+    if (!map.has(key)) map.set(key, { label: dateRailLabel(event), events: [] });
+    map.get(key).events.push(event);
+    return map;
+  }, new Map());
+  const rails = [...groups.values()].map(group => `<section class="date-event-rail"><div class="date-rail-heading"><h3>${escapeHtml(group.label)}</h3></div><div class="date-rail-scroll">${group.events.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false })).join("")}</div></section>`).join("");
+  const remaining = list.length - shown;
+  const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
+  return `<div class="date-rail-feed">${rails}${more}</div>`;
+}
 // Sub-filters shown directly under the main category chips. The genre/type facet
 // and the neighborhood are independent dimensions and combine with each other and
 // the category (e.g. Live music + Karaoke + Shaw).
@@ -312,7 +353,7 @@ function renderHome() {
     ${followingRail()}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
     ${discoverSubFilters()}
-    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or neighborhoods" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>${escapeHtml(feedTitle)}</h2></div></div>
     <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
@@ -479,7 +520,7 @@ function renderDiscoverFeedContent(list) {
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
   // The category badge is only useful in the mixed "All" feed.
-  return renderEventFeed(list, { showBadge: state.homeFilter === "all" });
+  return renderDateRailFeed(list, { showBadge: state.homeFilter === "all" });
 }
 
 function discoverSearchText(event) {

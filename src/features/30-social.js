@@ -312,10 +312,10 @@ function combinedPlannerList(plans) {
 function renderSocial() {
   const allPlans = savedPlannerEvents("all");
   app.innerHTML = `<section class="page">
-    <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div></div>
+    <div class="discover-heading"><div><p class="eyebrow">Your calendar</p><h1>Saved</h1></div></div>
     <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Top 3</h2></div></div>${savedSuggestionRail()}</section>
     <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
-    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Your plans</p><h2>Saved &amp; RSVPs</h2></div></div><p class="section-subnote">Everything you've saved or are planning to go to, in one place.</p>${combinedPlannerList(allPlans)}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Your calendar</p><h2>Saved &amp; RSVPs</h2></div></div><p class="section-subnote">Everything you've saved or are planning to go to, in one place.</p>${combinedPlannerList(allPlans)}</section>
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
