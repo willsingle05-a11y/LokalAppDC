@@ -5632,7 +5632,7 @@ function renderSocial() {
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><h1>Your Plans</h1></div></div>
     <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Top 3</h2></div></div>${savedSuggestionRail()}</section>
-    <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Your Plans</h2></div></div>${plannerCalendar(allPlans)}</section>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><h2>Calendar</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><h2>Your Plans</h2></div></div>${combinedPlannerList(allPlans)}</section>
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
