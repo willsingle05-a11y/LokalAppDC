@@ -95,6 +95,8 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { state.groupMessages[group] = [{ type: "text", text: input.value.trim() }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.manageFollowing !== undefined) { mark(); openFollowingManager(); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
+  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
+  if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
   if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
   if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }
@@ -256,10 +258,13 @@ document.addEventListener("input", event => {
     const visible = renderDiscoverEventSearch(query);
     document.querySelectorAll("#app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; });
     const people = [["AL","Ana Lopez","@analopes"],["MR","Marcus Reed","@marcusdc"],["DV","Dev Shah","@devaroundtown"],["JS","Jules Kim","@julesk"],["PL","Priya Lee","@priyaleedc"]].filter(person => `${person[1]} ${person[2]}`.toLowerCase().includes(query));
+    const venueNames = query ? Array.from(new Set(displayableDcEvents().map(event => cleanLocationPart(event.venue)).filter(name => name && name.toLowerCase().includes(query)))).slice(0, 5) : [];
+    const venuesHtml = venueNames.map(name => { const on = state.follows.has(`venue:${name}`); return `<div class="follow-card venue-result"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(name)}</b><small>Venue</small></span><button class="follow-button ${on ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(name)}">${on ? "Following" : "Follow"}</button></div>`; }).join("");
+    const peopleHtml = people.map(person => `<button class="follow-card" data-open-friend="${person[1]}"><span class="avatar">${person[0]}</span><span><b>${person[1]}</b><small>${person[2]}</small></span></button>`).join("");
     const results = document.querySelector("[data-discover-results]");
-    if (results) { results.hidden = !query || !people.length; results.innerHTML = people.map(person => `<button class="follow-card" data-open-friend="${person[1]}"><span class="avatar">${person[0]}</span><span><b>${person[1]}</b><small>${person[2]}</small></span></button>`).join(""); }
+    if (results) { results.hidden = !query || (!people.length && !venueNames.length); results.innerHTML = venuesHtml + peopleHtml; }
     const feed = document.querySelector(".feed-section");
-    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && people.length === 0);
+    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && people.length === 0 && venueNames.length === 0);
   }
   if (input.matches("[data-share-group-search]")) {
     const query = input.value.trim();
