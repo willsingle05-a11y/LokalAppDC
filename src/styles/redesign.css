@@ -937,10 +937,58 @@ h3 { font-weight: 800; }
 .feed-stack { display: grid; gap: 14px; }
 .tonight-section .feed-stack { gap: 12px; }
 .sub-filters { display: grid; gap: 6px; margin: 0 0 10px; }
-.sub-filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 1px 1px 4px; scrollbar-width: none; }
+.sub-filter-row { display: flex; align-items: center; gap: 7px; overflow-x: auto; padding: 1px 1px 4px; scrollbar-width: none; }
 .sub-filter-row::-webkit-scrollbar { display: none; }
 .sub-filter-row .filter-chip { flex: 0 0 auto; padding: 6px 11px; font-size: 10px; }
-.view-more-feed { margin-top: 0; }
+.sub-filter-label { flex: 0 0 auto; margin-right: 2px; color: var(--muted); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.sub-filter-row .pick-chip { border-style: dashed; }
+.view-more-feed { margin-top: 12px; }
+
+/* Masonry feed: cards size to their image (variable height), multiple per row */
+.feed-masonry { columns: 174px; column-gap: 12px; }
+.feed-masonry .event-card { width: 100%; margin: 0 0 12px; break-inside: avoid; -webkit-column-break-inside: avoid; }
+.event-card-media { height: auto; min-height: 0; }
+.event-card-img { display: block; width: 100%; height: auto; }
+.event-card-title { font-size: 16px; }
+.event-card-body { padding: 10px 11px 11px; }
+
+/* Happening Tonight — DC photo with events popping up across the city */
+.tonight-map { margin: 0 -18px 16px; }
+.tonight-map .tonight-head { margin: 0; padding: 14px 18px 10px; }
+.tonight-canvas {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  background-image: linear-gradient(160deg, rgba(8, 20, 14, .48), rgba(8, 20, 14, .8)), url("https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=1200&q=80&auto=format&fit=crop");
+  background-position: center;
+  background-size: cover;
+}
+.tonight-pin {
+  position: absolute;
+  max-width: 72%;
+  padding: 7px 11px;
+  overflow: hidden;
+  border: 1px solid rgba(8, 217, 154, .45);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(8, 24, 16, .82);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .4);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.6);
+  animation: pinPop .55s cubic-bezier(.2, .9, .3, 1.4) forwards, pinFloat 5.5s ease-in-out infinite;
+  cursor: pointer;
+}
+.tonight-pin:hover { border-color: #08D99A; background: rgba(8, 24, 16, .92); }
+.tonight-pin-dot { display: inline-block; width: 6px; height: 6px; margin-right: 6px; vertical-align: middle; border-radius: 50%; background: #08D99A; box-shadow: 0 0 8px rgba(8, 217, 154, .9); }
+@keyframes pinPop { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes pinFloat { 0%, 100% { margin-top: 0; } 50% { margin-top: -7px; } }
+@media (prefers-reduced-motion: reduce) { .tonight-pin { animation: none; opacity: 1; transform: translate(-50%, -50%); } }
 
 /* Profile, alive */
 @keyframes scoreGlow { 0%, 100% { text-shadow: 0 0 20px rgba(8, 217, 154, .3); } 50% { text-shadow: 0 0 34px rgba(8, 217, 154, .6); } }

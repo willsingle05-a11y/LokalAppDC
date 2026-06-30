@@ -33,6 +33,31 @@ const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFil
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
+// Persisted saves/RSVPs by stable source id (runtime event ids change each sync),
+// reconciled back onto the loaded events so a user's data survives reloads and
+// shapes what they see.
+state.savedSources = new Set(JSON.parse(localStorage.getItem("lokalSavedSources") || "[]"));
+state.rsvpSources = new Set(JSON.parse(localStorage.getItem("lokalRsvpSources") || "[]"));
+
+// Record a save/RSVP by the event's stable source id and persist it.
+function setPlanSource(kind, id, on) {
+  const event = events.find(item => item.id === Number(id));
+  if (!event) return;
+  const sourceId = String(event.sourceId || event.id);
+  const store = kind === "saved" ? state.savedSources : state.rsvpSources;
+  on ? store.add(sourceId) : store.delete(sourceId);
+  localStorage.setItem(kind === "saved" ? "lokalSavedSources" : "lokalRsvpSources", JSON.stringify(Array.from(store)));
+}
+
+// Re-link persisted saves/RSVPs onto the freshly loaded events (runtime ids change
+// every sync, so we match by stable source id).
+function reconcileUserPlans() {
+  events.forEach(event => {
+    const sourceId = String(event.sourceId || event.id);
+    if (state.savedSources.has(sourceId)) state.saved.add(event.id);
+    if (state.rsvpSources.has(sourceId)) state.rsvps.add(event.id);
+  });
+}
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
@@ -142,6 +167,15 @@ function eventArtScene(event) {
 function eventArtImage(event) {
   if (event.image) return `url('${String(event.image).replace(/'/g, "%27")}')`;
   return genericEventArt(event);
+}
+
+// Bare image URL/data-URI for use in an <img> (so cards size to the image's
+// natural aspect ratio). Falls back to the generated SVG art.
+function eventCardImageSrc(event) {
+  if (event.image) return String(event.image);
+  const art = genericEventArt(event);
+  const match = art.match(/^url\(['"]?([\s\S]*?)['"]?\)$/);
+  return match ? match[1] : art;
 }
 
 function seededPerformingArtsFallbackTags(seedText) {
@@ -394,15 +428,13 @@ function cardFriendAvatars(event) {
 
 function eventUrgency(event) {
   if (eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""))) return { label: "Free", cls: "urgency-free" };
-  const seed = Array.from(String(event.sourceId || event.id || event.title || "lokal")).reduce((total, character) => total + character.charCodeAt(0), 0);
-  const mode = seed % 5;
-  if (mode === 0) {
-    const count = (seed % 6) + 2;
-    // Social venue events feel friendlier as "people going"; ticketed ones keep "spots left".
-    const social = ["happy-hours", "trivia-nights", "nightlife"].includes(String(event.cat || "").toLowerCase());
-    return social ? { label: `${count} people going`, cls: "urgency-going" } : { label: `${count} spots left`, cls: "urgency-spots" };
+  // No fabricated scarcity ("X spots left" / "Selling fast"). Social venue events
+  // occasionally show friendly social proof; everything else shows nothing.
+  const social = ["happy-hours", "trivia-nights", "nightlife"].includes(String(event.cat || "").toLowerCase());
+  if (social) {
+    const seed = Array.from(String(event.sourceId || event.id || event.title || "lokal")).reduce((total, character) => total + character.charCodeAt(0), 0);
+    if (seed % 5 === 0) return { label: `${(seed % 6) + 2} people going`, cls: "urgency-going" };
   }
-  if (mode === 1) return { label: "Selling fast", cls: "urgency-fast" };
   return null;
 }
 
@@ -425,12 +457,12 @@ function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const area = eventCardArea(event);
   const accent = categoryColor(event);
-  const image = eventArtImage(event);
   const tags = eventTags(event);
   const urgency = eventUrgency(event);
   const urgencyHtml = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
   return `<article class="event-card${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-card-media cat-${eventVisualCategory(event)}" style="background-image: ${image};">
+    <span class="event-card-media cat-${eventVisualCategory(event)}">
+      <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
       <span class="event-card-actions">
         <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
@@ -598,6 +630,12 @@ function matchesTimeFilter(event, value) {
   if (value === "Afternoon") return hour >= 12 && hour < 16;
   if (value === "Evening") return hour >= 16 && hour < 21;
   if (value === "Late night") return hour >= 21 || hour < 4;
+  const custom = String(value).match(/^custom:(\d{1,2}):\d{2}-(\d{1,2}):\d{2}$/);
+  if (custom) {
+    const startHour = Number(custom[1]);
+    const endHour = Number(custom[2]);
+    return startHour <= endHour ? (hour >= startHour && hour <= endHour) : (hour >= startHour || hour <= endHour);
+  }
   return true;
 }
 
