@@ -113,30 +113,61 @@ function openVenueEvents(name) {
 
 // Category weights built from the user's own data — tastes, saves, RSVPs, and
 // attended history — so the feed adapts to what each person actually engages with.
+// How common each tag is across the whole catalog (cached per events load) so we
+// can reward specific tags (Jazz, Rooftop) over broad ones (Beer, Happy hour).
+let discoverTagFreqCache = null;
+function eventTagFrequencies() {
+  if (discoverTagFreqCache && discoverTagFreqCache.size === events.length) return discoverTagFreqCache.map;
+  const map = {};
+  events.forEach(event => eventTags(event).forEach(tag => { const key = String(tag).toLowerCase(); map[key] = (map[key] || 0) + 1; }));
+  discoverTagFreqCache = { size: events.length, map };
+  return map;
+}
+function tagSpecificity(tag, freq) {
+  return 1 / Math.sqrt((freq[String(tag).toLowerCase()] || 1));
+}
+
 function userPreferenceWeights() {
-  const weights = {};
-  const bump = (cat, weight) => { const key = String(cat || "").toLowerCase(); if (key) weights[key] = (weights[key] || 0) + weight; };
-  (state.tastes || []).forEach(taste => bump(typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "", 2));
-  const fromIds = (idSet, weight) => Array.from(idSet || []).forEach(id => { const event = events.find(item => item.id === id); if (event) bump(event.cat, weight); });
+  const catWeights = {};
+  const tagWeights = {};
+  const bumpCat = (cat, weight) => { const key = String(cat || "").toLowerCase(); if (key) catWeights[key] = (catWeights[key] || 0) + weight; };
+  // Time-of-day tags are already their own filter dimension; keep preferences
+  // about genre/venue/vibe so reasons read like real tastes (Jazz, Rooftop…).
+  const isTimeTag = key => /^(early|late|morning|afternoon|evening|night|all day|today|tonight|this weekend|weekend|this week)/i.test(key);
+  const bumpTags = (event, weight) => eventTags(event).forEach(tag => { const key = String(tag || "").toLowerCase(); if (key && !isTimeTag(key)) tagWeights[key] = (tagWeights[key] || 0) + weight; });
+  (state.tastes || []).forEach(taste => { bumpCat(typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "", 2); const key = taste.toLowerCase(); tagWeights[key] = (tagWeights[key] || 0) + 2; });
+  const fromIds = (idSet, weight) => Array.from(idSet || []).forEach(id => { const event = events.find(item => item.id === id); if (event) { bumpCat(event.cat, weight); bumpTags(event, weight); } });
   fromIds(state.saved, 2);
   fromIds(state.rsvps, 3);
-  (typeof profileReceipts === "function" ? profileReceipts() : []).forEach(receipt => bump(receipt.cat, 3));
-  return weights;
+  (typeof profileReceipts === "function" ? profileReceipts() : []).forEach(receipt => { bumpCat(receipt.cat, 3); const event = events.find(item => String(item.id) === String(receipt.id)); if (event) bumpTags(event, 3); });
+  return { catWeights, tagWeights, tagFreq: eventTagFrequencies() };
 }
 
 function eventPersonalScore(event, weights) {
-  let score = weights[String(event.cat || "").toLowerCase()] || 0;
-  const tastes = (state.tastes || []).map(taste => taste.toLowerCase());
-  if (tastes.length) {
-    const text = `${event.cat} ${eventTags(event).join(" ")} ${event.title}`.toLowerCase();
-    tastes.forEach(taste => { if (taste && text.includes(taste)) score += 1; });
-  }
+  let score = weights.catWeights[String(event.cat || "").toLowerCase()] || 0;
+  // Specific (rare) tags count for more than broad ones, and more than the category.
+  eventTags(event).forEach(tag => {
+    const weight = weights.tagWeights[String(tag).toLowerCase()] || 0;
+    if (weight) score += weight * 2 * tagSpecificity(tag, weights.tagFreq);
+  });
   return score;
 }
 
+// Why an event was surfaced — the most specific tag the user has engaged with.
+function eventPersonalReason(event, weights) {
+  let bestTag = "";
+  let bestScore = 0;
+  eventTags(event).forEach(tag => {
+    const weight = weights.tagWeights[String(tag).toLowerCase()] || 0;
+    if (!weight) return;
+    const score = weight * tagSpecificity(tag, weights.tagFreq);
+    if (score > bestScore) { bestScore = score; bestTag = tag; }
+  });
+  return bestTag ? `Because you like ${bestTag}` : "";
+}
+
 // Personalized ordering for the main feed: events matching the user's tastes and
-// past behavior float up; ties broken by soonest start (so dedupe still keeps the
-// next upcoming occurrence of a recurring event).
+// past behavior (by specific tag and category) float up; ties broken by soonest start.
 function feedPersonalSort(list) {
   const weights = userPreferenceWeights();
   return list.slice().sort((a, b) => eventPersonalScore(b, weights) - eventPersonalScore(a, weights) || sortEventsByStart(a, b));
@@ -166,7 +197,9 @@ function renderEventFeed(list, opts = {}) {
   if (!list.length) return `<p class="section-helper">No events match those filters right now.</p>`;
   const shown = Math.max(10, state.feedShown || 10);
   const visible = list.slice(0, shown);
-  const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false })).join("");
+  // Show the "Because you like …" reason only in the personalized mixed feed.
+  const weights = (opts.showBadge !== false && state.homeFilter === "all") ? userPreferenceWeights() : null;
+  const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false, reason: weights ? eventPersonalReason(event, weights) : "" })).join("");
   const remaining = list.length - shown;
   const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
   // Masonry: cards size to their image so they aren't all identical, packed into
