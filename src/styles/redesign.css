@@ -1092,3 +1092,43 @@ h3 { font-weight: 800; }
   padding-left: 8px;
   border-left: 1px solid rgba(23, 28, 26, .14);
 }
+/* Modal media uses real images so venue/event photos do not crop or shift after click. */
+.detail-hero.has-image,
+.venue-page-hero.has-image {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #f7fafc !important;
+}
+.detail-hero.has-image::after,
+.venue-page-hero.has-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(13, 24, 22, 0), rgba(13, 24, 22, .58));
+  pointer-events: none;
+}
+.detail-hero-img,
+.venue-page-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: #f7fafc;
+}
+.detail-hero.has-image > :not(.detail-hero-img):not(.modal-close),
+.venue-page-hero.has-image > :not(.venue-page-img) {
+  position: relative;
+  z-index: 2;
+}
+.detail-hero.has-image > .modal-close {
+  position: absolute;
+  z-index: 3;
+}
+.venue-page-hero.has-image {
+  min-height: 210px;
+}

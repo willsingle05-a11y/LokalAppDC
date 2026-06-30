@@ -122,10 +122,10 @@ function openVenueEvents(name) {
   const key = String(displayName).toLowerCase();
   const venueEvents = displayableDcEvents().filter(event => `${event.venue} ${event.title}`.toLowerCase().includes(key) || venueImageKeyName(event.venue) === venueImageKeyName(displayName)).sort(sortEventsByStart).slice(0, 12);
   const following = state.follows.has(`venue:${displayName}`);
-  const heroStyle = directoryVenue.image_url ? `style="background-image: linear-gradient(180deg, rgba(13,24,22,.05), rgba(13,24,22,.48)), url('${escapeHtml(directoryVenue.image_url)}')"` : "";
+  const venueImg = directoryVenue.image_url ? `<img class="venue-page-img" src="${escapeHtml(directoryVenue.image_url)}" alt="" loading="lazy">` : "";
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
-    <div class="venue-page-hero" ${heroStyle}><p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+    <div class="venue-page-hero${directoryVenue.image_url ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
     <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
     <div class="interest-list">${venueEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
