@@ -716,45 +716,119 @@ h3 { font-weight: 700; }
   .discover-hint { transition: none; }
 }
 
+/* ============================================================
+   LANDING-ALIGNED THEME (final overrides)
+   Inter + JetBrains Mono, warm cream, neon green + mint glow,
+   black pill CTAs, softer shadows, live ticker. Matches
+   https://lokal-pulse-dc.base44.app while keeping all logic.
+   ============================================================ */
+:root {
+  --accent: #08D99A;
+  --accent-strong: #06B384;
+  --mint: #75F0CB;
+  --cream-warm: #F8F6F2;
+  --ink-green: #171C1A;
+  --display: "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
 
-/* Cleaner event imagery: keep lower-res venue art sharp instead of cropped blurry. */
-.event-card.has-image.image-contain {
-  background-color: #f7fafc;
-  background-size: cover, contain !important;
-  background-repeat: no-repeat, no-repeat !important;
-  background-position: center, center !important;
+/* Warm surfaces + near-black green ink */
+html, body { color: var(--ink-green); background: #ece7df; }
+.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream-warm); }
+.topbar { background: rgba(248, 246, 242, .92); border-bottom-color: rgba(23, 28, 26, .08); }
+.bottom-nav { background: rgba(248, 246, 242, .96); }
+
+/* Inter headings; uppercase, bold page titles like the landing hero */
+h1, h2, h3, .brand b { color: var(--ink-green); font-family: var(--display); }
+h1 { font-weight: 900; letter-spacing: -.01em; }
+h2 { font-weight: 800; letter-spacing: -.01em; }
+h3 { font-weight: 800; }
+.discover-heading h1, .category-detail-heading h1 { text-transform: uppercase; }
+.brand b, .onboard-logo, .intro-art span { color: #08D99A; }
+
+/* JetBrains Mono for eyebrows / labels / meta — the techy "alive" signature */
+.eyebrow, .feed-label, .event-card-meta, .event-card-badge, .feed-count, .sync-note,
+.following-chip small, .activity-chip small, .suggestion-type, .stop-label, .rank-badge,
+.section-label, .more-near-you, .step-count, .planner-actions span, .elr-meta,
+.settings-group-label, .settings-label, .event-card-loc, .elr-badge, .event-card-urgency,
+.event-card-urgency-dot, .score-level-tag {
+  font-family: var(--mono);
+  letter-spacing: .02em;
 }
-.event-card.has-image.image-contain::before {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(255,255,255,.72), transparent 34%),
-    linear-gradient(180deg, rgba(255,255,255,.18), rgba(17,24,39,.22));
-  content: "";
-  pointer-events: none;
+.event-card-badge { font-weight: 700; }
+
+/* Neon-green accent surfaces (replacing the older mint hardcodes) */
+.chip.active, .filter-chip.active, .action.selected, .group-type.selected,
+.message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
+.taste-choice.selected, .attended-button.selected, .share-channel,
+.profile-avatar, .avatar-me, .group-icon, .feature-card, .stop-card.anchor, .anchor-summary,
+.action.rsvp-action.selected, .event-card-urgency.urgency-free, .event-card-urgency.urgency-going,
+.invite-banner-btn { color: #fff; }
+.chip.active, .filter-chip.active, .action.selected, .group-type.selected,
+.message.me, .follow-button.selected, .hype-button.selected, .select-tile.selected,
+.taste-choice.selected, .attended-button.selected, .share-channel,
+.profile-avatar, .avatar-me, .group-icon, .feature-card, .stop-card.anchor, .anchor-summary,
+.action.rsvp-action.selected, .privacy-toggle input,
+.event-card-urgency.urgency-free, .event-card-urgency.urgency-going { background: #08D99A; }
+.privacy-toggle input { accent-color: #08D99A; }
+.nav-item.active { color: #06B384; }
+.lokal-score, .score-level-tag { color: #06B384; background: rgba(8, 217, 154, .14); }
+.activity-ring, .following-chip .group-icon, .community-card.pinned { border-color: #08D99A; }
+.chip.active, .filter-chip.active { box-shadow: inset 0 -3px 0 #08D99A; }
+.invite-banner { background: linear-gradient(135deg, #08D99A, #06B384); }
+.invite-banner-btn { color: #06B384; background: #fff; }
+
+/* Mint glow on the live elements */
+.score-big { color: #08D99A; text-shadow: 0 0 22px rgba(8, 217, 154, .35); }
+.nav-item.active svg { filter: drop-shadow(0 0 6px rgba(8, 217, 154, .55)); }
+.activity-ring { box-shadow: 0 0 0 3px rgba(8, 217, 154, .12); }
+
+/* Black pill primary CTAs (landing "GET EARLY ACCESS" signature) */
+.wide-button, .primary, .explore-cta, .saved-empty-cta { color: #fff; background: var(--ink-green); }
+.wide-button:hover, .primary:hover, .explore-cta:hover, .saved-empty-cta:hover { background: #07140d; }
+.explore-cta { box-shadow: 0 10px 26px rgba(23, 28, 26, .2); }
+/* fully-rounded pills everywhere */
+.wide-button, .primary, .explore-cta, .saved-empty-cta, .invite-banner-btn,
+.share-shortcut, .filter-button, .chip, .filter-chip, .action, .secondary,
+.detail-pill, .route-badge, .follow-button, .group-access, .hype-button,
+.back-button, .public-member-count, .taste-strip span, .taste-pill, .filter-options button,
+.request-actions button, .planner-actions span, .elr-badge {
+  border-radius: 999px;
 }
-.event-card.has-image.image-contain .event-card-bottom {
-  background: linear-gradient(to top, rgba(17,24,39,.78), rgba(17,24,39,.28) 70%, transparent);
+
+/* Softer, larger diffuse shadows (landing depth) */
+.event-card, .event-list-row, .list-group, .score-block, .following-chip, .community-card,
+.follow-card, .stat-card, .activity-card, .group-card, .managed-list-row, .planner-card,
+.attend-row, .share-group, .ranking-card, .suggestion-card, .feature-card {
+  box-shadow: 0 8px 30px rgba(23, 28, 26, .07);
 }
-.event-card.has-image.image-contain .event-card-badge,
-.event-card.has-image.image-contain .card-icon-btn {
-  background: rgba(255,255,255,.88);
-  color: #111827;
+.event-card { border-radius: 16px; }
+.search-box { border-color: rgba(23, 28, 26, .1); background: rgba(255, 255, 255, .85); }
+
+/* Live event ticker */
+.live-ticker {
+  position: relative;
+  margin: 2px -18px 14px;
+  padding: 9px 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(23, 28, 26, .08);
+  border-bottom: 1px solid rgba(23, 28, 26, .08);
+  background: rgba(8, 217, 154, .06);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
-.event-card.has-image.image-contain .event-tag {
-  border-color: rgba(255,255,255,.38);
-  background: rgba(255,255,255,.22);
+.live-ticker-track {
+  display: inline-flex;
+  gap: 26px;
+  padding-left: 18px;
+  white-space: nowrap;
+  color: var(--ink-green);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  animation: tickerScroll 40s linear infinite;
 }
-.elr-thumb,
-.attend-thumb {
-  background-color: #f7fafc;
-  background-repeat: no-repeat;
-  image-rendering: auto;
-}
-.detail-hero.has-image {
-  background-size: cover, contain !important;
-  background-repeat: no-repeat, no-repeat !important;
-  background-position: center, center !important;
-  background-color: #f7fafc;
-}
+.live-ticker-track span { display: inline-flex; align-items: center; gap: 7px; }
+.live-ticker-track i { width: 5px; height: 5px; border-radius: 50%; background: #08D99A; box-shadow: 0 0 8px rgba(8, 217, 154, .8); }
+@keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .live-ticker-track { animation: none; } }

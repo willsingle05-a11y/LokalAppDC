@@ -88,6 +88,15 @@ function followingRail() {
     <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
 }
 
+// Live scrolling ticker of upcoming events (from the landing-page hero treatment).
+// The line is rendered twice so the marquee loops seamlessly.
+function liveTicker() {
+  const items = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart)).slice(0, 12);
+  if (!items.length) return "";
+  const line = items.map(event => `<span><i></i>${escapeHtml(eventCardArea(event) || "DC")} — ${escapeHtml(event.title)} — ${escapeHtml(event.time)}</span>`).join("");
+  return `<div class="live-ticker" aria-hidden="true"><div class="live-ticker-track">${line}${line}</div></div>`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -99,6 +108,7 @@ function renderHome() {
   const tonight = happeningTonightEvents();
   app.innerHTML = `<section class="page discover-page">
     <div class="discover-heading discover-cover"><div><p class="eyebrow">Sunday in DC</p><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
+    ${liveTicker()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${activity.length ? `<p class="eyebrow">Friends activity</p><div class="activity-strip">${activity.map(activityChip).join("")}</div>` : ""}
     ${followingRail()}
