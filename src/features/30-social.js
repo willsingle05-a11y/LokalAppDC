@@ -298,17 +298,24 @@ function savedEmptyState() {
   </div>`;
 }
 
+function combinedPlannerList(plans) {
+  if (!plans.length) return savedEmptyState();
+  return `<div class="planner-list">${plans.map(event => {
+    const status = state.rsvps.has(event.id) ? "RSVP" : "Saved";
+    return `<article class="planner-card planner-${event.cat}">
+    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
+    <div class="planner-actions"><span>${status}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+  </article>`;
+  }).join("")}</div>`;
+}
+
 function renderSocial() {
-  const savedPlans = savedPlannerEvents("saved");
-  const rsvpPlans = savedPlannerEvents("rsvp");
   const allPlans = savedPlannerEvents("all");
-  const savedBlock = savedPlans.length ? plannerList(savedPlans, "", "Saved") : savedEmptyState();
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><p class="eyebrow">Your plans</p><h1>Saved</h1></div></div>
     <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Top 3</h2></div></div>${savedSuggestionRail()}</section>
     <section class="section planner-calendar-section"><div class="section-heading"><div><p class="eyebrow">This week</p><h2>Saved + RSVPs</h2></div></div>${plannerCalendar(allPlans)}</section>
-    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Saved</p><h2>Saved events</h2></div></div><p class="section-subnote">Events you're interested in but haven't committed to yet.</p>${savedBlock}</section>
-    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Plans</p><h2>RSVPs &amp; plans</h2></div></div><p class="section-subnote">Events you're planning to go to.</p>${plannerList(rsvpPlans, "No RSVPs yet. Tap RSVP on an event to add it here.", "RSVP")}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><p class="eyebrow">Your plans</p><h2>Saved &amp; RSVPs</h2></div></div><p class="section-subnote">Everything you've saved or are planning to go to, in one place.</p>${combinedPlannerList(allPlans)}</section>
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
@@ -350,7 +357,7 @@ function plannerCalendar(plans) {
     const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
     return `<article class="planner-day ${day.plans.length ? "" : "empty"}">
       <div class="planner-day-head"><span>${label}</span><b>${day.date.getDate()}</b></div>
-      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<button class="day-explore" data-route="home">Explore &rarr;</button>`}</div>
+      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<button class="day-explore" data-day-explore="${day.iso}">Explore &rarr;</button>`}</div>
     </article>`;
   }).join("")}</div>`;
 }
