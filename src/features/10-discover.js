@@ -251,27 +251,6 @@ function renderTonightMap() {
     <div class="tonight-canvas">${pins}</div>
   </section>`;
 }
-function dateRailLabel(event) {
-  const date = eventDateValue(event);
-  if (!date) return "Date TBA";
-  return date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-}
-
-function renderDateRailFeed(list, opts = {}) {
-  if (!list.length) return `<p class="section-helper">No events match those filters right now.</p>`;
-  const shown = Math.max(10, state.feedShown || 10);
-  const visible = list.slice(0, shown);
-  const groups = visible.reduce((map, event) => {
-    const key = event.startDate || dateRailLabel(event);
-    if (!map.has(key)) map.set(key, { label: dateRailLabel(event), events: [] });
-    map.get(key).events.push(event);
-    return map;
-  }, new Map());
-  const rails = [...groups.values()].map(group => `<section class="date-event-rail"><div class="date-rail-heading"><h3>${escapeHtml(group.label)}</h3></div><div class="date-rail-scroll">${group.events.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false })).join("")}</div></section>`).join("");
-  const remaining = list.length - shown;
-  const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
-  return `<div class="date-rail-feed">${rails}${more}</div>`;
-}
 // Sub-filters shown directly under the main category chips. The genre/type facet
 // and the neighborhood are independent dimensions and combine with each other and
 // the category (e.g. Live music + Karaoke + Shaw).
@@ -520,7 +499,7 @@ function renderDiscoverFeedContent(list) {
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
   // The category badge is only useful in the mixed "All" feed.
-  return renderDateRailFeed(list, { showBadge: state.homeFilter === "all" });
+  return renderEventFeed(list.slice().sort(sortEventsByStart), { showBadge: state.homeFilter === "all" });
 }
 
 function discoverSearchText(event) {
