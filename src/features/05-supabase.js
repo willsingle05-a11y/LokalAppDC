@@ -610,7 +610,14 @@ function normalizeSupabaseTags(row, category) {
 // normalized venue name, mirroring the server-side venue_image_key().
 let venueImageMap = {};
 function venueImageKeyName(value) {
-  return String(value || "").toLowerCase().replace(/\([^)]*\)/g, "").replace(/^the /, "").replace(/[^a-z0-9]+/g, "");
+  // Mirrors the server-side public.venue_image_key() so client matches line up.
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s*\([^)]*\)\s*/g, " ")
+    .replace(/^the\s+/, "")
+    .replace(/\s+(bar|cafe|lounge|tavern|dc)$/, "")
+    .replace(/[^a-z0-9]+/g, "");
 }
 function venueImageForRow(row) {
   const key = venueImageKeyName(row.venue_name || row.venue);
