@@ -12,7 +12,13 @@ document.addEventListener("click", async event => {
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
   if (t.dataset.neighborhood !== undefined) { mark(); state.neighborhoodFilter = t.dataset.neighborhood; state.feedShown = 10; renderHome(); }
-  if (t.dataset.daytime !== undefined) { mark(); const when = t.dataset.daytime; if (!when) { state.filter.date = "Any date"; state.filter.time = "Any time"; } else if (["Morning", "Afternoon", "Evening", "Late night"].includes(when)) { state.filter.time = state.filter.time === when ? "Any time" : when; } else { state.filter.date = state.filter.date === when ? "Any date" : when; } state.feedShown = 10; renderHome(); }
+  if (t.dataset.daytime !== undefined) { mark(); const colon = t.dataset.daytime.indexOf(":"); const dim = t.dataset.daytime.slice(0, colon); const val = t.dataset.daytime.slice(colon + 1); if (dim === "date") state.filter.date = val || "Any date"; else if (dim === "time") state.filter.time = val || "Any time"; state.feedShown = 10; renderHome(); }
+  if (t.dataset.pickDate !== undefined) { mark(); openDatePickerSheet(); }
+  if (t.dataset.pickTime !== undefined) { mark(); openTimePickerSheet(); }
+  if (t.dataset.applyDate !== undefined) { mark(); const from = document.querySelector("[data-date-from]")?.value; const to = document.querySelector("[data-date-to]")?.value; state.filter.date = from ? (to && to > from ? `${from}..${to}` : from) : "Any date"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast(from ? "Date filter applied" : "Date cleared"); }
+  if (t.dataset.clearDate !== undefined) { mark(); state.filter.date = "Any date"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Date cleared"); }
+  if (t.dataset.applyTime !== undefined) { mark(); const from = document.querySelector("[data-time-from]")?.value; const to = document.querySelector("[data-time-to]")?.value; state.filter.time = from ? `custom:${from}-${to || from}` : "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast(from ? "Time filter applied" : "Time cleared"); }
+  if (t.dataset.clearTime !== undefined) { mark(); state.filter.time = "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Time cleared"); }
   if (t.dataset.dayExplore) { mark(); state.filter.date = t.dataset.dayExplore; state.homeFilter = "all"; state.discoverCategoryView = ""; state.feedShown = 10; setRoute("home"); toast("Showing events for that day"); }
   if (t.dataset.event) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
@@ -21,6 +27,7 @@ document.addEventListener("click", async event => {
     const id = Number(t.dataset.quickSave);
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
+    setPlanSource("saved", id, isSaved);
     saveEventInteraction(id, "save", isSaved);
     if (state.route === "social") renderSocial(); else if (state.route === "home") renderHome();
     toast(isSaved ? "Saved for later" : "Removed from saved");
@@ -31,6 +38,7 @@ document.addEventListener("click", async event => {
     const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
+    setPlanSource("saved", id, isSaved);
     if (inDetail) { openDetail(id); if (isSaved) document.querySelector(`[data-save="${id}"]`)?.classList.add("btn-pop"); }
     else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     saveEventInteraction(id, "save", isSaved);
@@ -40,6 +48,7 @@ document.addEventListener("click", async event => {
     const id = Number(t.dataset.rsvp);
     state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id);
     const isRsvp = state.rsvps.has(id);
+    setPlanSource("rsvp", id, isRsvp);
     openDetail(id);
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);

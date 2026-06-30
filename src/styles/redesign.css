@@ -937,9 +937,11 @@ h3 { font-weight: 800; }
 .feed-stack { display: grid; gap: 14px; }
 .tonight-section .feed-stack { gap: 12px; }
 .sub-filters { display: grid; gap: 6px; margin: 0 0 10px; }
-.sub-filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 1px 1px 4px; scrollbar-width: none; }
+.sub-filter-row { display: flex; align-items: center; gap: 7px; overflow-x: auto; padding: 1px 1px 4px; scrollbar-width: none; }
 .sub-filter-row::-webkit-scrollbar { display: none; }
 .sub-filter-row .filter-chip { flex: 0 0 auto; padding: 6px 11px; font-size: 10px; }
+.sub-filter-label { flex: 0 0 auto; margin-right: 2px; color: var(--muted); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.sub-filter-row .pick-chip { border-style: dashed; }
 .view-more-feed { margin-top: 12px; }
 
 /* Masonry feed: cards size to their image (variable height), multiple per row */

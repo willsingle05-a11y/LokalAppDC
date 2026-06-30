@@ -111,23 +111,35 @@ function openVenueEvents(name) {
   </section></div>`;
 }
 
-// How well an event matches the user's saved tastes (Profile → Your tastes).
-function eventTasteScore(event) {
+// Category weights built from the user's own data — tastes, saves, RSVPs, and
+// attended history — so the feed adapts to what each person actually engages with.
+function userPreferenceWeights() {
+  const weights = {};
+  const bump = (cat, weight) => { const key = String(cat || "").toLowerCase(); if (key) weights[key] = (weights[key] || 0) + weight; };
+  (state.tastes || []).forEach(taste => bump(typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "", 2));
+  const fromIds = (idSet, weight) => Array.from(idSet || []).forEach(id => { const event = events.find(item => item.id === id); if (event) bump(event.cat, weight); });
+  fromIds(state.saved, 2);
+  fromIds(state.rsvps, 3);
+  (typeof profileReceipts === "function" ? profileReceipts() : []).forEach(receipt => bump(receipt.cat, 3));
+  return weights;
+}
+
+function eventPersonalScore(event, weights) {
+  let score = weights[String(event.cat || "").toLowerCase()] || 0;
   const tastes = (state.tastes || []).map(taste => taste.toLowerCase());
-  if (!tastes.length) return 0;
-  const cats = tastes.map(taste => typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "").filter(Boolean);
-  const text = `${event.cat} ${eventTags(event).join(" ")} ${event.title}`.toLowerCase();
-  let score = 0;
-  cats.forEach(category => { if (event.cat === category) score += 3; });
-  tastes.forEach(taste => { if (taste && text.includes(taste)) score += 2; });
+  if (tastes.length) {
+    const text = `${event.cat} ${eventTags(event).join(" ")} ${event.title}`.toLowerCase();
+    tastes.forEach(taste => { if (taste && text.includes(taste)) score += 1; });
+  }
   return score;
 }
 
-// Taste-personalized ordering for the main feed: events matching your tastes
-// float to the top, ties broken by soonest start (so dedupe still keeps the
+// Personalized ordering for the main feed: events matching the user's tastes and
+// past behavior float up; ties broken by soonest start (so dedupe still keeps the
 // next upcoming occurrence of a recurring event).
-function feedTasteSort(list) {
-  return list.slice().sort((a, b) => eventTasteScore(b) - eventTasteScore(a) || sortEventsByStart(a, b));
+function feedPersonalSort(list) {
+  const weights = userPreferenceWeights();
+  return list.slice().sort((a, b) => eventPersonalScore(b, weights) - eventPersonalScore(a, weights) || sortEventsByStart(a, b));
 }
 
 function neighborhoodControls(sourceEvents) {
@@ -193,13 +205,16 @@ function discoverSubFilters() {
   const cat = state.homeFilter;
   const catEvents = displayableDcEvents().filter(event => matchesFilter(event, cat));
   const rows = [];
-  // Day / time row (combines with category + type + neighborhood)
-  const dayOpts = ["Today", "This weekend", "This week"];
-  const timeOpts = ["Morning", "Afternoon", "Evening", "Late night"];
+  // Date row: quick options + a specific date or range. Time row: parts of day +
+  // a specific time or range. Both combine with category, type and neighborhood.
   const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
   const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
-  const whenAny = !dateVal && !timeVal;
-  rows.push(`<div class="sub-filter-row" aria-label="Day and time"><button class="filter-chip ${whenAny ? "active" : ""}" data-daytime="">Any time</button>${dayOpts.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="${option}">${option}</button>`).join("")}${timeOpts.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="${option}">${option}</button>`).join("")}</div>`);
+  const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
+  const isCustomTime = /^custom:/.test(timeVal);
+  const dateChips = ["Today", "This weekend", "This week"];
+  const timeChips = ["Morning", "Afternoon", "Evening", "Late night"];
+  rows.push(`<div class="sub-filter-row" aria-label="Date"><span class="sub-filter-label">Date</span><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " – ")) : "Pick date +"}</button></div>`);
+  rows.push(`<div class="sub-filter-row" aria-label="Time"><span class="sub-filter-label">Time</span><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " – ")) : "Pick time +"}</button></div>`);
   if (searchableDiscoverCategory(cat)) {
     const config = getCategoryFeedConfig(cat);
     const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
@@ -215,11 +230,42 @@ function discoverSubFilters() {
   return rows.length ? `<div class="sub-filters">${rows.join("")}</div>` : "";
 }
 
+function openDatePickerSheet() {
+  const current = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+  const range = String(current).match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
+  const from = range ? range[1] : (/^\d{4}-\d{2}-\d{2}$/.test(current) ? current : "");
+  const to = range ? range[2] : "";
+  const today = new Date().toISOString().slice(0, 10);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Pick a date"><button class="modal-close" aria-label="Close date picker">&times;</button>
+    <p class="eyebrow">Filter</p><h2>Pick a date</h2>
+    <p class="lede">Choose a single day, or a start and end date for a range.</p>
+    <label class="settings-field">From<input type="date" data-date-from min="${today}" value="${from}"></label>
+    <label class="settings-field">To (optional, for a range)<input type="date" data-date-to min="${from || today}" value="${to}"></label>
+    <button class="wide-button" data-apply-date>Apply date</button>
+    <button class="text-button" data-clear-date>Clear date</button>
+  </section></div>`;
+}
+
+function openTimePickerSheet() {
+  const current = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+  const match = String(current).match(/^custom:(\d{2}:\d{2})-(\d{2}:\d{2})$/);
+  const from = match ? match[1] : "";
+  const to = match ? match[2] : "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Pick a time"><button class="modal-close" aria-label="Close time picker">&times;</button>
+    <p class="eyebrow">Filter</p><h2>Pick a time</h2>
+    <p class="lede">Choose a start time, and optionally an end time for a range.</p>
+    <label class="settings-field">From<input type="time" data-time-from value="${from}"></label>
+    <label class="settings-field">To (optional, for a range)<input type="time" data-time-to value="${to}"></label>
+    <button class="wide-button" data-apply-time>Apply time</button>
+    <button class="text-button" data-clear-time>Clear time</button>
+  </section></div>`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
   const base = dcEvents.filter(event => matchesFilter(event, state.homeFilter));
-  const sorted = state.homeFilter === "all" ? feedTasteSort(base) : base.slice().sort(sortEventsByStart);
+  const sorted = state.homeFilter === "all" ? feedPersonalSort(base) : base.slice().sort(sortEventsByStart);
   // combinable sub-filters: genre/type AND neighborhood
   const subFiltered = sorted
     .filter(event => !state.discoverGenreFilter || eventMatchesCategoryFacet(event, state.discoverGenreFilter))
@@ -229,7 +275,6 @@ function renderHome() {
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
   app.innerHTML = `<section class="page discover-page">
     ${renderTonightMap()}
-    ${liveTicker()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${followingRail()}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>

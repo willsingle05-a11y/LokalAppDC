@@ -693,6 +693,7 @@ async function syncSupabaseEvents(showToast = false) {
     events = [...demoEvents];
     state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
   }
+  reconcileUserPlans();
   if (state.route === "home") renderHome();
   if (showToast) toast(state.eventSync.label);
 }
