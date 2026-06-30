@@ -148,26 +148,65 @@ function liveTicker() {
   return `<div class="live-ticker" aria-hidden="true"><div class="live-ticker-track">${line}${line}</div></div>`;
 }
 
+// Paginated feed: every event renders as a full image-then-text card, 10 at a
+// time. "View more" reveals the next 10 only (state.feedShown), not everything.
+function renderEventFeed(list, opts = {}) {
+  if (!list.length) return `<p class="section-helper">No events match those filters right now.</p>`;
+  const shown = Math.max(10, state.feedShown || 10);
+  const visible = list.slice(0, shown);
+  const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false })).join("");
+  const remaining = list.length - shown;
+  const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
+  return `<div class="feed-stack">${cards}${more}</div>`;
+}
+
+// Sub-filters shown directly under the main category chips. The genre/type facet
+// and the neighborhood are independent dimensions and combine with each other and
+// the category (e.g. Live music + Karaoke + Shaw).
+function discoverSubFilters() {
+  const cat = state.homeFilter;
+  const catEvents = displayableDcEvents().filter(event => matchesFilter(event, cat));
+  const rows = [];
+  if (searchableDiscoverCategory(cat)) {
+    const config = getCategoryFeedConfig(cat);
+    const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
+    const options = (config.chips && config.chips.length > 1) ? config.chips.slice(1) : categoryFacetOptions(cat, catEvents);
+    const active = state.discoverGenreFilter || "";
+    rows.push(`<div class="sub-filter-row" aria-label="Type"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(allLabel)}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>`);
+  }
+  const nbActive = state.neighborhoodFilter || "";
+  const nbOptions = discoverNeighborhoodOptions(catEvents);
+  if (nbOptions.length) {
+    rows.push(`<div class="sub-filter-row" aria-label="Neighborhood"><button class="filter-chip ${nbActive ? "" : "active"}" data-neighborhood="">All areas</button>${nbOptions.map(name => `<button class="filter-chip ${name.toLowerCase() === nbActive.toLowerCase() ? "active" : ""}" data-neighborhood="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}</div>`);
+  }
+  return rows.length ? `<div class="sub-filters">${rows.join("")}</div>` : "";
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
-  const filtered = dcEvents.filter(event => matchesFilter(event, state.homeFilter));
-  const sorted = state.homeFilter === "all" ? feedTasteSort(filtered) : filtered.sort(sortEventsByStart);
+  const base = dcEvents.filter(event => matchesFilter(event, state.homeFilter));
+  const sorted = state.homeFilter === "all" ? feedTasteSort(base) : base.slice().sort(sortEventsByStart);
+  // combinable sub-filters: genre/type AND neighborhood
+  const subFiltered = sorted
+    .filter(event => !state.discoverGenreFilter || eventMatchesCategoryFacet(event, state.discoverGenreFilter))
+    .filter(event => !state.neighborhoodFilter || eventNeighborhoodMatches(event, state.neighborhoodFilter));
+  const deduped = dedupeFeedEvents(subFiltered);
   const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
   const feedTitle = activeChip ? activeChip[1] : "What's happening";
-  const feedContent = renderDiscoverFeedContent(sorted);
   const tonight = happeningTonightEvents();
   app.innerHTML = `<section class="page discover-page">
     <div class="discover-heading discover-cover"><div><h1>Discover</h1></div><button class="filter-button" data-more-filters>Filters +</button></div>
     ${liveTicker()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${followingRail()}
-    ${tonight.length ? `<section class="tonight-section"><div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div><div class="feed-grid">${tonight.map(event => eventRow(event, "hero")).join("")}</div></section>` : ""}
+    ${tonight.length ? `<section class="tonight-section"><div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div><div class="feed-stack">${tonight.map(event => eventRow(event, "hero")).join("")}</div></section>` : ""}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
+    ${discoverSubFilters()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>${escapeHtml(feedTitle)}</h2></div></div>
-    <div data-feed-content>${feedContent}</div></section>
+    <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
 }
 
@@ -189,7 +228,7 @@ function renderDiscoverCategoryPage(category) {
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
     <p class="feed-count">${visibleEvents.length} upcoming DC event${visibleEvents.length === 1 ? "" : "s"}</p>
     ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
-    ${renderHeroAndList(visibleEvents, { showBadge: false, limit: 10 })}
+    ${renderEventFeed(visibleEvents, { showBadge: false })}
   </section>`;
 }
 
@@ -323,26 +362,15 @@ function feedSkeleton() {
   return `<div class="feed-skeleton">${[0, 1, 2].map(() => `<div class="skeleton-card"></div>`).join("")}</div>`;
 }
 
-function renderDiscoverFeedContent(filtered) {
+function renderDiscoverFeedContent(list) {
   // First-load states: nothing loaded yet -> shimmer skeleton; still empty after the
   // timeout -> connection error with a refresh action.
   if (!displayableDcEvents().length) {
     if (state.eventSync.status === "loading" && !state.eventsLoadTimedOut) return feedSkeleton();
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
-  // Neighborhoods tab: browse/search every event by neighborhood.
-  if (state.homeFilter === "neighborhoods") {
-    const base = feedTasteSort(displayableDcEvents().filter(event => matchesFilter(event, "all")));
-    const inNeighborhood = state.neighborhoodFilter ? base.filter(event => eventNeighborhoodMatches(event, state.neighborhoodFilter)) : base;
-    return `${neighborhoodControls(base)}${renderHeroAndList(dedupeFeedEvents(inNeighborhood), { showBadge: true, limit: 10 })}`;
-  }
-  const hasCategorySearch = state.homeFilter !== "all" && searchableDiscoverCategory(state.homeFilter);
-  const visibleEvents = hasCategorySearch && state.discoverGenreFilter
-    ? filtered.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
-    : filtered;
-  // When a single category chip is active the feed is dedicated to that category,
-  // so the event-type badge is redundant (hide it). The mixed all feed keeps it.
-  return `${hasCategorySearch ? categoryFacetControls(state.homeFilter, filtered) : ""}${renderHeroAndList(dedupeFeedEvents(visibleEvents), { showBadge: !hasCategorySearch, limit: 10 })}`;
+  // The category badge is only useful in the mixed "All" feed.
+  return renderEventFeed(list, { showBadge: state.homeFilter === "all" });
 }
 
 function discoverSearchText(event) {
@@ -375,7 +403,7 @@ function renderDiscoverEventSearch(query) {
     ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
     : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
-  content.innerHTML = renderHeroAndList(matches, { showBadge: true });
+  content.innerHTML = renderEventFeed(matches, { showBadge: true });
   return matches.length;
 }
 
