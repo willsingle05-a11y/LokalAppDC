@@ -470,6 +470,7 @@ function eventRow(event, variant = "", opts = {}) {
       </span>
     </span>
     <button class="event-card-body" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+      ${opts.reason ? `<span class="event-card-reason">${escapeHtml(opts.reason)}</span>` : ""}
       <span class="event-card-toprow">${showBadge ? `<span class="event-card-cat" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>` : ""}<span class="event-card-meta">${eventMetaLine(event)}</span></span>
       <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
       ${area ? `<span class="event-card-loc">${escapeHtml(area)}</span>` : ""}
