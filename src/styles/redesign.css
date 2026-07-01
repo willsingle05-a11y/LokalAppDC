@@ -949,6 +949,51 @@ h3 { font-weight: 800; }
 .icon-refresh svg { width: 15px; height: 15px; }
 .icon-refresh:hover { background: rgba(8, 217, 154, .12); }
 
+/* Collapsed When/Where/Type filter pills + dropdown panel */
+.filter-pills { display: flex; gap: 8px; }
+.filter-pill { display: inline-flex; align-items: center; gap: 6px; max-width: 48%; padding: 7px 12px; border: 1px solid rgba(58, 124, 165, .22); border-radius: 999px; background: #fff; color: var(--ink-green); font-family: var(--display); font-size: 12px; font-weight: 600; cursor: pointer; }
+.filter-pill svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--muted); }
+.filter-pill span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.filter-pill .pill-caret { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; opacity: .5; transition: transform .18s ease; }
+.filter-pill.open { border-color: var(--accent-strong); }
+.filter-pill.open .pill-caret { transform: rotate(180deg); }
+.filter-pill.has-value { border-color: var(--accent-strong); background: rgba(8, 217, 154, .1); }
+.filter-pill.has-value svg { color: var(--accent-strong); }
+.filter-panel { margin-top: 9px; padding: 11px 12px; border: 1px solid rgba(58, 124, 165, .16); border-radius: 14px; background: #fff; box-shadow: 0 8px 26px rgba(23, 28, 26, .07); display: grid; gap: 10px; }
+.filter-group { display: grid; gap: 6px; }
+.filter-group-head { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.filter-group-head svg { width: 12px; height: 12px; }
+.filter-chip-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+.filter-chip-wrap .filter-chip { flex: 0 0 auto; padding: 6px 11px; font-size: 10px; }
+.filter-chip-wrap .pick-chip { border-style: dashed; }
+
+/* Inline "Saved" confirmation on the card save button (replaces the save toast) */
+.card-save { position: relative; }
+.card-save.just-saved::after {
+  content: "Saved \2713";
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 6;
+  animation: savedPop 1.5s ease forwards;
+}
+@keyframes savedPop { 0% { opacity: 0; transform: translateY(-4px) scale(.85); } 14% { opacity: 1; transform: translateY(0) scale(1); } 78% { opacity: 1; } 100% { opacity: 0; transform: translateY(-2px); } }
+
+/* Demote the sync/status line so it reads as quiet metadata */
+.sync-note { margin: 4px 2px 10px; padding: 0; border: 0; background: transparent; font-size: 10px; color: var(--muted); opacity: .7; }
+.sync-note span { font-family: var(--mono); letter-spacing: .01em; }
+.sync-note .icon-refresh { width: 22px; height: 22px; color: var(--muted); }
+.sync-note .icon-refresh svg { width: 13px; height: 13px; }
+
 /* Masonry feed: cards size to their image (variable height), multiple per row */
 .feed-masonry { columns: 174px; column-gap: 12px; }
 .feed-masonry .event-card { width: 100%; margin: 0 0 12px; break-inside: avoid; -webkit-column-break-inside: avoid; }
