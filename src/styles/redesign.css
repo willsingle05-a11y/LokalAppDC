@@ -1042,3 +1042,106 @@ h3 { font-weight: 800; }
   .profile-page .attend-head,
   .profile-page .attend-list { animation: none; }
 }
+/* Compact Discover filters: final cascade override. */
+.discover-page > .chips {
+  gap: 4px;
+  margin: 0 -18px 2px;
+  padding: 0 18px 4px;
+}
+.discover-page > .chips .chip,
+.discover-page .sub-filter-row .filter-chip {
+  min-height: 24px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 8.5px;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.discover-page .sub-filters {
+  gap: 1px;
+  margin: -2px -18px 4px;
+}
+.discover-page .sub-filter-row {
+  gap: 4px;
+  padding: 0 18px 3px;
+  scroll-padding-inline: 18px;
+}
+.discover-page .sub-filter-label {
+  margin-right: -1px;
+  font-size: 7.5px;
+  letter-spacing: .035em;
+}
+.discover-page .sub-filter-row .pick-chip {
+  padding-inline: 8px;
+}
+.discover-page .discover-search-box.subtle-search {
+  min-height: 30px;
+  margin: 0 0 5px;
+  padding: 5px 9px;
+  border-radius: 11px;
+}
+.discover-page .discover-search-box.subtle-search span {
+  font-size: 14px;
+}
+.discover-page .discover-search-box.subtle-search input {
+  font-size: 10px;
+}
+.discover-page .sync-note {
+  margin-bottom: 6px;
+  padding: 4px 7px;
+  font-size: 9.5px;
+}
+.discover-page .date-time-filter-row .time-label {
+  margin-left: 7px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(23, 28, 26, .14);
+}
+/* Modal media uses real images so venue/event photos do not crop or shift after click. */
+.detail-hero.has-image,
+.venue-page-hero.has-image {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #f7fafc !important;
+}
+.detail-hero.has-image::after,
+.venue-page-hero.has-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(13, 24, 22, 0), rgba(13, 24, 22, .58));
+  pointer-events: none;
+}
+.detail-hero-img,
+.venue-page-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: #f7fafc;
+}
+.detail-hero.has-image > :not(.detail-hero-img):not(.modal-close),
+.venue-page-hero.has-image > :not(.venue-page-img) {
+  position: relative;
+  z-index: 2;
+}
+.detail-hero.has-image > .modal-close {
+  position: absolute;
+  z-index: 3;
+}
+.venue-page-hero.has-image {
+  min-height: 210px;
+}
+.venue-event-row {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.venue-event-row:hover {
+  background: rgba(8, 217, 154, .12);
+}

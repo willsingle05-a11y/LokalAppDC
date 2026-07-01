@@ -52,7 +52,7 @@ document.addEventListener("click", async event => {
     openDetail(id);
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);
-    toast(isRsvp ? "You're going! Added to your calendar." : "RSVP removed");
+    toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
   }
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await navigator.clipboard?.writeText(lokalEventShareUrl(shareEvent)); } catch {} const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
@@ -267,14 +267,12 @@ document.addEventListener("input", event => {
     const query = input.value.trim().toLowerCase();
     const visible = renderDiscoverEventSearch(query);
     document.querySelectorAll("#app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; });
-    const people = [["AL","Ana Lopez","@analopes"],["MR","Marcus Reed","@marcusdc"],["DV","Dev Shah","@devaroundtown"],["JS","Jules Kim","@julesk"],["PL","Priya Lee","@priyaleedc"]].filter(person => `${person[1]} ${person[2]}`.toLowerCase().includes(query));
-    const venueNames = query ? Array.from(new Set(displayableDcEvents().map(event => cleanLocationPart(event.venue)).filter(name => name && name.toLowerCase().includes(query)))).slice(0, 5) : [];
-    const venuesHtml = venueNames.map(name => { const on = state.follows.has(`venue:${name}`); return `<div class="follow-card venue-result"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(name)}</b><small>Venue</small></span><button class="follow-button ${on ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(name)}">${on ? "Following" : "Follow"}</button></div>`; }).join("");
-    const peopleHtml = people.map(person => `<button class="follow-card" data-open-friend="${person[1]}"><span class="avatar">${person[0]}</span><span><b>${person[1]}</b><small>${person[2]}</small></span></button>`).join("");
+    const venueMatches = query ? venueSearchMatches(query, 8) : [];
+    const venuesHtml = venueMatches.map(venue => { const on = state.follows.has(`venue:${venue.name}`); return `<div class="follow-card venue-result"><button class="venue-result-main" data-venue-events="${escapeHtml(venue.name)}"><span class="group-icon">${escapeHtml(venue.name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(venue.name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small></span></button><button class="follow-button ${on ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(venue.name)}">${on ? "Following" : "Follow"}</button></div>`; }).join("");
     const results = document.querySelector("[data-discover-results]");
-    if (results) { results.hidden = !query || (!people.length && !venueNames.length); results.innerHTML = venuesHtml + peopleHtml; }
+    if (results) { results.hidden = !query || !venueMatches.length; results.innerHTML = venuesHtml; }
     const feed = document.querySelector(".feed-section");
-    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && people.length === 0 && venueNames.length === 0);
+    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches.length === 0);
   }
   if (input.matches("[data-share-group-search]")) {
     const query = input.value.trim();

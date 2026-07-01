@@ -636,7 +636,7 @@ function venueImageForRow(row) {
 }
 async function syncSupabaseVenueImages() {
   try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/venues?select=name,image_url&image_url=not.is.null&limit=4000`, { headers: { apikey: supabaseConfig.publishableKey } });
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/venues?select=*&limit=4000`, { headers: { apikey: supabaseConfig.publishableKey } });
     if (!response.ok) return;
     const rows = await response.json();
     const map = {};

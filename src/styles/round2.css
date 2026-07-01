@@ -1192,3 +1192,16 @@ h1, h2, h3, .brand b { color: #326f91; }
   .planner-day-event { padding: 5px 4px; }
   .planner-day-event strong { font-size: 8.5px; }
 }
+
+/* Venue search page refinements */
+.venue-result { display: flex; align-items: center; gap: 8px; padding: 0; }
+.venue-result-main { display: flex; flex: 1; align-items: center; gap: 10px; min-width: 0; padding: 10px; background: transparent; text-align: left; }
+.venue-result-main span:last-child { display: grid; gap: 2px; min-width: 0; }
+.venue-result-main b, .venue-result-main small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.venue-result > .follow-button { align-self: stretch; border-left: 1px solid var(--line); border-radius: 0; }
+.venue-page-hero { display: grid; min-height: 170px; align-content: end; gap: 4px; margin: -4px -2px 12px; padding: 16px; border-radius: 16px; color: #fff; background: linear-gradient(145deg, #0f172a, #00c897); background-position: center; background-size: contain; background-repeat: no-repeat; }
+.venue-page-hero h2 { margin: 0; color: #fff; font-size: 28px; }
+.venue-page-hero span { color: rgba(255,255,255,.88); font-size: 12px; font-weight: 800; }
+.venue-page-actions { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.detail-hero.has-image { background-size: cover, contain !important; background-repeat: no-repeat, no-repeat !important; background-position: center, center !important; background-color: #f7fafc !important; }
+.feed-section.search-empty-feed::after { content: "No events or venues match that search."; }

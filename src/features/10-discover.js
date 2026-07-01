@@ -99,20 +99,41 @@ function followingRail() {
     <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
 }
 
+function venueDirectoryMatch(name) {
+  const key = venueImageKeyName(name);
+  return venueDirectory.find(venue => venueImageKeyName(venue.name) === key) || null;
+}
+
+function venueSearchMatches(query, limit = 8) {
+  const terms = String(query || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
+  const fromEvents = displayableDcEvents().map(event => ({ name: cleanLocationPart(event.venue), neighborhood: cleanLocationPart(event.area || event.neighborhood), image_url: event.image || "" }));
+  const merged = [...venueDirectory, ...fromEvents]
+    .filter(venue => venue.name)
+    .filter((venue, index, all) => all.findIndex(item => venueImageKeyName(item.name) === venueImageKeyName(venue.name)) === index);
+  return merged
+    .filter(venue => terms.every(term => `${venue.name} ${venue.neighborhood || ""} ${venue.address || ""}`.toLowerCase().includes(term)))
+    .slice(0, limit);
+}
+
 function openVenueEvents(name) {
-  const key = String(name).toLowerCase();
-  const venueEvents = displayableDcEvents().filter(event => `${event.venue} ${event.title}`.toLowerCase().includes(key)).sort(sortEventsByStart).slice(0, 8);
-  const following = state.follows.has(`venue:${name}`);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(name)}"><button class="modal-close" aria-label="Close venue">&times;</button>
-    <p class="eyebrow">Venue</p><h2>${escapeHtml(name)}</h2>
-    <button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(name)}">${following ? "Following" : "Follow"}</button>
+  const directoryVenue = venueDirectoryMatch(name) || { name };
+  const displayName = directoryVenue.name || name;
+  const key = String(displayName).toLowerCase();
+  const venueEvents = displayableDcEvents().filter(event => `${event.venue} ${event.title}`.toLowerCase().includes(key) || venueImageKeyName(event.venue) === venueImageKeyName(displayName)).sort(sortEventsByStart).slice(0, 12);
+  const following = state.follows.has(`venue:${displayName}`);
+  const venueImg = directoryVenue.image_url ? `<img class="venue-page-img" src="${escapeHtml(directoryVenue.image_url)}" alt="" loading="lazy">` : "";
+  const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
+    <div class="venue-page-hero${directoryVenue.image_url ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
-    <div class="interest-list">${venueEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") || `<p class="section-helper">No upcoming events listed for this venue.</p>`}</div>
+    <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
 }
 
-// Category weights built from the user's own data — tastes, saves, RSVPs, and
-// attended history — so the feed adapts to what each person actually engages with.
+// Category weights built from the user's own data: tastes, saves, RSVPs, and
+// attended history, so the feed adapts to what each person actually engages with.
 // How common each tag is across the whole catalog (cached per events load) so we
 // can reward specific tags (Jazz, Rooftop) over broad ones (Beer, Happy hour).
 let discoverTagFreqCache = null;
@@ -132,7 +153,7 @@ function userPreferenceWeights() {
   const tagWeights = {};
   const bumpCat = (cat, weight) => { const key = String(cat || "").toLowerCase(); if (key) catWeights[key] = (catWeights[key] || 0) + weight; };
   // Time-of-day tags are already their own filter dimension; keep preferences
-  // about genre/venue/vibe so reasons read like real tastes (Jazz, Rooftop…).
+  // about genre/venue/vibe so reasons read like real tastes (Jazz, Rooftop).
   const isTimeTag = key => /^(early|late|morning|afternoon|evening|night|all day|today|tonight|this weekend|weekend|this week)/i.test(key);
   const bumpTags = (event, weight) => eventTags(event).forEach(tag => { const key = String(tag || "").toLowerCase(); if (key && !isTimeTag(key)) tagWeights[key] = (tagWeights[key] || 0) + weight; });
   (state.tastes || []).forEach(taste => { bumpCat(typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "", 2); const key = taste.toLowerCase(); tagWeights[key] = (tagWeights[key] || 0) + 2; });
@@ -230,7 +251,6 @@ function renderTonightMap() {
     <div class="tonight-canvas">${pins}</div>
   </section>`;
 }
-
 // Sub-filters shown directly under the main category chips. The genre/type facet
 // and the neighborhood are independent dimensions and combine with each other and
 // the category (e.g. Live music + Karaoke + Shaw).
@@ -246,8 +266,7 @@ function discoverSubFilters() {
   const isCustomTime = /^custom:/.test(timeVal);
   const dateChips = ["Today", "This weekend", "This week"];
   const timeChips = ["Morning", "Afternoon", "Evening", "Late night"];
-  rows.push(`<div class="sub-filter-row" aria-label="Date"><span class="sub-filter-label">Date</span><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " – ")) : "Pick date +"}</button></div>`);
-  rows.push(`<div class="sub-filter-row" aria-label="Time"><span class="sub-filter-label">Time</span><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " – ")) : "Pick time +"}</button></div>`);
+  rows.push(`<div class="sub-filter-row date-time-filter-row" aria-label="Date and time"><span class="sub-filter-label">Date</span><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " – ")) : "Pick date +"}</button><span class="sub-filter-label time-label">Time</span><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " – ")) : "Pick time +"}</button></div>`);
   if (searchableDiscoverCategory(cat)) {
     const config = getCategoryFeedConfig(cat);
     const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
