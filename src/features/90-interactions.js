@@ -4,8 +4,9 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.feedShown = 10; setRoute(t.dataset.route); }
-  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
+  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedShown = 10; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
@@ -39,10 +40,12 @@ document.addEventListener("click", async event => {
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
-    if (inDetail) { openDetail(id); if (isSaved) document.querySelector(`[data-save="${id}"]`)?.classList.add("btn-pop"); }
-    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
+    const flashSaved = button => { if (!button) return; button.classList.add("just-saved"); setTimeout(() => button.classList.remove("just-saved"), 1500); };
+    if (inDetail) { openDetail(id); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
+    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) flashSaved(button); });
     saveEventInteraction(id, "save", isSaved);
-    toast(isSaved ? "Saved! Find it in your Saved tab." : "Removed from saved");
+    // Saving confirms inline (the "Saved ✓" chip); only the removal needs a toast.
+    if (!isSaved) toast("Removed from saved");
   }
   if (t.dataset.rsvp) {
     const id = Number(t.dataset.rsvp);

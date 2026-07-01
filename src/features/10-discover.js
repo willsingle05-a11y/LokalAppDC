@@ -254,32 +254,59 @@ function renderTonightMap() {
 // Sub-filters shown directly under the main category chips. The genre/type facet
 // and the neighborhood are independent dimensions and combine with each other and
 // the category (e.g. Live music + Karaoke + Shaw).
+function filterDateLabel(value) {
+  if (/^\d{4}-\d{2}-\d{2}/.test(value)) return value.includes("..") ? "Date range" : value;
+  return value;
+}
+function filterTimeLabel(value) {
+  if (/^custom:/.test(value)) return value.replace("custom:", "").replace("-", "–");
+  return value;
+}
+
+// Collapsed filter bar: one row of When / Where / Type pills. Tapping a pill opens
+// a compact dropdown panel with that filter's options (they still combine).
 function discoverSubFilters() {
   const cat = state.homeFilter;
   const catEvents = displayableDcEvents().filter(event => matchesFilter(event, cat));
-  const rows = [];
-  // Date row: quick options + a specific date or range. Time row: parts of day +
-  // a specific time or range. Both combine with category, type and neighborhood.
+  const hasType = searchableDiscoverCategory(cat);
+  let open = state.openFilterSheet || "";
+  if (open === "type" && !hasType) open = "";
+
   const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
   const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
-  const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
-  const isCustomTime = /^custom:/.test(timeVal);
-  const dateChips = ["Today", "This weekend", "This week"];
-  const timeChips = ["Morning", "Afternoon", "Evening", "Late night"];
-  rows.push(`<div class="sub-filter-row date-time-filter-row" aria-label="Date and time"><span class="sub-filter-label">Date</span><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " – ")) : "Pick date +"}</button><span class="sub-filter-label time-label">Time</span><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " – ")) : "Pick time +"}</button></div>`);
-  if (searchableDiscoverCategory(cat)) {
+  const whenActive = Boolean(dateVal || timeVal);
+  const whenLabel = whenActive ? [dateVal && filterDateLabel(dateVal), timeVal && filterTimeLabel(timeVal)].filter(Boolean).join(" · ") : "When";
+  const whereLabel = state.neighborhoodFilter || "Where";
+  const typeLabel = state.discoverGenreFilter || "Type";
+
+  const pill = (kind, icon, label, active) => `<button class="filter-pill${open === kind ? " open" : ""}${active ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span><i class="pill-caret"></i></button>`;
+  const pills = `<div class="filter-pills">${pill("when", icons.calendar, whenLabel, whenActive)}${pill("where", icons.pin, whereLabel, Boolean(state.neighborhoodFilter))}${hasType ? pill("type", icons.tag, typeLabel, Boolean(state.discoverGenreFilter)) : ""}</div>`;
+  const panel = open ? `<div class="filter-panel">${filterPanelContent(open, cat, catEvents, dateVal, timeVal)}</div>` : "";
+  return `<div class="sub-filters">${pills}${panel}</div>`;
+}
+
+function filterPanelContent(kind, cat, catEvents, dateVal, timeVal) {
+  if (kind === "when") {
+    const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
+    const isCustomTime = /^custom:/.test(timeVal);
+    const dateChips = ["Today", "This weekend", "This week"];
+    const timeChips = ["Morning", "Afternoon", "Evening", "Late night"];
+    return `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="filter-chip-wrap"><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " – ")) : "Pick date +"}</button></div></div>
+      <div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="filter-chip-wrap"><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " – ")) : "Pick time +"}</button></div></div>`;
+  }
+  if (kind === "where") {
+    const nbActive = state.neighborhoodFilter || "";
+    const nbOptions = discoverNeighborhoodOptions(catEvents);
+    return `<div class="filter-chip-wrap"><button class="filter-chip ${nbActive ? "" : "active"}" data-neighborhood="">All areas</button>${nbOptions.map(name => `<button class="filter-chip ${name.toLowerCase() === nbActive.toLowerCase() ? "active" : ""}" data-neighborhood="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}</div>`;
+  }
+  if (kind === "type") {
     const config = getCategoryFeedConfig(cat);
     const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
     const options = (config.chips && config.chips.length > 1) ? config.chips.slice(1) : categoryFacetOptions(cat, catEvents);
     const active = state.discoverGenreFilter || "";
-    rows.push(`<div class="sub-filter-row" aria-label="Type"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(allLabel)}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>`);
+    return `<div class="filter-chip-wrap"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(allLabel)}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>`;
   }
-  const nbActive = state.neighborhoodFilter || "";
-  const nbOptions = discoverNeighborhoodOptions(catEvents);
-  if (nbOptions.length) {
-    rows.push(`<div class="sub-filter-row" aria-label="Neighborhood"><button class="filter-chip ${nbActive ? "" : "active"}" data-neighborhood="">All areas</button>${nbOptions.map(name => `<button class="filter-chip ${name.toLowerCase() === nbActive.toLowerCase() ? "active" : ""}" data-neighborhood="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}</div>`);
-  }
-  return rows.length ? `<div class="sub-filters">${rows.join("")}</div>` : "";
+  return "";
 }
 
 function openDatePickerSheet() {
