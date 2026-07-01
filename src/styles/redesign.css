@@ -944,6 +944,11 @@ h3 { font-weight: 800; }
 .sub-filter-row .pick-chip { border-style: dashed; }
 .view-more-feed { margin-top: 12px; }
 
+/* Refresh as an icon (was a text button) */
+.icon-refresh { display: inline-grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--accent-strong); cursor: pointer; }
+.icon-refresh svg { width: 15px; height: 15px; }
+.icon-refresh:hover { background: rgba(8, 217, 154, .12); }
+
 /* Masonry feed: cards size to their image (variable height), multiple per row */
 .feed-masonry { columns: 174px; column-gap: 12px; }
 .feed-masonry .event-card { width: 100%; margin: 0 0 12px; break-inside: avoid; -webkit-column-break-inside: avoid; }
