@@ -244,7 +244,7 @@ function renderTonightMap() {
   const pins = events.map((event, index) => {
     const [x, y] = spots[index % spots.length];
     const loc = cleanLocationPart(event.area || event.neighborhood) || "DC";
-    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(loc)} · ${escapeHtml(event.title)} · ${escapeHtml(eventDisplayTime(event))}</button>`;
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(event.title)} · ${escapeHtml(loc)}</button>`;
   }).join("");
   return `<section class="tonight-map">
     <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div>
@@ -331,8 +331,8 @@ function renderHome() {
     ${followingRail()}
     <div class="chips">${filterChips(state.homeFilter, "home")}</div>
     ${discoverSubFilters()}
-    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or neighborhoods" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
-    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="text-button" data-refresh-events>Refresh</button></div>
+    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>${escapeHtml(feedTitle)}</h2></div></div>
     <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;

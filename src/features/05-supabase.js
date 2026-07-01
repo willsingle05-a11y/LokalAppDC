@@ -619,9 +619,20 @@ function venueImageKeyName(value) {
     .replace(/\s+(bar|cafe|lounge|tavern|dc)$/, "")
     .replace(/[^a-z0-9]+/g, "");
 }
+let venueImageKeys = [];
 function venueImageForRow(row) {
   const key = venueImageKeyName(row.venue_name || row.venue);
-  return key && venueImageMap[key] ? venueImageMap[key] : "";
+  if (!key) return "";
+  if (venueImageMap[key]) return venueImageMap[key];
+  // Fuzzy fallback: event venue names are often more specific than the venue row
+  // (e.g. "Atlas Brew Works Navy Yard" vs "Atlas Brew Works"). Match when one
+  // normalized name is a prefix/substring of the other. Keys are sorted longest
+  // first so the most specific venue wins.
+  for (const vk of venueImageKeys) {
+    if (vk.length < 6) continue;
+    if (key.startsWith(vk) || vk.startsWith(key) || key.includes(vk) || vk.includes(key)) return venueImageMap[vk];
+  }
+  return "";
 }
 async function syncSupabaseVenueImages() {
   try {
@@ -629,19 +640,13 @@ async function syncSupabaseVenueImages() {
     if (!response.ok) return;
     const rows = await response.json();
     const map = {};
-    venueDirectory = rows
-      .map(venue => ({
-        name: cleanLocationPart(venue.name || venue.title || venue.venue_name),
-        address: cleanLocationPart(venue.address || venue.venue_address || venue.street_address),
-        neighborhood: cleanLocationPart(venue.neighborhood || venue.area),
-        image_url: cleanLocationPart(venue.image_url || venue.photo_url),
-        website_url: cleanLocationPart(venue.website_url || venue.website || venue.url)
-      }))
-      .filter(venue => venue.name)
-      .filter((venue, index, all) => all.findIndex(item => venueImageKeyName(item.name) === venueImageKeyName(venue.name)) === index)
-      .sort((a, b) => a.name.localeCompare(b.name));
-    venueDirectory.forEach(venue => { const key = venueImageKeyName(venue.name); if (key && venue.image_url) map[key] = venue.image_url; });
+    rows.forEach(venue => {
+      const key = venueImageKeyName(venue.name);
+      const img = String(venue.image_url || "").trim(); // some rows have stray leading CR/LF
+      if (key && /^(https?:|data:)/i.test(img)) map[key] = img;
+    });
     venueImageMap = map;
+    venueImageKeys = Object.keys(map).sort((a, b) => b.length - a.length);
   } catch {}
 }
 
