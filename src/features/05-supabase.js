@@ -640,13 +640,26 @@ async function syncSupabaseVenueImages() {
     if (!response.ok) return;
     const rows = await response.json();
     const map = {};
+    const directoryRows = [];
     rows.forEach(venue => {
       const key = venueImageKeyName(venue.name);
       const img = String(venue.image_url || "").trim(); // some rows have stray leading CR/LF
       if (key && /^(https?:|data:)/i.test(img)) map[key] = img;
+      if (venue.name) {
+        directoryRows.push({
+          name: venue.name,
+          address: venue.address || "",
+          neighborhood: venue.neighborhood || "",
+          venue_type: venue.venue_type || "",
+          website_url: venue.website_url || "",
+          image_url: /^(https?:|data:)/i.test(img) ? img : ""
+        });
+      }
     });
     venueImageMap = map;
     venueImageKeys = Object.keys(map).sort((a, b) => b.length - a.length);
+    venueDirectory = [...venueDirectory, ...directoryRows]
+      .filter((venue, index, all) => venue.name && all.findIndex(item => venueImageKeyName(item.name) === venueImageKeyName(venue.name)) === index);
   } catch {}
 }
 
