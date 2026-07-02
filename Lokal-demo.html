@@ -1706,6 +1706,16 @@ h1, h2, h3, .brand b { color: #326f91; }
 .detail-hero.has-image { background-size: cover, contain !important; background-repeat: no-repeat, no-repeat !important; background-position: center, center !important; background-color: #f7fafc !important; }
 .feed-section.search-empty-feed::after { content: "No events or venues match that search."; }
 
+.venue-search-section { display: grid; gap: 8px; margin-bottom: 14px; }
+.venue-search-list { display: grid; gap: 8px; }
+.venue-search-card { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-align: left; box-shadow: 0 3px 10px rgba(17, 24, 39, .035); }
+.venue-search-art { display: grid; place-items: center; width: 70px; height: 58px; overflow: hidden; border-radius: 11px; background: #f7fafc; color: var(--ink); font-weight: 900; }
+.venue-search-art img { width: 100%; height: 100%; object-fit: contain; }
+.venue-search-card > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.venue-search-card b, .venue-search-card small, .venue-search-card em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.venue-search-card small { color: var(--muted); font-size: 11px; }
+.venue-search-card em { color: var(--steel); font-size: 10px; font-style: normal; font-weight: 800; }
+
 /* ============================================================
    UI Redesign v2 â€” teal design system + new components.
    Loaded after base.css and round2.css, so it intentionally
@@ -5310,6 +5320,13 @@ function isDisplayableDcEvent(event) {
   return /washington,\s*(dc|d\.c\.)|washington dc|district of columbia|\bdc\b|northwest|northeast|southwest|southeast|\bnw\b|\bne\b|\bsw\b|\bse\b|adams morgan|u street|logan circle|shaw|navy yard|penn quarter|h street|georgetown|dupont|capitol hill|noma|union market|waterfront|wharf|foggy bottom|columbia heights|petworth|tenleytown|cleveland park|woodley park|brookland|anacostia|eckington|ivy city|barracks row|mount vernon square|downtown/.test(text);
 }
 
+function venueSearchCard(venue) {
+  const image = String(venue.image_url || "").trim();
+  const meta = [venue.neighborhood, venue.address, venue.venue_type].filter(Boolean).join(" / ") || "Venue";
+  const imageHtml = image ? `<img src="${escapeHtml(image)}" alt="" loading="lazy">` : `<span>${escapeHtml(String(venue.name || "V").slice(0, 1).toUpperCase())}</span>`;
+  return `<button class="venue-search-card" data-venue-events="${escapeHtml(venue.name)}" aria-label="Open ${escapeHtml(venue.name)}"><span class="venue-search-art">${imageHtml}</span><span><b>${escapeHtml(venue.name)}</b><small>${escapeHtml(meta)}</small><em>Venue page</em></span></button>`;
+}
+
 function renderDiscoverEventSearch(query) {
   const content = document.querySelector("[data-feed-content]");
   if (!content) return 0;
@@ -5319,12 +5336,13 @@ function renderDiscoverEventSearch(query) {
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
   const dcEvents = displayableDcEvents().filter(event => matchesFilter(event, "all"));
-  const pool = normalizedQuery
-    ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
-    : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
+  const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
-  content.innerHTML = renderEventFeed(matches, { showBadge: true });
-  return matches.length;
+  const venueMatches = venueSearchMatches(normalizedQuery, 8);
+  const venueHtml = venueMatches.length ? `<div class="venue-search-section"><p class="section-label">Venues</p><div class="venue-search-list">${venueMatches.map(venueSearchCard).join("")}</div></div>` : "";
+  const eventHtml = matches.length ? renderEventFeed(matches, { showBadge: true }) : `<p class="section-helper">No matching events yet.</p>`;
+  content.innerHTML = `${venueHtml}${eventHtml}`;
+  return matches.length + venueMatches.length;
 }
 
 const dcMapAreas = {

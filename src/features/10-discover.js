@@ -560,6 +560,13 @@ function isDisplayableDcEvent(event) {
   return /washington,\s*(dc|d\.c\.)|washington dc|district of columbia|\bdc\b|northwest|northeast|southwest|southeast|\bnw\b|\bne\b|\bsw\b|\bse\b|adams morgan|u street|logan circle|shaw|navy yard|penn quarter|h street|georgetown|dupont|capitol hill|noma|union market|waterfront|wharf|foggy bottom|columbia heights|petworth|tenleytown|cleveland park|woodley park|brookland|anacostia|eckington|ivy city|barracks row|mount vernon square|downtown/.test(text);
 }
 
+function venueSearchCard(venue) {
+  const image = String(venue.image_url || "").trim();
+  const meta = [venue.neighborhood, venue.address, venue.venue_type].filter(Boolean).join(" / ") || "Venue";
+  const imageHtml = image ? `<img src="${escapeHtml(image)}" alt="" loading="lazy">` : `<span>${escapeHtml(String(venue.name || "V").slice(0, 1).toUpperCase())}</span>`;
+  return `<button class="venue-search-card" data-venue-events="${escapeHtml(venue.name)}" aria-label="Open ${escapeHtml(venue.name)}"><span class="venue-search-art">${imageHtml}</span><span><b>${escapeHtml(venue.name)}</b><small>${escapeHtml(meta)}</small><em>Venue page</em></span></button>`;
+}
+
 function renderDiscoverEventSearch(query) {
   const content = document.querySelector("[data-feed-content]");
   if (!content) return 0;
@@ -569,12 +576,13 @@ function renderDiscoverEventSearch(query) {
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
   const dcEvents = displayableDcEvents().filter(event => matchesFilter(event, "all"));
-  const pool = normalizedQuery
-    ? dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)))
-    : dcEvents.filter(event => matchesFilter(event, state.homeFilter));
+  const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
-  content.innerHTML = renderEventFeed(matches, { showBadge: true });
-  return matches.length;
+  const venueMatches = venueSearchMatches(normalizedQuery, 8);
+  const venueHtml = venueMatches.length ? `<div class="venue-search-section"><p class="section-label">Venues</p><div class="venue-search-list">${venueMatches.map(venueSearchCard).join("")}</div></div>` : "";
+  const eventHtml = matches.length ? renderEventFeed(matches, { showBadge: true }) : `<p class="section-helper">No matching events yet.</p>`;
+  content.innerHTML = `${venueHtml}${eventHtml}`;
+  return matches.length + venueMatches.length;
 }
 
 const dcMapAreas = {
