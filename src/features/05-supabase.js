@@ -318,6 +318,9 @@ function supabaseLocationText(row) {
 }
 
 function isSupabaseEventInDc(row) {
+  // Washingtonian is a hand-curated DC-area guide; keep its picks (some at metro
+  // venues like Wolf Trap or Strathmore) rather than dropping them as non-DC.
+  if (String(row.source || "").toLowerCase() === "washingtonian") return true;
   const text = supabaseLocationText(row);
   const nonDcText = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore|md\b|va\b|virginia|maryland)\b/.test(text);
   const dcText = /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
