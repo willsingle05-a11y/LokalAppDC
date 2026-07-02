@@ -116,14 +116,27 @@ function venueSearchMatches(query, limit = 8) {
     .slice(0, limit);
 }
 
+function venueEventMatch(event, displayName) {
+  const key = venueImageKeyName(displayName);
+  const eventVenueKey = venueImageKeyName(event.venue);
+  const eventLocationKey = venueImageKeyName(eventLocationLine(event));
+  const text = `${event.venue || ""} ${event.title || ""} ${eventLocationLine(event) || ""}`.toLowerCase();
+  const displayText = String(displayName || "").toLowerCase();
+  if (!key) return false;
+  if (eventVenueKey === key || eventLocationKey === key) return true;
+  if (key.length >= 5 && eventVenueKey.length >= 5 && (eventVenueKey.includes(key) || key.includes(eventVenueKey))) return true;
+  if (key.length >= 5 && eventLocationKey.length >= 5 && eventLocationKey.includes(key)) return true;
+  return displayText.length >= 3 && text.includes(displayText);
+}
+
 function openVenueEvents(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
-  const key = String(displayName).toLowerCase();
-  const venueEvents = displayableDcEvents().filter(event => `${event.venue} ${event.title}`.toLowerCase().includes(key) || venueImageKeyName(event.venue) === venueImageKeyName(displayName)).sort(sortEventsByStart).slice(0, 12);
+  const venueEvents = displayableDcEvents().filter(event => venueEventMatch(event, displayName)).sort(sortEventsByStart).slice(0, 12);
   const following = state.follows.has(`venue:${displayName}`);
   const eventVenueImage = venueEvents.find(event => event.image)?.image || "";
-  const venueImage = directoryVenue.image_url || eventVenueImage;
+  const eventCardFallbackImage = venueEvents[0] ? eventCardImageSrc(venueEvents[0]) : "";
+  const venueImage = directoryVenue.image_url || eventVenueImage || eventCardFallbackImage;
   const venueImg = venueImage ? `<img class="venue-page-img" src="${escapeHtml(venueImage)}" alt="" loading="lazy">` : "";
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
