@@ -46,6 +46,10 @@ state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) 
 // shapes what they see.
 state.savedSources = new Set(JSON.parse(localStorage.getItem("lokalSavedSources") || "[]"));
 state.rsvpSources = new Set(JSON.parse(localStorage.getItem("lokalRsvpSources") || "[]"));
+// Discover filter bar: multi-select What (category), Where (neighborhood), When (day/time).
+state.whatFilter = new Set();
+state.whereFilter = new Set();
+state.whenFilter = new Set();
 
 // Record a save/RSVP by the event's stable source id and persist it.
 function setPlanSource(kind, id, on) {

@@ -263,50 +263,91 @@ function filterTimeLabel(value) {
   return value;
 }
 
-// Collapsed filter bar: one row of When / Where / Type pills. Tapping a pill opens
-// a compact dropdown panel with that filter's options (they still combine).
-function discoverSubFilters() {
-  const cat = state.homeFilter;
-  const catEvents = displayableDcEvents().filter(event => matchesFilter(event, cat));
-  const hasType = searchableDiscoverCategory(cat);
-  let open = state.openFilterSheet || "";
-  if (open === "type" && !hasType) open = "";
+// Filter bar: What / Where / When, each a multi-select dropdown. Selections combine.
+const WHEN_DATE_TOKENS = ["Today", "This weekend", "This week"];
+const WHEN_TIME_TOKENS = ["Morning", "Afternoon", "Evening", "Late night"];
 
-  const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
-  const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
-  const whenActive = Boolean(dateVal || timeVal);
-  const whenLabel = whenActive ? [dateVal && filterDateLabel(dateVal), timeVal && filterTimeLabel(timeVal)].filter(Boolean).join(" · ") : "When";
-  const whereLabel = state.neighborhoodFilter || "Where";
-  const typeLabel = state.discoverGenreFilter || "Type";
+function whatFilterOptions() {
+  return discoverFilterItems().filter(([value]) => value !== "all");
+}
+function whatLabelFor(value) {
+  const item = discoverFilterItems().find(([itemValue]) => itemValue === value);
+  return item ? item[1] : value;
+}
+function filterBarSummary(labels, fallback) {
+  const list = [...labels];
+  if (!list.length) return fallback;
+  return list.length === 1 ? list[0] : `${list[0]} +${list.length - 1}`;
+}
+function whenSelectionLabels() {
+  const labels = [...(state.whenFilter || new Set())];
+  if (state.filter.date && state.filter.date !== "Any date") labels.push(filterDateLabel(state.filter.date));
+  if (state.filter.time && state.filter.time !== "Any time") labels.push(filterTimeLabel(state.filter.time));
+  return labels;
+}
 
-  const pill = (kind, icon, label, active) => `<button class="filter-pill${open === kind ? " open" : ""}${active ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span><i class="pill-caret"></i></button>`;
-  const pills = `<div class="filter-pills">${pill("when", icons.calendar, whenLabel, whenActive)}${pill("where", icons.pin, whereLabel, Boolean(state.neighborhoodFilter))}${hasType ? pill("type", icons.tag, typeLabel, Boolean(state.discoverGenreFilter)) : ""}</div>`;
-  const panel = open ? `<div class="filter-panel">${filterPanelContent(open, cat, catEvents, dateVal, timeVal)}</div>` : "";
+function renderFilterBar() {
+  const open = state.openFilterSheet || "";
+  const what = state.whatFilter || new Set();
+  const where = state.whereFilter || new Set();
+  const whenLabels = whenSelectionLabels();
+  const pill = (kind, icon, label, count) => `<button class="filter-pill${open === kind ? " open" : ""}${count ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span>${count ? `<b class="pill-count">${count}</b>` : ""}<i class="pill-caret"></i></button>`;
+  const pills = `<div class="filter-pills">
+    ${pill("what", icons.tag, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
+    ${pill("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
+    ${pill("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
+  </div>`;
+  const panel = open ? `<div class="filter-panel filter-dropdown">${filterDropdownContent(open)}</div>` : "";
   return `<div class="sub-filters">${pills}${panel}</div>`;
 }
 
-function filterPanelContent(kind, cat, catEvents, dateVal, timeVal) {
-  if (kind === "when") {
-    const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
-    const isCustomTime = /^custom:/.test(timeVal);
-    const dateChips = ["Today", "This weekend", "This week"];
-    const timeChips = ["Morning", "Afternoon", "Evening", "Late night"];
-    return `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="filter-chip-wrap"><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " – ")) : "Pick date +"}</button></div></div>
-      <div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="filter-chip-wrap"><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " – ")) : "Pick time +"}</button></div></div>`;
+function checkRow(kind, value, label, checked) {
+  return `<button class="check-row${checked ? " checked" : ""}" data-toggle-${kind}="${escapeHtml(value)}"><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+}
+
+function filterDropdownContent(kind) {
+  if (kind === "what") {
+    const what = state.whatFilter || new Set();
+    return `<div class="check-list check-list-scroll">${whatFilterOptions().map(([value, label]) => checkRow("what", value, label, what.has(value))).join("")}</div>${what.size ? `<button class="dropdown-clear" data-clear-what>Clear all</button>` : ""}`;
   }
   if (kind === "where") {
-    const nbActive = state.neighborhoodFilter || "";
-    const nbOptions = discoverNeighborhoodOptions(catEvents);
-    return `<div class="filter-chip-wrap"><button class="filter-chip ${nbActive ? "" : "active"}" data-neighborhood="">All areas</button>${nbOptions.map(name => `<button class="filter-chip ${name.toLowerCase() === nbActive.toLowerCase() ? "active" : ""}" data-neighborhood="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}</div>`;
+    const where = state.whereFilter || new Set();
+    const options = discoverNeighborhoodOptions(displayableDcEvents());
+    return `<div class="check-list check-list-scroll">${options.map(name => checkRow("where", name, name, where.has(name))).join("")}</div>${where.size ? `<button class="dropdown-clear" data-clear-where>Clear all</button>` : ""}`;
   }
-  if (kind === "type") {
-    const config = getCategoryFeedConfig(cat);
-    const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
-    const options = (config.chips && config.chips.length > 1) ? config.chips.slice(1) : categoryFacetOptions(cat, catEvents);
-    const active = state.discoverGenreFilter || "";
-    return `<div class="filter-chip-wrap"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(allLabel)}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>`;
+  if (kind === "when") {
+    const when = state.whenFilter || new Set();
+    const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+    const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+    const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
+    const isCustomTime = /^custom:/.test(timeVal);
+    const pickRow = (kindAttr, checked, label) => `<button class="check-row${checked ? " checked" : ""}" data-${kindAttr}><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+    const dateGroup = `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="check-list">${WHEN_DATE_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-date", isCustomDate, isCustomDate ? dateVal.replace("..", " – ") : "Pick a date…")}</div></div>`;
+    const timeGroup = `<div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="check-list">${WHEN_TIME_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-time", isCustomTime, isCustomTime ? timeVal.replace("custom:", "").replace("-", " – ") : "Pick a time…")}</div></div>`;
+    const clear = (when.size || dateVal || timeVal) ? `<button class="dropdown-clear" data-clear-when>Clear all</button>` : "";
+    return `${dateGroup}${timeGroup}${clear}`;
   }
   return "";
+}
+
+// Does an event pass the What / Where / When multi-select filters?
+function eventMatchesFilters(event) {
+  const what = state.whatFilter || new Set();
+  const where = state.whereFilter || new Set();
+  if (what.size === 0) { if (event.cat === "museums") return false; }
+  else if (![...what].some(value => matchesFilter(event, value, false))) return false;
+  if (where.size > 0 && ![...where].some(name => eventNeighborhoodMatches(event, name))) return false;
+  return eventMatchesWhen(event);
+}
+function eventMatchesWhen(event) {
+  const when = state.whenFilter || new Set();
+  const dateSel = [...when].filter(token => WHEN_DATE_TOKENS.includes(token));
+  const timeSel = [...when].filter(token => WHEN_TIME_TOKENS.includes(token));
+  const customDate = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+  const customTime = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+  const dateOk = (!dateSel.length && !customDate) || dateSel.some(token => matchesDateFilter(event, token)) || (customDate && matchesDateFilter(event, customDate));
+  const timeOk = (!timeSel.length && !customTime) || timeSel.some(token => matchesTimeFilter(event, token)) || (customTime && matchesTimeFilter(event, customTime));
+  return dateOk && timeOk;
 }
 
 function openDatePickerSheet() {
@@ -343,24 +384,18 @@ function openTimePickerSheet() {
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
-  const base = dcEvents.filter(event => matchesFilter(event, state.homeFilter));
-  const sorted = state.homeFilter === "all" ? feedPersonalSort(base) : base.slice().sort(sortEventsByStart);
-  // combinable sub-filters: genre/type AND neighborhood
-  const subFiltered = sorted
-    .filter(event => !state.discoverGenreFilter || eventMatchesCategoryFacet(event, state.discoverGenreFilter))
-    .filter(event => !state.neighborhoodFilter || eventNeighborhoodMatches(event, state.neighborhoodFilter));
-  const deduped = dedupeFeedEvents(subFiltered);
-  const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
-  const feedTitle = activeChip ? activeChip[1] : "What's happening";
+  const base = dcEvents.filter(eventMatchesFilters);
+  // Personalize only the mixed feed; a specific "What" selection sorts by soonest.
+  const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedPersonalSort(base);
+  const deduped = dedupeFeedEvents(sorted);
   app.innerHTML = `<section class="page discover-page">
     ${renderTonightMap()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${followingRail()}
-    <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    ${discoverSubFilters()}
+    ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>${escapeHtml(feedTitle)}</h2></div></div>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div></div>
     <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
 }
@@ -525,7 +560,7 @@ function renderDiscoverFeedContent(list) {
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
   // The category badge is only useful in the mixed "All" feed.
-  return renderEventFeed(list, { showBadge: state.homeFilter === "all" });
+  return renderEventFeed(list, { showBadge: !(state.whatFilter && state.whatFilter.size === 1) });
 }
 
 function discoverSearchText(event) {
