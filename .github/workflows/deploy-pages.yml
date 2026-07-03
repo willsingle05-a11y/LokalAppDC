@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write
 
 concurrency:
   group: pages
@@ -34,6 +35,29 @@ jobs:
         run: npm run build
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      # Re-running a previous attempt of this job leaves its "github-pages"
+      # artifact attached to the run. The upload below then creates a second one,
+      # and deploy-pages aborts with "Multiple artifacts named github-pages ...
+      # Artifact count is 2." Delete any stale copy first so re-runs are safe.
+      - name: Remove stale Pages artifact (safe on re-runs)
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const res = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+              name: 'github-pages',
+            });
+            for (const artifact of res.data.artifacts) {
+              core.info(`Deleting stale artifact ${artifact.id}`);
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+              });
+            }
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
