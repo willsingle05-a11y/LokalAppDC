@@ -204,32 +204,9 @@ function eventPersonalReason(event, weights) {
 
 // Personalized ordering for the main feed: events matching the user's tastes and
 // past behavior (by specific tag and category) float up; ties broken by soonest start.
-// Marquee DC venues — a show here is almost always a "bigger" event.
-const MARQUEE_VENUE_RE = /\b(the anthem|9:?30 club|capital one arena|nationals park|audi field|dar constitution hall|constitution hall|the howard theatre|howard theatre|echostage|union stage|warner theatre|lincoln theatre|kennedy center|national theatre|wolf trap|merriweather|strathmore|entertainment and sports arena|city winery|the fillmore|black cat|pearl street warehouse)\b/;
-
-// A rough "how big / popular is this" signal so marquee shows and buzzy events
-// surface in the mixed feed alongside personalized picks. Deliberately small
-// relative to strong personal-tag matches so real tastes still win.
-function eventPopularityScore(event) {
-  let score = 0;
-  const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
-  if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
-  const catTier = { concerts: 4, festivals: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
-  score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
-  // Social proof: friends going is a direct popularity signal.
-  score += Math.min(6, (Array.isArray(event.friends) ? event.friends.length : 0) * 2);
-  // Ticketed events with a real start time skew toward marquee programming.
-  if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
-  return score;
-}
-
-// Mixed-feed ordering: personal-taste match + a popularity boost, so the feed
-// reflects the user's interests AND leans toward bigger/buzzier events. Ties
-// break by soonest start.
 function feedPersonalSort(list) {
   const weights = userPreferenceWeights();
-  const key = event => eventPersonalScore(event, weights) + eventPopularityScore(event);
-  return list.slice().sort((a, b) => key(b) - key(a) || sortEventsByStart(a, b));
+  return list.slice().sort((a, b) => eventPersonalScore(b, weights) - eventPersonalScore(a, weights) || sortEventsByStart(a, b));
 }
 
 function neighborhoodControls(sourceEvents) {
@@ -282,7 +259,7 @@ function renderTonightMap() {
   const pins = events.map((event, index) => {
     const [x, y] = spots[index % spots.length];
     const loc = cleanLocationPart(event.area || event.neighborhood) || "DC";
-    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(loc)}</button>`;
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(event.title)} · ${escapeHtml(loc)}</button>`;
   }).join("");
   return `<section class="tonight-map">
     <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div>
@@ -329,19 +306,14 @@ function renderFilterBar() {
   const what = state.whatFilter || new Set();
   const where = state.whereFilter || new Set();
   const whenLabels = whenSelectionLabels();
-  // Each pill owns its dropdown so the panel opens directly beneath the pill that
-  // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
-  const pillWrap = (kind, icon, label, count) => {
-    const btn = `<button class="filter-pill${open === kind ? " open" : ""}${count ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span>${count ? `<b class="pill-count">${count}</b>` : ""}<i class="pill-caret"></i></button>`;
-    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown${kind === "when" ? " align-end" : ""}">${filterDropdownContent(kind)}</div>` : "";
-    return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
-  };
+  const pill = (kind, icon, label, count) => `<button class="filter-pill${open === kind ? " open" : ""}${count ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span>${count ? `<b class="pill-count">${count}</b>` : ""}<i class="pill-caret"></i></button>`;
   const pills = `<div class="filter-pills">
-    ${pillWrap("what", icons.tag, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
-    ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
-    ${pillWrap("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
+    ${pill("what", icons.tag, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
+    ${pill("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
+    ${pill("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
   </div>`;
-  return `<div class="sub-filters">${pills}</div>`;
+  const panel = open ? `<div class="filter-panel filter-dropdown">${filterDropdownContent(open)}</div>` : "";
+  return `<div class="sub-filters">${pills}${panel}</div>`;
 }
 
 function checkRow(kind, value, label, checked) {
