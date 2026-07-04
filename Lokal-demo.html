@@ -5992,14 +5992,30 @@ function openFriend(name) {
 }
 
 
+const LOKAL_SCORE_LEVELS = [
+  { name: "New in Town", min: 0, next: 100 },
+  { name: "Explorer", min: 100, next: 175 },
+  { name: "District Scout", min: 175, next: 250 },
+  { name: "Neighborhood Regular", min: 250, next: 350 },
+  { name: "Plan Maker", min: 350, next: 475 },
+  { name: "Ward Wanderer", min: 475, next: 625 },
+  { name: "Metro Connector", min: 625, next: 800 },
+  { name: "District Insider", min: 800, next: 1000 },
+  { name: "Downtown Regular", min: 1000, next: 1250 },
+  { name: "Capital Connector", min: 1250, next: 1550 },
+  { name: "DC Tastemaker", min: 1550, next: 1900 },
+  { name: "Certified Lokal", min: 1900, next: 2300 },
+  { name: "District Icon", min: 2300, next: 2800 },
+  { name: "Lokal Legend", min: 2800, next: 3500 },
+  { name: "DC Hall of Fame", min: 3500, next: null }
+];
+
 function scoreLevel(score) {
-  if (score >= 500) return { name: "Local Legend", min: 500, next: null };
-  if (score >= 200) return { name: "Insider", min: 200, next: 500 };
-  return { name: "Explorer", min: 0, next: 200 };
+  return LOKAL_SCORE_LEVELS.slice().reverse().find(level => score >= level.min) || LOKAL_SCORE_LEVELS[0];
 }
 
 function nextLevelName(level) {
-  return level.next === 500 ? "Local Legend" : "Insider";
+  return LOKAL_SCORE_LEVELS.find(item => item.min === level.next)?.name || "";
 }
 
 function tasteColor(taste) {
@@ -6109,7 +6125,7 @@ function renderProfile() {
       <p class="eyebrow">Lokal score</p>
       <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
       <div class="score-progress"><i style="width:${Math.round(progress * 100)}%"></i></div>
-      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached â€” you're a Local Legend"}</p>
+      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached - you're in the DC Hall of Fame"}</p>
       <p class="score-context">Your score grows every time you attend an event, make plans with friends, or engage with the community.</p>
     </button>
     <p class="eyebrow">Your tastes</p>
