@@ -918,9 +918,12 @@ h1, h2, h3, .brand b { color: #326f91; }
   min-height: 285px;
   background-size: cover !important;
 }
-.detail-hero.has-image h1 {
-  margin-top: 130px;
-}
+.detail-hero.has-image::after { display: none; }
+.detail-title-block { display: grid; gap: 5px; margin-bottom: 12px; }
+.detail-title-block h1 { margin: 0; color: var(--ink); font-size: 27px; line-height: 1.04; letter-spacing: 0; }
+.detail-title-block h2 { margin: 0; color: var(--steel); font-size: 15px; line-height: 1.25; }
+.detail-title-block .event-meta { margin: 0; }
+.detail-price { margin: 2px 0 0; color: var(--ink); font-size: 13px; font-weight: 900; }
 
 /* Profile analytics */
 .profile-insights {

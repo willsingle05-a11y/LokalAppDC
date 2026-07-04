@@ -1418,9 +1418,12 @@ h1, h2, h3, .brand b { color: #326f91; }
   min-height: 285px;
   background-size: cover !important;
 }
-.detail-hero.has-image h1 {
-  margin-top: 130px;
-}
+.detail-hero.has-image::after { display: none; }
+.detail-title-block { display: grid; gap: 5px; margin-bottom: 12px; }
+.detail-title-block h1 { margin: 0; color: var(--ink); font-size: 27px; line-height: 1.04; letter-spacing: 0; }
+.detail-title-block h2 { margin: 0; color: var(--steel); font-size: 15px; line-height: 1.25; }
+.detail-title-block .event-meta { margin: 0; }
+.detail-price { margin: 2px 0 0; color: var(--ink); font-size: 13px; font-weight: 900; }
 
 /* Profile analytics */
 .profile-insights {
@@ -2282,15 +2285,15 @@ h3 { font-weight: 700; }
 .following-hint { margin: 4px 2px 16px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 
 .discover-search-box.subtle-search {
-  margin-top: 2px;
-  margin-bottom: 12px;
-  padding: 9px 11px;
-  border-color: rgba(58, 124, 165, .18);
-  background: rgba(255, 255, 255, .72);
-  box-shadow: none;
+  margin-top: 6px;
+  margin-bottom: 14px;
+  padding: 15px 18px;
+  border-color: rgba(58, 124, 165, .28);
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(23, 28, 26, .06);
 }
-.discover-search-box.subtle-search span { font-size: 18px; }
-.discover-search-box.subtle-search input { font-size: 11px; }
+.discover-search-box.subtle-search span { font-size: 22px; }
+.discover-search-box.subtle-search input { font-size: 16px; }
 
 .event-card-loc { color: rgba(255, 255, 255, .9); font-size: 11px; font-weight: 700; }
 
@@ -2669,7 +2672,22 @@ h3 { font-weight: 800; }
 
 /* Collapsed When/Where/Type filter pills + dropdown panel */
 .filter-pills { display: flex; gap: 8px; }
-.filter-pill { display: inline-flex; align-items: center; gap: 6px; max-width: 48%; padding: 7px 12px; border: 1px solid rgba(58, 124, 165, .22); border-radius: 999px; background: #fff; color: var(--ink-green); font-family: var(--display); font-size: 12px; font-weight: 600; cursor: pointer; }
+.filter-pill { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 12px; border: 1px solid rgba(58, 124, 165, .22); border-radius: 999px; background: #fff; color: var(--ink-green); font-family: var(--display); font-size: 12px; font-weight: 600; cursor: pointer; }
+.pill-count { flex: 0 0 auto; display: inline-grid; place-items: center; min-width: 16px; height: 16px; margin-left: auto; padding: 0 4px; border-radius: 999px; background: var(--accent-strong); color: #fff; font-family: var(--mono); font-size: 9px; font-weight: 800; }
+.filter-pill-wrap { position: relative; flex: 1 1 0; min-width: 0; display: flex; }
+.filter-pill-wrap .filter-pill { flex: 1 1 0; width: 100%; }
+.filter-dropdown { position: absolute; top: calc(100% + 8px); left: 0; z-index: 50; width: max-content; min-width: 210px; max-width: min(320px, 90vw); margin-top: 0; }
+.filter-dropdown.align-end { left: auto; right: 0; }
+.check-list { display: grid; gap: 2px; }
+.check-list-scroll { max-height: 246px; overflow-y: auto; }
+.check-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-green); font-family: var(--display); font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; }
+.check-row:hover { background: rgba(8, 217, 154, .08); }
+.check-row.checked { color: var(--accent-strong); }
+.check-box { flex: 0 0 auto; display: grid; place-items: center; width: 18px; height: 18px; border: 1.5px solid rgba(58, 124, 165, .32); border-radius: 6px; background: #fff; }
+.check-row.checked .check-box { border-color: var(--accent-strong); background: var(--accent-strong); }
+.check-box svg { width: 12px; height: 12px; color: #fff; stroke-width: 3; }
+.dropdown-clear { margin-top: 4px; padding: 6px 4px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 11px; font-weight: 700; text-align: left; cursor: pointer; }
+.dropdown-clear:hover { color: var(--accent-strong); }
 .filter-pill svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--muted); }
 .filter-pill span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .filter-pill .pill-caret { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; opacity: .5; transition: transform .18s ease; }
@@ -2839,16 +2857,16 @@ h3 { font-weight: 800; }
   padding-inline: 8px;
 }
 .discover-page .discover-search-box.subtle-search {
-  min-height: 30px;
-  margin: 0 0 5px;
-  padding: 5px 9px;
-  border-radius: 11px;
+  min-height: 56px;
+  margin: 6px 0 14px;
+  padding: 15px 18px;
+  border-radius: 16px;
 }
 .discover-page .discover-search-box.subtle-search span {
-  font-size: 14px;
+  font-size: 22px;
 }
 .discover-page .discover-search-box.subtle-search input {
-  font-size: 10px;
+  font-size: 16px;
 }
 .discover-page .sync-note {
   margin-bottom: 6px;
@@ -3002,6 +3020,10 @@ state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) 
 // shapes what they see.
 state.savedSources = new Set(JSON.parse(localStorage.getItem("lokalSavedSources") || "[]"));
 state.rsvpSources = new Set(JSON.parse(localStorage.getItem("lokalRsvpSources") || "[]"));
+// Discover filter bar: multi-select What (category), Where (neighborhood), When (day/time).
+state.whatFilter = new Set();
+state.whereFilter = new Set();
+state.whenFilter = new Set();
 
 // Record a save/RSVP by the event's stable source id and persist it.
 function setPlanSource(kind, id, on) {
@@ -4010,6 +4032,9 @@ function supabaseLocationText(row) {
 }
 
 function isSupabaseEventInDc(row) {
+  // Washingtonian is a hand-curated DC-area guide; keep its picks (some at metro
+  // venues like Wolf Trap or Strathmore) rather than dropping them as non-DC.
+  if (String(row.source || "").toLowerCase() === "washingtonian") return true;
   const text = supabaseLocationText(row);
   const nonDcText = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore|md\b|va\b|virginia|maryland)\b/.test(text);
   const dcText = /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
@@ -4964,9 +4989,32 @@ function eventPersonalReason(event, weights) {
 
 // Personalized ordering for the main feed: events matching the user's tastes and
 // past behavior (by specific tag and category) float up; ties broken by soonest start.
+// Marquee DC venues â€” a show here is almost always a "bigger" event.
+const MARQUEE_VENUE_RE = /\b(the anthem|9:?30 club|capital one arena|nationals park|audi field|dar constitution hall|constitution hall|the howard theatre|howard theatre|echostage|union stage|warner theatre|lincoln theatre|kennedy center|national theatre|wolf trap|merriweather|strathmore|entertainment and sports arena|city winery|the fillmore|black cat|pearl street warehouse)\b/;
+
+// A rough "how big / popular is this" signal so marquee shows and buzzy events
+// surface in the mixed feed alongside personalized picks. Deliberately small
+// relative to strong personal-tag matches so real tastes still win.
+function eventPopularityScore(event) {
+  let score = 0;
+  const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
+  if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
+  const catTier = { concerts: 4, festivals: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
+  // Social proof: friends going is a direct popularity signal.
+  score += Math.min(6, (Array.isArray(event.friends) ? event.friends.length : 0) * 2);
+  // Ticketed events with a real start time skew toward marquee programming.
+  if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
+  return score;
+}
+
+// Mixed-feed ordering: personal-taste match + a popularity boost, so the feed
+// reflects the user's interests AND leans toward bigger/buzzier events. Ties
+// break by soonest start.
 function feedPersonalSort(list) {
   const weights = userPreferenceWeights();
-  return list.slice().sort((a, b) => eventPersonalScore(b, weights) - eventPersonalScore(a, weights) || sortEventsByStart(a, b));
+  const key = event => eventPersonalScore(event, weights) + eventPopularityScore(event);
+  return list.slice().sort((a, b) => key(b) - key(a) || sortEventsByStart(a, b));
 }
 
 function neighborhoodControls(sourceEvents) {
@@ -5019,7 +5067,7 @@ function renderTonightMap() {
   const pins = events.map((event, index) => {
     const [x, y] = spots[index % spots.length];
     const loc = cleanLocationPart(event.area || event.neighborhood) || "DC";
-    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(event.title)} Â· ${escapeHtml(loc)}</button>`;
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(loc)}</button>`;
   }).join("");
   return `<section class="tonight-map">
     <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div>
@@ -5038,50 +5086,96 @@ function filterTimeLabel(value) {
   return value;
 }
 
-// Collapsed filter bar: one row of When / Where / Type pills. Tapping a pill opens
-// a compact dropdown panel with that filter's options (they still combine).
-function discoverSubFilters() {
-  const cat = state.homeFilter;
-  const catEvents = displayableDcEvents().filter(event => matchesFilter(event, cat));
-  const hasType = searchableDiscoverCategory(cat);
-  let open = state.openFilterSheet || "";
-  if (open === "type" && !hasType) open = "";
+// Filter bar: What / Where / When, each a multi-select dropdown. Selections combine.
+const WHEN_DATE_TOKENS = ["Today", "This weekend", "This week"];
+const WHEN_TIME_TOKENS = ["Morning", "Afternoon", "Evening", "Late night"];
 
-  const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
-  const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
-  const whenActive = Boolean(dateVal || timeVal);
-  const whenLabel = whenActive ? [dateVal && filterDateLabel(dateVal), timeVal && filterTimeLabel(timeVal)].filter(Boolean).join(" Â· ") : "When";
-  const whereLabel = state.neighborhoodFilter || "Where";
-  const typeLabel = state.discoverGenreFilter || "Type";
-
-  const pill = (kind, icon, label, active) => `<button class="filter-pill${open === kind ? " open" : ""}${active ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span><i class="pill-caret"></i></button>`;
-  const pills = `<div class="filter-pills">${pill("when", icons.calendar, whenLabel, whenActive)}${pill("where", icons.pin, whereLabel, Boolean(state.neighborhoodFilter))}${hasType ? pill("type", icons.tag, typeLabel, Boolean(state.discoverGenreFilter)) : ""}</div>`;
-  const panel = open ? `<div class="filter-panel">${filterPanelContent(open, cat, catEvents, dateVal, timeVal)}</div>` : "";
-  return `<div class="sub-filters">${pills}${panel}</div>`;
+function whatFilterOptions() {
+  return discoverFilterItems().filter(([value]) => value !== "all");
+}
+function whatLabelFor(value) {
+  const item = discoverFilterItems().find(([itemValue]) => itemValue === value);
+  return item ? item[1] : value;
+}
+function filterBarSummary(labels, fallback) {
+  const list = [...labels];
+  if (!list.length) return fallback;
+  return list.length === 1 ? list[0] : `${list[0]} +${list.length - 1}`;
+}
+function whenSelectionLabels() {
+  const labels = [...(state.whenFilter || new Set())];
+  if (state.filter.date && state.filter.date !== "Any date") labels.push(filterDateLabel(state.filter.date));
+  if (state.filter.time && state.filter.time !== "Any time") labels.push(filterTimeLabel(state.filter.time));
+  return labels;
 }
 
-function filterPanelContent(kind, cat, catEvents, dateVal, timeVal) {
-  if (kind === "when") {
-    const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
-    const isCustomTime = /^custom:/.test(timeVal);
-    const dateChips = ["Today", "This weekend", "This week"];
-    const timeChips = ["Morning", "Afternoon", "Evening", "Late night"];
-    return `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="filter-chip-wrap"><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " â€“ ")) : "Pick date +"}</button></div></div>
-      <div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="filter-chip-wrap"><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " â€“ ")) : "Pick time +"}</button></div></div>`;
+function renderFilterBar() {
+  const open = state.openFilterSheet || "";
+  const what = state.whatFilter || new Set();
+  const where = state.whereFilter || new Set();
+  const whenLabels = whenSelectionLabels();
+  // Each pill owns its dropdown so the panel opens directly beneath the pill that
+  // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
+  const pillWrap = (kind, icon, label, count) => {
+    const btn = `<button class="filter-pill${open === kind ? " open" : ""}${count ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span>${count ? `<b class="pill-count">${count}</b>` : ""}<i class="pill-caret"></i></button>`;
+    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown${kind === "when" ? " align-end" : ""}">${filterDropdownContent(kind)}</div>` : "";
+    return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
+  };
+  const pills = `<div class="filter-pills">
+    ${pillWrap("what", icons.tag, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
+    ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
+    ${pillWrap("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
+  </div>`;
+  return `<div class="sub-filters">${pills}</div>`;
+}
+
+function checkRow(kind, value, label, checked) {
+  return `<button class="check-row${checked ? " checked" : ""}" data-toggle-${kind}="${escapeHtml(value)}"><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+}
+
+function filterDropdownContent(kind) {
+  if (kind === "what") {
+    const what = state.whatFilter || new Set();
+    return `<div class="check-list check-list-scroll">${whatFilterOptions().map(([value, label]) => checkRow("what", value, label, what.has(value))).join("")}</div>${what.size ? `<button class="dropdown-clear" data-clear-what>Clear all</button>` : ""}`;
   }
   if (kind === "where") {
-    const nbActive = state.neighborhoodFilter || "";
-    const nbOptions = discoverNeighborhoodOptions(catEvents);
-    return `<div class="filter-chip-wrap"><button class="filter-chip ${nbActive ? "" : "active"}" data-neighborhood="">All areas</button>${nbOptions.map(name => `<button class="filter-chip ${name.toLowerCase() === nbActive.toLowerCase() ? "active" : ""}" data-neighborhood="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}</div>`;
+    const where = state.whereFilter || new Set();
+    const options = discoverNeighborhoodOptions(displayableDcEvents());
+    return `<div class="check-list check-list-scroll">${options.map(name => checkRow("where", name, name, where.has(name))).join("")}</div>${where.size ? `<button class="dropdown-clear" data-clear-where>Clear all</button>` : ""}`;
   }
-  if (kind === "type") {
-    const config = getCategoryFeedConfig(cat);
-    const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
-    const options = (config.chips && config.chips.length > 1) ? config.chips.slice(1) : categoryFacetOptions(cat, catEvents);
-    const active = state.discoverGenreFilter || "";
-    return `<div class="filter-chip-wrap"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(allLabel)}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>`;
+  if (kind === "when") {
+    const when = state.whenFilter || new Set();
+    const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+    const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+    const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
+    const isCustomTime = /^custom:/.test(timeVal);
+    const pickRow = (kindAttr, checked, label) => `<button class="check-row${checked ? " checked" : ""}" data-${kindAttr}><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+    const dateGroup = `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="check-list">${WHEN_DATE_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-date", isCustomDate, isCustomDate ? dateVal.replace("..", " â€“ ") : "Pick a dateâ€¦")}</div></div>`;
+    const timeGroup = `<div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="check-list">${WHEN_TIME_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-time", isCustomTime, isCustomTime ? timeVal.replace("custom:", "").replace("-", " â€“ ") : "Pick a timeâ€¦")}</div></div>`;
+    const clear = (when.size || dateVal || timeVal) ? `<button class="dropdown-clear" data-clear-when>Clear all</button>` : "";
+    return `${dateGroup}${timeGroup}${clear}`;
   }
   return "";
+}
+
+// Does an event pass the What / Where / When multi-select filters?
+function eventMatchesFilters(event) {
+  const what = state.whatFilter || new Set();
+  const where = state.whereFilter || new Set();
+  if (what.size === 0) { if (event.cat === "museums") return false; }
+  else if (![...what].some(value => matchesFilter(event, value, false))) return false;
+  if (where.size > 0 && ![...where].some(name => eventNeighborhoodMatches(event, name))) return false;
+  return eventMatchesWhen(event);
+}
+function eventMatchesWhen(event) {
+  const when = state.whenFilter || new Set();
+  const dateSel = [...when].filter(token => WHEN_DATE_TOKENS.includes(token));
+  const timeSel = [...when].filter(token => WHEN_TIME_TOKENS.includes(token));
+  const customDate = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+  const customTime = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+  const dateOk = (!dateSel.length && !customDate) || dateSel.some(token => matchesDateFilter(event, token)) || (customDate && matchesDateFilter(event, customDate));
+  const timeOk = (!timeSel.length && !customTime) || timeSel.some(token => matchesTimeFilter(event, token)) || (customTime && matchesTimeFilter(event, customTime));
+  return dateOk && timeOk;
 }
 
 function openDatePickerSheet() {
@@ -5118,24 +5212,18 @@ function openTimePickerSheet() {
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
-  const base = dcEvents.filter(event => matchesFilter(event, state.homeFilter));
-  const sorted = state.homeFilter === "all" ? feedPersonalSort(base) : base.slice().sort(sortEventsByStart);
-  // combinable sub-filters: genre/type AND neighborhood
-  const subFiltered = sorted
-    .filter(event => !state.discoverGenreFilter || eventMatchesCategoryFacet(event, state.discoverGenreFilter))
-    .filter(event => !state.neighborhoodFilter || eventNeighborhoodMatches(event, state.neighborhoodFilter));
-  const deduped = dedupeFeedEvents(subFiltered);
-  const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
-  const feedTitle = activeChip ? activeChip[1] : "What's happening";
+  const base = dcEvents.filter(eventMatchesFilters);
+  // Personalize only the mixed feed; a specific "What" selection sorts by soonest.
+  const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedPersonalSort(base);
+  const deduped = dedupeFeedEvents(sorted);
   app.innerHTML = `<section class="page discover-page">
     ${renderTonightMap()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${followingRail()}
-    <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    ${discoverSubFilters()}
+    ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>${escapeHtml(feedTitle)}</h2></div></div>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div></div>
     <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
 }
@@ -5300,7 +5388,7 @@ function renderDiscoverFeedContent(list) {
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
   // The category badge is only useful in the mixed "All" feed.
-  return renderEventFeed(list, { showBadge: state.homeFilter === "all" });
+  return renderEventFeed(list, { showBadge: !(state.whatFilter && state.whatFilter.size === 1) });
 }
 
 function discoverSearchText(event) {
@@ -6322,9 +6410,10 @@ function openDetail(id) {
     ? `background-image: linear-gradient(180deg, rgba(13,24,22,.08), rgba(13,24,22,.62)); background-color: #f7fafc;`
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${e.title}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><span class="detail-location">${escapeHtml(eventLocationLine(e))}</span></div>
-    <div class="detail-body"><p class="event-meta">${eventMetaLine(e)}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>
+  const priceLabel = eventPriceLabel(e);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
@@ -6458,6 +6547,12 @@ document.addEventListener("click", async event => {
   if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
+  if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.feedShown = 10; renderHome(); }
+  if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.feedShown = 10; renderHome(); }
+  if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.feedShown = 10; renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedShown = 10; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
