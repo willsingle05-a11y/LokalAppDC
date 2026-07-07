@@ -310,21 +310,20 @@ function normalizeSupabaseVenue(row) {
 
 function normalizeSupabaseArea(row) {
   const extracted = extractLocationFromDescription(row.description || row.desc);
-  return row.neighborhood || row.area || row.location || extracted.address || "Washington, DC";
+  return row.neighborhood || row.area || extracted.address || "Washington, DC";
 }
 
 function supabaseLocationText(row) {
-  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.location || ""} ${row.venue_name || ""} ${row.venue || ""} ${row.raw_json?.geo?.address?.locality || ""} ${row.raw_json?.geo?.address?.region || ""} ${row.raw_json?.geo?.address?.country_code || ""}`.toLowerCase();
+  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.venue_name || ""} ${row.venue || ""} ${row.raw_json?.geo?.address?.locality || ""} ${row.raw_json?.geo?.address?.region || ""} ${row.raw_json?.geo?.address?.country_code || ""}`.toLowerCase();
 }
 
 function isSupabaseEventInDc(row) {
-  // Washingtonian is a hand-curated DC-area guide; keep its picks (some at metro
-  // venues like Wolf Trap or Strathmore) rather than dropping them as non-DC.
-  if (String(row.source || "").toLowerCase() === "washingtonian") return true;
   const text = supabaseLocationText(row);
   const nonDcText = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore|md\b|va\b|virginia|maryland)\b/.test(text);
-  const dcText = /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
+  const knownDcVenue = /\b(miracle theatre|sixth\s*&\s*i|mlk library|martin luther king jr memorial library|rock creek park tennis center|politics and prose|kennedy center|national theatre|warner theatre|the anthem|union stage|9:30 club|930 club|the atlantis|howard theatre|echostage|capital one arena|nationals park|carefirst arena)\b/.test(text);
+  const dcText = knownDcVenue || /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
   if (nonDcText && !dcText) return false;
+  if (dcText) return true;
   if (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) {
     const lat = Number(row.latitude);
     const lng = Number(row.longitude);
