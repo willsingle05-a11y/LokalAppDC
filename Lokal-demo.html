@@ -2985,6 +2985,7 @@ const icons = {
   clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
   tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
+  layers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>'
 };
 
@@ -4598,7 +4599,8 @@ function finalizeLokalProfile(profile) {
     initials: profileInitials(profile.fullName),
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
-    areas: profile.areaInterests || []
+    areas: profile.areaInterests || [],
+    lokalScore: 20
   };
   state.profile = saved;
   state.age = saved.age;
@@ -4656,6 +4658,7 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
       event_interests: profile.eventInterests,
       area_interests: profile.areaInterests,
       home_city: "Washington, DC",
+      lokal_score: 20,
       is_demo: false
     }])
   });
@@ -4684,7 +4687,8 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       phone: formattedPhone,
       email,
       event_interests: eventInterests,
-      area_interests: areaInterests
+      area_interests: areaInterests,
+      lokal_score: 20
     }
   });
   if (data.access_token) {
@@ -5160,7 +5164,7 @@ function renderFilterBar() {
     return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
   };
   const pills = `<div class="filter-pills">
-    ${pillWrap("what", icons.tag, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
+    ${pillWrap("what", icons.layers, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
     ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
     ${pillWrap("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
   </div>`;
@@ -6193,7 +6197,7 @@ function scoreBreakdown() {
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
   const savedOnlyCount = Array.from(state.saved || []).filter(id => !state.rsvps.has(id) && !state.removedPlans?.has(id)).length;
   const breakdown = [
-    { label: "Base profile", value: 100, detail: "Starting score for creating a profile." },
+    { label: "Joined Lokal", value: 20, detail: "20 points for creating a profile and joining Lokal." },
     { label: "Verified attendance", value: receipts.length * 15, detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - no lifetime cap.` },
     { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
     { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
@@ -6758,14 +6762,14 @@ document.addEventListener("click", async event => {
       finalizeLokalProfile(state.pendingSignupProfile);
       state.onboardStep++;
       renderOnboarding();
-      toast(result.access_token ? "Account created" : "Account created. Check your email to confirm it.");
+      toast(result.access_token ? "20 Lokal points for joining" : "20 Lokal points for joining. Check your email to confirm it.");
     } catch (accountError) {
       error.textContent = accountError.message;
       t.disabled = false;
     }
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); showDiscoverHint(); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("20 Lokal points for joining"); showDiscoverHint(); } }
   if (!handled && !t.disabled) toast("Action opened");
 });
 

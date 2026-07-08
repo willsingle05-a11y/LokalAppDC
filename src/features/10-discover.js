@@ -337,7 +337,7 @@ function renderFilterBar() {
     return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
   };
   const pills = `<div class="filter-pills">
-    ${pillWrap("what", icons.tag, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
+    ${pillWrap("what", icons.layers, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
     ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
     ${pillWrap("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
   </div>`;

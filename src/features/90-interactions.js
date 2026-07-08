@@ -194,14 +194,14 @@ document.addEventListener("click", async event => {
       finalizeLokalProfile(state.pendingSignupProfile);
       state.onboardStep++;
       renderOnboarding();
-      toast(result.access_token ? "Account created" : "Account created. Check your email to confirm it.");
+      toast(result.access_token ? "20 Lokal points for joining" : "20 Lokal points for joining. Check your email to confirm it.");
     } catch (accountError) {
       error.textContent = accountError.message;
       t.disabled = false;
     }
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); showDiscoverHint(); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("20 Lokal points for joining"); showDiscoverHint(); } }
   if (!handled && !t.disabled) toast("Action opened");
 });
 

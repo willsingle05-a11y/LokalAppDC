@@ -845,7 +845,8 @@ function finalizeLokalProfile(profile) {
     initials: profileInitials(profile.fullName),
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
-    areas: profile.areaInterests || []
+    areas: profile.areaInterests || [],
+    lokalScore: 20
   };
   state.profile = saved;
   state.age = saved.age;
@@ -903,6 +904,7 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
       event_interests: profile.eventInterests,
       area_interests: profile.areaInterests,
       home_city: "Washington, DC",
+      lokal_score: 20,
       is_demo: false
     }])
   });
@@ -931,7 +933,8 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       phone: formattedPhone,
       email,
       event_interests: eventInterests,
-      area_interests: areaInterests
+      area_interests: areaInterests,
+      lokal_score: 20
     }
   });
   if (data.access_token) {
