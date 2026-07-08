@@ -70,36 +70,6 @@ function attendanceHistorySection() {
   return `${body}${toggle}`;
 }
 
-function lokalYearSummary() {
-  const receipts = profileReceipts();
-  const count = receipts.length;
-  const categories = new Set(receipts.map(receipt => receipt.cat).filter(Boolean)).size;
-  const withFriends = receiptFriendUnits(receipts);
-  const score = lokalScore();
-  const level = scoreLevel(score).name;
-  return `My Lokal year so far: ${count} event${count === 1 ? "" : "s"} across ${categories} kind${categories === 1 ? "" : "s"} of night out, ${withFriends} plan${withFriends === 1 ? "" : "s"} with friends, and a Lokal score of ${score} (${level}). See what's happening in DC on Lokal.`;
-}
-
-function openYearShareSheet() {
-  const summary = lokalYearSummary();
-  const score = lokalScore();
-  const level = scoreLevel(score).name;
-  const receipts = profileReceipts();
-  const smsBody = encodeURIComponent(summary);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share my Lokal year">
-    <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Your year on Lokal</p><h2>Share my Lokal year</h2><p class="lede">Send a recap of everywhere you have been around DC.</p>
-    <div class="share-preview"><b>${escapeHtml(state.profile.fullName)} on Lokal</b><span>${receipts.length} events attended / ${level}</span><small>Lokal score ${score}</small><em>${escapeHtml(summary)}</em></div>
-    <div class="share-channel-grid">
-      <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
-      <button class="share-channel" data-native-share-year>Share sheet</button>
-      <a class="share-channel" href="mailto:?subject=${encodeURIComponent("My Lokal year")}&body=${smsBody}">Email</a>
-      <button class="share-channel" data-copy-year>Copy recap</button>
-    </div>
-    <button class="wide-button" data-copy-year>Copy my Lokal year</button>
-  </section></div>`;
-}
-
 function profileInsightPanel() {
   const receipts = profileReceipts();
   const breakdown = scoreBreakdown();
@@ -139,7 +109,7 @@ function renderProfile() {
     ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
     <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>
     ${state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
-    <div class="attend-head"><div><p class="eyebrow">Your history</p><h2>Events you've been to</h2></div><button class="text-button" data-share-year>Share my Lokal year</button></div>
+    <div class="attend-head"><div><p class="eyebrow">Your history</p><h2>Events you've been to</h2></div></div>
     ${attendanceHistorySection()}
     ${profileInsightPanel()}
   </section>`;
