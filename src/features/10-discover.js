@@ -339,7 +339,7 @@ function renderFilterBar() {
   const pills = `<div class="filter-pills">
     ${pillWrap("what", icons.megaphone, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
     ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
-    ${pillWrap("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
+    ${pillWrap("when", icons.clock, filterBarSummary(whenLabels, "When"), whenLabels.length)}
   </div>`;
   return `<div class="sub-filters">${pills}</div>`;
 }
