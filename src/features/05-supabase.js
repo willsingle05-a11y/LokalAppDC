@@ -691,6 +691,28 @@ function normalizeSupabaseEvent(row, index) {
   };
 }
 
+// PostgREST caps every response at 1000 rows regardless of the requested limit,
+// so a single fetch silently drops most of an over-subscribed discovery window
+// (thousands of daily happy-hour/trivia/music rows push later-dated events past
+// the cap). Page through with offset until a short page signals the end. A stable
+// id tiebreaker keeps slices from overlapping or skipping across pages.
+async function fetchSupabaseEventPages(query) {
+  const pageSize = 1000;
+  const order = "starts_at.asc.nullslast,date.asc.nullslast,id.asc";
+  const rows = [];
+  for (let offset = 0; offset < 20000; offset += pageSize) {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=${order}&limit=${pageSize}&offset=${offset}`, {
+      cache: "no-store",
+      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    const page = await response.json();
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows;
+}
+
 async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   state.eventsLoadTimedOut = false;
@@ -703,13 +725,7 @@ async function syncSupabaseEvents(showToast = false) {
   if (state.route === "home") renderHome();
   await syncSupabaseVenueImages();
   try {
-    const responses = await Promise.all(discoveryWindowQueries().map(query => fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
-      cache: "no-store",
-      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
-    })));
-    const failedResponse = responses.find(response => !response.ok);
-    if (failedResponse) throw new Error(`Supabase returned ${failedResponse.status}`);
-    const rowSets = await Promise.all(responses.map(response => response.json()));
+    const rowSets = await Promise.all(discoveryWindowQueries().map(fetchSupabaseEventPages));
     const rows = [...new Map(rowSets.flat().map(row => [row.id, row])).values()];
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
