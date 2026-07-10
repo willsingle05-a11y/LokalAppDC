@@ -592,6 +592,77 @@ function occurrencesForEvent(event) {
     .sort(sortEventsByStart);
 }
 
+// --- Recurring-event detection (drives the "add to calendar weekly" button) ---
+const ICS_WEEKDAY_CODES = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+const ICS_CODE_LABEL = { SU: "Sunday", MO: "Monday", TU: "Tuesday", WE: "Wednesday", TH: "Thursday", FR: "Friday", SA: "Saturday" };
+const RECUR_DAY_WORDS = { sunday: "SU", monday: "MO", tuesday: "TU", wednesday: "WE", thursday: "TH", friday: "FR", saturday: "SA" };
+const RECUR_ORDINALS = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, last: -1 };
+const RECUR_ORDINAL_LABEL = { 1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th", "-1": "last" };
+
+function weekdayCodeFromDate(dateStr) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr || ""))) return null;
+  const date = new Date(`${dateStr}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : ICS_WEEKDAY_CODES[date.getDay()];
+}
+
+function weeklyRecurrenceLabel(codes) {
+  const names = codes.map(code => ICS_CODE_LABEL[code]);
+  return names.length === 1 ? `every ${names[0]}` : `every ${names.join(" & ")}`;
+}
+
+// Infer cadence from the gap between a series' occurrences (e.g. the wharf
+// "Grooves in the Grove" rows or "Music in the Circle" every Saturday).
+function inferRecurrenceFromOccurrences(event) {
+  const times = occurrencesForEvent(event)
+    .map(item => (/^\d{4}-\d{2}-\d{2}$/.test(String(item.startDate || "")) ? new Date(`${item.startDate}T00:00:00`).getTime() : NaN))
+    .filter(value => !Number.isNaN(value))
+    .sort((a, b) => a - b);
+  if (times.length < 2) return null;
+  const gaps = [];
+  for (let i = 1; i < times.length; i++) gaps.push(Math.round((times[i] - times[i - 1]) / 86400000));
+  const typical = gaps.slice().sort((a, b) => a - b)[Math.floor(gaps.length / 2)];
+  const code = weekdayCodeFromDate(event.startDate);
+  if (!code) return null;
+  if (typical === 7) return { freq: "WEEKLY", interval: 1, byday: [code], label: `every ${ICS_CODE_LABEL[code]}` };
+  if (typical === 14) return { freq: "WEEKLY", interval: 2, byday: [code], label: `every other ${ICS_CODE_LABEL[code]}` };
+  if (typical >= 28 && typical <= 31) return { freq: "MONTHLY", interval: 1, byday: [code], label: `monthly on ${ICS_CODE_LABEL[code]}` };
+  return null;
+}
+
+// Returns a recurrence rule { freq, interval, byday[], label } or null for one-offs.
+function eventRecurrence(event) {
+  if (!event) return null;
+  const text = `${event.title || ""} ${event.desc || ""}`.toLowerCase();
+  // Monthly by position: "first friday", "every second saturday", "third tuesday".
+  const monthly = text.match(/\b(first|second|third|fourth|fifth|last)\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if (monthly) {
+    const ordinal = RECUR_ORDINALS[monthly[1]];
+    const code = RECUR_DAY_WORDS[monthly[2]];
+    if (ordinal && code) return { freq: "MONTHLY", interval: 1, byday: [`${ordinal}${code}`], label: `every ${RECUR_ORDINAL_LABEL[ordinal]} ${ICS_CODE_LABEL[code]}` };
+  }
+  // Explicit weekly cadence: "weekly", "every week", "every tuesday", "fridays".
+  const weeklySignal = /\b(weekly|every week|each week|recurring)\b/.test(text)
+    || /\bevery\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.test(text)
+    || /\b(sundays|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays)\b/.test(text);
+  if (weeklySignal) {
+    const codes = [];
+    Object.entries(RECUR_DAY_WORDS).forEach(([word, code]) => {
+      if (new RegExp(`\\b${word}s?\\b`).test(text) && !codes.includes(code)) codes.push(code);
+    });
+    if (!codes.length) { const code = weekdayCodeFromDate(event.startDate); if (code) codes.push(code); }
+    if (codes.length) {
+      codes.sort((a, b) => ICS_WEEKDAY_CODES.indexOf(a) - ICS_WEEKDAY_CODES.indexOf(b));
+      return { freq: "WEEKLY", interval: 1, byday: codes, label: weeklyRecurrenceLabel(codes) };
+    }
+  }
+  // Inherently recurring categories repeat weekly on their own weekday.
+  if (["happy-hours", "trivia-nights", "farmers-markets"].includes(String(event.cat || "").toLowerCase())) {
+    const code = weekdayCodeFromDate(event.startDate);
+    if (code) return { freq: "WEEKLY", interval: 1, byday: [code], label: `every ${ICS_CODE_LABEL[code]}` };
+  }
+  return inferRecurrenceFromOccurrences(event);
+}
+
 function isHighlighted(event) { return [4, 5].includes(event.id); }
 
 function eventNumericPrice(event) {
