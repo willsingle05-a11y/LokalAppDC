@@ -1,19 +1,74 @@
+// Inspirational lines that rotate on the welcome screen (CSS-animated).
+const ONBOARD_ROTATOR_LINES = ["The city is in motion.", "Find your people.", "Find your home in DC.", "Never miss the moment."];
+const ONBOARD_INTEREST_OPTIONS = ["Live music", "Concerts", "Nightlife", "Happy hours", "Trivia", "Museums", "Performing arts", "Comedy", "Sports", "Festivals", "Food & drink", "Markets", "Community", "Free events"];
+const ONBOARD_AREA_OPTIONS = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia", "Columbia Heights", "Petworth", "The Wharf", "Downtown"];
+
+function onboardProgressDots(active) {
+  return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
+}
+
+// Streamlined signup: an immersive, animated welcome, then three quick steps
+// (name -> contact -> interests & neighborhoods). Interests + neighborhoods feed
+// feed curation. Answers accumulate in state.signupDraft across steps.
 function renderOnboarding() {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const birthdayMax = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
-  const signupEventOptions = ["Live music", "Nightlife", "Museums", "Sports", "Comedy", "Restaurants", "Performing arts", "Festivals", "Free events", "Markets"];
-  const signupAreaOptions = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia"];
-  const steps = [
-    { type: "welcome", title: "Your city,<br>in motion.", text: "Find the things worth leaving the house for, and see what your friends are into." },
-    { type: "account", title: "Create your account.", text: "Pick what you like and where you want to explore. Lokal will use this to shape your feed." },
-    { type: "contacts", title: "Find your people.", text: "See what friends save, build groups, and make plans without starting a new group chat." }
-  ];
-  const s = steps[state.onboardStep];
-  const content = s.type === "welcome" ? `<div class="intro-art"><span>LOKAL</span></div><button class="wide-button" data-next>Get started</button>`
-    : s.type === "account" ? `<div class="account-fields"><input data-signup-full-name placeholder="Full name" aria-label="Full name" autocomplete="name"><input data-signup-email placeholder="Email" type="email" aria-label="Email" autocomplete="email"><input data-signup-phone placeholder="Phone number" type="tel" inputmode="numeric" maxlength="14" aria-label="Phone number" autocomplete="tel"><input data-signup-username placeholder="Public username" aria-label="Public username" autocomplete="username"><label class="birth-field">Birthday<input data-signup-birthdate type="date" max="${birthdayMax}" aria-label="Birthday" autocomplete="bday"></label><input data-signup-password placeholder="Create a password" type="password" aria-label="Create a password" autocomplete="new-password"><small>Birthday must be in the past and age 14+. Phone numbers use (xxx) xxx-xxxx format.</small></div><p class="settings-label">Event interests</p><div class="select-grid preference-grid compact-select-grid">${signupEventOptions.map(o => `<button class="select-tile" data-signup-interest="${o}">${o}</button>`).join("")}</div><p class="settings-label">Areas to explore</p><div class="select-grid preference-grid compact-select-grid">${signupAreaOptions.map(o => `<button class="select-tile" data-signup-area="${o}">${o}</button>`).join("")}</div><p class="account-error" data-account-error></p><button class="wide-button" data-create-account>Create account</button>`
-    : `<div class="contacts-art">${avatarStack(["AL","MR","DV","JS"])}</div><button class="wide-button" data-next>Sync contacts</button><button class="skip-button" data-next>Maybe later</button>`;
-  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">${state.onboardStep === 0 ? "WELCOME TO LOKAL" : `STEP ${state.onboardStep} OF ${steps.length - 1}`}</p><h1>${s.title}</h1><p class="lede">${s.text}</p>${content}</section></div>`);
+  state.signupDraft = state.signupDraft || {};
+  const d = state.signupDraft;
+  const step = state.onboardStep || 0;
+
+  if (step === 0) {
+    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-immersive">
+      <div class="welcome-bg"></div>
+      <div class="welcome-scrim"></div>
+      <div class="welcome-content">
+        <div class="welcome-top"><span class="welcome-brand">LOKAL</span><span class="welcome-place">Washington, DC</span></div>
+        <div class="welcome-message">
+          <p class="welcome-eyebrow">Welcome to your city</p>
+          <div class="welcome-rotator" aria-label="${escapeHtml(ONBOARD_ROTATOR_LINES.join(" "))}">${ONBOARD_ROTATOR_LINES.map(line => `<span>${escapeHtml(line)}</span>`).join("")}</div>
+          <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
+        </div>
+        <button class="welcome-cta" data-onboard-start>Join the Community</button>
+      </div>
+    </div>`);
+    return;
+  }
+
+  let inner = "";
+  if (step === 1) {
+    inner = `<h1 class="onboard-title">First, what's your name?</h1>
+      <p class="lede">So friends know it's really you.</p>
+      <div class="onboard-fields">
+        <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
+        <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-name>Continue</button>`;
+  } else if (step === 2) {
+    inner = `<h1 class="onboard-title">How can we reach you?</h1>
+      <p class="lede">Your email and number keep your saves and plans in sync.</p>
+      <div class="onboard-fields">
+        <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
+        <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="tel" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-contact>Continue</button>`;
+  } else {
+    const interests = new Set(d.interests || []);
+    const areas = new Set(d.areas || []);
+    inner = `<h1 class="onboard-title">What are you into?</h1>
+      <p class="lede">Pick a few — we'll tune your feed to match.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Neighborhoods you explore</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
+  }
+
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-steps">
+    <section class="onboard-card onboard-step-card">
+      <div class="onboard-head"><button class="onboard-back" data-onboard-back aria-label="Back">&#8249;</button>${onboardProgressDots(step)}</div>
+      ${inner}
+    </section>
+  </div>`);
 }
 
 function renderPhoneVerification() {

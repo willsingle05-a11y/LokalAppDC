@@ -173,7 +173,71 @@ document.addEventListener("click", async event => {
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
   if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }
   if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
-  if (t.dataset.signupInterest || t.dataset.signupArea) { mark(); t.classList.toggle("selected"); }
+  if (t.dataset.signupInterest || t.dataset.signupArea) {
+    mark();
+    t.classList.toggle("selected");
+    const draft = (state.signupDraft = state.signupDraft || {});
+    const key = t.dataset.signupInterest ? "interests" : "areas";
+    const value = t.dataset.signupInterest || t.dataset.signupArea;
+    const chosen = new Set(draft[key] || []);
+    chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+    draft[key] = [...chosen];
+  }
+  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = state.signupDraft || {}; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
+  if (t.dataset.onboardName !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const first = card.querySelector("[data-onboard-first]").value.trim();
+    const last = card.querySelector("[data-onboard-last]").value.trim();
+    if (!first || !last) { error.textContent = "Enter your first and last name."; return; }
+    state.signupDraft.firstName = first;
+    state.signupDraft.lastName = last;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 2;
+    renderOnboarding();
+  }
+  if (t.dataset.onboardContact !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const email = card.querySelector("[data-onboard-email]").value.trim();
+    const phone = card.querySelector("[data-onboard-phone]").value.trim();
+    try { validateSignupEmail(email); formatSignupPhone(phone); }
+    catch (contactError) { error.textContent = contactError.message; return; }
+    state.signupDraft.email = email;
+    state.signupDraft.phone = phone;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 3;
+    renderOnboarding();
+  }
+  if (t.dataset.onboardFinish !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const draft = state.signupDraft || {};
+    const eventInterests = draft.interests || [];
+    const areaInterests = draft.areas || [];
+    if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
+    const fullName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const username = ((draft.firstName || "lokal") + (draft.lastName || "")).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    finalizeLokalProfile({
+      fullName,
+      email: draft.email,
+      phone: formatSignupPhone(draft.phone),
+      username,
+      birthdate: "2000-01-01",
+      eventInterests,
+      areaInterests
+    });
+    localStorage.setItem("lokalAccountCreated", "true");
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 0;
+    renderHome();
+    toast("Welcome to Lokal");
+    showDiscoverHint();
+  }
   if (t.dataset.createAccount !== undefined) {
     mark();
     const card = t.closest(".onboard-card");
