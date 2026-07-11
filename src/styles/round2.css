@@ -6,6 +6,8 @@ body { font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, A
 .header-icon { color: var(--blue); }
 .header-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
 .header-icon i { position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--steel); }
+#profile-shortcut { grid-auto-flow: column; grid-template-columns: auto minmax(0, max-content); gap: 7px; max-width: 174px; }
+#profile-shortcut .account-label { overflow: hidden; max-width: 118px; color: var(--ink); font-size: 11px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
 .following-chip { flex-basis: 190px; min-height: 186px; align-content: center; gap: 10px; }
 .following-chip .group-icon { width: 88px; height: 88px; border: 4px solid var(--steel-soft); border-radius: 50%; font-size: 30px; }
 .following-chip b { font-size: 14px; }.following-chip small { font-size: 9px; }
@@ -1236,6 +1238,8 @@ h1, h2, h3, .brand b { color: #326f91; }
 .venue-owner-row small { color: var(--muted); font-size: 11px; font-weight: 800; }
 .venue-owner-dismiss { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255,255,255,.82); color: var(--muted); font-size: 18px; font-weight: 900; line-height: 1; }
 .venue-owner-dismiss:active { transform: translateY(1px); }
+.welcome-choice-row { display: grid; gap: 10px; width: min(100%, 320px); }
+.welcome-cta.secondary { background: rgba(255,255,255,.92); color: #0f172a; }
 .venue-form-sheet textarea,
 .venue-form-sheet select { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; }
 .venue-form-sheet textarea { min-height: 96px; padding: 12px; resize: vertical; }

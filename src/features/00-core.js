@@ -52,6 +52,23 @@ state.whatFilter = new Set();
 state.whereFilter = new Set();
 state.whenFilter = new Set();
 
+function accountVenueName() {
+  const approved = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] : "";
+  return approved || state.profile?.venueName || "";
+}
+
+function isVenueAccount() {
+  return Boolean(accountVenueName() || state.profile?.accountType === "venue");
+}
+
+function currentAccountDisplayName() {
+  return isVenueAccount() ? accountVenueName() || state.profile.fullName : state.profile.fullName;
+}
+
+function currentAccountInitials() {
+  return profileInitials(currentAccountDisplayName());
+}
+
 // Record a save/RSVP by the event's stable source id and persist it.
 function setPlanSource(kind, id, on) {
   const event = events.find(item => item.id === Number(id));

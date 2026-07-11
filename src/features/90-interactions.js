@@ -256,8 +256,23 @@ document.addEventListener("click", async event => {
     chosen.has(value) ? chosen.delete(value) : chosen.add(value);
     draft[key] = [...chosen];
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = state.signupDraft || {}; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { ...(state.signupDraft || {}), accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
+  if (t.dataset.onboardVenue !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const venueName = card.querySelector("[data-onboard-venue-name]").value.trim();
+    const venueAddress = card.querySelector("[data-onboard-venue-address]").value.trim();
+    const website = card.querySelector("[data-onboard-venue-website]").value.trim();
+    if (!venueName || !venueAddress) { error.textContent = "Enter the venue name and address."; return; }
+    state.signupDraft.venueName = venueName;
+    state.signupDraft.venueAddress = venueAddress;
+    state.signupDraft.website = website;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 2;
+    renderOnboarding();
+  }
   if (t.dataset.onboardName !== undefined) {
     mark();
     const card = t.closest(".onboard-card");
@@ -293,8 +308,9 @@ document.addEventListener("click", async event => {
     const eventInterests = draft.interests || [];
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
-    const fullName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
-    const username = ((draft.firstName || "lokal") + (draft.lastName || "")).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const isVenue = draft.accountType === "venue";
+    const fullName = isVenue ? draft.venueName : `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
     finalizeLokalProfile({
       fullName,
       email: draft.email,
@@ -302,14 +318,31 @@ document.addEventListener("click", async event => {
       username,
       birthdate: "2000-01-01",
       eventInterests,
-      areaInterests
+      areaInterests,
+      accountType: isVenue ? "venue" : "person",
+      venueName: isVenue ? draft.venueName : "",
+      venueAddress: isVenue ? draft.venueAddress : "",
+      venueWebsite: isVenue ? draft.website : ""
     });
+    if (isVenue) {
+      try {
+        await submitVenueVerificationRequest({
+          venueName: draft.venueName,
+          venueAddress: draft.venueAddress,
+          website: draft.website,
+          role: "Venue owner or manager",
+          email: draft.email,
+          phone: draft.phone,
+          notes: "Submitted during venue onboarding."
+        });
+      } catch {}
+    }
     localStorage.setItem("lokalAccountCreated", "true");
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
-    renderHome();
-    toast("Welcome to Lokal");
-    showDiscoverHint();
+    isVenue ? renderProfile() : renderHome();
+    toast(isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal");
+    if (!isVenue) showDiscoverHint();
   }
   if (t.dataset.createAccount !== undefined) {
     mark();
@@ -522,6 +555,7 @@ if (startupParams.has("bypassSignup")) {
   history.replaceState(null, "", location.pathname);
 }
 setRoute("home");
+updateProfileShortcut();
 if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
 syncSupabaseEvents();
 syncSupabaseProfiles();

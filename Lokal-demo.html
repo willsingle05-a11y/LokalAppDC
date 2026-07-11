@@ -506,6 +506,8 @@ body { font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, A
 .header-icon { color: var(--blue); }
 .header-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
 .header-icon i { position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--steel); }
+#profile-shortcut { grid-auto-flow: column; grid-template-columns: auto minmax(0, max-content); gap: 7px; max-width: 174px; }
+#profile-shortcut .account-label { overflow: hidden; max-width: 118px; color: var(--ink); font-size: 11px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
 .following-chip { flex-basis: 190px; min-height: 186px; align-content: center; gap: 10px; }
 .following-chip .group-icon { width: 88px; height: 88px; border: 4px solid var(--steel-soft); border-radius: 50%; font-size: 30px; }
 .following-chip b { font-size: 14px; }.following-chip small { font-size: 9px; }
@@ -1736,6 +1738,8 @@ h1, h2, h3, .brand b { color: #326f91; }
 .venue-owner-row small { color: var(--muted); font-size: 11px; font-weight: 800; }
 .venue-owner-dismiss { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255,255,255,.82); color: var(--muted); font-size: 18px; font-weight: 900; line-height: 1; }
 .venue-owner-dismiss:active { transform: translateY(1px); }
+.welcome-choice-row { display: grid; gap: 10px; width: min(100%, 320px); }
+.welcome-cta.secondary { background: rgba(255,255,255,.92); color: #0f172a; }
 .venue-form-sheet textarea,
 .venue-form-sheet select { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; }
 .venue-form-sheet textarea { min-height: 96px; padding: 12px; resize: vertical; }
@@ -3328,6 +3332,23 @@ state.whatFilter = new Set();
 state.whereFilter = new Set();
 state.whenFilter = new Set();
 
+function accountVenueName() {
+  const approved = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] : "";
+  return approved || state.profile?.venueName || "";
+}
+
+function isVenueAccount() {
+  return Boolean(accountVenueName() || state.profile?.accountType === "venue");
+}
+
+function currentAccountDisplayName() {
+  return isVenueAccount() ? accountVenueName() || state.profile.fullName : state.profile.fullName;
+}
+
+function currentAccountInitials() {
+  return profileInitials(currentAccountDisplayName());
+}
+
 // Record a save/RSVP by the event's stable source id and persist it.
 function setPlanSource(kind, id, on) {
   const event = events.find(item => item.id === Number(id));
@@ -4373,6 +4394,7 @@ async function syncVenueVerificationStatus() {
     state.verifiedVenueNames = names;
     localStorage.setItem("lokalVerifiedVenues", JSON.stringify(Array.from(state.verifiedVenues)));
     localStorage.setItem("lokalVerifiedVenueNames", JSON.stringify(state.verifiedVenueNames));
+    updateProfileShortcut();
   } catch {}
 }
 
@@ -5059,7 +5081,9 @@ function profileInitials(fullName) {
 
 function updateProfileShortcut() {
   const shortcut = document.querySelector("#profile-shortcut .avatar");
-  if (shortcut) shortcut.textContent = state.profile.initials;
+  const label = document.querySelector("#profile-shortcut .account-label");
+  if (shortcut) shortcut.textContent = currentAccountInitials();
+  if (label) label.textContent = currentAccountDisplayName().split(/\s+/).slice(0, 3).join(" ");
 }
 
 function finalizeLokalProfile(profile) {
@@ -5071,6 +5095,10 @@ function finalizeLokalProfile(profile) {
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
     areas: profile.areaInterests || [],
+    accountType: profile.accountType || "person",
+    venueName: profile.venueName || "",
+    venueAddress: profile.venueAddress || "",
+    venueWebsite: profile.venueWebsite || "",
     lokalScore: 100
   };
   state.profile = saved;
@@ -6630,7 +6658,7 @@ function hasApprovedVenueProfile() {
 }
 
 function hostedEventsForVenue() {
-  const name = approvedVenueProfileName();
+  const name = accountVenueName();
   if (!name) return [];
   return displayableDcEvents().filter(event => venueEventMatch(event, name)).sort(sortEventsByStart);
 }
@@ -6718,8 +6746,8 @@ function venueVerificationPanel() {
 }
 
 function renderProfile() {
-  const isVenueProfile = hasApprovedVenueProfile();
-  const venueName = approvedVenueProfileName();
+  const isVenueProfile = isVenueAccount();
+  const venueName = accountVenueName() || currentAccountDisplayName();
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -6727,7 +6755,7 @@ function renderProfile() {
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(isVenueProfile ? venueName.slice(0, 2).toUpperCase() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? "Verified venue account" : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? (hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending") : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(isVenueProfile ? "Manage venue posts, review upcoming hosted events, and track what Lokal users are engaging with." : state.bio)}</p>
     ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
@@ -7237,14 +7265,27 @@ function renderOnboarding() {
           <div class="welcome-rotator" aria-label="${escapeHtml(ONBOARD_ROTATOR_LINES.join(" "))}">${ONBOARD_ROTATOR_LINES.map(line => `<span>${escapeHtml(line)}</span>`).join("")}</div>
           <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
         </div>
-        <button class="welcome-cta" data-onboard-start>Join the Community</button>
+        <div class="welcome-choice-row">
+          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a person</button>
+          <button class="welcome-cta secondary" data-onboard-start data-account-type="venue">Join as a venue</button>
+        </div>
       </div>
     </div>`);
     return;
   }
 
   let inner = "";
-  if (step === 1) {
+  if (step === 1 && d.accountType === "venue") {
+    inner = `<h1 class="onboard-title">Tell us about your venue.</h1>
+      <p class="lede">This starts your venue profile and sends verification to Lokal for review.</p>
+      <div class="onboard-fields">
+        <label class="float-field"><span>Venue name</span><input data-onboard-venue-name value="${escapeHtml(d.venueName || "")}" autocomplete="organization" placeholder="Dacha Beer Garden"></label>
+        <label class="float-field"><span>Venue address</span><input data-onboard-venue-address value="${escapeHtml(d.venueAddress || "")}" autocomplete="street-address" placeholder="1600 7th St NW"></label>
+        <label class="float-field"><span>Website</span><input data-onboard-venue-website type="url" value="${escapeHtml(d.website || "")}" placeholder="https://..."></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-venue>Continue</button>`;
+  } else if (step === 1) {
     inner = `<h1 class="onboard-title">First, what's your name?</h1>
       <p class="lede">So friends know it's really you.</p>
       <div class="onboard-fields">
@@ -7262,6 +7303,16 @@ function renderOnboarding() {
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-contact>Continue</button>`;
+  } else if (d.accountType === "venue") {
+    const interests = new Set(d.interests || []);
+    const areas = new Set(d.areas || []);
+    inner = `<h1 class="onboard-title">What do you host?</h1>
+      <p class="lede">Choose the event types and neighborhood that fit your venue.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Venue neighborhood</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;
   } else {
     const interests = new Set(d.interests || []);
     const areas = new Set(d.areas || []);
@@ -7582,8 +7633,23 @@ document.addEventListener("click", async event => {
     chosen.has(value) ? chosen.delete(value) : chosen.add(value);
     draft[key] = [...chosen];
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = state.signupDraft || {}; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { ...(state.signupDraft || {}), accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
+  if (t.dataset.onboardVenue !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const venueName = card.querySelector("[data-onboard-venue-name]").value.trim();
+    const venueAddress = card.querySelector("[data-onboard-venue-address]").value.trim();
+    const website = card.querySelector("[data-onboard-venue-website]").value.trim();
+    if (!venueName || !venueAddress) { error.textContent = "Enter the venue name and address."; return; }
+    state.signupDraft.venueName = venueName;
+    state.signupDraft.venueAddress = venueAddress;
+    state.signupDraft.website = website;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 2;
+    renderOnboarding();
+  }
   if (t.dataset.onboardName !== undefined) {
     mark();
     const card = t.closest(".onboard-card");
@@ -7619,8 +7685,9 @@ document.addEventListener("click", async event => {
     const eventInterests = draft.interests || [];
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
-    const fullName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
-    const username = ((draft.firstName || "lokal") + (draft.lastName || "")).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const isVenue = draft.accountType === "venue";
+    const fullName = isVenue ? draft.venueName : `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
     finalizeLokalProfile({
       fullName,
       email: draft.email,
@@ -7628,14 +7695,31 @@ document.addEventListener("click", async event => {
       username,
       birthdate: "2000-01-01",
       eventInterests,
-      areaInterests
+      areaInterests,
+      accountType: isVenue ? "venue" : "person",
+      venueName: isVenue ? draft.venueName : "",
+      venueAddress: isVenue ? draft.venueAddress : "",
+      venueWebsite: isVenue ? draft.website : ""
     });
+    if (isVenue) {
+      try {
+        await submitVenueVerificationRequest({
+          venueName: draft.venueName,
+          venueAddress: draft.venueAddress,
+          website: draft.website,
+          role: "Venue owner or manager",
+          email: draft.email,
+          phone: draft.phone,
+          notes: "Submitted during venue onboarding."
+        });
+      } catch {}
+    }
     localStorage.setItem("lokalAccountCreated", "true");
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
-    renderHome();
-    toast("Welcome to Lokal");
-    showDiscoverHint();
+    isVenue ? renderProfile() : renderHome();
+    toast(isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal");
+    if (!isVenue) showDiscoverHint();
   }
   if (t.dataset.createAccount !== undefined) {
     mark();
@@ -7848,6 +7932,7 @@ if (startupParams.has("bypassSignup")) {
   history.replaceState(null, "", location.pathname);
 }
 setRoute("home");
+updateProfileShortcut();
 if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
 syncSupabaseEvents();
 syncSupabaseProfiles();

@@ -246,6 +246,7 @@ async function syncVenueVerificationStatus() {
     state.verifiedVenueNames = names;
     localStorage.setItem("lokalVerifiedVenues", JSON.stringify(Array.from(state.verifiedVenues)));
     localStorage.setItem("lokalVerifiedVenueNames", JSON.stringify(state.verifiedVenueNames));
+    updateProfileShortcut();
   } catch {}
 }
 
@@ -932,7 +933,9 @@ function profileInitials(fullName) {
 
 function updateProfileShortcut() {
   const shortcut = document.querySelector("#profile-shortcut .avatar");
-  if (shortcut) shortcut.textContent = state.profile.initials;
+  const label = document.querySelector("#profile-shortcut .account-label");
+  if (shortcut) shortcut.textContent = currentAccountInitials();
+  if (label) label.textContent = currentAccountDisplayName().split(/\s+/).slice(0, 3).join(" ");
 }
 
 function finalizeLokalProfile(profile) {
@@ -944,6 +947,10 @@ function finalizeLokalProfile(profile) {
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
     areas: profile.areaInterests || [],
+    accountType: profile.accountType || "person",
+    venueName: profile.venueName || "",
+    venueAddress: profile.venueAddress || "",
+    venueWebsite: profile.venueWebsite || "",
     lokalScore: 100
   };
   state.profile = saved;

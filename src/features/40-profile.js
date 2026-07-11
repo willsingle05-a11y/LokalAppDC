@@ -79,7 +79,7 @@ function hasApprovedVenueProfile() {
 }
 
 function hostedEventsForVenue() {
-  const name = approvedVenueProfileName();
+  const name = accountVenueName();
   if (!name) return [];
   return displayableDcEvents().filter(event => venueEventMatch(event, name)).sort(sortEventsByStart);
 }
@@ -167,8 +167,8 @@ function venueVerificationPanel() {
 }
 
 function renderProfile() {
-  const isVenueProfile = hasApprovedVenueProfile();
-  const venueName = approvedVenueProfileName();
+  const isVenueProfile = isVenueAccount();
+  const venueName = accountVenueName() || currentAccountDisplayName();
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -176,7 +176,7 @@ function renderProfile() {
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(isVenueProfile ? venueName.slice(0, 2).toUpperCase() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? "Verified venue account" : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? (hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending") : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(isVenueProfile ? "Manage venue posts, review upcoming hosted events, and track what Lokal users are engaging with." : state.bio)}</p>
     ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
