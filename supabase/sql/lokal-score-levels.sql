@@ -9,21 +9,21 @@ create table if not exists public.lokal_score_levels (
 
 insert into public.lokal_score_levels (level_order, name, min_score, next_score)
 values
-  (1, 'New in Town', 0, 100),
-  (2, 'Explorer', 100, 175),
-  (3, 'District Scout', 175, 250),
-  (4, 'Neighborhood Regular', 250, 350),
-  (5, 'Plan Maker', 350, 475),
-  (6, 'Ward Wanderer', 475, 625),
-  (7, 'Metro Connector', 625, 800),
-  (8, 'District Insider', 800, 1000),
-  (9, 'Downtown Regular', 1000, 1250),
-  (10, 'Capital Connector', 1250, 1550),
-  (11, 'DC Tastemaker', 1550, 1900),
-  (12, 'Certified Lokal', 1900, 2300),
-  (13, 'District Icon', 2300, 2800),
-  (14, 'Lokal Legend', 2800, 3500),
-  (15, 'DC Hall of Fame', 3500, null)
+  (1, 'New in Town', 0, 200),
+  (2, 'Explorer', 200, 275),
+  (3, 'District Scout', 275, 350),
+  (4, 'Neighborhood Regular', 350, 450),
+  (5, 'Plan Maker', 450, 575),
+  (6, 'Ward Wanderer', 575, 725),
+  (7, 'Metro Connector', 725, 900),
+  (8, 'District Insider', 900, 1100),
+  (9, 'Downtown Regular', 1100, 1350),
+  (10, 'Capital Connector', 1350, 1650),
+  (11, 'DC Tastemaker', 1650, 2000),
+  (12, 'Certified Lokal', 2000, 2400),
+  (13, 'District Icon', 2400, 2900),
+  (14, 'Lokal Legend', 2900, 3600),
+  (15, 'DC Hall of Fame', 3600, null)
 on conflict (level_order) do update
 set name = excluded.name,
     min_score = excluded.min_score,

@@ -2926,6 +2926,280 @@ h3 { font-weight: 800; }
 .venue-event-row:hover {
   background: rgba(8, 217, 154, .12);
 }
+
+/* ===== Onboarding: immersive welcome + animated steps ===== */
+/* Step 0 â€” full-bleed Capitol photo, animated rotating message, single CTA. */
+.onboard-immersive {
+  padding: 0;
+  align-items: stretch;
+  justify-items: stretch;
+  overflow: hidden;
+  background: #0a1712;
+}
+.welcome-bg {
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  background-image: url("https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=1400&q=80&auto=format&fit=crop");
+  background-position: center 38%;
+  background-size: cover;
+  transform: scale(1.08);
+  animation: welcomeKen 26s ease-in-out infinite alternate;
+}
+.welcome-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 80% at 50% 8%, rgba(8, 217, 154, .18), transparent 60%),
+    linear-gradient(180deg, rgba(6, 16, 12, .30) 0%, rgba(6, 16, 12, .58) 46%, rgba(5, 12, 9, .96) 100%);
+  pointer-events: none;
+}
+.welcome-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: max(30px, env(safe-area-inset-top)) 26px max(34px, env(safe-area-inset-bottom));
+  color: #fff;
+}
+.welcome-top {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  animation: riseIn .7s ease-out both;
+}
+.welcome-brand {
+  font-family: var(--display, "Aptos Display", sans-serif);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .22em;
+}
+.welcome-place {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .72);
+}
+.welcome-message {
+  margin-top: auto;
+  margin-bottom: 26px;
+}
+.welcome-eyebrow {
+  margin-bottom: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent, #08D99A);
+  animation: riseIn .8s ease-out .1s both;
+}
+/* Rotating headline: lines stack, each fades/rises in turn on a shared loop. */
+.welcome-rotator {
+  position: relative;
+  min-height: 2.1em;
+  font-family: var(--display, "Aptos Display", sans-serif);
+  font-size: clamp(30px, 9vw, 42px);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -.01em;
+}
+.welcome-rotator span {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(6px);
+  animation: welcomeRotate 13s cubic-bezier(.2, .8, .2, 1) infinite;
+}
+.welcome-rotator span:nth-child(1) { animation-delay: 0s; }
+.welcome-rotator span:nth-child(2) { animation-delay: 3.25s; }
+.welcome-rotator span:nth-child(3) { animation-delay: 6.5s; }
+.welcome-rotator span:nth-child(4) { animation-delay: 9.75s; }
+.welcome-tagline {
+  margin-top: 18px;
+  max-width: 22em;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, .82);
+  animation: riseIn .9s ease-out .2s both;
+}
+.welcome-cta {
+  width: 100%;
+  padding: 17px;
+  border-radius: 16px;
+  color: #06140d;
+  background: var(--accent, #08D99A);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .01em;
+  box-shadow: 0 14px 34px rgba(8, 217, 154, .34);
+  animation: riseIn 1s ease-out .34s both, ctaBreath 3.4s ease-in-out 1.4s infinite;
+}
+.welcome-cta:hover { background: #0ceaa8; }
+.welcome-cta:active { transform: translateY(1px); }
+
+@keyframes welcomeKen {
+  from { transform: scale(1.08) translate(0, 0); }
+  to   { transform: scale(1.16) translate(-1.5%, -2%); }
+}
+@keyframes welcomeRotate {
+  0%    { opacity: 0; transform: translateY(16px); filter: blur(6px); }
+  6%    { opacity: 1; transform: translateY(0); filter: blur(0); }
+  22%   { opacity: 1; transform: translateY(0); filter: blur(0); }
+  28%   { opacity: 0; transform: translateY(-14px); filter: blur(6px); }
+  100%  { opacity: 0; transform: translateY(-14px); filter: blur(6px); }
+}
+@keyframes ctaBreath {
+  0%, 100% { box-shadow: 0 14px 34px rgba(8, 217, 154, .34); }
+  50%      { box-shadow: 0 16px 44px rgba(8, 217, 154, .55); }
+}
+
+/* Steps 1â€“3 â€” clean cards that slide in, floating labels, staggered tiles. */
+.onboard-steps { align-items: start; }
+.onboard-step-card {
+  width: min(100%, 560px);
+  animation: onboardSlide .42s cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes onboardSlide {
+  from { opacity: 0; transform: translateX(22px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.onboard-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.onboard-back {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line, rgba(23, 28, 26, .14));
+  border-radius: 12px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--ink-green, #171C1A);
+  background: var(--paper, #fff);
+}
+.onboard-back:hover { background: rgba(8, 217, 154, .1); }
+.onboard-progress {
+  display: flex;
+  gap: 7px;
+}
+.onboard-progress span {
+  width: 26px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(23, 28, 26, .13);
+  transition: background .3s ease, width .3s ease;
+}
+.onboard-progress span.on {
+  width: 34px;
+  background: var(--accent, #08D99A);
+}
+.onboard-title {
+  margin-bottom: 6px;
+  font-family: var(--display, "Aptos Display", sans-serif);
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  animation: riseIn .5s ease-out both;
+}
+.onboard-steps .lede { animation: riseIn .55s ease-out .05s both; }
+.onboard-fields {
+  display: grid;
+  gap: 14px;
+  margin: 22px 0 8px;
+}
+.float-field {
+  display: grid;
+  gap: 7px;
+  animation: riseIn .5s ease-out both;
+}
+.float-field:nth-of-type(2) { animation-delay: .07s; }
+.float-field > span {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted, #5c6b64);
+}
+.float-field input {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid var(--line, rgba(23, 28, 26, .16));
+  border-radius: 14px;
+  background: var(--paper, #fff);
+  font-size: 16px;
+  font-weight: 600;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.float-field input:focus {
+  outline: none;
+  border-color: var(--accent, #08D99A);
+  box-shadow: 0 0 0 3px rgba(8, 217, 154, .18);
+}
+.onboard-tiles .select-tile {
+  text-align: center;
+  animation: riseIn .5s ease-out both;
+}
+.onboard-tiles .select-tile:nth-child(1) { animation-delay: .02s; }
+.onboard-tiles .select-tile:nth-child(2) { animation-delay: .05s; }
+.onboard-tiles .select-tile:nth-child(3) { animation-delay: .08s; }
+.onboard-tiles .select-tile:nth-child(4) { animation-delay: .11s; }
+.onboard-tiles .select-tile:nth-child(5) { animation-delay: .14s; }
+.onboard-tiles .select-tile:nth-child(6) { animation-delay: .17s; }
+.onboard-tiles .select-tile:nth-child(n+7) { animation-delay: .2s; }
+.onboard-steps .select-tile.selected {
+  border-color: var(--accent, #08D99A);
+  color: #06140d;
+  background: var(--accent, #08D99A);
+}
+.onboard-steps .settings-label { margin-top: 4px; }
+.onboard-steps .wide-button {
+  margin-top: 20px;
+  border-radius: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-bg,
+  .welcome-cta,
+  .onboard-step-card,
+  .welcome-rotator span,
+  .onboard-title,
+  .float-field,
+  .onboard-tiles .select-tile { animation: none; }
+  .welcome-rotator span:nth-child(1) { opacity: 1; transform: none; filter: none; }
+  .welcome-rotator span:nth-child(n+2) { display: none; }
+}
+
+/* "Add to calendar" button on recurring events (event detail modal). */
+.calendar-recur-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid var(--accent, #08D99A);
+  background: rgba(8, 217, 154, .12);
+  color: var(--ink-green, #171C1A);
+  font-weight: 700;
+}
+.calendar-recur-button .cal-ic {
+  display: inline-flex;
+  color: var(--accent, #08D99A);
+}
+.calendar-recur-button .cal-ic svg {
+  width: 17px;
+  height: 17px;
+}
+.calendar-recur-button:hover { background: rgba(8, 217, 154, .18); }
     </style>
   </head>
   <body>
@@ -3564,6 +3838,77 @@ function occurrencesForEvent(event) {
   return events
     .filter(item => eventDedupeKey(item) === key)
     .sort(sortEventsByStart);
+}
+
+// --- Recurring-event detection (drives the "add to calendar weekly" button) ---
+const ICS_WEEKDAY_CODES = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+const ICS_CODE_LABEL = { SU: "Sunday", MO: "Monday", TU: "Tuesday", WE: "Wednesday", TH: "Thursday", FR: "Friday", SA: "Saturday" };
+const RECUR_DAY_WORDS = { sunday: "SU", monday: "MO", tuesday: "TU", wednesday: "WE", thursday: "TH", friday: "FR", saturday: "SA" };
+const RECUR_ORDINALS = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, last: -1 };
+const RECUR_ORDINAL_LABEL = { 1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th", "-1": "last" };
+
+function weekdayCodeFromDate(dateStr) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr || ""))) return null;
+  const date = new Date(`${dateStr}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : ICS_WEEKDAY_CODES[date.getDay()];
+}
+
+function weeklyRecurrenceLabel(codes) {
+  const names = codes.map(code => ICS_CODE_LABEL[code]);
+  return names.length === 1 ? `every ${names[0]}` : `every ${names.join(" & ")}`;
+}
+
+// Infer cadence from the gap between a series' occurrences (e.g. the wharf
+// "Grooves in the Grove" rows or "Music in the Circle" every Saturday).
+function inferRecurrenceFromOccurrences(event) {
+  const times = occurrencesForEvent(event)
+    .map(item => (/^\d{4}-\d{2}-\d{2}$/.test(String(item.startDate || "")) ? new Date(`${item.startDate}T00:00:00`).getTime() : NaN))
+    .filter(value => !Number.isNaN(value))
+    .sort((a, b) => a - b);
+  if (times.length < 2) return null;
+  const gaps = [];
+  for (let i = 1; i < times.length; i++) gaps.push(Math.round((times[i] - times[i - 1]) / 86400000));
+  const typical = gaps.slice().sort((a, b) => a - b)[Math.floor(gaps.length / 2)];
+  const code = weekdayCodeFromDate(event.startDate);
+  if (!code) return null;
+  if (typical === 7) return { freq: "WEEKLY", interval: 1, byday: [code], label: `every ${ICS_CODE_LABEL[code]}` };
+  if (typical === 14) return { freq: "WEEKLY", interval: 2, byday: [code], label: `every other ${ICS_CODE_LABEL[code]}` };
+  if (typical >= 28 && typical <= 31) return { freq: "MONTHLY", interval: 1, byday: [code], label: `monthly on ${ICS_CODE_LABEL[code]}` };
+  return null;
+}
+
+// Returns a recurrence rule { freq, interval, byday[], label } or null for one-offs.
+function eventRecurrence(event) {
+  if (!event) return null;
+  const text = `${event.title || ""} ${event.desc || ""}`.toLowerCase();
+  // Monthly by position: "first friday", "every second saturday", "third tuesday".
+  const monthly = text.match(/\b(first|second|third|fourth|fifth|last)\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if (monthly) {
+    const ordinal = RECUR_ORDINALS[monthly[1]];
+    const code = RECUR_DAY_WORDS[monthly[2]];
+    if (ordinal && code) return { freq: "MONTHLY", interval: 1, byday: [`${ordinal}${code}`], label: `every ${RECUR_ORDINAL_LABEL[ordinal]} ${ICS_CODE_LABEL[code]}` };
+  }
+  // Explicit weekly cadence: "weekly", "every week", "every tuesday", "fridays".
+  const weeklySignal = /\b(weekly|every week|each week|recurring)\b/.test(text)
+    || /\bevery\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.test(text)
+    || /\b(sundays|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays)\b/.test(text);
+  if (weeklySignal) {
+    const codes = [];
+    Object.entries(RECUR_DAY_WORDS).forEach(([word, code]) => {
+      if (new RegExp(`\\b${word}s?\\b`).test(text) && !codes.includes(code)) codes.push(code);
+    });
+    if (!codes.length) { const code = weekdayCodeFromDate(event.startDate); if (code) codes.push(code); }
+    if (codes.length) {
+      codes.sort((a, b) => ICS_WEEKDAY_CODES.indexOf(a) - ICS_WEEKDAY_CODES.indexOf(b));
+      return { freq: "WEEKLY", interval: 1, byday: codes, label: weeklyRecurrenceLabel(codes) };
+    }
+  }
+  // Inherently recurring categories repeat weekly on their own weekday.
+  if (["happy-hours", "trivia-nights", "farmers-markets"].includes(String(event.cat || "").toLowerCase())) {
+    const code = weekdayCodeFromDate(event.startDate);
+    if (code) return { freq: "WEEKLY", interval: 1, byday: [code], label: `every ${ICS_CODE_LABEL[code]}` };
+  }
+  return inferRecurrenceFromOccurrences(event);
 }
 
 function isHighlighted(event) { return [4, 5].includes(event.id); }
@@ -4444,6 +4789,28 @@ function normalizeSupabaseEvent(row, index) {
   };
 }
 
+// PostgREST caps every response at 1000 rows regardless of the requested limit,
+// so a single fetch silently drops most of an over-subscribed discovery window
+// (thousands of daily happy-hour/trivia/music rows push later-dated events past
+// the cap). Page through with offset until a short page signals the end. A stable
+// id tiebreaker keeps slices from overlapping or skipping across pages.
+async function fetchSupabaseEventPages(query) {
+  const pageSize = 1000;
+  const order = "starts_at.asc.nullslast,date.asc.nullslast,id.asc";
+  const rows = [];
+  for (let offset = 0; offset < 20000; offset += pageSize) {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=${order}&limit=${pageSize}&offset=${offset}`, {
+      cache: "no-store",
+      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    const page = await response.json();
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows;
+}
+
 async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   state.eventsLoadTimedOut = false;
@@ -4456,13 +4823,7 @@ async function syncSupabaseEvents(showToast = false) {
   if (state.route === "home") renderHome();
   await syncSupabaseVenueImages();
   try {
-    const responses = await Promise.all(discoveryWindowQueries().map(query => fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
-      cache: "no-store",
-      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
-    })));
-    const failedResponse = responses.find(response => !response.ok);
-    if (failedResponse) throw new Error(`Supabase returned ${failedResponse.status}`);
-    const rowSets = await Promise.all(responses.map(response => response.json()));
+    const rowSets = await Promise.all(discoveryWindowQueries().map(fetchSupabaseEventPages));
     const rows = [...new Map(rowSets.flat().map(row => [row.id, row])).values()];
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
@@ -4600,7 +4961,7 @@ function finalizeLokalProfile(profile) {
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
     areas: profile.areaInterests || [],
-    lokalScore: 20
+    lokalScore: 100
   };
   state.profile = saved;
   state.age = saved.age;
@@ -4658,7 +5019,7 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
       event_interests: profile.eventInterests,
       area_interests: profile.areaInterests,
       home_city: "Washington, DC",
-      lokal_score: 20,
+      lokal_score: 100,
       is_demo: false
     }])
   });
@@ -4688,7 +5049,7 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       email,
       event_interests: eventInterests,
       area_interests: areaInterests,
-      lokal_score: 20
+      lokal_score: 100
     }
   });
   if (data.access_token) {
@@ -6035,21 +6396,21 @@ function openFriend(name) {
 
 
 const LOKAL_SCORE_LEVELS = [
-  { name: "New in Town", min: 0, next: 100 },
-  { name: "Explorer", min: 100, next: 175 },
-  { name: "District Scout", min: 175, next: 250 },
-  { name: "Neighborhood Regular", min: 250, next: 350 },
-  { name: "Plan Maker", min: 350, next: 475 },
-  { name: "Ward Wanderer", min: 475, next: 625 },
-  { name: "Metro Connector", min: 625, next: 800 },
-  { name: "District Insider", min: 800, next: 1000 },
-  { name: "Downtown Regular", min: 1000, next: 1250 },
-  { name: "Capital Connector", min: 1250, next: 1550 },
-  { name: "DC Tastemaker", min: 1550, next: 1900 },
-  { name: "Certified Lokal", min: 1900, next: 2300 },
-  { name: "District Icon", min: 2300, next: 2800 },
-  { name: "Lokal Legend", min: 2800, next: 3500 },
-  { name: "DC Hall of Fame", min: 3500, next: null }
+  { name: "New in Town", min: 0, next: 200 },
+  { name: "Explorer", min: 200, next: 275 },
+  { name: "District Scout", min: 275, next: 350 },
+  { name: "Neighborhood Regular", min: 350, next: 450 },
+  { name: "Plan Maker", min: 450, next: 575 },
+  { name: "Ward Wanderer", min: 575, next: 725 },
+  { name: "Metro Connector", min: 725, next: 900 },
+  { name: "District Insider", min: 900, next: 1100 },
+  { name: "Downtown Regular", min: 1100, next: 1350 },
+  { name: "Capital Connector", min: 1350, next: 1650 },
+  { name: "DC Tastemaker", min: 1650, next: 2000 },
+  { name: "Certified Lokal", min: 2000, next: 2400 },
+  { name: "District Icon", min: 2400, next: 2900 },
+  { name: "Lokal Legend", min: 2900, next: 3600 },
+  { name: "DC Hall of Fame", min: 3600, next: null }
 ];
 
 function scoreLevel(score) {
@@ -6197,7 +6558,7 @@ function scoreBreakdown() {
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
   const savedOnlyCount = Array.from(state.saved || []).filter(id => !state.rsvps.has(id) && !state.removedPlans?.has(id)).length;
   const breakdown = [
-    { label: "Joined Lokal", value: 20, detail: "20 points for creating a profile and joining Lokal." },
+    { label: "New in Town", value: 100, detail: "100 starting points for creating a profile and joining Lokal." },
     { label: "Verified attendance", value: receipts.length * 15, detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - no lifetime cap.` },
     { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
     { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
@@ -6428,6 +6789,7 @@ function openDetail(id) {
   const occurrencesBlock = otherOccurrences.length
     ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
     : "";
+  const recurrence = eventRecurrence(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
     ? `<button class="primary" data-share="${e.id}">Share event</button>`
@@ -6448,6 +6810,7 @@ function openDetail(id) {
     ${occurrencesBlock}
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved âœ“" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going âœ“" : "RSVP"}</button>${shareButton}</div>
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
+    ${recurrence ? `<button class="wide-button calendar-recur-button" data-add-recurring="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar Â· ${escapeHtml(recurrence.label)}</button>` : ""}
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
     <button class="wide-button" data-ticket>Get tickets / details</button></div>
   </section></div>`;
@@ -6504,24 +6867,170 @@ function lokalEventSharePayload(event) {
   ].filter(Boolean).join("\n");
 }
 
+// --- Add a recurring event to the user's calendar as a repeating series ---
+function icsEscape(value) {
+  return String(value || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+}
+
+function icsStamp(date) {
+  const p = n => String(n).padStart(2, "0");
+  return `${date.getFullYear()}${p(date.getMonth() + 1)}${p(date.getDate())}T${p(date.getHours())}${p(date.getMinutes())}00`;
+}
+
+function icsStampUtc(date) {
+  const p = n => String(n).padStart(2, "0");
+  return `${date.getUTCFullYear()}${p(date.getUTCMonth() + 1)}${p(date.getUTCDate())}T${p(date.getUTCHours())}${p(date.getUTCMinutes())}${p(date.getUTCSeconds())}Z`;
+}
+
+// First on/after the event date that matches the rule, so DTSTART is a valid
+// instance even if the stored date drifts from the detected cadence.
+function firstRecurrenceDate(startDate, recurrence) {
+  const base = new Date(`${startDate}T00:00:00`);
+  if (Number.isNaN(base.getTime())) return null;
+  const matches = date => {
+    const code = ICS_WEEKDAY_CODES[date.getDay()];
+    if (recurrence.freq === "WEEKLY") return recurrence.byday.includes(code);
+    return recurrence.byday.some(token => {
+      const parsed = token.match(/^(-?\d+)([A-Z]{2})$/);
+      if (!parsed || parsed[2] !== code) return false;
+      const ordinal = Number(parsed[1]);
+      const nth = Math.floor((date.getDate() - 1) / 7) + 1;
+      const isLast = new Date(date.getTime() + 7 * 86400000).getMonth() !== date.getMonth();
+      return ordinal === -1 ? isLast : nth === ordinal;
+    });
+  };
+  for (let i = 0; i < 400; i++) {
+    const day = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+    if (matches(day)) return day;
+  }
+  return base;
+}
+
+function buildEventIcs(event, recurrence) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(event.startDate || ""))) return null;
+  const first = firstRecurrenceDate(event.startDate, recurrence);
+  if (!first) return null;
+  const hasTime = Number.isFinite(event.startHour);
+  const start = new Date(first.getFullYear(), first.getMonth(), first.getDate(), hasTime ? event.startHour : 9, 0, 0);
+  const rrule = [`FREQ=${recurrence.freq}`];
+  if (recurrence.interval > 1) rrule.push(`INTERVAL=${recurrence.interval}`);
+  if (recurrence.byday && recurrence.byday.length) rrule.push(`BYDAY=${recurrence.byday.join(",")}`);
+  const description = [String(event.desc || "").replace(/<[^>]*>/g, "").trim(), lokalEventShareUrl(event)].filter(Boolean).join("\n");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Lokal//DC Events//EN", "CALSCALE:GREGORIAN", "BEGIN:VEVENT"];
+  lines.push(`UID:lokal-${event.sourceId || event.id}-${recurrence.freq.toLowerCase()}@lokal.app`);
+  lines.push(`DTSTAMP:${icsStampUtc(new Date())}`);
+  if (hasTime) {
+    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+    lines.push(`DTSTART:${icsStamp(start)}`, `DTEND:${icsStamp(end)}`);
+  } else {
+    const p = n => String(n).padStart(2, "0");
+    lines.push(`DTSTART;VALUE=DATE:${start.getFullYear()}${p(start.getMonth() + 1)}${p(start.getDate())}`);
+  }
+  lines.push(`RRULE:${rrule.join(";")}`);
+  lines.push(`SUMMARY:${icsEscape(event.title)}`);
+  lines.push(`DESCRIPTION:${icsEscape(description)}`);
+  lines.push(`LOCATION:${icsEscape(eventLocationLine(event))}`);
+  lines.push("END:VEVENT", "END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+function downloadIcsFile(filename, content) {
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function addRecurringEventToCalendar(id) {
+  const event = events.find(item => item.id === Number(id));
+  if (!event) return;
+  const recurrence = eventRecurrence(event);
+  if (!recurrence) { toast("This event doesn't repeat on a set schedule."); return; }
+  const ics = buildEventIcs(event, recurrence);
+  if (!ics) { toast("This event is missing a date to schedule."); return; }
+  const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
+  downloadIcsFile(`${slug}.ics`, ics);
+  toast(`Added to your calendar â€” repeats ${recurrence.label}.`);
+}
 
 
+
+// Inspirational lines that rotate on the welcome screen (CSS-animated).
+const ONBOARD_ROTATOR_LINES = ["The city is in motion.", "Find your people.", "Find your home in DC.", "Never miss the moment."];
+const ONBOARD_INTEREST_OPTIONS = ["Live music", "Concerts", "Nightlife", "Happy hours", "Trivia", "Museums", "Performing arts", "Comedy", "Sports", "Festivals", "Food & drink", "Markets", "Community", "Free events"];
+const ONBOARD_AREA_OPTIONS = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia", "Columbia Heights", "Petworth", "The Wharf", "Downtown"];
+
+function onboardProgressDots(active) {
+  return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
+}
+
+// Streamlined signup: an immersive, animated welcome, then three quick steps
+// (name -> contact -> interests & neighborhoods). Interests + neighborhoods feed
+// feed curation. Answers accumulate in state.signupDraft across steps.
 function renderOnboarding() {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const birthdayMax = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
-  const signupEventOptions = ["Live music", "Nightlife", "Museums", "Sports", "Comedy", "Restaurants", "Performing arts", "Festivals", "Free events", "Markets"];
-  const signupAreaOptions = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia"];
-  const steps = [
-    { type: "welcome", title: "Your city,<br>in motion.", text: "Find the things worth leaving the house for, and see what your friends are into." },
-    { type: "account", title: "Create your account.", text: "Pick what you like and where you want to explore. Lokal will use this to shape your feed." },
-    { type: "contacts", title: "Find your people.", text: "See what friends save, build groups, and make plans without starting a new group chat." }
-  ];
-  const s = steps[state.onboardStep];
-  const content = s.type === "welcome" ? `<div class="intro-art"><span>LOKAL</span></div><button class="wide-button" data-next>Get started</button>`
-    : s.type === "account" ? `<div class="account-fields"><input data-signup-full-name placeholder="Full name" aria-label="Full name" autocomplete="name"><input data-signup-email placeholder="Email" type="email" aria-label="Email" autocomplete="email"><input data-signup-phone placeholder="Phone number" type="tel" inputmode="numeric" maxlength="14" aria-label="Phone number" autocomplete="tel"><input data-signup-username placeholder="Public username" aria-label="Public username" autocomplete="username"><label class="birth-field">Birthday<input data-signup-birthdate type="date" max="${birthdayMax}" aria-label="Birthday" autocomplete="bday"></label><input data-signup-password placeholder="Create a password" type="password" aria-label="Create a password" autocomplete="new-password"><small>Birthday must be in the past and age 14+. Phone numbers use (xxx) xxx-xxxx format.</small></div><p class="settings-label">Event interests</p><div class="select-grid preference-grid compact-select-grid">${signupEventOptions.map(o => `<button class="select-tile" data-signup-interest="${o}">${o}</button>`).join("")}</div><p class="settings-label">Areas to explore</p><div class="select-grid preference-grid compact-select-grid">${signupAreaOptions.map(o => `<button class="select-tile" data-signup-area="${o}">${o}</button>`).join("")}</div><p class="account-error" data-account-error></p><button class="wide-button" data-create-account>Create account</button>`
-    : `<div class="contacts-art">${avatarStack(["AL","MR","DV","JS"])}</div><button class="wide-button" data-next>Sync contacts</button><button class="skip-button" data-next>Maybe later</button>`;
-  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">${state.onboardStep === 0 ? "WELCOME TO LOKAL" : `STEP ${state.onboardStep} OF ${steps.length - 1}`}</p><h1>${s.title}</h1><p class="lede">${s.text}</p>${content}</section></div>`);
+  state.signupDraft = state.signupDraft || {};
+  const d = state.signupDraft;
+  const step = state.onboardStep || 0;
+
+  if (step === 0) {
+    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-immersive">
+      <div class="welcome-bg"></div>
+      <div class="welcome-scrim"></div>
+      <div class="welcome-content">
+        <div class="welcome-top"><span class="welcome-brand">LOKAL</span><span class="welcome-place">Washington, DC</span></div>
+        <div class="welcome-message">
+          <p class="welcome-eyebrow">Welcome to your city</p>
+          <div class="welcome-rotator" aria-label="${escapeHtml(ONBOARD_ROTATOR_LINES.join(" "))}">${ONBOARD_ROTATOR_LINES.map(line => `<span>${escapeHtml(line)}</span>`).join("")}</div>
+          <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
+        </div>
+        <button class="welcome-cta" data-onboard-start>Join the Community</button>
+      </div>
+    </div>`);
+    return;
+  }
+
+  let inner = "";
+  if (step === 1) {
+    inner = `<h1 class="onboard-title">First, what's your name?</h1>
+      <p class="lede">So friends know it's really you.</p>
+      <div class="onboard-fields">
+        <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
+        <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-name>Continue</button>`;
+  } else if (step === 2) {
+    inner = `<h1 class="onboard-title">How can we reach you?</h1>
+      <p class="lede">Your email and number keep your saves and plans in sync.</p>
+      <div class="onboard-fields">
+        <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
+        <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="tel" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-contact>Continue</button>`;
+  } else {
+    const interests = new Set(d.interests || []);
+    const areas = new Set(d.areas || []);
+    inner = `<h1 class="onboard-title">What are you into?</h1>
+      <p class="lede">Pick a few â€” we'll tune your feed to match.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Neighborhoods you explore</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
+  }
+
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-steps">
+    <section class="onboard-card onboard-step-card">
+      <div class="onboard-head"><button class="onboard-back" data-onboard-back aria-label="Back">&#8249;</button>${onboardProgressDots(step)}</div>
+      ${inner}
+    </section>
+  </div>`);
 }
 
 function renderPhoneVerification() {
@@ -6632,6 +7141,7 @@ document.addEventListener("click", async event => {
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
   }
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await navigator.clipboard?.writeText(lokalEventShareUrl(shareEvent)); } catch {} const original = t.textContent; t.textContent = "Link copied âœ“"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
+  if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
@@ -6738,7 +7248,71 @@ document.addEventListener("click", async event => {
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
   if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }
   if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
-  if (t.dataset.signupInterest || t.dataset.signupArea) { mark(); t.classList.toggle("selected"); }
+  if (t.dataset.signupInterest || t.dataset.signupArea) {
+    mark();
+    t.classList.toggle("selected");
+    const draft = (state.signupDraft = state.signupDraft || {});
+    const key = t.dataset.signupInterest ? "interests" : "areas";
+    const value = t.dataset.signupInterest || t.dataset.signupArea;
+    const chosen = new Set(draft[key] || []);
+    chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+    draft[key] = [...chosen];
+  }
+  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = state.signupDraft || {}; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
+  if (t.dataset.onboardName !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const first = card.querySelector("[data-onboard-first]").value.trim();
+    const last = card.querySelector("[data-onboard-last]").value.trim();
+    if (!first || !last) { error.textContent = "Enter your first and last name."; return; }
+    state.signupDraft.firstName = first;
+    state.signupDraft.lastName = last;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 2;
+    renderOnboarding();
+  }
+  if (t.dataset.onboardContact !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const email = card.querySelector("[data-onboard-email]").value.trim();
+    const phone = card.querySelector("[data-onboard-phone]").value.trim();
+    try { validateSignupEmail(email); formatSignupPhone(phone); }
+    catch (contactError) { error.textContent = contactError.message; return; }
+    state.signupDraft.email = email;
+    state.signupDraft.phone = phone;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 3;
+    renderOnboarding();
+  }
+  if (t.dataset.onboardFinish !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const draft = state.signupDraft || {};
+    const eventInterests = draft.interests || [];
+    const areaInterests = draft.areas || [];
+    if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
+    const fullName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const username = ((draft.firstName || "lokal") + (draft.lastName || "")).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    finalizeLokalProfile({
+      fullName,
+      email: draft.email,
+      phone: formatSignupPhone(draft.phone),
+      username,
+      birthdate: "2000-01-01",
+      eventInterests,
+      areaInterests
+    });
+    localStorage.setItem("lokalAccountCreated", "true");
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 0;
+    renderHome();
+    toast("Welcome to Lokal");
+    showDiscoverHint();
+  }
   if (t.dataset.createAccount !== undefined) {
     mark();
     const card = t.closest(".onboard-card");
@@ -6762,14 +7336,14 @@ document.addEventListener("click", async event => {
       finalizeLokalProfile(state.pendingSignupProfile);
       state.onboardStep++;
       renderOnboarding();
-      toast(result.access_token ? "20 Lokal points for joining" : "20 Lokal points for joining. Check your email to confirm it.");
+      toast(result.access_token ? "100 Lokal points for joining" : "100 Lokal points for joining. Check your email to confirm it.");
     } catch (accountError) {
       error.textContent = accountError.message;
       t.disabled = false;
     }
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("20 Lokal points for joining"); showDiscoverHint(); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("100 Lokal points for joining"); showDiscoverHint(); } }
   if (!handled && !t.disabled) toast("Action opened");
 });
 

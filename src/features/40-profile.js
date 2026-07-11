@@ -1,19 +1,19 @@
 const LOKAL_SCORE_LEVELS = [
-  { name: "New in Town", min: 0, next: 100 },
-  { name: "Explorer", min: 100, next: 175 },
-  { name: "District Scout", min: 175, next: 250 },
-  { name: "Neighborhood Regular", min: 250, next: 350 },
-  { name: "Plan Maker", min: 350, next: 475 },
-  { name: "Ward Wanderer", min: 475, next: 625 },
-  { name: "Metro Connector", min: 625, next: 800 },
-  { name: "District Insider", min: 800, next: 1000 },
-  { name: "Downtown Regular", min: 1000, next: 1250 },
-  { name: "Capital Connector", min: 1250, next: 1550 },
-  { name: "DC Tastemaker", min: 1550, next: 1900 },
-  { name: "Certified Lokal", min: 1900, next: 2300 },
-  { name: "District Icon", min: 2300, next: 2800 },
-  { name: "Lokal Legend", min: 2800, next: 3500 },
-  { name: "DC Hall of Fame", min: 3500, next: null }
+  { name: "New in Town", min: 0, next: 200 },
+  { name: "Explorer", min: 200, next: 275 },
+  { name: "District Scout", min: 275, next: 350 },
+  { name: "Neighborhood Regular", min: 350, next: 450 },
+  { name: "Plan Maker", min: 450, next: 575 },
+  { name: "Ward Wanderer", min: 575, next: 725 },
+  { name: "Metro Connector", min: 725, next: 900 },
+  { name: "District Insider", min: 900, next: 1100 },
+  { name: "Downtown Regular", min: 1100, next: 1350 },
+  { name: "Capital Connector", min: 1350, next: 1650 },
+  { name: "DC Tastemaker", min: 1650, next: 2000 },
+  { name: "Certified Lokal", min: 2000, next: 2400 },
+  { name: "District Icon", min: 2400, next: 2900 },
+  { name: "Lokal Legend", min: 2900, next: 3600 },
+  { name: "DC Hall of Fame", min: 3600, next: null }
 ];
 
 function scoreLevel(score) {
@@ -161,7 +161,7 @@ function scoreBreakdown() {
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
   const savedOnlyCount = Array.from(state.saved || []).filter(id => !state.rsvps.has(id) && !state.removedPlans?.has(id)).length;
   const breakdown = [
-    { label: "Joined Lokal", value: 20, detail: "20 points for creating a profile and joining Lokal." },
+    { label: "New in Town", value: 100, detail: "100 starting points for creating a profile and joining Lokal." },
     { label: "Verified attendance", value: receipts.length * 15, detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - no lifetime cap.` },
     { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
     { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
