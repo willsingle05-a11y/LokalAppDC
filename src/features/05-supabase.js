@@ -236,11 +236,15 @@ async function syncVenueVerificationStatus() {
     const response = await fetch(url, { headers: supabaseJsonHeaders() });
     if (!response.ok) return;
     const rows = await response.json();
+    const names = [];
     rows.forEach(row => {
       const key = venueImageKeyName(row.venue_name);
       if (key) state.verifiedVenues.add(key);
+      if (row.venue_name && !names.some(name => venueImageKeyName(name) === key)) names.push(row.venue_name);
     });
+    state.verifiedVenueNames = names;
     localStorage.setItem("lokalVerifiedVenues", JSON.stringify(Array.from(state.verifiedVenues)));
+    localStorage.setItem("lokalVerifiedVenueNames", JSON.stringify(state.verifiedVenueNames));
   } catch {}
 }
 
