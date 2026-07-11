@@ -70,6 +70,65 @@ function attendanceHistorySection() {
   return `${body}${toggle}`;
 }
 
+function approvedVenueProfileName() {
+  return Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] || "" : "";
+}
+
+function hasApprovedVenueProfile() {
+  return Boolean(approvedVenueProfileName() || state.verifiedVenues?.size);
+}
+
+function hostedEventsForVenue() {
+  const name = approvedVenueProfileName();
+  if (!name) return [];
+  return displayableDcEvents().filter(event => venueEventMatch(event, name)).sort(sortEventsByStart);
+}
+
+function hostedEventRow(event, index = 0) {
+  const art = eventCardImageSrc(event);
+  const style = event.image ? cleanEventThumbStyle(art) : `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
+  return `<button class="attend-row" style="--i:${index}" data-event="${event.id}"><span class="attend-thumb" style="${style}"></span><span class="attend-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`;
+}
+
+function venueHostedSection() {
+  const hosted = hostedEventsForVenue();
+  if (!hosted.length) return `<p class="section-helper">Events you post or host will show up here after they are approved.</p>`;
+  return `<div class="attend-list">${hosted.slice(0, 5).map((event, index) => hostedEventRow(event, index)).join("")}</div>`;
+}
+
+function venueInsightPanel() {
+  const hosted = hostedEventsForVenue();
+  const categories = hosted.reduce((totals, event) => {
+    const label = discoverCategoryLabel(event.cat || "community");
+    totals[label] = (totals[label] || 0) + 1;
+    return totals;
+  }, {});
+  const categoryRows = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const topCount = Math.max(1, ...categoryRows.map(row => row[1]));
+  const friendInterest = hosted.reduce((total, event) => total + (Array.isArray(event.friends) ? event.friends.length : 0), 0);
+  const upcoming = hosted.filter(event => !event.start || event.start >= Date.now() - 86400000).length;
+  return `<section class="section profile-insights"><div class="section-heading"><div><p class="eyebrow">Venue stats</p><h2>Hosting pulse</h2></div><span class="profile-pulse">Live</span></div>
+    <div class="insight-grid"><div class="insight-card"><b>${hosted.length}</b><small>Events hosted</small></div><div class="insight-card"><b>${upcoming}</b><small>Upcoming</small></div><div class="insight-card"><b>${friendInterest}</b><small>Friend interest</small></div></div>
+    <div class="category-bars">${categoryRows.map(([label, count], index) => `<div class="category-bar" style="--level:${Math.max(18, Math.round((count / topCount) * 100))}%; --delay:${index * 80}ms"><span><b>${escapeHtml(label)}</b><small>${count} event${count === 1 ? "" : "s"}</small></span><i></i></div>`).join("") || `<p class="section-helper">Post events to build your venue dashboard.</p>`}</div>
+  </section>`;
+}
+
+function venueFocusSection() {
+  const hosted = hostedEventsForVenue();
+  const labels = [...new Set(hosted.map(event => discoverCategoryLabel(event.cat || "community")))].slice(0, 5);
+  const chips = (labels.length ? labels : ["Event hosting", "Local audience", "Venue updates"]).map(label => `<span class="taste-pill" style="--c:${tasteColor(label)}">${escapeHtml(label)}</span>`).join("");
+  return `<p class="eyebrow">Venue focus</p>
+    <p class="section-subnote">These are based on the events connected to your venue.</p>
+    <div class="chips profile-taste-chips">${chips}</div>`;
+}
+
+function userTasteSection(tastePills) {
+  return `<p class="eyebrow">Your tastes</p>
+    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
+    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
+    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>`;
+}
+
 function profileInsightPanel() {
   const receipts = profileReceipts();
   const breakdown = scoreBreakdown();
@@ -108,6 +167,8 @@ function venueVerificationPanel() {
 }
 
 function renderProfile() {
+  const isVenueProfile = hasApprovedVenueProfile();
+  const venueName = approvedVenueProfileName();
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -115,24 +176,21 @@ function renderProfile() {
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><button class="text-button" data-settings>Settings</button></div></div>
-    <p class="bio">${escapeHtml(state.bio)}</p>
-    <button class="score-block" data-settings-page="faq">
+    <div class="profile-card"><div class="profile-avatar">${escapeHtml(isVenueProfile ? venueName.slice(0, 2).toUpperCase() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? "Verified venue account" : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
+    <p class="bio">${escapeHtml(isVenueProfile ? "Manage venue posts, review upcoming hosted events, and track what Lokal users are engaging with." : state.bio)}</p>
+    ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
       <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
       <div class="score-progress"><i style="width:${Math.round(progress * 100)}%"></i></div>
       <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached - you're in the DC Hall of Fame"}</p>
       <p class="score-context">Your score grows every time you attend an event, make plans with friends, or engage with the community.</p>
-    </button>
-    <p class="eyebrow">Your tastes</p>
-    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
-    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
-    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>
+    </button>`}
+    ${isVenueProfile ? venueFocusSection() : userTasteSection(tastePills)}
     ${venueVerificationPanel()}
-    ${state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
-    <div class="attend-head"><div><p class="eyebrow">Your history</p><h2>Events you've been to</h2></div></div>
-    ${attendanceHistorySection()}
-    ${profileInsightPanel()}
+    ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
+    <div class="attend-head"><div><p class="eyebrow">${isVenueProfile ? "Venue history" : "Your history"}</p><h2>${isVenueProfile ? "Events you've hosted" : "Events you've been to"}</h2></div></div>
+    ${isVenueProfile ? venueHostedSection() : attendanceHistorySection()}
+    ${isVenueProfile ? venueInsightPanel() : profileInsightPanel()}
   </section>`;
 }
 
