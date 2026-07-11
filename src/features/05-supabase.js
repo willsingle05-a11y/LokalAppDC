@@ -951,12 +951,27 @@ function finalizeLokalProfile(profile) {
     venueName: profile.venueName || "",
     venueAddress: profile.venueAddress || "",
     venueWebsite: profile.venueWebsite || "",
+    venueImageUrl: profile.venueImageUrl || "",
     venueDescription: profile.venueDescription || "",
     lokalScore: 100
   };
   state.profile = saved;
   state.age = saved.age;
   state.tastes = saved.tastes;
+  if (saved.accountType !== "venue") {
+    state.friends = new Set();
+    state.receipts = [];
+    state.attended = new Set();
+    state.saved = new Set();
+    state.rsvps = new Set();
+    state.savedSources = new Set();
+    state.rsvpSources = new Set();
+    localStorage.setItem("lokalReceipts", "[]");
+    localStorage.setItem("lokalAttended", "[]");
+    localStorage.setItem("lokalSavedSources", "[]");
+    localStorage.setItem("lokalRsvpSources", "[]");
+  }
+  if (saved.accountType === "venue") registerLocalVenueProfile();
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
   updateProfileShortcut();
 }

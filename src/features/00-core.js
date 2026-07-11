@@ -69,6 +69,22 @@ function currentAccountInitials() {
   return profileInitials(currentAccountDisplayName());
 }
 
+function currentVenueImage() {
+  return state.profile?.venueImageUrl || "";
+}
+
+function registerLocalVenueProfile() {
+  const name = accountVenueName();
+  const image = currentVenueImage();
+  if (!name || !image) return;
+  const key = venueImageKeyName(name);
+  venueImageMap[key] = image;
+  venueImageKeys = Object.keys(venueImageMap).sort((a, b) => b.length - a.length);
+  const existing = venueDirectory.find(venue => venueImageKeyName(venue.name) === key);
+  if (existing) existing.image_url = image;
+  else venueDirectory.unshift({ name, address: state.profile.venueAddress || "", neighborhood: (state.profile.areas || [])[0] || "", venue_type: "Venue", website_url: state.profile.venueWebsite || "", image_url: image });
+}
+
 // Record a save/RSVP by the event's stable source id and persist it.
 function setPlanSource(kind, id, on) {
   const event = events.find(item => item.id === Number(id));

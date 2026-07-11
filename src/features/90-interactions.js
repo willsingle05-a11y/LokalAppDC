@@ -243,12 +243,14 @@ document.addEventListener("click", async event => {
   if (t.dataset.saveSettings !== undefined) {
     const input = document.querySelector("[data-age-input]");
     const bio = document.querySelector("[data-bio-input]");
+    const venueImage = document.querySelector("[data-venue-image-input]");
     const venueDescription = document.querySelector("[data-venue-description-input]");
     const privateInput = document.querySelector("[data-private-account]");
     if (input) state.age = Math.max(13, Number(input.value) || 27);
     if (bio?.value.trim()) state.bio = bio.value.trim();
     state.privateAccount = Boolean(privateInput?.checked);
-    state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
+    state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueImageUrl: venueImage ? venueImage.value.trim() : state.profile.venueImageUrl || "", venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
+    if (isVenueAccount()) registerLocalVenueProfile();
     localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
     modalRoot.innerHTML = "";
     renderProfile();
@@ -278,11 +280,13 @@ document.addEventListener("click", async event => {
     const venueName = card.querySelector("[data-onboard-venue-name]").value.trim();
     const venueAddress = card.querySelector("[data-onboard-venue-address]").value.trim();
     const website = card.querySelector("[data-onboard-venue-website]").value.trim();
+    const venueImageUrl = card.querySelector("[data-onboard-venue-image]").value.trim();
     const venueDescription = card.querySelector("[data-onboard-venue-description]").value.trim();
     if (!venueName || !venueAddress) { error.textContent = "Enter the venue name and address."; return; }
     state.signupDraft.venueName = venueName;
     state.signupDraft.venueAddress = venueAddress;
     state.signupDraft.website = website;
+    state.signupDraft.venueImageUrl = venueImageUrl;
     state.signupDraft.venueDescription = venueDescription;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 2;
@@ -338,8 +342,10 @@ document.addEventListener("click", async event => {
       venueName: isVenue ? draft.venueName : "",
       venueAddress: isVenue ? draft.venueAddress : "",
       venueWebsite: isVenue ? draft.website : "",
+      venueImageUrl: isVenue ? draft.venueImageUrl : "",
       venueDescription: isVenue ? draft.venueDescription : ""
     });
+    if (isVenue) registerLocalVenueProfile();
     if (isVenue) {
       try {
         await submitVenueVerificationRequest({
