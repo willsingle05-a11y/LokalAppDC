@@ -232,12 +232,13 @@ async function submitVenueVerificationRequest(profile) {
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();
-    const url = `${supabaseConfig.url}/rest/v1/venue_verification_requests?select=venue_name,status&requester_user_id=eq.${encodeURIComponent(userId)}&status=eq.approved&limit=200`;
+    const url = `${supabaseConfig.url}/rest/v1/venue_verification_requests?select=venue_name,status,requester_user_id&requester_user_id=eq.${encodeURIComponent(userId)}&status=eq.approved&limit=200`;
     const response = await fetch(url, { headers: supabaseJsonHeaders() });
     if (!response.ok) return;
     const rows = await response.json();
     const names = [];
     rows.forEach(row => {
+      if (row.requester_user_id !== userId) return;
       const key = venueImageKeyName(row.venue_name);
       if (key) state.verifiedVenues.add(key);
       if (row.venue_name && !names.some(name => venueImageKeyName(name) === key)) names.push(row.venue_name);

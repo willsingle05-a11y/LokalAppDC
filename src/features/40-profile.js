@@ -90,18 +90,20 @@ function profileInsightPanel() {
 function venueVerificationPanel() {
   const pending = state.pendingVenueRequests || [];
   const approvedNames = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames : [];
-  const approvedCount = approvedNames.length || state.verifiedVenues?.size || 0;
-  const status = approvedCount
-    ? `${approvedCount} approved venue${approvedCount === 1 ? "" : "s"}`
+  const approvedName = approvedNames[0] || "";
+  const hasApprovedVenue = Boolean(approvedName || state.verifiedVenues?.size);
+  if (!hasApprovedVenue && state.venueVerificationDismissed) return "";
+  const status = hasApprovedVenue
+    ? "Venue approved"
     : pending.length
       ? "Request pending"
       : "No venue attached";
-  const approvedRows = approvedNames.map(name => `<div class="venue-owner-row"><span><b>${escapeHtml(name)}</b><small>Approved to post events</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(name)}" aria-label="Post event for ${escapeHtml(name)}">+</button></div>`).join("");
+  const approvedRow = approvedName ? `<div class="venue-owner-row"><span><b>${escapeHtml(approvedName)}</b><small>Approved to post events</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(approvedName)}" aria-label="Post event for ${escapeHtml(approvedName)}">+</button></div>` : "";
   return `<section class="section venue-owner-panel">
+    ${!hasApprovedVenue ? `<button class="venue-owner-dismiss" data-dismiss-venue-verification aria-label="Hide venue verification">&times;</button>` : ""}
     <div class="section-heading"><div><p class="eyebrow">Venue tools</p><h2>For venue owners</h2></div><span class="profile-pulse">${escapeHtml(status)}</span></div>
     <p class="section-helper">Request verification so approved venues can post events from Profile. Requests are stored for Lokal review.</p>
-    ${approvedRows ? `<div class="venue-owner-list">${approvedRows}</div>` : ""}
-    <button class="wide-button" data-venue-verify>Request venue verification</button>
+    ${approvedRow ? `<div class="venue-owner-list">${approvedRow}</div>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
   </section>`;
 }
 

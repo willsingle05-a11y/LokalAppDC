@@ -117,6 +117,13 @@ document.addEventListener("click", async event => {
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
+  if (t.dataset.dismissVenueVerification !== undefined) {
+    mark();
+    state.venueVerificationDismissed = true;
+    localStorage.setItem("lokalVenueVerificationDismissed", "1");
+    renderProfile();
+    toast("Venue tools hidden");
+  }
   if (t.dataset.venueVerify !== undefined) { mark(); openVenueVerificationSheet(); }
   if (t.dataset.submitVenueVerification !== undefined) {
     mark();
@@ -177,7 +184,8 @@ document.addEventListener("click", async event => {
         recurrenceUntil: sheet.querySelector("[data-post-recurrence-until]")?.value || ""
       });
       modalRoot.innerHTML = "";
-      openVenueEvents(venueName);
+      if (state.route === "profile") renderProfile();
+      else openVenueEvents(venueName);
       toast("Event submitted for Lokal review");
     } catch {
       error.textContent = "Could not submit this event yet. Try again in a minute.";

@@ -1722,7 +1722,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .venue-search-card small { color: var(--muted); font-size: 11px; }
 .venue-search-card em { color: var(--steel); font-size: 10px; font-style: normal; font-weight: 800; }
 
-.venue-owner-panel { display: grid; gap: 10px; margin: 14px 0; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(145deg, #f7fafc, #eefaf6); }
+.venue-owner-panel { position: relative; display: grid; gap: 10px; margin: 14px 0; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(145deg, #f7fafc, #eefaf6); }
 .venue-owner-panel h3 { margin: 0; font-size: 16px; }
 .venue-owner-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
 .venue-owner-panel .wide-button { width: 100%; }
@@ -1734,6 +1734,8 @@ h1, h2, h3, .brand b { color: #326f91; }
 .venue-owner-row b,
 .venue-owner-row small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .venue-owner-row small { color: var(--muted); font-size: 11px; font-weight: 800; }
+.venue-owner-dismiss { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255,255,255,.82); color: var(--muted); font-size: 18px; font-weight: 900; line-height: 1; }
+.venue-owner-dismiss:active { transform: translateY(1px); }
 .venue-form-sheet textarea,
 .venue-form-sheet select { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; }
 .venue-form-sheet textarea { min-height: 96px; padding: 12px; resize: vertical; }
@@ -3312,7 +3314,7 @@ const defaultReceipts = [
   { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
   { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
 ];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -4357,12 +4359,13 @@ async function submitVenueVerificationRequest(profile) {
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();
-    const url = `${supabaseConfig.url}/rest/v1/venue_verification_requests?select=venue_name,status&requester_user_id=eq.${encodeURIComponent(userId)}&status=eq.approved&limit=200`;
+    const url = `${supabaseConfig.url}/rest/v1/venue_verification_requests?select=venue_name,status,requester_user_id&requester_user_id=eq.${encodeURIComponent(userId)}&status=eq.approved&limit=200`;
     const response = await fetch(url, { headers: supabaseJsonHeaders() });
     if (!response.ok) return;
     const rows = await response.json();
     const names = [];
     rows.forEach(row => {
+      if (row.requester_user_id !== userId) return;
       const key = venueImageKeyName(row.venue_name);
       if (key) state.verifiedVenues.add(key);
       if (row.venue_name && !names.some(name => venueImageKeyName(name) === key)) names.push(row.venue_name);
@@ -6638,18 +6641,20 @@ function profileInsightPanel() {
 function venueVerificationPanel() {
   const pending = state.pendingVenueRequests || [];
   const approvedNames = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames : [];
-  const approvedCount = approvedNames.length || state.verifiedVenues?.size || 0;
-  const status = approvedCount
-    ? `${approvedCount} approved venue${approvedCount === 1 ? "" : "s"}`
+  const approvedName = approvedNames[0] || "";
+  const hasApprovedVenue = Boolean(approvedName || state.verifiedVenues?.size);
+  if (!hasApprovedVenue && state.venueVerificationDismissed) return "";
+  const status = hasApprovedVenue
+    ? "Venue approved"
     : pending.length
       ? "Request pending"
       : "No venue attached";
-  const approvedRows = approvedNames.map(name => `<div class="venue-owner-row"><span><b>${escapeHtml(name)}</b><small>Approved to post events</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(name)}" aria-label="Post event for ${escapeHtml(name)}">+</button></div>`).join("");
+  const approvedRow = approvedName ? `<div class="venue-owner-row"><span><b>${escapeHtml(approvedName)}</b><small>Approved to post events</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(approvedName)}" aria-label="Post event for ${escapeHtml(approvedName)}">+</button></div>` : "";
   return `<section class="section venue-owner-panel">
+    ${!hasApprovedVenue ? `<button class="venue-owner-dismiss" data-dismiss-venue-verification aria-label="Hide venue verification">&times;</button>` : ""}
     <div class="section-heading"><div><p class="eyebrow">Venue tools</p><h2>For venue owners</h2></div><span class="profile-pulse">${escapeHtml(status)}</span></div>
     <p class="section-helper">Request verification so approved venues can post events from Profile. Requests are stored for Lokal review.</p>
-    ${approvedRows ? `<div class="venue-owner-list">${approvedRows}</div>` : ""}
-    <button class="wide-button" data-venue-verify>Request venue verification</button>
+    ${approvedRow ? `<div class="venue-owner-list">${approvedRow}</div>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
   </section>`;
 }
 
@@ -7380,6 +7385,13 @@ document.addEventListener("click", async event => {
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
+  if (t.dataset.dismissVenueVerification !== undefined) {
+    mark();
+    state.venueVerificationDismissed = true;
+    localStorage.setItem("lokalVenueVerificationDismissed", "1");
+    renderProfile();
+    toast("Venue tools hidden");
+  }
   if (t.dataset.venueVerify !== undefined) { mark(); openVenueVerificationSheet(); }
   if (t.dataset.submitVenueVerification !== undefined) {
     mark();
@@ -7440,7 +7452,8 @@ document.addEventListener("click", async event => {
         recurrenceUntil: sheet.querySelector("[data-post-recurrence-until]")?.value || ""
       });
       modalRoot.innerHTML = "";
-      openVenueEvents(venueName);
+      if (state.route === "profile") renderProfile();
+      else openVenueEvents(venueName);
       toast("Event submitted for Lokal review");
     } catch {
       error.textContent = "Could not submit this event yet. Try again in a minute.";
