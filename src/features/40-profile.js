@@ -98,6 +98,7 @@ function venueHostedSection() {
 
 function venueInsightPanel() {
   const hosted = hostedEventsForVenue();
+  const venueName = accountVenueName();
   const categories = hosted.reduce((totals, event) => {
     const label = discoverCategoryLabel(event.cat || "community");
     totals[label] = (totals[label] || 0) + 1;
@@ -105,10 +106,11 @@ function venueInsightPanel() {
   }, {});
   const categoryRows = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 4);
   const topCount = Math.max(1, ...categoryRows.map(row => row[1]));
-  const friendInterest = hosted.reduce((total, event) => total + (Array.isArray(event.friends) ? event.friends.length : 0), 0);
+  const localFollow = state.follows.has(`venue:${venueName}`) ? 1 : 0;
+  const followers = Math.max(localFollow, hosted.reduce((total, event) => total + (Array.isArray(event.friends) ? event.friends.length : 0), 0));
   const upcoming = hosted.filter(event => !event.start || event.start >= Date.now() - 86400000).length;
   return `<section class="section profile-insights"><div class="section-heading"><div><p class="eyebrow">Venue stats</p><h2>Hosting pulse</h2></div><span class="profile-pulse">Live</span></div>
-    <div class="insight-grid"><div class="insight-card"><b>${hosted.length}</b><small>Events hosted</small></div><div class="insight-card"><b>${upcoming}</b><small>Upcoming</small></div><div class="insight-card"><b>${friendInterest}</b><small>Friend interest</small></div></div>
+    <div class="insight-grid"><div class="insight-card"><b>${hosted.length}</b><small>Events hosted</small></div><div class="insight-card"><b>${upcoming}</b><small>Upcoming</small></div><div class="insight-card"><b>${followers}</b><small>Followers</small></div></div>
     <div class="category-bars">${categoryRows.map(([label, count], index) => `<div class="category-bar" style="--level:${Math.max(18, Math.round((count / topCount) * 100))}%; --delay:${index * 80}ms"><span><b>${escapeHtml(label)}</b><small>${count} event${count === 1 ? "" : "s"}</small></span><i></i></div>`).join("") || `<p class="section-helper">Post events to build your venue dashboard.</p>`}</div>
   </section>`;
 }
