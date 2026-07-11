@@ -43,6 +43,7 @@ function renderOnboarding() {
         <label class="float-field"><span>Venue name</span><input data-onboard-venue-name value="${escapeHtml(d.venueName || "")}" autocomplete="organization" placeholder="Dacha Beer Garden"></label>
         <label class="float-field"><span>Venue address</span><input data-onboard-venue-address value="${escapeHtml(d.venueAddress || "")}" autocomplete="street-address" placeholder="1600 7th St NW"></label>
         <label class="float-field"><span>Website</span><input data-onboard-venue-website type="url" value="${escapeHtml(d.website || "")}" placeholder="https://..."></label>
+        <label class="float-field"><span>Venue description</span><textarea data-onboard-venue-description placeholder="Beer garden, patio crowd, trivia, watch parties...">${escapeHtml(d.venueDescription || "")}</textarea></label>
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-venue>Continue</button>`;

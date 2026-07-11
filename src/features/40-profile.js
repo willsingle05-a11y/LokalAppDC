@@ -171,6 +171,7 @@ function venueVerificationPanel() {
 function renderProfile() {
   const isVenueProfile = isVenueAccount();
   const venueName = accountVenueName() || currentAccountDisplayName();
+  const venueDescription = state.profile.venueDescription || "Add a venue description so people know the kind of nights, crowds, and events you host.";
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -179,7 +180,7 @@ function renderProfile() {
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
     <div class="profile-card"><div class="profile-avatar">${escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? (hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending") : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
-    <p class="bio">${escapeHtml(isVenueProfile ? "Manage venue posts, review upcoming hosted events, and track what Lokal users are engaging with." : state.bio)}</p>
+    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
       <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
@@ -328,14 +329,16 @@ function openTasteEditor() {
 }
 
 function openSettings() {
+  const isVenueProfile = isVenueAccount();
+  const venueDescription = state.profile.venueDescription || "";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Profile settings"><button class="modal-close" aria-label="Close settings">&times;</button>
     <p class="eyebrow">Profile and account</p><h2>Settings</h2>
-    <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
+    <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
     <p class="settings-group-label">Account</p>
-    <label class="settings-field">Name<input value="${escapeHtml(state.profile.fullName)}" readonly></label>
+    <label class="settings-field">${isVenueProfile ? "Venue name" : "Name"}<input value="${escapeHtml(isVenueProfile ? currentAccountDisplayName() : state.profile.fullName)}" readonly></label>
     <label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label>
-    <label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>
-    <label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>
+    ${isVenueProfile ? `<label class="settings-field">Venue description<textarea data-venue-description-input placeholder="Tell people what your venue is known for.">${escapeHtml(venueDescription)}</textarea></label>` : `<label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>`}
+    ${isVenueProfile ? "" : `<label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>`}
     <hr class="settings-divider">
     <p class="settings-group-label">Preferences</p>
     <label class="settings-field">Home city<input value="Washington, DC"></label>

@@ -951,6 +951,7 @@ function finalizeLokalProfile(profile) {
     venueName: profile.venueName || "",
     venueAddress: profile.venueAddress || "",
     venueWebsite: profile.venueWebsite || "",
+    venueDescription: profile.venueDescription || "",
     lokalScore: 100
   };
   state.profile = saved;

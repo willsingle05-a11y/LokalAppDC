@@ -240,7 +240,20 @@ document.addEventListener("click", async event => {
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
   if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
-  if (t.dataset.saveSettings !== undefined) { const input = document.querySelector("[data-age-input]"); const bio = document.querySelector("[data-bio-input]"); const privateInput = document.querySelector("[data-private-account]"); if (input) state.age = Math.max(13, Number(input.value) || 27); if (bio?.value.trim()) state.bio = bio.value.trim(); state.privateAccount = Boolean(privateInput?.checked); state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount }; localStorage.setItem("lokalProfile", JSON.stringify(state.profile)); modalRoot.innerHTML = ""; renderProfile(); toast(state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated"); }
+  if (t.dataset.saveSettings !== undefined) {
+    const input = document.querySelector("[data-age-input]");
+    const bio = document.querySelector("[data-bio-input]");
+    const venueDescription = document.querySelector("[data-venue-description-input]");
+    const privateInput = document.querySelector("[data-private-account]");
+    if (input) state.age = Math.max(13, Number(input.value) || 27);
+    if (bio?.value.trim()) state.bio = bio.value.trim();
+    state.privateAccount = Boolean(privateInput?.checked);
+    state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
+    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
+    modalRoot.innerHTML = "";
+    renderProfile();
+    toast(isVenueAccount() ? "Venue profile updated" : state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated");
+  }
   if (t.dataset.ticket !== undefined) toast("External ticket link opened in the real app");
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
@@ -265,10 +278,12 @@ document.addEventListener("click", async event => {
     const venueName = card.querySelector("[data-onboard-venue-name]").value.trim();
     const venueAddress = card.querySelector("[data-onboard-venue-address]").value.trim();
     const website = card.querySelector("[data-onboard-venue-website]").value.trim();
+    const venueDescription = card.querySelector("[data-onboard-venue-description]").value.trim();
     if (!venueName || !venueAddress) { error.textContent = "Enter the venue name and address."; return; }
     state.signupDraft.venueName = venueName;
     state.signupDraft.venueAddress = venueAddress;
     state.signupDraft.website = website;
+    state.signupDraft.venueDescription = venueDescription;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 2;
     renderOnboarding();
@@ -322,7 +337,8 @@ document.addEventListener("click", async event => {
       accountType: isVenue ? "venue" : "person",
       venueName: isVenue ? draft.venueName : "",
       venueAddress: isVenue ? draft.venueAddress : "",
-      venueWebsite: isVenue ? draft.website : ""
+      venueWebsite: isVenue ? draft.website : "",
+      venueDescription: isVenue ? draft.venueDescription : ""
     });
     if (isVenue) {
       try {

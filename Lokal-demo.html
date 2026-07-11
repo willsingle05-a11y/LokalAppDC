@@ -1743,6 +1743,8 @@ h1, h2, h3, .brand b { color: #326f91; }
 .venue-form-sheet textarea,
 .venue-form-sheet select { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; }
 .venue-form-sheet textarea { min-height: 96px; padding: 12px; resize: vertical; }
+.settings-field textarea,
+.float-field textarea { width: 100%; min-height: 92px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; resize: vertical; }
 .venue-form-sheet select { min-height: 44px; padding: 0 12px; }
 .venue-form-sheet .settings-field label { align-items: start; }
 .recurring-toggle { display: flex; align-items: center; gap: 9px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 13px; font-weight: 800; }
@@ -5099,6 +5101,7 @@ function finalizeLokalProfile(profile) {
     venueName: profile.venueName || "",
     venueAddress: profile.venueAddress || "",
     venueWebsite: profile.venueWebsite || "",
+    venueDescription: profile.venueDescription || "",
     lokalScore: 100
   };
   state.profile = saved;
@@ -6750,6 +6753,7 @@ function venueVerificationPanel() {
 function renderProfile() {
   const isVenueProfile = isVenueAccount();
   const venueName = accountVenueName() || currentAccountDisplayName();
+  const venueDescription = state.profile.venueDescription || "Add a venue description so people know the kind of nights, crowds, and events you host.";
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -6758,7 +6762,7 @@ function renderProfile() {
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
     <div class="profile-card"><div class="profile-avatar">${escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? (hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending") : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
-    <p class="bio">${escapeHtml(isVenueProfile ? "Manage venue posts, review upcoming hosted events, and track what Lokal users are engaging with." : state.bio)}</p>
+    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
       <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
@@ -6907,14 +6911,16 @@ function openTasteEditor() {
 }
 
 function openSettings() {
+  const isVenueProfile = isVenueAccount();
+  const venueDescription = state.profile.venueDescription || "";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Profile settings"><button class="modal-close" aria-label="Close settings">&times;</button>
     <p class="eyebrow">Profile and account</p><h2>Settings</h2>
-    <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
+    <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
     <p class="settings-group-label">Account</p>
-    <label class="settings-field">Name<input value="${escapeHtml(state.profile.fullName)}" readonly></label>
+    <label class="settings-field">${isVenueProfile ? "Venue name" : "Name"}<input value="${escapeHtml(isVenueProfile ? currentAccountDisplayName() : state.profile.fullName)}" readonly></label>
     <label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label>
-    <label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>
-    <label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>
+    ${isVenueProfile ? `<label class="settings-field">Venue description<textarea data-venue-description-input placeholder="Tell people what your venue is known for.">${escapeHtml(venueDescription)}</textarea></label>` : `<label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>`}
+    ${isVenueProfile ? "" : `<label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>`}
     <hr class="settings-divider">
     <p class="settings-group-label">Preferences</p>
     <label class="settings-field">Home city<input value="Washington, DC"></label>
@@ -7284,6 +7290,7 @@ function renderOnboarding() {
         <label class="float-field"><span>Venue name</span><input data-onboard-venue-name value="${escapeHtml(d.venueName || "")}" autocomplete="organization" placeholder="Dacha Beer Garden"></label>
         <label class="float-field"><span>Venue address</span><input data-onboard-venue-address value="${escapeHtml(d.venueAddress || "")}" autocomplete="street-address" placeholder="1600 7th St NW"></label>
         <label class="float-field"><span>Website</span><input data-onboard-venue-website type="url" value="${escapeHtml(d.website || "")}" placeholder="https://..."></label>
+        <label class="float-field"><span>Venue description</span><textarea data-onboard-venue-description placeholder="Beer garden, patio crowd, trivia, watch parties...">${escapeHtml(d.venueDescription || "")}</textarea></label>
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-venue>Continue</button>`;
@@ -7619,7 +7626,20 @@ document.addEventListener("click", async event => {
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
   if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
-  if (t.dataset.saveSettings !== undefined) { const input = document.querySelector("[data-age-input]"); const bio = document.querySelector("[data-bio-input]"); const privateInput = document.querySelector("[data-private-account]"); if (input) state.age = Math.max(13, Number(input.value) || 27); if (bio?.value.trim()) state.bio = bio.value.trim(); state.privateAccount = Boolean(privateInput?.checked); state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount }; localStorage.setItem("lokalProfile", JSON.stringify(state.profile)); modalRoot.innerHTML = ""; renderProfile(); toast(state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated"); }
+  if (t.dataset.saveSettings !== undefined) {
+    const input = document.querySelector("[data-age-input]");
+    const bio = document.querySelector("[data-bio-input]");
+    const venueDescription = document.querySelector("[data-venue-description-input]");
+    const privateInput = document.querySelector("[data-private-account]");
+    if (input) state.age = Math.max(13, Number(input.value) || 27);
+    if (bio?.value.trim()) state.bio = bio.value.trim();
+    state.privateAccount = Boolean(privateInput?.checked);
+    state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
+    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
+    modalRoot.innerHTML = "";
+    renderProfile();
+    toast(isVenueAccount() ? "Venue profile updated" : state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated");
+  }
   if (t.dataset.ticket !== undefined) toast("External ticket link opened in the real app");
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
@@ -7644,10 +7664,12 @@ document.addEventListener("click", async event => {
     const venueName = card.querySelector("[data-onboard-venue-name]").value.trim();
     const venueAddress = card.querySelector("[data-onboard-venue-address]").value.trim();
     const website = card.querySelector("[data-onboard-venue-website]").value.trim();
+    const venueDescription = card.querySelector("[data-onboard-venue-description]").value.trim();
     if (!venueName || !venueAddress) { error.textContent = "Enter the venue name and address."; return; }
     state.signupDraft.venueName = venueName;
     state.signupDraft.venueAddress = venueAddress;
     state.signupDraft.website = website;
+    state.signupDraft.venueDescription = venueDescription;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 2;
     renderOnboarding();
@@ -7701,7 +7723,8 @@ document.addEventListener("click", async event => {
       accountType: isVenue ? "venue" : "person",
       venueName: isVenue ? draft.venueName : "",
       venueAddress: isVenue ? draft.venueAddress : "",
-      venueWebsite: isVenue ? draft.website : ""
+      venueWebsite: isVenue ? draft.website : "",
+      venueDescription: isVenue ? draft.venueDescription : ""
     });
     if (isVenue) {
       try {
