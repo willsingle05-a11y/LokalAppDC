@@ -6489,7 +6489,44 @@ function combinedPlannerList(plans) {
   }).join("")}</div>`;
 }
 
+function venueSavedEvents() {
+  const name = accountVenueName();
+  if (!name) return [];
+  return displayableDcEvents()
+    .filter(event => venueEventMatch(event, name))
+    .sort(sortEventsByStart);
+}
+
+function venueUpcomingShows() {
+  const now = Date.now() - 86400000;
+  return venueSavedEvents().filter(event => !event.startSort || event.startSort >= now);
+}
+
+function venueHostedList(eventsToShow) {
+  if (!eventsToShow.length) return `<p class="section-helper empty-planner">No upcoming hosted events are connected to this venue yet. Use the + button on Profile to submit one for review.</p>`;
+  return `<div class="planner-list">${eventsToShow.map(event => `<article class="planner-card planner-${event.cat}">
+    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
+    <div class="planner-actions"><span>${escapeHtml(discoverCategoryLabel(event.cat))}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+  </article>`).join("")}</div>`;
+}
+
+function renderVenueSocial() {
+  const upcoming = venueUpcomingShows();
+  const nextThree = upcoming.slice(0, 3);
+  app.innerHTML = `<section class="page">
+    <div class="discover-heading"><div><p class="eyebrow">Venue dashboard</p><h1>Upcoming shows</h1></div></div>
+    <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Next up</p><h2>Upcoming at ${escapeHtml(accountVenueName() || "your venue")}</h2></div></div>${nextThree.length ? `<div class="saved-suggestion-rail">${nextThree.map(event => eventRow(event, "suggestion", { showBadge: false })).join("")}</div>` : `<p class="section-helper">Approved hosted events will appear here.</p>`}</section>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><h2>Hosted calendar</h2></div></div>${plannerCalendar(upcoming, "Approved hosted events will appear on this calendar.")}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><h2>All upcoming hosted events</h2></div></div>${venueHostedList(upcoming)}</section>
+    <button class="explore-cta" data-route="profile">Post an event from Profile &rarr;</button>
+  </section>`;
+}
+
 function renderSocial() {
+  if (isVenueAccount()) {
+    renderVenueSocial();
+    return;
+  }
   const allPlans = savedPlannerEvents("all");
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><h1>Your Plans</h1></div></div>
@@ -6517,8 +6554,8 @@ function plannerList(plans, emptyText, statusLabel) {
   </article>`).join("")}</div>`;
 }
 
-function plannerCalendar(plans) {
-  if (!plans.length) return `<p class="section-helper empty-planner">Save or RSVP to an event and it will appear in Your Plans.</p>`;
+function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it will appear in Your Plans.") {
+  if (!plans.length) return `<p class="section-helper empty-planner">${escapeHtml(emptyText)}</p>`;
   const start = new Date();
   start.setHours(0, 0, 0, 0);
   start.setDate(start.getDate() + state.plannerWeekOffset * 7);
@@ -7274,7 +7311,7 @@ function renderOnboarding() {
           <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
         </div>
         <div class="welcome-choice-row">
-          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a person</button>
+          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a Local</button>
           <button class="welcome-cta secondary" data-onboard-start data-account-type="venue">Join as a venue</button>
         </div>
       </div>

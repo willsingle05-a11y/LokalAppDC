@@ -27,7 +27,7 @@ function renderOnboarding() {
           <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
         </div>
         <div class="welcome-choice-row">
-          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a person</button>
+          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a Local</button>
           <button class="welcome-cta secondary" data-onboard-start data-account-type="venue">Join as a venue</button>
         </div>
       </div>
