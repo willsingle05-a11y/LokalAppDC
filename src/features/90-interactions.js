@@ -117,6 +117,73 @@ document.addEventListener("click", async event => {
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
+  if (t.dataset.venueVerify !== undefined) { mark(); openVenueVerificationSheet(); }
+  if (t.dataset.submitVenueVerification !== undefined) {
+    mark();
+    const sheet = t.closest(".venue-form-sheet");
+    const error = sheet.querySelector("[data-venue-verify-error]");
+    const payload = {
+      venueName: sheet.querySelector("[data-verify-venue-name]")?.value.trim(),
+      venueAddress: sheet.querySelector("[data-verify-venue-address]")?.value.trim(),
+      website: sheet.querySelector("[data-verify-venue-website]")?.value.trim(),
+      role: sheet.querySelector("[data-verify-role]")?.value.trim(),
+      email: sheet.querySelector("[data-verify-email]")?.value.trim(),
+      phone: sheet.querySelector("[data-verify-phone]")?.value.trim(),
+      notes: sheet.querySelector("[data-verify-notes]")?.value.trim()
+    };
+    if (!payload.venueName || !payload.venueAddress || !payload.role || !payload.email) { error.textContent = "Add venue name, address, your role, and contact email."; return; }
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      await submitVenueVerificationRequest(payload);
+      modalRoot.innerHTML = "";
+      renderProfile();
+      toast("Venue verification sent for review");
+    } catch {
+      error.textContent = "Could not submit yet. Try again in a minute.";
+      t.disabled = false;
+    }
+  }
+  if (t.dataset.postVenueEvent) { mark(); openVenueEventPostSheet(t.dataset.postVenueEvent); }
+  if (t.dataset.submitVenueEvent !== undefined) {
+    mark();
+    const sheet = t.closest(".venue-form-sheet");
+    const error = sheet.querySelector("[data-post-event-error]");
+    const venueName = sheet.querySelector("[data-post-venue-name]")?.value.trim();
+    const title = sheet.querySelector("[data-post-event-title]")?.value.trim();
+    const startsAt = sheet.querySelector("[data-post-starts-at]")?.value;
+    const isRecurring = Boolean(sheet.querySelector("[data-post-recurring]")?.checked);
+    const recurrenceFrequency = sheet.querySelector("[data-post-recurrence-frequency]")?.value || "";
+    if (!venueName || !title || !startsAt) { error.textContent = "Add an event name and start date/time."; return; }
+    if (isRecurring && !recurrenceFrequency) { error.textContent = "Choose how often this recurring event repeats."; return; }
+    const tags = String(sheet.querySelector("[data-post-tags]")?.value || "").split(",").map(tag => tag.trim()).filter(Boolean);
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      await submitVenueEventPost({
+        venueName,
+        venueAddress: sheet.querySelector("[data-post-venue-address]")?.value.trim(),
+        title,
+        startsAt: new Date(startsAt).toISOString(),
+        endsAt: sheet.querySelector("[data-post-ends-at]")?.value ? new Date(sheet.querySelector("[data-post-ends-at]").value).toISOString() : "",
+        category: sheet.querySelector("[data-post-category]")?.value,
+        tags,
+        ticketUrl: sheet.querySelector("[data-post-ticket-url]")?.value.trim(),
+        price: sheet.querySelector("[data-post-price]")?.value.trim(),
+        imageUrl: sheet.querySelector("[data-post-image-url]")?.value.trim(),
+        description: sheet.querySelector("[data-post-description]")?.value.trim(),
+        isRecurring,
+        recurrenceFrequency,
+        recurrenceUntil: sheet.querySelector("[data-post-recurrence-until]")?.value || ""
+      });
+      modalRoot.innerHTML = "";
+      openVenueEvents(venueName);
+      toast("Event submitted for Lokal review");
+    } catch {
+      error.textContent = "Could not submit this event yet. Try again in a minute.";
+      t.disabled = false;
+    }
+  }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
   if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
   if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }

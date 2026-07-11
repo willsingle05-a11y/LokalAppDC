@@ -87,6 +87,21 @@ function profileInsightPanel() {
   </section>`;
 }
 
+function venueVerificationPanel() {
+  const pending = state.pendingVenueRequests || [];
+  const approvedCount = state.verifiedVenues?.size || 0;
+  const status = approvedCount
+    ? `${approvedCount} approved venue${approvedCount === 1 ? "" : "s"}`
+    : pending.length
+      ? "Request pending"
+      : "No venue attached";
+  return `<section class="section venue-owner-panel">
+    <div class="section-heading"><div><p class="eyebrow">Venue tools</p><h2>For venue owners</h2></div><span class="profile-pulse">${escapeHtml(status)}</span></div>
+    <p class="section-helper">Request verification so approved venues can post events from their venue page. Requests are stored for Lokal review.</p>
+    <button class="wide-button" data-venue-verify>Request venue verification</button>
+  </section>`;
+}
+
 function renderProfile() {
   const score = lokalScore();
   const level = scoreLevel(score);
@@ -108,6 +123,7 @@ function renderProfile() {
     <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
     ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
     <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>
+    ${venueVerificationPanel()}
     ${state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
     <div class="attend-head"><div><p class="eyebrow">Your history</p><h2>Events you've been to</h2></div></div>
     ${attendanceHistorySection()}
@@ -264,10 +280,26 @@ function openSettings() {
     <hr class="settings-divider">
     <p class="settings-group-label">App</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label>
-    <button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button>
+    <button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>
     <button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button>
     <div class="settings-danger"><button class="settings-minor" data-signout>Sign out</button><button class="settings-minor danger" data-deactivate>Delete account</button></div>
+  </section></div>`;
+}
+
+function openVenueVerificationSheet() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Request venue verification"><button class="modal-close" aria-label="Close venue verification">&times;</button>
+    <p class="eyebrow">Venue access</p><h2>Request verification</h2>
+    <p class="lede">Tell us which venue you manage. Lokal can review this on the owner side, then approve posting access for that venue page.</p>
+    <label class="settings-field">Venue name<input data-verify-venue-name placeholder="The Anthem"></label>
+    <label class="settings-field">Venue address<input data-verify-venue-address placeholder="901 Wharf St SW, Washington, DC"></label>
+    <label class="settings-field">Website<input data-verify-venue-website type="url" placeholder="https://..."></label>
+    <label class="settings-field">Your role<input data-verify-role placeholder="Owner, GM, marketing manager"></label>
+    <label class="settings-field">Contact email<input data-verify-email type="email" value="${escapeHtml(state.profile.email || "")}" placeholder="you@venue.com"></label>
+    <label class="settings-field">Contact phone<input data-verify-phone value="${escapeHtml(formatDisplayPhone(state.profile.phone || ""))}" placeholder="(202) 555-0123"></label>
+    <label class="settings-field">Anything we should know<textarea data-verify-notes placeholder="Best way to confirm ownership, booking contact, social handles, etc."></textarea></label>
+    <p class="account-error" data-venue-verify-error></p>
+    <button class="wide-button" data-submit-venue-verification>Submit for review</button>
   </section></div>`;
 }
 

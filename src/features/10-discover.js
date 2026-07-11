@@ -129,21 +129,65 @@ function venueEventMatch(event, displayName) {
   return displayText.length >= 3 && text.includes(displayText);
 }
 
+function isVerifiedVenueName(name) {
+  return state.verifiedVenues?.has(venueImageKeyName(name));
+}
+
 function openVenueEvents(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
   const venueEvents = displayableDcEvents().filter(event => venueEventMatch(event, displayName)).sort(sortEventsByStart).slice(0, 12);
   const following = state.follows.has(`venue:${displayName}`);
+  const verified = isVerifiedVenueName(displayName);
   const eventVenueImage = venueEvents.find(event => event.image)?.image || "";
   const eventCardFallbackImage = venueEvents[0] ? eventCardImageSrc(venueEvents[0]) : "";
   const venueImage = directoryVenue.image_url || eventVenueImage || eventCardFallbackImage;
   const venueImg = venueImage ? `<img class="venue-page-img" src="${escapeHtml(venueImage)}" alt="" loading="lazy">` : "";
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
-    <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
-    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
+    <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${verified ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="Post event for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
     <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
+  </section></div>`;
+}
+
+function openVenueEventPostSheet(name) {
+  const directoryVenue = venueDirectoryMatch(name) || { name };
+  const displayName = directoryVenue.name || name;
+  const address = directoryVenue.address || "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Post an event for ${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close post event">&times;</button>
+    <p class="eyebrow">Verified venue</p><h2>Post an event</h2>
+    <p class="lede">Create an event for ${escapeHtml(displayName)}. Submissions go to Lokal for review before publishing.</p>
+    <input type="hidden" data-post-venue-name value="${escapeHtml(displayName)}">
+    <label class="settings-field">Event name<input data-post-event-title placeholder="Summer patio DJ night"></label>
+    <label class="settings-field">When starts<input data-post-starts-at type="datetime-local"></label>
+    <label class="settings-field">When ends (optional)<input data-post-ends-at type="datetime-local"></label>
+    <label class="settings-field">Where<input data-post-venue-address value="${escapeHtml(address)}" placeholder="Venue address or room"></label>
+    <label class="settings-field">Category<select data-post-category>
+      <option value="nightlife">Nightlife</option>
+      <option value="concerts">Concerts</option>
+      <option value="live-music">Live music</option>
+      <option value="performing-arts">Performing arts</option>
+      <option value="happy-hours">Happy hours</option>
+      <option value="trivia-nights">Trivia nights</option>
+      <option value="food">Food & drink</option>
+      <option value="community">Community</option>
+      <option value="sports">Sports</option>
+      <option value="festivals">Festivals</option>
+    </select></label>
+    <label class="settings-field">Tags<input data-post-tags placeholder="DJ set, rooftop, 21+"></label>
+    <label class="settings-field">Ticket or RSVP link<input data-post-ticket-url type="url" placeholder="https://..."></label>
+    <label class="settings-field">Price (optional)<input data-post-price placeholder="Free, $10, From $25"></label>
+    <label class="settings-field">Picture URL (optional)<input data-post-image-url type="url" placeholder="https://..."></label>
+    <label class="settings-field">Description<textarea data-post-description placeholder="What should people know before they go?"></textarea></label>
+    <label class="privacy-toggle recurring-toggle"><span><b>Recurring event</b><small>Use this for weekly trivia, monthly parties, classes, or repeat happy hours.</small></span><input data-post-recurring type="checkbox"></label>
+    <div class="recurring-fields">
+      <label class="settings-field">Repeats<select data-post-recurrence-frequency><option value="">Not recurring</option><option value="weekly">Weekly</option><option value="biweekly">Every other week</option><option value="monthly">Monthly</option></select></label>
+      <label class="settings-field">Repeat until<input data-post-recurrence-until type="date"></label>
+    </div>
+    <p class="account-error" data-post-event-error></p>
+    <button class="wide-button" data-submit-venue-event>Submit event</button>
   </section></div>`;
 }
 

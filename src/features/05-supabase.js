@@ -140,6 +140,15 @@ function queuePendingEventInteraction(record) {
   localStorage.setItem(supabaseStorageKeys.pendingInteractions, JSON.stringify(pending.slice(-40)));
 }
 
+function supabaseJsonHeaders(extra = {}) {
+  return {
+    apikey: supabaseConfig.publishableKey,
+    Authorization: `Bearer ${localStorage.getItem(supabaseStorageKeys.accessToken) || supabaseConfig.publishableKey}`,
+    "Content-Type": "application/json",
+    ...extra
+  };
+}
+
 function supabaseInteractionHeaders() {
   const token = localStorage.getItem(supabaseStorageKeys.accessToken);
   const headers = {
@@ -194,6 +203,73 @@ async function saveEventInteraction(eventId, kind = "save", active = true) {
     console.warn("[supabase] event interaction queued locally:", error.message);
     return { queued: true, error };
   }
+}
+
+async function submitVenueVerificationRequest(profile) {
+  const record = {
+    requester_user_id: currentInteractionUserId(),
+    requester_name: state.profile.fullName || "",
+    requester_email: profile.email || state.profile.email || "",
+    requester_phone: profile.phone || state.profile.phone || "",
+    venue_name: profile.venueName,
+    venue_address: profile.venueAddress,
+    venue_website: profile.website || "",
+    requester_role: profile.role || "",
+    notes: profile.notes || "",
+    status: "pending"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_verification_requests`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Venue verification request returned ${response.status}`);
+  state.pendingVenueRequests = [record, ...(state.pendingVenueRequests || [])].slice(0, 20);
+  localStorage.setItem("lokalPendingVenueRequests", JSON.stringify(state.pendingVenueRequests));
+  return record;
+}
+
+async function syncVenueVerificationStatus() {
+  try {
+    const userId = currentInteractionUserId();
+    const url = `${supabaseConfig.url}/rest/v1/venue_verification_requests?select=venue_name,status&requester_user_id=eq.${encodeURIComponent(userId)}&status=eq.approved&limit=200`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) return;
+    const rows = await response.json();
+    rows.forEach(row => {
+      const key = venueImageKeyName(row.venue_name);
+      if (key) state.verifiedVenues.add(key);
+    });
+    localStorage.setItem("lokalVerifiedVenues", JSON.stringify(Array.from(state.verifiedVenues)));
+  } catch {}
+}
+
+async function submitVenueEventPost(payload) {
+  const record = {
+    requester_user_id: currentInteractionUserId(),
+    venue_name: payload.venueName,
+    venue_address: payload.venueAddress || "",
+    title: payload.title,
+    description: payload.description || "",
+    category: payload.category || "community",
+    tags: payload.tags || [],
+    starts_at: payload.startsAt,
+    ends_at: payload.endsAt || null,
+    image_url: payload.imageUrl || "",
+    ticket_url: payload.ticketUrl || "",
+    price: payload.price || "",
+    is_recurring: Boolean(payload.isRecurring),
+    recurrence_frequency: payload.recurrenceFrequency || "",
+    recurrence_until: payload.recurrenceUntil || null,
+    status: "pending_review"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_event_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Venue event submission returned ${response.status}`);
+  return record;
 }
 
 function cleanSupabaseDescription(value) {
@@ -723,6 +799,7 @@ async function syncSupabaseEvents(showToast = false) {
   }, 5000);
   if (state.route === "home") renderHome();
   await syncSupabaseVenueImages();
+  await syncVenueVerificationStatus();
   try {
     const rowSets = await Promise.all(discoveryWindowQueries().map(fetchSupabaseEventPages));
     const rows = [...new Map(rowSets.flat().map(row => [row.id, row])).values()];
