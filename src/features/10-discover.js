@@ -339,8 +339,8 @@ function renderTonightMap() {
   const spots = [[19, 26], [66, 19], [41, 49], [74, 63], [25, 75]];
   const pins = events.map((event, index) => {
     const [x, y] = spots[index % spots.length];
-    const loc = cleanLocationPart(event.area || event.neighborhood) || "DC";
-    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(loc)}</button>`;
+    const venue = cleanLocationPart(event.venue) || eventLocationLine(event) || "DC";
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)} at ${escapeHtml(venue)}"><span class="tonight-pin-dot"></span>${escapeHtml(venue)}</button>`;
   }).join("");
   return `<section class="tonight-map">
     <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Today</h2></div>
