@@ -364,6 +364,8 @@ function openVenueVerificationSheet() {
     <label class="settings-field">Venue name<input data-verify-venue-name placeholder="The Anthem"></label>
     <label class="settings-field">Venue address<input data-verify-venue-address placeholder="901 Wharf St SW, Washington, DC"></label>
     <label class="settings-field">Website<input data-verify-venue-website type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue image URL<input data-verify-venue-image type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue description<textarea data-verify-venue-description placeholder="What should locals know about the venue?"></textarea></label>
     <label class="settings-field">Your role<input data-verify-role placeholder="Owner, GM, marketing manager"></label>
     <label class="settings-field">Contact email<input data-verify-email type="email" value="${escapeHtml(state.profile.email || "")}" placeholder="you@venue.com"></label>
     <label class="settings-field">Contact phone<input data-verify-phone value="${escapeHtml(formatDisplayPhone(state.profile.phone || ""))}" placeholder="(202) 555-0123"></label>

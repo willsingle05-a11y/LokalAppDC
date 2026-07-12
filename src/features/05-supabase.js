@@ -214,6 +214,10 @@ async function submitVenueVerificationRequest(profile) {
     venue_name: profile.venueName,
     venue_address: profile.venueAddress,
     venue_website: profile.website || "",
+    venue_image_url: profile.venueImageUrl || "",
+    venue_description: profile.venueDescription || "",
+    event_interests: profile.eventInterests || [],
+    area_interests: profile.areaInterests || [],
     requester_role: profile.role || "",
     notes: profile.notes || "",
     status: "pending"
@@ -1024,6 +1028,12 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
       email: profile.email,
       event_interests: profile.eventInterests,
       area_interests: profile.areaInterests,
+      account_type: profile.accountType || "person",
+      venue_name: profile.venueName || null,
+      venue_address: profile.venueAddress || null,
+      venue_website: profile.venueWebsite || null,
+      venue_image_url: profile.venueImageUrl || null,
+      venue_description: profile.venueDescription || null,
       home_city: "Washington, DC",
       lokal_score: 100,
       is_demo: false

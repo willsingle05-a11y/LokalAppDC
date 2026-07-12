@@ -4381,6 +4381,10 @@ async function submitVenueVerificationRequest(profile) {
     venue_name: profile.venueName,
     venue_address: profile.venueAddress,
     venue_website: profile.website || "",
+    venue_image_url: profile.venueImageUrl || "",
+    venue_description: profile.venueDescription || "",
+    event_interests: profile.eventInterests || [],
+    area_interests: profile.areaInterests || [],
     requester_role: profile.role || "",
     notes: profile.notes || "",
     status: "pending"
@@ -5191,6 +5195,12 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
       email: profile.email,
       event_interests: profile.eventInterests,
       area_interests: profile.areaInterests,
+      account_type: profile.accountType || "person",
+      venue_name: profile.venueName || null,
+      venue_address: profile.venueAddress || null,
+      venue_website: profile.venueWebsite || null,
+      venue_image_url: profile.venueImageUrl || null,
+      venue_description: profile.venueDescription || null,
       home_city: "Washington, DC",
       lokal_score: 100,
       is_demo: false
@@ -7015,6 +7025,8 @@ function openVenueVerificationSheet() {
     <label class="settings-field">Venue name<input data-verify-venue-name placeholder="The Anthem"></label>
     <label class="settings-field">Venue address<input data-verify-venue-address placeholder="901 Wharf St SW, Washington, DC"></label>
     <label class="settings-field">Website<input data-verify-venue-website type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue image URL<input data-verify-venue-image type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue description<textarea data-verify-venue-description placeholder="What should locals know about the venue?"></textarea></label>
     <label class="settings-field">Your role<input data-verify-role placeholder="Owner, GM, marketing manager"></label>
     <label class="settings-field">Contact email<input data-verify-email type="email" value="${escapeHtml(state.profile.email || "")}" placeholder="you@venue.com"></label>
     <label class="settings-field">Contact phone<input data-verify-phone value="${escapeHtml(formatDisplayPhone(state.profile.phone || ""))}" placeholder="(202) 555-0123"></label>
@@ -7591,6 +7603,8 @@ document.addEventListener("click", async event => {
       venueName: sheet.querySelector("[data-verify-venue-name]")?.value.trim(),
       venueAddress: sheet.querySelector("[data-verify-venue-address]")?.value.trim(),
       website: sheet.querySelector("[data-verify-venue-website]")?.value.trim(),
+      venueImageUrl: sheet.querySelector("[data-verify-venue-image]")?.value.trim(),
+      venueDescription: sheet.querySelector("[data-verify-venue-description]")?.value.trim(),
       role: sheet.querySelector("[data-verify-role]")?.value.trim(),
       email: sheet.querySelector("[data-verify-email]")?.value.trim(),
       phone: sheet.querySelector("[data-verify-phone]")?.value.trim(),
@@ -7810,6 +7824,10 @@ document.addEventListener("click", async event => {
           venueName: draft.venueName,
           venueAddress: draft.venueAddress,
           website: draft.website,
+          venueImageUrl: draft.venueImageUrl,
+          venueDescription: draft.venueDescription,
+          eventInterests,
+          areaInterests,
           role: "Venue owner or manager",
           email: draft.email,
           phone: draft.phone,
