@@ -314,7 +314,21 @@ function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const tonight = dc.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
   const pool = tonight.length >= limit ? tonight : [...tonight, ...dc.filter(event => !tonight.includes(event))];
-  return pool.slice(0, limit);
+  const picks = [];
+  const seenCategories = new Set();
+  const addIfNewCategory = event => {
+    const category = String(event.cat || "other").toLowerCase();
+    if (seenCategories.has(category) || picks.some(item => item.id === event.id)) return;
+    picks.push(event);
+    seenCategories.add(category);
+  };
+  pool.forEach(event => {
+    if (picks.length < limit) addIfNewCategory(event);
+  });
+  pool.forEach(event => {
+    if (picks.length < limit && !picks.some(item => item.id === event.id)) picks.push(event);
+  });
+  return picks.slice(0, limit);
 }
 
 // Landing-page style: a DC photo with up to 5 events popping up across the city.
@@ -329,7 +343,7 @@ function renderTonightMap() {
     return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(loc)}</button>`;
   }).join("");
   return `<section class="tonight-map">
-    <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div>
+    <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Today</h2></div>
     <div class="tonight-canvas">${pins}</div>
   </section>`;
 }
