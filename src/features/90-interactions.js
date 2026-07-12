@@ -278,7 +278,7 @@ document.addEventListener("click", async event => {
       draft[key] = [...chosen];
     }
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { ...(state.signupDraft || {}), accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
   if (t.dataset.onboardVenue !== undefined) {
     mark();
@@ -593,6 +593,13 @@ const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
   ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+  state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
+  state.signupDraft = {};
+  state.verifiedVenues = new Set();
+  state.verifiedVenueNames = [];
+  state.pendingVenueRequests = [];
+  state.venueVerificationDismissed = false;
+  state.privateAccount = false;
   history.replaceState(null, "", location.pathname);
 }
 if (startupParams.has("bypassSignup")) {

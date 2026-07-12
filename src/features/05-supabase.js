@@ -1000,6 +1000,11 @@ function finalizeLokalProfile(profile) {
     localStorage.setItem("lokalAttended", "[]");
     localStorage.setItem("lokalSavedSources", "[]");
     localStorage.setItem("lokalRsvpSources", "[]");
+    state.verifiedVenues = new Set();
+    state.verifiedVenueNames = [];
+    state.pendingVenueRequests = [];
+    state.venueVerificationDismissed = false;
+    ["lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   }
   if (saved.accountType === "venue") registerLocalVenueProfile();
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
