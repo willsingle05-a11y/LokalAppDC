@@ -312,8 +312,9 @@ function renderEventFeed(list, opts = {}) {
 
 function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
-  const tonight = dc.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
-  const pool = tonight.length >= limit ? tonight : [...tonight, ...dc.filter(event => !tonight.includes(event))];
+  const withPictures = dc.filter(event => String(event.image || "").trim());
+  const tonight = withPictures.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
+  const pool = tonight.length >= limit ? tonight : [...tonight, ...withPictures.filter(event => !tonight.includes(event))];
   const picks = [];
   const seenCategories = new Set();
   const addIfNewCategory = event => {
