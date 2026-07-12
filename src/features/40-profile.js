@@ -151,7 +151,7 @@ function profileInsightPanel() {
 function venueVerificationPanel() {
   const pending = state.pendingVenueRequests || [];
   const approvedNames = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames : [];
-  const approvedName = approvedNames[0] || "";
+  const approvedName = accountVenueName() || approvedNames[0] || "";
   const hasApprovedVenue = Boolean(approvedName || state.verifiedVenues?.size);
   if (!hasApprovedVenue && state.venueVerificationDismissed) return "";
   const status = hasApprovedVenue
