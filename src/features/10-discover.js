@@ -129,21 +129,65 @@ function venueEventMatch(event, displayName) {
   return displayText.length >= 3 && text.includes(displayText);
 }
 
+function isVerifiedVenueName(name) {
+  return state.verifiedVenues?.has(venueImageKeyName(name));
+}
+
 function openVenueEvents(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
   const venueEvents = displayableDcEvents().filter(event => venueEventMatch(event, displayName)).sort(sortEventsByStart).slice(0, 12);
   const following = state.follows.has(`venue:${displayName}`);
+  const verified = isVerifiedVenueName(displayName);
   const eventVenueImage = venueEvents.find(event => event.image)?.image || "";
   const eventCardFallbackImage = venueEvents[0] ? eventCardImageSrc(venueEvents[0]) : "";
   const venueImage = directoryVenue.image_url || eventVenueImage || eventCardFallbackImage;
   const venueImg = venueImage ? `<img class="venue-page-img" src="${escapeHtml(venueImage)}" alt="" loading="lazy">` : "";
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
-    <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
-    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
+    <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${verified ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="Post event for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
     <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
+  </section></div>`;
+}
+
+function openVenueEventPostSheet(name) {
+  const directoryVenue = venueDirectoryMatch(name) || { name };
+  const displayName = directoryVenue.name || name;
+  const address = directoryVenue.address || "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Post an event for ${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close post event">&times;</button>
+    <p class="eyebrow">Verified venue</p><h2>Post an event</h2>
+    <p class="lede">Create an event for ${escapeHtml(displayName)}. Submissions go to Lokal for review before publishing.</p>
+    <input type="hidden" data-post-venue-name value="${escapeHtml(displayName)}">
+    <label class="settings-field">Event name<input data-post-event-title placeholder="Summer patio DJ night"></label>
+    <label class="settings-field">When starts<input data-post-starts-at type="datetime-local"></label>
+    <label class="settings-field">When ends (optional)<input data-post-ends-at type="datetime-local"></label>
+    <label class="settings-field">Where<input data-post-venue-address value="${escapeHtml(address)}" placeholder="Venue address or room"></label>
+    <label class="settings-field">Category<select data-post-category>
+      <option value="nightlife">Nightlife</option>
+      <option value="concerts">Concerts</option>
+      <option value="live-music">Live music</option>
+      <option value="performing-arts">Performing arts</option>
+      <option value="happy-hours">Happy hours</option>
+      <option value="trivia-nights">Trivia nights</option>
+      <option value="food">Food & drink</option>
+      <option value="community">Community</option>
+      <option value="sports">Sports</option>
+      <option value="festivals">Festivals</option>
+    </select></label>
+    <label class="settings-field">Tags<input data-post-tags placeholder="DJ set, rooftop, 21+"></label>
+    <label class="settings-field">Ticket or RSVP link<input data-post-ticket-url type="url" placeholder="https://..."></label>
+    <label class="settings-field">Price (optional)<input data-post-price placeholder="Free, $10, From $25"></label>
+    <label class="settings-field">Picture URL (optional)<input data-post-image-url type="url" placeholder="https://..."></label>
+    <label class="settings-field">Description<textarea data-post-description placeholder="What should people know before they go?"></textarea></label>
+    <label class="privacy-toggle recurring-toggle"><span><b>Recurring event</b><small>Use this for weekly trivia, monthly parties, classes, or repeat happy hours.</small></span><input data-post-recurring type="checkbox"></label>
+    <div class="recurring-fields">
+      <label class="settings-field">Repeats<select data-post-recurrence-frequency><option value="">Not recurring</option><option value="weekly">Weekly</option><option value="biweekly">Every other week</option><option value="monthly">Monthly</option></select></label>
+      <label class="settings-field">Repeat until<input data-post-recurrence-until type="date"></label>
+    </div>
+    <p class="account-error" data-post-event-error></p>
+    <button class="wide-button" data-submit-venue-event>Submit event</button>
   </section></div>`;
 }
 
@@ -268,9 +312,24 @@ function renderEventFeed(list, opts = {}) {
 
 function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
-  const tonight = dc.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
-  const pool = tonight.length >= limit ? tonight : [...tonight, ...dc.filter(event => !tonight.includes(event))];
-  return pool.slice(0, limit);
+  const withPictures = dc.filter(event => String(event.image || "").trim());
+  const tonight = withPictures.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
+  const pool = tonight.length >= limit ? tonight : [...tonight, ...withPictures.filter(event => !tonight.includes(event))];
+  const picks = [];
+  const seenCategories = new Set();
+  const addIfNewCategory = event => {
+    const category = String(event.cat || "other").toLowerCase();
+    if (seenCategories.has(category) || picks.some(item => item.id === event.id)) return;
+    picks.push(event);
+    seenCategories.add(category);
+  };
+  pool.forEach(event => {
+    if (picks.length < limit) addIfNewCategory(event);
+  });
+  pool.forEach(event => {
+    if (picks.length < limit && !picks.some(item => item.id === event.id)) picks.push(event);
+  });
+  return picks.slice(0, limit);
 }
 
 // Landing-page style: a DC photo with up to 5 events popping up across the city.
@@ -281,11 +340,11 @@ function renderTonightMap() {
   const spots = [[19, 26], [66, 19], [41, 49], [74, 63], [25, 75]];
   const pins = events.map((event, index) => {
     const [x, y] = spots[index % spots.length];
-    const loc = cleanLocationPart(event.area || event.neighborhood) || "DC";
-    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(loc)}</button>`;
+    const venue = cleanLocationPart(event.venue) || eventLocationLine(event) || "DC";
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)} at ${escapeHtml(venue)}"><span class="tonight-pin-dot"></span>${escapeHtml(venue)}</button>`;
   }).join("");
   return `<section class="tonight-map">
-    <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div>
+    <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Today</h2></div>
     <div class="tonight-canvas">${pins}</div>
   </section>`;
 }
@@ -337,9 +396,9 @@ function renderFilterBar() {
     return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
   };
   const pills = `<div class="filter-pills">
-    ${pillWrap("what", icons.tag, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
+    ${pillWrap("what", icons.megaphone, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
     ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
-    ${pillWrap("when", icons.calendar, filterBarSummary(whenLabels, "When"), whenLabels.length)}
+    ${pillWrap("when", icons.clock, filterBarSummary(whenLabels, "When"), whenLabels.length)}
   </div>`;
   return `<div class="sub-filters">${pills}</div>`;
 }

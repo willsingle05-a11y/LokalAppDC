@@ -506,6 +506,8 @@ body { font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, A
 .header-icon { color: var(--blue); }
 .header-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
 .header-icon i { position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--steel); }
+#profile-shortcut { grid-auto-flow: column; grid-template-columns: auto minmax(0, max-content); gap: 7px; max-width: 174px; }
+#profile-shortcut .account-label { overflow: hidden; max-width: 118px; color: var(--ink); font-size: 11px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
 .following-chip { flex-basis: 190px; min-height: 186px; align-content: center; gap: 10px; }
 .following-chip .group-icon { width: 88px; height: 88px; border: 4px solid var(--steel-soft); border-radius: 50%; font-size: 30px; }
 .following-chip b { font-size: 14px; }.following-chip small { font-size: 9px; }
@@ -685,6 +687,7 @@ h1, h2, h3, .brand b, .nav-item, .nav-item.active { color: #111827; }
 .app-shell, .page, main, .onboarding { background: #f5f7fa; }
 .bottom-nav { background: rgba(255,255,255,.97); }
 .profile-avatar, .avatar-me, .group-icon { background: #111827; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
 .event-art, .cat-music, .cat-food, .cat-art, .cat-fitness { background: #32d274; }
 .cat-nightlife { background: #32d274; }
 .event-art {
@@ -1418,9 +1421,12 @@ h1, h2, h3, .brand b { color: #326f91; }
   min-height: 285px;
   background-size: cover !important;
 }
-.detail-hero.has-image h1 {
-  margin-top: 130px;
-}
+.detail-hero.has-image::after { display: none; }
+.detail-title-block { display: grid; gap: 5px; margin-bottom: 12px; }
+.detail-title-block h1 { margin: 0; color: var(--ink); font-size: 27px; line-height: 1.04; letter-spacing: 0; }
+.detail-title-block h2 { margin: 0; color: var(--steel); font-size: 15px; line-height: 1.25; }
+.detail-title-block .event-meta { margin: 0; }
+.detail-price { margin: 2px 0 0; color: var(--ink); font-size: 13px; font-weight: 900; }
 
 /* Profile analytics */
 .profile-insights {
@@ -1703,6 +1709,9 @@ h1, h2, h3, .brand b { color: #326f91; }
 .venue-page-hero h2 { margin: 0; color: #fff; font-size: 28px; }
 .venue-page-hero span { color: rgba(255,255,255,.88); font-size: 12px; font-weight: 800; }
 .venue-page-actions { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.venue-add-button { display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; color: #fff; background: #008f6c; font-size: 28px; font-weight: 900; line-height: 1; box-shadow: 0 10px 24px rgba(0, 143, 108, .26); }
+.venue-add-button.small { width: 34px; height: 34px; font-size: 22px; box-shadow: 0 6px 16px rgba(0, 143, 108, .2); }
+.venue-add-button:active { transform: translateY(1px); }
 .detail-hero.has-image { background-size: cover, contain !important; background-repeat: no-repeat, no-repeat !important; background-position: center, center !important; background-color: #f7fafc !important; }
 .feed-section.search-empty-feed::after { content: "No events or venues match that search."; }
 
@@ -1715,6 +1724,35 @@ h1, h2, h3, .brand b { color: #326f91; }
 .venue-search-card b, .venue-search-card small, .venue-search-card em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .venue-search-card small { color: var(--muted); font-size: 11px; }
 .venue-search-card em { color: var(--steel); font-size: 10px; font-style: normal; font-weight: 800; }
+
+.venue-owner-panel { position: relative; display: grid; gap: 10px; margin: 14px 0; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(145deg, #f7fafc, #eefaf6); }
+.venue-owner-panel h3 { margin: 0; font-size: 16px; }
+.venue-owner-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
+.venue-owner-panel .wide-button { width: 100%; }
+.venue-owner-status { display: grid; gap: 6px; }
+.venue-owner-status span { display: inline-flex; width: fit-content; padding: 5px 9px; border-radius: 999px; background: #e0eef7; color: #006c52; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+.venue-owner-list { display: grid; gap: 8px; }
+.venue-owner-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.78); }
+.venue-owner-row span { display: grid; gap: 2px; min-width: 0; }
+.venue-owner-row b,
+.venue-owner-row small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.venue-owner-row small { color: var(--muted); font-size: 11px; font-weight: 800; }
+.venue-owner-dismiss { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255,255,255,.82); color: var(--muted); font-size: 18px; font-weight: 900; line-height: 1; }
+.venue-owner-dismiss:active { transform: translateY(1px); }
+.welcome-choice-row { display: grid; gap: 10px; width: min(100%, 320px); }
+.welcome-cta.secondary { background: rgba(255,255,255,.92); color: #0f172a; }
+.venue-form-sheet textarea,
+.venue-form-sheet select { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; }
+.venue-form-sheet textarea { min-height: 96px; padding: 12px; resize: vertical; }
+.settings-field textarea,
+.float-field textarea { width: 100%; min-height: 92px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; resize: vertical; }
+.venue-form-sheet select { min-height: 44px; padding: 0 12px; }
+.venue-form-sheet .settings-field label { align-items: start; }
+.recurring-toggle { display: flex; align-items: center; gap: 9px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 13px; font-weight: 800; }
+.recurring-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 430px) {
+  .recurring-fields { grid-template-columns: 1fr; }
+}
 
 /* ============================================================
    UI Redesign v2 â€” teal design system + new components.
@@ -2282,15 +2320,15 @@ h3 { font-weight: 700; }
 .following-hint { margin: 4px 2px 16px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 
 .discover-search-box.subtle-search {
-  margin-top: 2px;
-  margin-bottom: 12px;
-  padding: 9px 11px;
-  border-color: rgba(58, 124, 165, .18);
-  background: rgba(255, 255, 255, .72);
-  box-shadow: none;
+  margin-top: 6px;
+  margin-bottom: 14px;
+  padding: 15px 18px;
+  border-color: rgba(58, 124, 165, .28);
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(23, 28, 26, .06);
 }
-.discover-search-box.subtle-search span { font-size: 18px; }
-.discover-search-box.subtle-search input { font-size: 11px; }
+.discover-search-box.subtle-search span { font-size: 22px; }
+.discover-search-box.subtle-search input { font-size: 16px; }
 
 .event-card-loc { color: rgba(255, 255, 255, .9); font-size: 11px; font-weight: 700; }
 
@@ -2669,7 +2707,22 @@ h3 { font-weight: 800; }
 
 /* Collapsed When/Where/Type filter pills + dropdown panel */
 .filter-pills { display: flex; gap: 8px; }
-.filter-pill { display: inline-flex; align-items: center; gap: 6px; max-width: 48%; padding: 7px 12px; border: 1px solid rgba(58, 124, 165, .22); border-radius: 999px; background: #fff; color: var(--ink-green); font-family: var(--display); font-size: 12px; font-weight: 600; cursor: pointer; }
+.filter-pill { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 12px; border: 1px solid rgba(58, 124, 165, .22); border-radius: 999px; background: #fff; color: var(--ink-green); font-family: var(--display); font-size: 12px; font-weight: 600; cursor: pointer; }
+.pill-count { flex: 0 0 auto; display: inline-grid; place-items: center; min-width: 16px; height: 16px; margin-left: auto; padding: 0 4px; border-radius: 999px; background: var(--accent-strong); color: #fff; font-family: var(--mono); font-size: 9px; font-weight: 800; }
+.filter-pill-wrap { position: relative; flex: 1 1 0; min-width: 0; display: flex; }
+.filter-pill-wrap .filter-pill { flex: 1 1 0; width: 100%; }
+.filter-dropdown { position: absolute; top: calc(100% + 8px); left: 0; z-index: 50; width: max-content; min-width: 210px; max-width: min(320px, 90vw); margin-top: 0; }
+.filter-dropdown.align-end { left: auto; right: 0; }
+.check-list { display: grid; gap: 2px; }
+.check-list-scroll { max-height: 246px; overflow-y: auto; }
+.check-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-green); font-family: var(--display); font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; }
+.check-row:hover { background: rgba(8, 217, 154, .08); }
+.check-row.checked { color: var(--accent-strong); }
+.check-box { flex: 0 0 auto; display: grid; place-items: center; width: 18px; height: 18px; border: 1.5px solid rgba(58, 124, 165, .32); border-radius: 6px; background: #fff; }
+.check-row.checked .check-box { border-color: var(--accent-strong); background: var(--accent-strong); }
+.check-box svg { width: 12px; height: 12px; color: #fff; stroke-width: 3; }
+.dropdown-clear { margin-top: 4px; padding: 6px 4px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 11px; font-weight: 700; text-align: left; cursor: pointer; }
+.dropdown-clear:hover { color: var(--accent-strong); }
 .filter-pill svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--muted); }
 .filter-pill span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .filter-pill .pill-caret { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; opacity: .5; transition: transform .18s ease; }
@@ -2733,7 +2786,7 @@ h3 { font-weight: 800; }
 }
 .event-card-reason::before { content: "\2605  "; }
 
-/* Happening Tonight â€” DC photo with events popping up across the city */
+/* Happening Today â€” DC photo with events popping up across the city */
 .tonight-map { margin: 0 -18px 16px; }
 .tonight-map .tonight-head { margin: 0; padding: 14px 18px 10px; }
 .tonight-canvas {
@@ -2839,16 +2892,16 @@ h3 { font-weight: 800; }
   padding-inline: 8px;
 }
 .discover-page .discover-search-box.subtle-search {
-  min-height: 30px;
-  margin: 0 0 5px;
-  padding: 5px 9px;
-  border-radius: 11px;
+  min-height: 56px;
+  margin: 6px 0 14px;
+  padding: 15px 18px;
+  border-radius: 16px;
 }
 .discover-page .discover-search-box.subtle-search span {
-  font-size: 14px;
+  font-size: 22px;
 }
 .discover-page .discover-search-box.subtle-search input {
-  font-size: 10px;
+  font-size: 16px;
 }
 .discover-page .sync-note {
   margin-bottom: 6px;
@@ -2908,6 +2961,281 @@ h3 { font-weight: 800; }
 .venue-event-row:hover {
   background: rgba(8, 217, 154, .12);
 }
+
+/* ===== Onboarding: immersive welcome + animated steps ===== */
+/* Step 0 â€” full-bleed Capitol photo, animated rotating message, single CTA. */
+.onboard-immersive {
+  padding: 0;
+  align-items: stretch;
+  justify-items: stretch;
+  overflow: hidden;
+  background: #0a1712;
+}
+.welcome-bg {
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  background-image: url("https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=1400&q=80&auto=format&fit=crop");
+  background-position: center 38%;
+  background-size: cover;
+  transform: scale(1.08);
+  animation: welcomeKen 26s ease-in-out infinite alternate;
+}
+.welcome-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 80% at 50% 8%, rgba(8, 217, 154, .18), transparent 60%),
+    linear-gradient(180deg, rgba(6, 16, 12, .30) 0%, rgba(6, 16, 12, .58) 46%, rgba(5, 12, 9, .96) 100%);
+  pointer-events: none;
+}
+.welcome-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: max(30px, env(safe-area-inset-top)) 26px max(34px, env(safe-area-inset-bottom));
+  color: #fff;
+}
+.welcome-top {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  animation: riseIn .7s ease-out both;
+}
+.welcome-brand {
+  font-family: var(--display, "Aptos Display", sans-serif);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .22em;
+}
+.welcome-place {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .72);
+}
+.welcome-message {
+  margin-top: auto;
+  margin-bottom: 26px;
+}
+.welcome-eyebrow {
+  margin-bottom: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent, #08D99A);
+  animation: riseIn .8s ease-out .1s both;
+}
+/* Rotating headline: lines stack, each fades/rises in turn on a shared loop. */
+.welcome-rotator {
+  position: relative;
+  min-height: 2.1em;
+  font-family: var(--display, "Aptos Display", sans-serif);
+  font-size: clamp(30px, 9vw, 42px);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -.01em;
+}
+.welcome-rotator span {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(6px);
+  animation: welcomeRotate 13s cubic-bezier(.2, .8, .2, 1) infinite;
+}
+.welcome-rotator span:nth-child(1) { animation-delay: 0s; }
+.welcome-rotator span:nth-child(2) { animation-delay: 3.25s; }
+.welcome-rotator span:nth-child(3) { animation-delay: 6.5s; }
+.welcome-rotator span:nth-child(4) { animation-delay: 9.75s; }
+.welcome-tagline {
+  margin-top: 18px;
+  max-width: 22em;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, .82);
+  animation: riseIn .9s ease-out .2s both;
+}
+.welcome-cta {
+  width: 100%;
+  padding: 17px;
+  border-radius: 16px;
+  color: #06140d;
+  background: var(--accent, #08D99A);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .01em;
+  box-shadow: 0 14px 34px rgba(8, 217, 154, .34);
+  animation: riseIn 1s ease-out .34s both, ctaBreath 3.4s ease-in-out 1.4s infinite;
+}
+.welcome-cta:hover { background: #0ceaa8; }
+.welcome-cta:active { transform: translateY(1px); }
+
+@keyframes welcomeKen {
+  from { transform: scale(1.08) translate(0, 0); }
+  to   { transform: scale(1.16) translate(-1.5%, -2%); }
+}
+@keyframes welcomeRotate {
+  0%    { opacity: 0; transform: translateY(16px); filter: blur(6px); }
+  6%    { opacity: 1; transform: translateY(0); filter: blur(0); }
+  22%   { opacity: 1; transform: translateY(0); filter: blur(0); }
+  28%   { opacity: 0; transform: translateY(-14px); filter: blur(6px); }
+  100%  { opacity: 0; transform: translateY(-14px); filter: blur(6px); }
+}
+@keyframes ctaBreath {
+  0%, 100% { box-shadow: 0 14px 34px rgba(8, 217, 154, .34); }
+  50%      { box-shadow: 0 16px 44px rgba(8, 217, 154, .55); }
+}
+
+/* Steps 1â€“3 â€” clean cards that slide in, floating labels, staggered tiles. */
+.onboard-steps { align-items: start; }
+.onboard-step-card {
+  width: min(100%, 560px);
+  animation: onboardSlide .42s cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes onboardSlide {
+  from { opacity: 0; transform: translateX(22px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.onboard-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.onboard-back {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line, rgba(23, 28, 26, .14));
+  border-radius: 12px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--ink-green, #171C1A);
+  background: var(--paper, #fff);
+}
+.onboard-back:hover { background: rgba(8, 217, 154, .1); }
+.onboard-progress {
+  display: flex;
+  gap: 7px;
+}
+.onboard-progress span {
+  width: 26px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(23, 28, 26, .13);
+  transition: background .3s ease, width .3s ease;
+}
+.onboard-progress span.on {
+  width: 34px;
+  background: var(--accent, #08D99A);
+}
+.onboard-title {
+  margin-bottom: 6px;
+  font-family: var(--display, "Aptos Display", sans-serif);
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  animation: riseIn .5s ease-out both;
+}
+.onboard-steps .lede { animation: riseIn .55s ease-out .05s both; }
+.onboard-fields {
+  display: grid;
+  gap: 14px;
+  margin: 22px 0 8px;
+}
+.float-field {
+  display: grid;
+  gap: 7px;
+  animation: riseIn .5s ease-out both;
+}
+.float-field:nth-of-type(2) { animation-delay: .07s; }
+.float-field > span {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted, #5c6b64);
+}
+.float-field input {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid var(--line, rgba(23, 28, 26, .16));
+  border-radius: 14px;
+  background: var(--paper, #fff);
+  font-size: 16px;
+  font-weight: 600;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.float-field input:focus {
+  outline: none;
+  border-color: var(--accent, #08D99A);
+  box-shadow: 0 0 0 3px rgba(8, 217, 154, .18);
+}
+.onboard-tiles .select-tile {
+  text-align: center;
+  animation: riseIn .5s ease-out both;
+}
+.onboard-tiles .select-tile:nth-child(1) { animation-delay: .02s; }
+.onboard-tiles .select-tile:nth-child(2) { animation-delay: .05s; }
+.onboard-tiles .select-tile:nth-child(3) { animation-delay: .08s; }
+.onboard-tiles .select-tile:nth-child(4) { animation-delay: .11s; }
+.onboard-tiles .select-tile:nth-child(5) { animation-delay: .14s; }
+.onboard-tiles .select-tile:nth-child(6) { animation-delay: .17s; }
+.onboard-tiles .select-tile:nth-child(n+7) { animation-delay: .2s; }
+.onboard-steps .select-tile.selected {
+  border-color: var(--accent, #08D99A);
+  color: #06140d;
+  background: var(--accent, #08D99A);
+}
+.onboard-steps .settings-label { margin-top: 4px; }
+.onboard-steps .wide-button {
+  margin-top: 20px;
+  border-radius: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-bg,
+  .welcome-cta,
+  .onboard-step-card,
+  .welcome-rotator span,
+  .onboard-title,
+  .float-field,
+  .onboard-tiles .select-tile { animation: none; }
+  .welcome-rotator span:nth-child(1) { opacity: 1; transform: none; filter: none; }
+  .welcome-rotator span:nth-child(n+2) { display: none; }
+}
+
+/* "Add to calendar" button on recurring events (event detail modal). */
+.calendar-recur-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid var(--accent, #08D99A);
+  background: rgba(8, 217, 154, .12);
+  color: var(--ink-green, #171C1A);
+  font-weight: 700;
+}
+.calendar-recur-button .cal-ic {
+  display: inline-flex;
+  color: var(--accent, #08D99A);
+}
+.calendar-recur-button .cal-ic svg {
+  width: 17px;
+  height: 17px;
+}
+.calendar-recur-button:hover { background: rgba(8, 217, 154, .18); }
+
     </style>
   </head>
   <body>
@@ -2967,6 +3295,7 @@ const icons = {
   clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
   tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
+  megaphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 13h3l10-5v11L7 14H4v-1Z"/><path d="M7 14l1.4 5.2a1.2 1.2 0 0 0 1.2.8h1.6"/><path d="M19 9.5c1 .7 1.5 1.5 1.5 3s-.5 2.3-1.5 3"/><path d="M21 6.5c1.5 1.5 2.3 3.5 2.3 6s-.8 4.5-2.3 6"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>'
 };
 
@@ -2993,7 +3322,7 @@ const defaultReceipts = [
   { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
   { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
 ];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -3002,6 +3331,44 @@ state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) 
 // shapes what they see.
 state.savedSources = new Set(JSON.parse(localStorage.getItem("lokalSavedSources") || "[]"));
 state.rsvpSources = new Set(JSON.parse(localStorage.getItem("lokalRsvpSources") || "[]"));
+// Discover filter bar: multi-select What (category), Where (neighborhood), When (day/time).
+state.whatFilter = new Set();
+state.whereFilter = new Set();
+state.whenFilter = new Set();
+
+function accountVenueName() {
+  if (state.profile?.accountType !== "venue") return "";
+  const approved = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] : "";
+  return state.profile?.venueName || approved || "";
+}
+
+function isVenueAccount() {
+  return state.profile?.accountType === "venue";
+}
+
+function currentAccountDisplayName() {
+  return isVenueAccount() ? accountVenueName() || state.profile.fullName : state.profile.fullName;
+}
+
+function currentAccountInitials() {
+  return profileInitials(currentAccountDisplayName());
+}
+
+function currentVenueImage() {
+  return state.profile?.venueImageUrl || "";
+}
+
+function registerLocalVenueProfile() {
+  const name = accountVenueName();
+  const image = currentVenueImage();
+  if (!name || !image) return;
+  const key = venueImageKeyName(name);
+  venueImageMap[key] = image;
+  venueImageKeys = Object.keys(venueImageMap).sort((a, b) => b.length - a.length);
+  const existing = venueDirectory.find(venue => venueImageKeyName(venue.name) === key);
+  if (existing) existing.image_url = image;
+  else venueDirectory.unshift({ name, address: state.profile.venueAddress || "", neighborhood: (state.profile.areas || [])[0] || "", venue_type: "Venue", website_url: state.profile.venueWebsite || "", image_url: image });
+}
 
 // Record a save/RSVP by the event's stable source id and persist it.
 function setPlanSource(kind, id, on) {
@@ -3343,19 +3710,58 @@ function eventNeighborhoodLine(event) {
     .join(" ");
 }
 
+const DISCOVER_CITY_SECTIONS = [
+  "National Mall",
+  "Downtown",
+  "Dupont",
+  "U Street / Shaw Area",
+  "Adams Morgan",
+  "Georgetown",
+  "Capitol Hill / H Street Area",
+  "NoMa / Union Market Area",
+  "Navy Yard",
+  "Wharf",
+  "Upper Northwest",
+  "Anacostia / Southeast"
+];
+
+const CITY_SECTION_PATTERNS = [
+  ["National Mall", /\bnational mall|federal triangle|smithsonian|hirshhorn|renwick|national gallery|portrait gallery|saam|american art museum|air and space|natural history|american history|african american history|american indian|botanic garden|constitution ave|madison dr|jefferson dr|independence ave|l'enfant plaza|the mall\b/i],
+  ["Downtown", /\bdowntown|penn quarter|chinatown|gallery place|metro center|citycenter|city center|mount vernon square|mount vernon triangle|convention center|franklin park|white house|farragut|mcpherson|judiciary square|anthem row|national theatre|warner theatre|hard rock cafe|mlk library|sixth\s*&\s*i|e street|g st nw|k street|i street nw|new york ave nw/i],
+  ["Dupont", /\bdupont|dupont circle|logan circle|14th street|14th st|thomas circle|scott circle|admiral|number nine|fireplace|st\.? arnold|bier baron|dc comedy loft|swingers|kramerbooks|black cat|s street nw|p street nw|q street nw|22nd st nw/i],
+  ["U Street / Shaw Area", /\bu street|u st|shaw|cardozo|le droit|ledroit|blagden alley|truxton circle|9:30 club|930 club|the atlantis|howard theatre|howard theater|lincoln theatre|room 808|atlantic plumbing|florida ave nw|7th st nw|9th st nw|v street|v st nw|t street nw|upshur st nw/i],
+  ["Adams Morgan", /\badams morgan|columbia heights|mount pleasant|mt pleasant|meridian hill|kalorama|lanier heights|bedrock billiards|town tavern|tryst|roofer'?s union|18th st nw|columbia rd|wonderland ballroom|club timehri/i],
+  ["Georgetown", /\bgeorgetown|foggy bottom|west end|kennedy center|watergate|rose park|palisades|macarthur|loughboro|sibley|gw university|george washington university|m street nw|wisconsin ave|k street waterfront|dumbarton|glover park|tenleytown/i],
+  ["Capitol Hill / H Street Area", /\bcapitol hill|h street|h st|barracks row|eastern market|lincoln park|atlas performing|miracle theatre|trusty'?s|tune inn|union pub|union station|noma bid|h street corridor|trinidad|benning road|kingman park|stadium-armory|118 park st se/i],
+  ["NoMa / Union Market Area", /\bnoma|no ma|union market|ivy city|brookland|edgewood|eckington|bloomingdale|rhode island ave|michigan ave ne|monroe street market|la cosecha|gallaudet|city state|wunder ?garten|red bear|echostage|queens chapel|penn st ne|1st st\.? ne|3rd street ne|m and n streets ne|v st nw/i],
+  ["Navy Yard", /\bnavy yard|capitol riverfront|capitol waterfront|nationals park|nats park|yards park|the yards|half street|half st se|potomac avenue se|n st se|water street se|m street se|first street se|dacha|bullpen|atlas brew works navy yard|royal sands|sandlot|takoda navy yard|solace outpost|the brig|tap99|walter'?s/i],
+  ["Wharf", /\bwharf|southwest waterfront|sw waterfront|waterfront|district pier|transit pier|pearl street warehouse|union stage|anthem\b|arena stage|maine ave|kirwan|boardwalk bar|farmers market sw|12 stories|officina|tiki tnt|water st sw|wharf st sw/i],
+  ["Upper Northwest", /\bupper northwest|cleveland park|woodley park|van ness|tenleytown|friendship heights|chevy chase|cathedral heights|forest hills|petworth|brightwood|park view|takoma|fort reno|fort totten|lamond riggs|lamont riggs|south dakota ave|rock creek park|rock creek park tennis center|politics and prose|crestwood|colorado ave|connecticut ave nw|jackie lee'?s/i],
+  ["Anacostia / Southeast", /\banacostia|southeast|se dc|congress heights|bellevue|atlantic street sw|hillcrest|naval yard|good hope|mlk ave|minnesota ave|east capitol|benning|fairlawn|skyland|historic anacostia|oxon run|wheeler road se|mississippi ave se|fort pl se|parkside pl ne|ord st ne|oak drive se|carefirst arena|thearc|kenilworth|simon elementary/i]
+];
+
+function eventCitySections(event) {
+  const text = eventNeighborhoodLine(event).toLowerCase();
+  if (/\b(various dc|rotating (dc|locations|observatories|regional|parks|trails)|multiple locations|across dc)\b/.test(text)) {
+    return DISCOVER_CITY_SECTIONS;
+  }
+  const matches = CITY_SECTION_PATTERNS
+    .filter(([, pattern]) => pattern.test(text))
+    .map(([name]) => name);
+  return matches.length ? matches : ["Downtown"];
+}
+
 function eventNeighborhoodMatches(event, value) {
   if (!value || value === "Any neighborhood") return true;
   const normalized = String(value || "").trim().toLowerCase();
+  if (DISCOVER_CITY_SECTIONS.some(section => section.toLowerCase() === normalized)) {
+    return eventCitySections(event).some(section => section.toLowerCase() === normalized);
+  }
   return eventNeighborhoodLine(event).toLowerCase().includes(normalized);
 }
 
-function discoverNeighborhoodOptions(sourceEvents = events) {
-  const blocked = /^(washington,?\s*d\.?c\.?|dc|d\.c\.|district of columbia|location in description|unknown)$/i;
-  return sourceEvents
-    .map(event => cleanLocationPart(event.area || event.neighborhood))
-    .filter(area => area && !blocked.test(area))
-    .filter((area, index, all) => all.findIndex(item => item.toLowerCase() === area.toLowerCase()) === index)
-    .sort((a, b) => a.localeCompare(b));
+function discoverNeighborhoodOptions() {
+  return DISCOVER_CITY_SECTIONS;
 }
 const CATEGORY_COLORS = {
   concerts: "#00C9A7",
@@ -3502,6 +3908,77 @@ function occurrencesForEvent(event) {
   return events
     .filter(item => eventDedupeKey(item) === key)
     .sort(sortEventsByStart);
+}
+
+// --- Recurring-event detection (drives the "add to calendar weekly" button) ---
+const ICS_WEEKDAY_CODES = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+const ICS_CODE_LABEL = { SU: "Sunday", MO: "Monday", TU: "Tuesday", WE: "Wednesday", TH: "Thursday", FR: "Friday", SA: "Saturday" };
+const RECUR_DAY_WORDS = { sunday: "SU", monday: "MO", tuesday: "TU", wednesday: "WE", thursday: "TH", friday: "FR", saturday: "SA" };
+const RECUR_ORDINALS = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, last: -1 };
+const RECUR_ORDINAL_LABEL = { 1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th", "-1": "last" };
+
+function weekdayCodeFromDate(dateStr) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr || ""))) return null;
+  const date = new Date(`${dateStr}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : ICS_WEEKDAY_CODES[date.getDay()];
+}
+
+function weeklyRecurrenceLabel(codes) {
+  const names = codes.map(code => ICS_CODE_LABEL[code]);
+  return names.length === 1 ? `every ${names[0]}` : `every ${names.join(" & ")}`;
+}
+
+// Infer cadence from the gap between a series' occurrences (e.g. the wharf
+// "Grooves in the Grove" rows or "Music in the Circle" every Saturday).
+function inferRecurrenceFromOccurrences(event) {
+  const times = occurrencesForEvent(event)
+    .map(item => (/^\d{4}-\d{2}-\d{2}$/.test(String(item.startDate || "")) ? new Date(`${item.startDate}T00:00:00`).getTime() : NaN))
+    .filter(value => !Number.isNaN(value))
+    .sort((a, b) => a - b);
+  if (times.length < 2) return null;
+  const gaps = [];
+  for (let i = 1; i < times.length; i++) gaps.push(Math.round((times[i] - times[i - 1]) / 86400000));
+  const typical = gaps.slice().sort((a, b) => a - b)[Math.floor(gaps.length / 2)];
+  const code = weekdayCodeFromDate(event.startDate);
+  if (!code) return null;
+  if (typical === 7) return { freq: "WEEKLY", interval: 1, byday: [code], label: `every ${ICS_CODE_LABEL[code]}` };
+  if (typical === 14) return { freq: "WEEKLY", interval: 2, byday: [code], label: `every other ${ICS_CODE_LABEL[code]}` };
+  if (typical >= 28 && typical <= 31) return { freq: "MONTHLY", interval: 1, byday: [code], label: `monthly on ${ICS_CODE_LABEL[code]}` };
+  return null;
+}
+
+// Returns a recurrence rule { freq, interval, byday[], label } or null for one-offs.
+function eventRecurrence(event) {
+  if (!event) return null;
+  const text = `${event.title || ""} ${event.desc || ""}`.toLowerCase();
+  // Monthly by position: "first friday", "every second saturday", "third tuesday".
+  const monthly = text.match(/\b(first|second|third|fourth|fifth|last)\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if (monthly) {
+    const ordinal = RECUR_ORDINALS[monthly[1]];
+    const code = RECUR_DAY_WORDS[monthly[2]];
+    if (ordinal && code) return { freq: "MONTHLY", interval: 1, byday: [`${ordinal}${code}`], label: `every ${RECUR_ORDINAL_LABEL[ordinal]} ${ICS_CODE_LABEL[code]}` };
+  }
+  // Explicit weekly cadence: "weekly", "every week", "every tuesday", "fridays".
+  const weeklySignal = /\b(weekly|every week|each week|recurring)\b/.test(text)
+    || /\bevery\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.test(text)
+    || /\b(sundays|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays)\b/.test(text);
+  if (weeklySignal) {
+    const codes = [];
+    Object.entries(RECUR_DAY_WORDS).forEach(([word, code]) => {
+      if (new RegExp(`\\b${word}s?\\b`).test(text) && !codes.includes(code)) codes.push(code);
+    });
+    if (!codes.length) { const code = weekdayCodeFromDate(event.startDate); if (code) codes.push(code); }
+    if (codes.length) {
+      codes.sort((a, b) => ICS_WEEKDAY_CODES.indexOf(a) - ICS_WEEKDAY_CODES.indexOf(b));
+      return { freq: "WEEKLY", interval: 1, byday: codes, label: weeklyRecurrenceLabel(codes) };
+    }
+  }
+  // Inherently recurring categories repeat weekly on their own weekday.
+  if (["happy-hours", "trivia-nights", "farmers-markets"].includes(String(event.cat || "").toLowerCase())) {
+    const code = weekdayCodeFromDate(event.startDate);
+    if (code) return { freq: "WEEKLY", interval: 1, byday: [code], label: `every ${ICS_CODE_LABEL[code]}` };
+  }
+  return inferRecurrenceFromOccurrences(event);
 }
 
 function isHighlighted(event) { return [4, 5].includes(event.id); }
@@ -3832,6 +4309,15 @@ function queuePendingEventInteraction(record) {
   localStorage.setItem(supabaseStorageKeys.pendingInteractions, JSON.stringify(pending.slice(-40)));
 }
 
+function supabaseJsonHeaders(extra = {}) {
+  return {
+    apikey: supabaseConfig.publishableKey,
+    Authorization: `Bearer ${localStorage.getItem(supabaseStorageKeys.accessToken) || supabaseConfig.publishableKey}`,
+    "Content-Type": "application/json",
+    ...extra
+  };
+}
+
 function supabaseInteractionHeaders() {
   const token = localStorage.getItem(supabaseStorageKeys.accessToken);
   const headers = {
@@ -3886,6 +4372,110 @@ async function saveEventInteraction(eventId, kind = "save", active = true) {
     console.warn("[supabase] event interaction queued locally:", error.message);
     return { queued: true, error };
   }
+}
+
+async function submitVenueVerificationRequest(profile) {
+  const record = {
+    requester_user_id: currentInteractionUserId(),
+    requester_name: state.profile.fullName || "",
+    requester_email: profile.email || state.profile.email || "",
+    requester_phone: profile.phone || state.profile.phone || "",
+    venue_name: profile.venueName,
+    venue_address: profile.venueAddress,
+    venue_website: profile.website || "",
+    venue_image_url: profile.venueImageUrl || "",
+    venue_description: profile.venueDescription || "",
+    event_interests: profile.eventInterests || [],
+    area_interests: profile.areaInterests || [],
+    requester_role: profile.role || "",
+    notes: profile.notes || "",
+    status: "pending"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_verification_requests`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Venue verification request returned ${response.status}`);
+  state.pendingVenueRequests = [record, ...(state.pendingVenueRequests || [])].slice(0, 20);
+  localStorage.setItem("lokalPendingVenueRequests", JSON.stringify(state.pendingVenueRequests));
+  return record;
+}
+
+async function submitOnboardingProfile(profile) {
+  const record = {
+    user_key: currentInteractionUserId(),
+    account_type: profile.accountType || "person",
+    full_name: profile.fullName || "",
+    owner_name: profile.ownerName || profile.fullName || "",
+    username: profile.username || "",
+    email: profile.email || "",
+    phone: profile.phone || "",
+    birthdate: profile.birthdate || null,
+    event_interests: profile.eventInterests || [],
+    area_interests: profile.areaInterests || [],
+    venue_name: profile.venueName || "",
+    venue_address: profile.venueAddress || "",
+    venue_website: profile.venueWebsite || "",
+    venue_image_url: profile.venueImageUrl || "",
+    venue_description: profile.venueDescription || ""
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/onboarding_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Onboarding submission returned ${response.status}`);
+  return record;
+}
+
+async function syncVenueVerificationStatus() {
+  try {
+    const userId = currentInteractionUserId();
+    const url = `${supabaseConfig.url}/rest/v1/venue_verification_requests?select=venue_name,status,requester_user_id&requester_user_id=eq.${encodeURIComponent(userId)}&status=eq.approved&limit=200`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) return;
+    const rows = await response.json();
+    const names = [];
+    rows.forEach(row => {
+      if (row.requester_user_id !== userId) return;
+      const key = venueImageKeyName(row.venue_name);
+      if (key) state.verifiedVenues.add(key);
+      if (row.venue_name && !names.some(name => venueImageKeyName(name) === key)) names.push(row.venue_name);
+    });
+    state.verifiedVenueNames = names;
+    localStorage.setItem("lokalVerifiedVenues", JSON.stringify(Array.from(state.verifiedVenues)));
+    localStorage.setItem("lokalVerifiedVenueNames", JSON.stringify(state.verifiedVenueNames));
+    updateProfileShortcut();
+  } catch {}
+}
+
+async function submitVenueEventPost(payload) {
+  const record = {
+    requester_user_id: currentInteractionUserId(),
+    venue_name: payload.venueName,
+    venue_address: payload.venueAddress || "",
+    title: payload.title,
+    description: payload.description || "",
+    category: payload.category || "community",
+    tags: payload.tags || [],
+    starts_at: payload.startsAt,
+    ends_at: payload.endsAt || null,
+    image_url: payload.imageUrl || "",
+    ticket_url: payload.ticketUrl || "",
+    price: payload.price || "",
+    is_recurring: Boolean(payload.isRecurring),
+    recurrence_frequency: payload.recurrenceFrequency || "",
+    recurrence_until: payload.recurrenceUntil || null,
+    status: "pending_review"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_event_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Venue event submission returned ${response.status}`);
+  return record;
 }
 
 function cleanSupabaseDescription(value) {
@@ -4002,18 +4592,20 @@ function normalizeSupabaseVenue(row) {
 
 function normalizeSupabaseArea(row) {
   const extracted = extractLocationFromDescription(row.description || row.desc);
-  return row.neighborhood || row.area || row.location || extracted.address || "Washington, DC";
+  return row.neighborhood || row.area || extracted.address || "Washington, DC";
 }
 
 function supabaseLocationText(row) {
-  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.location || ""} ${row.venue_name || ""} ${row.venue || ""} ${row.raw_json?.geo?.address?.locality || ""} ${row.raw_json?.geo?.address?.region || ""} ${row.raw_json?.geo?.address?.country_code || ""}`.toLowerCase();
+  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.venue_name || ""} ${row.venue || ""} ${row.raw_json?.geo?.address?.locality || ""} ${row.raw_json?.geo?.address?.region || ""} ${row.raw_json?.geo?.address?.country_code || ""}`.toLowerCase();
 }
 
 function isSupabaseEventInDc(row) {
   const text = supabaseLocationText(row);
   const nonDcText = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore|md\b|va\b|virginia|maryland)\b/.test(text);
-  const dcText = /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
+  const knownDcVenue = /\b(miracle theatre|sixth\s*&\s*i|mlk library|martin luther king jr memorial library|rock creek park tennis center|politics and prose|kennedy center|national theatre|warner theatre|the anthem|union stage|9:30 club|930 club|the atlantis|howard theatre|echostage|capital one arena|nationals park|carefirst arena)\b/.test(text);
+  const dcText = knownDcVenue || /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
   if (nonDcText && !dcText) return false;
+  if (dcText) return true;
   if (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) {
     const lat = Number(row.latitude);
     const lng = Number(row.longitude);
@@ -4380,6 +4972,28 @@ function normalizeSupabaseEvent(row, index) {
   };
 }
 
+// PostgREST caps every response at 1000 rows regardless of the requested limit,
+// so a single fetch silently drops most of an over-subscribed discovery window
+// (thousands of daily happy-hour/trivia/music rows push later-dated events past
+// the cap). Page through with offset until a short page signals the end. A stable
+// id tiebreaker keeps slices from overlapping or skipping across pages.
+async function fetchSupabaseEventPages(query) {
+  const pageSize = 1000;
+  const order = "starts_at.asc.nullslast,date.asc.nullslast,id.asc";
+  const rows = [];
+  for (let offset = 0; offset < 20000; offset += pageSize) {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=${order}&limit=${pageSize}&offset=${offset}`, {
+      cache: "no-store",
+      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    const page = await response.json();
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows;
+}
+
 async function syncSupabaseEvents(showToast = false) {
   state.eventSync = { status: "loading", label: "Checking shared events..." };
   state.eventsLoadTimedOut = false;
@@ -4391,14 +5005,9 @@ async function syncSupabaseEvents(showToast = false) {
   }, 5000);
   if (state.route === "home") renderHome();
   await syncSupabaseVenueImages();
+  await syncVenueVerificationStatus();
   try {
-    const responses = await Promise.all(discoveryWindowQueries().map(query => fetch(`${supabaseConfig.url}/rest/v1/events?${query}&order=starts_at.asc.nullslast,date.asc.nullslast&limit=5000`, {
-      cache: "no-store",
-      headers: { apikey: supabaseConfig.publishableKey, "Cache-Control": "no-cache" }
-    })));
-    const failedResponse = responses.find(response => !response.ok);
-    if (failedResponse) throw new Error(`Supabase returned ${failedResponse.status}`);
-    const rowSets = await Promise.all(responses.map(response => response.json()));
+    const rowSets = await Promise.all(discoveryWindowQueries().map(fetchSupabaseEventPages));
     const rows = [...new Map(rowSets.flat().map(row => [row.id, row])).values()];
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
@@ -4524,7 +5133,9 @@ function profileInitials(fullName) {
 
 function updateProfileShortcut() {
   const shortcut = document.querySelector("#profile-shortcut .avatar");
-  if (shortcut) shortcut.textContent = state.profile.initials;
+  const label = document.querySelector("#profile-shortcut .account-label");
+  if (shortcut) shortcut.textContent = currentAccountInitials();
+  if (label) label.textContent = currentAccountDisplayName().split(/\s+/).slice(0, 3).join(" ");
 }
 
 function finalizeLokalProfile(profile) {
@@ -4535,11 +5146,38 @@ function finalizeLokalProfile(profile) {
     initials: profileInitials(profile.fullName),
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
-    areas: profile.areaInterests || []
+    areas: profile.areaInterests || [],
+    accountType: profile.accountType || "person",
+    ownerName: profile.ownerName || "",
+    venueName: profile.venueName || "",
+    venueAddress: profile.venueAddress || "",
+    venueWebsite: profile.venueWebsite || "",
+    venueImageUrl: profile.venueImageUrl || "",
+    venueDescription: profile.venueDescription || "",
+    lokalScore: 100
   };
   state.profile = saved;
   state.age = saved.age;
   state.tastes = saved.tastes;
+  if (saved.accountType !== "venue") {
+    state.friends = new Set();
+    state.receipts = [];
+    state.attended = new Set();
+    state.saved = new Set();
+    state.rsvps = new Set();
+    state.savedSources = new Set();
+    state.rsvpSources = new Set();
+    localStorage.setItem("lokalReceipts", "[]");
+    localStorage.setItem("lokalAttended", "[]");
+    localStorage.setItem("lokalSavedSources", "[]");
+    localStorage.setItem("lokalRsvpSources", "[]");
+    state.verifiedVenues = new Set();
+    state.verifiedVenueNames = [];
+    state.pendingVenueRequests = [];
+    state.venueVerificationDismissed = false;
+    ["lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+  }
+  if (saved.accountType === "venue") registerLocalVenueProfile();
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
   updateProfileShortcut();
 }
@@ -4587,12 +5225,20 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
       id: userId,
       username: profile.username,
       full_name: profile.fullName,
+      owner_name: profile.ownerName || profile.fullName || "",
       birthdate: profile.birthdate,
       phone: profile.phone,
       email: profile.email,
       event_interests: profile.eventInterests,
       area_interests: profile.areaInterests,
+      account_type: profile.accountType || "person",
+      venue_name: profile.venueName || null,
+      venue_address: profile.venueAddress || null,
+      venue_website: profile.venueWebsite || null,
+      venue_image_url: profile.venueImageUrl || null,
+      venue_description: profile.venueDescription || null,
       home_city: "Washington, DC",
+      lokal_score: 100,
       is_demo: false
     }])
   });
@@ -4621,7 +5267,8 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       phone: formattedPhone,
       email,
       event_interests: eventInterests,
-      area_interests: areaInterests
+      area_interests: areaInterests,
+      lokal_score: 100
     }
   });
   if (data.access_token) {
@@ -4889,21 +5536,65 @@ function venueEventMatch(event, displayName) {
   return displayText.length >= 3 && text.includes(displayText);
 }
 
+function isVerifiedVenueName(name) {
+  return state.verifiedVenues?.has(venueImageKeyName(name));
+}
+
 function openVenueEvents(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
   const venueEvents = displayableDcEvents().filter(event => venueEventMatch(event, displayName)).sort(sortEventsByStart).slice(0, 12);
   const following = state.follows.has(`venue:${displayName}`);
+  const verified = isVerifiedVenueName(displayName);
   const eventVenueImage = venueEvents.find(event => event.image)?.image || "";
   const eventCardFallbackImage = venueEvents[0] ? eventCardImageSrc(venueEvents[0]) : "";
   const venueImage = directoryVenue.image_url || eventVenueImage || eventCardFallbackImage;
   const venueImg = venueImage ? `<img class="venue-page-img" src="${escapeHtml(venueImage)}" alt="" loading="lazy">` : "";
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
-    <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
-    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
+    <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${verified ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="Post event for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
     <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
+  </section></div>`;
+}
+
+function openVenueEventPostSheet(name) {
+  const directoryVenue = venueDirectoryMatch(name) || { name };
+  const displayName = directoryVenue.name || name;
+  const address = directoryVenue.address || "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Post an event for ${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close post event">&times;</button>
+    <p class="eyebrow">Verified venue</p><h2>Post an event</h2>
+    <p class="lede">Create an event for ${escapeHtml(displayName)}. Submissions go to Lokal for review before publishing.</p>
+    <input type="hidden" data-post-venue-name value="${escapeHtml(displayName)}">
+    <label class="settings-field">Event name<input data-post-event-title placeholder="Summer patio DJ night"></label>
+    <label class="settings-field">When starts<input data-post-starts-at type="datetime-local"></label>
+    <label class="settings-field">When ends (optional)<input data-post-ends-at type="datetime-local"></label>
+    <label class="settings-field">Where<input data-post-venue-address value="${escapeHtml(address)}" placeholder="Venue address or room"></label>
+    <label class="settings-field">Category<select data-post-category>
+      <option value="nightlife">Nightlife</option>
+      <option value="concerts">Concerts</option>
+      <option value="live-music">Live music</option>
+      <option value="performing-arts">Performing arts</option>
+      <option value="happy-hours">Happy hours</option>
+      <option value="trivia-nights">Trivia nights</option>
+      <option value="food">Food & drink</option>
+      <option value="community">Community</option>
+      <option value="sports">Sports</option>
+      <option value="festivals">Festivals</option>
+    </select></label>
+    <label class="settings-field">Tags<input data-post-tags placeholder="DJ set, rooftop, 21+"></label>
+    <label class="settings-field">Ticket or RSVP link<input data-post-ticket-url type="url" placeholder="https://..."></label>
+    <label class="settings-field">Price (optional)<input data-post-price placeholder="Free, $10, From $25"></label>
+    <label class="settings-field">Picture URL (optional)<input data-post-image-url type="url" placeholder="https://..."></label>
+    <label class="settings-field">Description<textarea data-post-description placeholder="What should people know before they go?"></textarea></label>
+    <label class="privacy-toggle recurring-toggle"><span><b>Recurring event</b><small>Use this for weekly trivia, monthly parties, classes, or repeat happy hours.</small></span><input data-post-recurring type="checkbox"></label>
+    <div class="recurring-fields">
+      <label class="settings-field">Repeats<select data-post-recurrence-frequency><option value="">Not recurring</option><option value="weekly">Weekly</option><option value="biweekly">Every other week</option><option value="monthly">Monthly</option></select></label>
+      <label class="settings-field">Repeat until<input data-post-recurrence-until type="date"></label>
+    </div>
+    <p class="account-error" data-post-event-error></p>
+    <button class="wide-button" data-submit-venue-event>Submit event</button>
   </section></div>`;
 }
 
@@ -4964,9 +5655,32 @@ function eventPersonalReason(event, weights) {
 
 // Personalized ordering for the main feed: events matching the user's tastes and
 // past behavior (by specific tag and category) float up; ties broken by soonest start.
+// Marquee DC venues â€” a show here is almost always a "bigger" event.
+const MARQUEE_VENUE_RE = /\b(the anthem|9:?30 club|capital one arena|nationals park|audi field|dar constitution hall|constitution hall|the howard theatre|howard theatre|echostage|union stage|warner theatre|lincoln theatre|kennedy center|national theatre|wolf trap|merriweather|strathmore|entertainment and sports arena|city winery|the fillmore|black cat|pearl street warehouse)\b/;
+
+// A rough "how big / popular is this" signal so marquee shows and buzzy events
+// surface in the mixed feed alongside personalized picks. Deliberately small
+// relative to strong personal-tag matches so real tastes still win.
+function eventPopularityScore(event) {
+  let score = 0;
+  const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
+  if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
+  const catTier = { concerts: 4, festivals: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
+  // Social proof: friends going is a direct popularity signal.
+  score += Math.min(6, (Array.isArray(event.friends) ? event.friends.length : 0) * 2);
+  // Ticketed events with a real start time skew toward marquee programming.
+  if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
+  return score;
+}
+
+// Mixed-feed ordering: personal-taste match + a popularity boost, so the feed
+// reflects the user's interests AND leans toward bigger/buzzier events. Ties
+// break by soonest start.
 function feedPersonalSort(list) {
   const weights = userPreferenceWeights();
-  return list.slice().sort((a, b) => eventPersonalScore(b, weights) - eventPersonalScore(a, weights) || sortEventsByStart(a, b));
+  const key = event => eventPersonalScore(event, weights) + eventPopularityScore(event);
+  return list.slice().sort((a, b) => key(b) - key(a) || sortEventsByStart(a, b));
 }
 
 function neighborhoodControls(sourceEvents) {
@@ -5005,9 +5719,24 @@ function renderEventFeed(list, opts = {}) {
 
 function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
-  const tonight = dc.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
-  const pool = tonight.length >= limit ? tonight : [...tonight, ...dc.filter(event => !tonight.includes(event))];
-  return pool.slice(0, limit);
+  const withPictures = dc.filter(event => String(event.image || "").trim());
+  const tonight = withPictures.filter(event => /^(tonight|today)/i.test(String(event.time || "")) || matchesDateFilter(event, "Today"));
+  const pool = tonight.length >= limit ? tonight : [...tonight, ...withPictures.filter(event => !tonight.includes(event))];
+  const picks = [];
+  const seenCategories = new Set();
+  const addIfNewCategory = event => {
+    const category = String(event.cat || "other").toLowerCase();
+    if (seenCategories.has(category) || picks.some(item => item.id === event.id)) return;
+    picks.push(event);
+    seenCategories.add(category);
+  };
+  pool.forEach(event => {
+    if (picks.length < limit) addIfNewCategory(event);
+  });
+  pool.forEach(event => {
+    if (picks.length < limit && !picks.some(item => item.id === event.id)) picks.push(event);
+  });
+  return picks.slice(0, limit);
 }
 
 // Landing-page style: a DC photo with up to 5 events popping up across the city.
@@ -5018,11 +5747,11 @@ function renderTonightMap() {
   const spots = [[19, 26], [66, 19], [41, 49], [74, 63], [25, 75]];
   const pins = events.map((event, index) => {
     const [x, y] = spots[index % spots.length];
-    const loc = cleanLocationPart(event.area || event.neighborhood) || "DC";
-    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)}"><span class="tonight-pin-dot"></span>${escapeHtml(event.title)} Â· ${escapeHtml(loc)}</button>`;
+    const venue = cleanLocationPart(event.venue) || eventLocationLine(event) || "DC";
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)} at ${escapeHtml(venue)}"><span class="tonight-pin-dot"></span>${escapeHtml(venue)}</button>`;
   }).join("");
   return `<section class="tonight-map">
-    <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Tonight</h2></div>
+    <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Today</h2></div>
     <div class="tonight-canvas">${pins}</div>
   </section>`;
 }
@@ -5038,50 +5767,96 @@ function filterTimeLabel(value) {
   return value;
 }
 
-// Collapsed filter bar: one row of When / Where / Type pills. Tapping a pill opens
-// a compact dropdown panel with that filter's options (they still combine).
-function discoverSubFilters() {
-  const cat = state.homeFilter;
-  const catEvents = displayableDcEvents().filter(event => matchesFilter(event, cat));
-  const hasType = searchableDiscoverCategory(cat);
-  let open = state.openFilterSheet || "";
-  if (open === "type" && !hasType) open = "";
+// Filter bar: What / Where / When, each a multi-select dropdown. Selections combine.
+const WHEN_DATE_TOKENS = ["Today", "This weekend", "This week"];
+const WHEN_TIME_TOKENS = ["Morning", "Afternoon", "Evening", "Late night"];
 
-  const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
-  const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
-  const whenActive = Boolean(dateVal || timeVal);
-  const whenLabel = whenActive ? [dateVal && filterDateLabel(dateVal), timeVal && filterTimeLabel(timeVal)].filter(Boolean).join(" Â· ") : "When";
-  const whereLabel = state.neighborhoodFilter || "Where";
-  const typeLabel = state.discoverGenreFilter || "Type";
-
-  const pill = (kind, icon, label, active) => `<button class="filter-pill${open === kind ? " open" : ""}${active ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span><i class="pill-caret"></i></button>`;
-  const pills = `<div class="filter-pills">${pill("when", icons.calendar, whenLabel, whenActive)}${pill("where", icons.pin, whereLabel, Boolean(state.neighborhoodFilter))}${hasType ? pill("type", icons.tag, typeLabel, Boolean(state.discoverGenreFilter)) : ""}</div>`;
-  const panel = open ? `<div class="filter-panel">${filterPanelContent(open, cat, catEvents, dateVal, timeVal)}</div>` : "";
-  return `<div class="sub-filters">${pills}${panel}</div>`;
+function whatFilterOptions() {
+  return discoverFilterItems().filter(([value]) => value !== "all");
+}
+function whatLabelFor(value) {
+  const item = discoverFilterItems().find(([itemValue]) => itemValue === value);
+  return item ? item[1] : value;
+}
+function filterBarSummary(labels, fallback) {
+  const list = [...labels];
+  if (!list.length) return fallback;
+  return list.length === 1 ? list[0] : `${list[0]} +${list.length - 1}`;
+}
+function whenSelectionLabels() {
+  const labels = [...(state.whenFilter || new Set())];
+  if (state.filter.date && state.filter.date !== "Any date") labels.push(filterDateLabel(state.filter.date));
+  if (state.filter.time && state.filter.time !== "Any time") labels.push(filterTimeLabel(state.filter.time));
+  return labels;
 }
 
-function filterPanelContent(kind, cat, catEvents, dateVal, timeVal) {
-  if (kind === "when") {
-    const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
-    const isCustomTime = /^custom:/.test(timeVal);
-    const dateChips = ["Today", "This weekend", "This week"];
-    const timeChips = ["Morning", "Afternoon", "Evening", "Late night"];
-    return `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="filter-chip-wrap"><button class="filter-chip ${!dateVal ? "active" : ""}" data-daytime="date:">Any</button>${dateChips.map(option => `<button class="filter-chip ${dateVal === option ? "active" : ""}" data-daytime="date:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomDate ? "active" : ""}" data-pick-date>${isCustomDate ? escapeHtml(dateVal.replace("..", " â€“ ")) : "Pick date +"}</button></div></div>
-      <div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="filter-chip-wrap"><button class="filter-chip ${!timeVal ? "active" : ""}" data-daytime="time:">Any</button>${timeChips.map(option => `<button class="filter-chip ${timeVal === option ? "active" : ""}" data-daytime="time:${option}">${option}</button>`).join("")}<button class="filter-chip pick-chip ${isCustomTime ? "active" : ""}" data-pick-time>${isCustomTime ? escapeHtml(timeVal.replace("custom:", "").replace("-", " â€“ ")) : "Pick time +"}</button></div></div>`;
+function renderFilterBar() {
+  const open = state.openFilterSheet || "";
+  const what = state.whatFilter || new Set();
+  const where = state.whereFilter || new Set();
+  const whenLabels = whenSelectionLabels();
+  // Each pill owns its dropdown so the panel opens directly beneath the pill that
+  // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
+  const pillWrap = (kind, icon, label, count) => {
+    const btn = `<button class="filter-pill${open === kind ? " open" : ""}${count ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span>${count ? `<b class="pill-count">${count}</b>` : ""}<i class="pill-caret"></i></button>`;
+    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown${kind === "when" ? " align-end" : ""}">${filterDropdownContent(kind)}</div>` : "";
+    return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
+  };
+  const pills = `<div class="filter-pills">
+    ${pillWrap("what", icons.megaphone, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
+    ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
+    ${pillWrap("when", icons.clock, filterBarSummary(whenLabels, "When"), whenLabels.length)}
+  </div>`;
+  return `<div class="sub-filters">${pills}</div>`;
+}
+
+function checkRow(kind, value, label, checked) {
+  return `<button class="check-row${checked ? " checked" : ""}" data-toggle-${kind}="${escapeHtml(value)}"><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+}
+
+function filterDropdownContent(kind) {
+  if (kind === "what") {
+    const what = state.whatFilter || new Set();
+    return `<div class="check-list check-list-scroll">${whatFilterOptions().map(([value, label]) => checkRow("what", value, label, what.has(value))).join("")}</div>${what.size ? `<button class="dropdown-clear" data-clear-what>Clear all</button>` : ""}`;
   }
   if (kind === "where") {
-    const nbActive = state.neighborhoodFilter || "";
-    const nbOptions = discoverNeighborhoodOptions(catEvents);
-    return `<div class="filter-chip-wrap"><button class="filter-chip ${nbActive ? "" : "active"}" data-neighborhood="">All areas</button>${nbOptions.map(name => `<button class="filter-chip ${name.toLowerCase() === nbActive.toLowerCase() ? "active" : ""}" data-neighborhood="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}</div>`;
+    const where = state.whereFilter || new Set();
+    const options = discoverNeighborhoodOptions(displayableDcEvents());
+    return `<div class="check-list check-list-scroll">${options.map(name => checkRow("where", name, name, where.has(name))).join("")}</div>${where.size ? `<button class="dropdown-clear" data-clear-where>Clear all</button>` : ""}`;
   }
-  if (kind === "type") {
-    const config = getCategoryFeedConfig(cat);
-    const allLabel = (config.chips && config.chips[0]) || categoryFacetAllLabel(cat);
-    const options = (config.chips && config.chips.length > 1) ? config.chips.slice(1) : categoryFacetOptions(cat, catEvents);
-    const active = state.discoverGenreFilter || "";
-    return `<div class="filter-chip-wrap"><button class="filter-chip ${active ? "" : "active"}" data-category-genre="">${escapeHtml(allLabel)}</button>${options.map(option => `<button class="filter-chip ${option.toLowerCase() === active.toLowerCase() ? "active" : ""}" data-category-genre="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}</div>`;
+  if (kind === "when") {
+    const when = state.whenFilter || new Set();
+    const dateVal = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+    const timeVal = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+    const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
+    const isCustomTime = /^custom:/.test(timeVal);
+    const pickRow = (kindAttr, checked, label) => `<button class="check-row${checked ? " checked" : ""}" data-${kindAttr}><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+    const dateGroup = `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="check-list">${WHEN_DATE_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-date", isCustomDate, isCustomDate ? dateVal.replace("..", " â€“ ") : "Pick a dateâ€¦")}</div></div>`;
+    const timeGroup = `<div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="check-list">${WHEN_TIME_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-time", isCustomTime, isCustomTime ? timeVal.replace("custom:", "").replace("-", " â€“ ") : "Pick a timeâ€¦")}</div></div>`;
+    const clear = (when.size || dateVal || timeVal) ? `<button class="dropdown-clear" data-clear-when>Clear all</button>` : "";
+    return `${dateGroup}${timeGroup}${clear}`;
   }
   return "";
+}
+
+// Does an event pass the What / Where / When multi-select filters?
+function eventMatchesFilters(event) {
+  const what = state.whatFilter || new Set();
+  const where = state.whereFilter || new Set();
+  if (what.size === 0) { if (event.cat === "museums") return false; }
+  else if (![...what].some(value => matchesFilter(event, value, false))) return false;
+  if (where.size > 0 && ![...where].some(name => eventNeighborhoodMatches(event, name))) return false;
+  return eventMatchesWhen(event);
+}
+function eventMatchesWhen(event) {
+  const when = state.whenFilter || new Set();
+  const dateSel = [...when].filter(token => WHEN_DATE_TOKENS.includes(token));
+  const timeSel = [...when].filter(token => WHEN_TIME_TOKENS.includes(token));
+  const customDate = state.filter.date && state.filter.date !== "Any date" ? state.filter.date : "";
+  const customTime = state.filter.time && state.filter.time !== "Any time" ? state.filter.time : "";
+  const dateOk = (!dateSel.length && !customDate) || dateSel.some(token => matchesDateFilter(event, token)) || (customDate && matchesDateFilter(event, customDate));
+  const timeOk = (!timeSel.length && !customTime) || timeSel.some(token => matchesTimeFilter(event, token)) || (customTime && matchesTimeFilter(event, customTime));
+  return dateOk && timeOk;
 }
 
 function openDatePickerSheet() {
@@ -5118,24 +5893,18 @@ function openTimePickerSheet() {
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
-  const base = dcEvents.filter(event => matchesFilter(event, state.homeFilter));
-  const sorted = state.homeFilter === "all" ? feedPersonalSort(base) : base.slice().sort(sortEventsByStart);
-  // combinable sub-filters: genre/type AND neighborhood
-  const subFiltered = sorted
-    .filter(event => !state.discoverGenreFilter || eventMatchesCategoryFacet(event, state.discoverGenreFilter))
-    .filter(event => !state.neighborhoodFilter || eventNeighborhoodMatches(event, state.neighborhoodFilter));
-  const deduped = dedupeFeedEvents(subFiltered);
-  const activeChip = discoverFilterItems().find(([value]) => value === state.homeFilter);
-  const feedTitle = activeChip ? activeChip[1] : "What's happening";
+  const base = dcEvents.filter(eventMatchesFilters);
+  // Personalize only the mixed feed; a specific "What" selection sorts by soonest.
+  const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedPersonalSort(base);
+  const deduped = dedupeFeedEvents(sorted);
   app.innerHTML = `<section class="page discover-page">
     ${renderTonightMap()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${followingRail()}
-    <div class="chips">${filterChips(state.homeFilter, "home")}</div>
-    ${discoverSubFilters()}
+    ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>${escapeHtml(feedTitle)}</h2></div></div>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div></div>
     <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
 }
@@ -5300,7 +6069,7 @@ function renderDiscoverFeedContent(list) {
     return `<div class="feed-error"><p>Having trouble loading events. Check your connection and try refreshing.</p><button class="wide-button" data-refresh-events>Refresh</button></div>`;
   }
   // The category badge is only useful in the mixed "All" feed.
-  return renderEventFeed(list, { showBadge: state.homeFilter === "all" });
+  return renderEventFeed(list, { showBadge: !(state.whatFilter && state.whatFilter.size === 1) });
 }
 
 function discoverSearchText(event) {
@@ -5813,7 +6582,44 @@ function combinedPlannerList(plans) {
   }).join("")}</div>`;
 }
 
+function venueSavedEvents() {
+  const name = accountVenueName();
+  if (!name) return [];
+  return displayableDcEvents()
+    .filter(event => venueEventMatch(event, name))
+    .sort(sortEventsByStart);
+}
+
+function venueUpcomingShows() {
+  const now = Date.now() - 86400000;
+  return venueSavedEvents().filter(event => !event.startSort || event.startSort >= now);
+}
+
+function venueHostedList(eventsToShow) {
+  if (!eventsToShow.length) return `<p class="section-helper empty-planner">No upcoming hosted events are connected to this venue yet. Use the + button on Profile to submit one for review.</p>`;
+  return `<div class="planner-list">${eventsToShow.map(event => `<article class="planner-card planner-${event.cat}">
+    <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
+    <div class="planner-actions"><span>${escapeHtml(discoverCategoryLabel(event.cat))}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+  </article>`).join("")}</div>`;
+}
+
+function renderVenueSocial() {
+  const upcoming = venueUpcomingShows();
+  const nextThree = upcoming.slice(0, 3);
+  app.innerHTML = `<section class="page">
+    <div class="discover-heading"><div><p class="eyebrow">Venue dashboard</p><h1>Upcoming shows</h1></div></div>
+    <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Next up</p><h2>Upcoming at ${escapeHtml(accountVenueName() || "your venue")}</h2></div></div>${nextThree.length ? `<div class="saved-suggestion-rail">${nextThree.map(event => eventRow(event, "suggestion", { showBadge: false })).join("")}</div>` : `<p class="section-helper">Approved hosted events will appear here.</p>`}</section>
+    <section class="section planner-calendar-section"><div class="section-heading"><div><h2>Hosted calendar</h2></div></div>${plannerCalendar(upcoming, "Approved hosted events will appear on this calendar.")}</section>
+    <section class="section saved-plans-section"><div class="section-heading"><div><h2>All upcoming hosted events</h2></div></div>${venueHostedList(upcoming)}</section>
+    <button class="explore-cta" data-route="profile">Post an event from Profile &rarr;</button>
+  </section>`;
+}
+
 function renderSocial() {
+  if (isVenueAccount()) {
+    renderVenueSocial();
+    return;
+  }
   const allPlans = savedPlannerEvents("all");
   app.innerHTML = `<section class="page">
     <div class="discover-heading"><div><h1>Your Plans</h1></div></div>
@@ -5841,8 +6647,8 @@ function plannerList(plans, emptyText, statusLabel) {
   </article>`).join("")}</div>`;
 }
 
-function plannerCalendar(plans) {
-  if (!plans.length) return `<p class="section-helper empty-planner">Save or RSVP to an event and it will appear in Your Plans.</p>`;
+function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it will appear in Your Plans.") {
+  if (!plans.length) return `<p class="section-helper empty-planner">${escapeHtml(emptyText)}</p>`;
   const start = new Date();
   start.setHours(0, 0, 0, 0);
   start.setDate(start.getDate() + state.plannerWeekOffset * 7);
@@ -5904,14 +6710,30 @@ function openFriend(name) {
 }
 
 
+const LOKAL_SCORE_LEVELS = [
+  { name: "New in Town", min: 0, next: 200 },
+  { name: "Explorer", min: 200, next: 275 },
+  { name: "District Scout", min: 275, next: 350 },
+  { name: "Neighborhood Regular", min: 350, next: 450 },
+  { name: "Plan Maker", min: 450, next: 575 },
+  { name: "Ward Wanderer", min: 575, next: 725 },
+  { name: "Metro Connector", min: 725, next: 900 },
+  { name: "District Insider", min: 900, next: 1100 },
+  { name: "Downtown Regular", min: 1100, next: 1350 },
+  { name: "Capital Connector", min: 1350, next: 1650 },
+  { name: "DC Tastemaker", min: 1650, next: 2000 },
+  { name: "Certified Lokal", min: 2000, next: 2400 },
+  { name: "District Icon", min: 2400, next: 2900 },
+  { name: "Lokal Legend", min: 2900, next: 3600 },
+  { name: "DC Hall of Fame", min: 3600, next: null }
+];
+
 function scoreLevel(score) {
-  if (score >= 500) return { name: "Local Legend", min: 500, next: null };
-  if (score >= 200) return { name: "Insider", min: 200, next: 500 };
-  return { name: "Explorer", min: 0, next: 200 };
+  return LOKAL_SCORE_LEVELS.slice().reverse().find(level => score >= level.min) || LOKAL_SCORE_LEVELS[0];
 }
 
 function nextLevelName(level) {
-  return level.next === 500 ? "Local Legend" : "Insider";
+  return LOKAL_SCORE_LEVELS.find(item => item.min === level.next)?.name || "";
 }
 
 function tasteColor(taste) {
@@ -5960,34 +6782,65 @@ function attendanceHistorySection() {
   return `${body}${toggle}`;
 }
 
-function lokalYearSummary() {
-  const receipts = profileReceipts();
-  const count = receipts.length;
-  const categories = new Set(receipts.map(receipt => receipt.cat).filter(Boolean)).size;
-  const withFriends = receiptFriendUnits(receipts);
-  const score = lokalScore();
-  const level = scoreLevel(score).name;
-  return `My Lokal year so far: ${count} event${count === 1 ? "" : "s"} across ${categories} kind${categories === 1 ? "" : "s"} of night out, ${withFriends} plan${withFriends === 1 ? "" : "s"} with friends, and a Lokal score of ${score} (${level}). See what's happening in DC on Lokal.`;
+function approvedVenueProfileName() {
+  return Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] || "" : "";
 }
 
-function openYearShareSheet() {
-  const summary = lokalYearSummary();
-  const score = lokalScore();
-  const level = scoreLevel(score).name;
-  const receipts = profileReceipts();
-  const smsBody = encodeURIComponent(summary);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share my Lokal year">
-    <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Your year on Lokal</p><h2>Share my Lokal year</h2><p class="lede">Send a recap of everywhere you have been around DC.</p>
-    <div class="share-preview"><b>${escapeHtml(state.profile.fullName)} on Lokal</b><span>${receipts.length} events attended / ${level}</span><small>Lokal score ${score}</small><em>${escapeHtml(summary)}</em></div>
-    <div class="share-channel-grid">
-      <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
-      <button class="share-channel" data-native-share-year>Share sheet</button>
-      <a class="share-channel" href="mailto:?subject=${encodeURIComponent("My Lokal year")}&body=${smsBody}">Email</a>
-      <button class="share-channel" data-copy-year>Copy recap</button>
-    </div>
-    <button class="wide-button" data-copy-year>Copy my Lokal year</button>
-  </section></div>`;
+function hasApprovedVenueProfile() {
+  return Boolean(approvedVenueProfileName() || state.verifiedVenues?.size);
+}
+
+function hostedEventsForVenue() {
+  const name = accountVenueName();
+  if (!name) return [];
+  return displayableDcEvents().filter(event => venueEventMatch(event, name)).sort(sortEventsByStart);
+}
+
+function hostedEventRow(event, index = 0) {
+  const art = eventCardImageSrc(event);
+  const style = event.image ? cleanEventThumbStyle(art) : `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
+  return `<button class="attend-row" style="--i:${index}" data-event="${event.id}"><span class="attend-thumb" style="${style}"></span><span class="attend-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`;
+}
+
+function venueHostedSection() {
+  const hosted = hostedEventsForVenue();
+  if (!hosted.length) return `<p class="section-helper">Events you post or host will show up here after they are approved.</p>`;
+  return `<div class="attend-list">${hosted.slice(0, 5).map((event, index) => hostedEventRow(event, index)).join("")}</div>`;
+}
+
+function venueInsightPanel() {
+  const hosted = hostedEventsForVenue();
+  const venueName = accountVenueName();
+  const categories = hosted.reduce((totals, event) => {
+    const label = discoverCategoryLabel(event.cat || "community");
+    totals[label] = (totals[label] || 0) + 1;
+    return totals;
+  }, {});
+  const categoryRows = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const topCount = Math.max(1, ...categoryRows.map(row => row[1]));
+  const localFollow = state.follows.has(`venue:${venueName}`) ? 1 : 0;
+  const followers = Math.max(localFollow, hosted.reduce((total, event) => total + (Array.isArray(event.friends) ? event.friends.length : 0), 0));
+  const upcoming = hosted.filter(event => !event.start || event.start >= Date.now() - 86400000).length;
+  return `<section class="section profile-insights"><div class="section-heading"><div><p class="eyebrow">Venue stats</p><h2>Hosting pulse</h2></div><span class="profile-pulse">Live</span></div>
+    <div class="insight-grid"><div class="insight-card"><b>${hosted.length}</b><small>Events hosted</small></div><div class="insight-card"><b>${upcoming}</b><small>Upcoming</small></div><div class="insight-card"><b>${followers}</b><small>Followers</small></div></div>
+    <div class="category-bars">${categoryRows.map(([label, count], index) => `<div class="category-bar" style="--level:${Math.max(18, Math.round((count / topCount) * 100))}%; --delay:${index * 80}ms"><span><b>${escapeHtml(label)}</b><small>${count} event${count === 1 ? "" : "s"}</small></span><i></i></div>`).join("") || `<p class="section-helper">Post events to build your venue dashboard.</p>`}</div>
+  </section>`;
+}
+
+function venueFocusSection() {
+  const hosted = hostedEventsForVenue();
+  const labels = [...new Set(hosted.map(event => discoverCategoryLabel(event.cat || "community")))].slice(0, 5);
+  const chips = (labels.length ? labels : ["Event hosting", "Local audience", "Venue updates"]).map(label => `<span class="taste-pill" style="--c:${tasteColor(label)}">${escapeHtml(label)}</span>`).join("");
+  return `<p class="eyebrow">Venue focus</p>
+    <p class="section-subnote">These are based on the events connected to your venue.</p>
+    <div class="chips profile-taste-chips">${chips}</div>`;
+}
+
+function userTasteSection(tastePills) {
+  return `<p class="eyebrow">Your tastes</p>
+    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
+    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
+    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>`;
 }
 
 function profileInsightPanel() {
@@ -6007,7 +6860,32 @@ function profileInsightPanel() {
   </section>`;
 }
 
+function venueVerificationPanel() {
+  const pending = state.pendingVenueRequests || [];
+  const approvedNames = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames : [];
+  const approvedName = accountVenueName() || approvedNames[0] || "";
+  const hasApprovedVenue = Boolean(approvedName || state.verifiedVenues?.size);
+  if (!hasApprovedVenue && state.venueVerificationDismissed) return "";
+  const status = hasApprovedVenue
+    ? "Venue approved"
+    : pending.length
+      ? "Request pending"
+      : "No venue attached";
+  const approvedRow = approvedName ? `<div class="venue-owner-row"><span><b>${escapeHtml(approvedName)}</b><small>Approved to post events</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(approvedName)}" aria-label="Post event for ${escapeHtml(approvedName)}">+</button></div>` : "";
+  return `<section class="section venue-owner-panel">
+    ${!hasApprovedVenue ? `<button class="venue-owner-dismiss" data-dismiss-venue-verification aria-label="Hide venue verification">&times;</button>` : ""}
+    <div class="section-heading"><div><p class="eyebrow">Venue tools</p><h2>For venue owners</h2></div><span class="profile-pulse">${escapeHtml(status)}</span></div>
+    <p class="section-helper">Request verification so approved venues can post events from Profile. Requests are stored for Lokal review.</p>
+    ${approvedRow ? `<div class="venue-owner-list">${approvedRow}</div>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
+  </section>`;
+}
+
 function renderProfile() {
+  const isVenueProfile = isVenueAccount();
+  const venueName = accountVenueName() || currentAccountDisplayName();
+  const venueDescription = state.profile.venueDescription || "Add a venue description so people know the kind of nights, crowds, and events you host.";
+  const venueImage = currentVenueImage();
+  const venueOwnerName = state.profile.ownerName || state.profile.fullName || "";
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -6015,23 +6893,21 @@ function renderProfile() {
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><button class="text-button" data-settings>Settings</button></div></div>
-    <p class="bio">${escapeHtml(state.bio)}</p>
-    <button class="score-block" data-settings-page="faq">
+    <div class="profile-card"><div class="profile-avatar">${isVenueProfile && venueImage ? `<img src="${escapeHtml(venueImage)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
+    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
+    ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
       <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
       <div class="score-progress"><i style="width:${Math.round(progress * 100)}%"></i></div>
-      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached â€” you're a Local Legend"}</p>
+      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached - you're in the DC Hall of Fame"}</p>
       <p class="score-context">Your score grows every time you attend an event, make plans with friends, or engage with the community.</p>
-    </button>
-    <p class="eyebrow">Your tastes</p>
-    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
-    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
-    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>
-    ${state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
-    <div class="attend-head"><div><p class="eyebrow">Your history</p><h2>Events you've been to</h2></div><button class="text-button" data-share-year>Share my Lokal year</button></div>
-    ${attendanceHistorySection()}
-    ${profileInsightPanel()}
+    </button>`}
+    ${isVenueProfile ? venueFocusSection() : userTasteSection(tastePills)}
+    ${venueVerificationPanel()}
+    ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
+    <div class="attend-head"><div><p class="eyebrow">${isVenueProfile ? "Venue history" : "Your history"}</p><h2>${isVenueProfile ? "Events you've hosted" : "Events you've been to"}</h2></div></div>
+    ${isVenueProfile ? venueHostedSection() : attendanceHistorySection()}
+    ${isVenueProfile ? venueInsightPanel() : profileInsightPanel()}
   </section>`;
 }
 
@@ -6081,7 +6957,7 @@ function scoreBreakdown() {
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
   const savedOnlyCount = Array.from(state.saved || []).filter(id => !state.rsvps.has(id) && !state.removedPlans?.has(id)).length;
   const breakdown = [
-    { label: "Base profile", value: 100, detail: "Starting score for creating a profile." },
+    { label: "New in Town", value: 100, detail: "100 starting points for creating a profile and joining Lokal." },
     { label: "Verified attendance", value: receipts.length * 15, detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - no lifetime cap.` },
     { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
     { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
@@ -6167,14 +7043,17 @@ function openTasteEditor() {
 }
 
 function openSettings() {
+  const isVenueProfile = isVenueAccount();
+  const venueDescription = state.profile.venueDescription || "";
+  const venueImage = currentVenueImage();
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Profile settings"><button class="modal-close" aria-label="Close settings">&times;</button>
     <p class="eyebrow">Profile and account</p><h2>Settings</h2>
-    <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
+    <div class="settings-avatar"><div class="profile-avatar">${isVenueProfile && venueImage ? `<img src="${escapeHtml(venueImage)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
     <p class="settings-group-label">Account</p>
-    <label class="settings-field">Name<input value="${escapeHtml(state.profile.fullName)}" readonly></label>
+    <label class="settings-field">${isVenueProfile ? "Venue name" : "Name"}<input value="${escapeHtml(isVenueProfile ? currentAccountDisplayName() : state.profile.fullName)}" readonly></label>
     <label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label>
-    <label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>
-    <label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>
+    ${isVenueProfile ? `<label class="settings-field">Venue image URL<input data-venue-image-input type="url" value="${escapeHtml(venueImage)}" placeholder="https://..."></label><label class="settings-field">Venue description<textarea data-venue-description-input placeholder="Tell people what your venue is known for.">${escapeHtml(venueDescription)}</textarea></label>` : `<label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>`}
+    ${isVenueProfile ? "" : `<label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>`}
     <hr class="settings-divider">
     <p class="settings-group-label">Preferences</p>
     <label class="settings-field">Home city<input value="Washington, DC"></label>
@@ -6184,10 +7063,28 @@ function openSettings() {
     <hr class="settings-divider">
     <p class="settings-group-label">App</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label>
-    <button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button>
+    <button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>
     <button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button>
     <div class="settings-danger"><button class="settings-minor" data-signout>Sign out</button><button class="settings-minor danger" data-deactivate>Delete account</button></div>
+  </section></div>`;
+}
+
+function openVenueVerificationSheet() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Request venue verification"><button class="modal-close" aria-label="Close venue verification">&times;</button>
+    <p class="eyebrow">Venue access</p><h2>Request verification</h2>
+    <p class="lede">Tell us which venue you manage. Lokal can review this on the owner side, then approve posting access for that venue page.</p>
+    <label class="settings-field">Venue name<input data-verify-venue-name placeholder="The Anthem"></label>
+    <label class="settings-field">Venue address<input data-verify-venue-address placeholder="901 Wharf St SW, Washington, DC"></label>
+    <label class="settings-field">Website<input data-verify-venue-website type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue image URL<input data-verify-venue-image type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue description<textarea data-verify-venue-description placeholder="What should locals know about the venue?"></textarea></label>
+    <label class="settings-field">Your role<input data-verify-role placeholder="Owner, GM, marketing manager"></label>
+    <label class="settings-field">Contact email<input data-verify-email type="email" value="${escapeHtml(state.profile.email || "")}" placeholder="you@venue.com"></label>
+    <label class="settings-field">Contact phone<input data-verify-phone value="${escapeHtml(formatDisplayPhone(state.profile.phone || ""))}" placeholder="(202) 555-0123"></label>
+    <label class="settings-field">Anything we should know<textarea data-verify-notes placeholder="Best way to confirm ownership, booking contact, social handles, etc."></textarea></label>
+    <p class="account-error" data-venue-verify-error></p>
+    <button class="wide-button" data-submit-venue-verification>Submit for review</button>
   </section></div>`;
 }
 
@@ -6312,6 +7209,7 @@ function openDetail(id) {
   const occurrencesBlock = otherOccurrences.length
     ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
     : "";
+  const recurrence = eventRecurrence(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
     ? `<button class="primary" data-share="${e.id}">Share event</button>`
@@ -6322,15 +7220,17 @@ function openDetail(id) {
     ? `background-image: linear-gradient(180deg, rgba(13,24,22,.08), rgba(13,24,22,.62)); background-color: #f7fafc;`
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${e.title}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button><p>${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><span class="detail-location">${escapeHtml(eventLocationLine(e))}</span></div>
-    <div class="detail-body"><p class="event-meta">${eventMetaLine(e)}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>
+  const priceLabel = eventPriceLabel(e);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
     ${occurrencesBlock}
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved âœ“" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going âœ“" : "RSVP"}</button>${shareButton}</div>
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
+    ${recurrence ? `<button class="wide-button calendar-recur-button" data-add-recurring="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar Â· ${escapeHtml(recurrence.label)}</button>` : ""}
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
     <button class="wide-button" data-ticket>Get tickets / details</button></div>
   </section></div>`;
@@ -6387,24 +7287,199 @@ function lokalEventSharePayload(event) {
   ].filter(Boolean).join("\n");
 }
 
+// --- Add a recurring event to the user's calendar as a repeating series ---
+function icsEscape(value) {
+  return String(value || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+}
+
+function icsStamp(date) {
+  const p = n => String(n).padStart(2, "0");
+  return `${date.getFullYear()}${p(date.getMonth() + 1)}${p(date.getDate())}T${p(date.getHours())}${p(date.getMinutes())}00`;
+}
+
+function icsStampUtc(date) {
+  const p = n => String(n).padStart(2, "0");
+  return `${date.getUTCFullYear()}${p(date.getUTCMonth() + 1)}${p(date.getUTCDate())}T${p(date.getUTCHours())}${p(date.getUTCMinutes())}${p(date.getUTCSeconds())}Z`;
+}
+
+// First on/after the event date that matches the rule, so DTSTART is a valid
+// instance even if the stored date drifts from the detected cadence.
+function firstRecurrenceDate(startDate, recurrence) {
+  const base = new Date(`${startDate}T00:00:00`);
+  if (Number.isNaN(base.getTime())) return null;
+  const matches = date => {
+    const code = ICS_WEEKDAY_CODES[date.getDay()];
+    if (recurrence.freq === "WEEKLY") return recurrence.byday.includes(code);
+    return recurrence.byday.some(token => {
+      const parsed = token.match(/^(-?\d+)([A-Z]{2})$/);
+      if (!parsed || parsed[2] !== code) return false;
+      const ordinal = Number(parsed[1]);
+      const nth = Math.floor((date.getDate() - 1) / 7) + 1;
+      const isLast = new Date(date.getTime() + 7 * 86400000).getMonth() !== date.getMonth();
+      return ordinal === -1 ? isLast : nth === ordinal;
+    });
+  };
+  for (let i = 0; i < 400; i++) {
+    const day = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+    if (matches(day)) return day;
+  }
+  return base;
+}
+
+function buildEventIcs(event, recurrence) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(event.startDate || ""))) return null;
+  const first = firstRecurrenceDate(event.startDate, recurrence);
+  if (!first) return null;
+  const hasTime = Number.isFinite(event.startHour);
+  const start = new Date(first.getFullYear(), first.getMonth(), first.getDate(), hasTime ? event.startHour : 9, 0, 0);
+  const rrule = [`FREQ=${recurrence.freq}`];
+  if (recurrence.interval > 1) rrule.push(`INTERVAL=${recurrence.interval}`);
+  if (recurrence.byday && recurrence.byday.length) rrule.push(`BYDAY=${recurrence.byday.join(",")}`);
+  const description = [String(event.desc || "").replace(/<[^>]*>/g, "").trim(), lokalEventShareUrl(event)].filter(Boolean).join("\n");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Lokal//DC Events//EN", "CALSCALE:GREGORIAN", "BEGIN:VEVENT"];
+  lines.push(`UID:lokal-${event.sourceId || event.id}-${recurrence.freq.toLowerCase()}@lokal.app`);
+  lines.push(`DTSTAMP:${icsStampUtc(new Date())}`);
+  if (hasTime) {
+    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+    lines.push(`DTSTART:${icsStamp(start)}`, `DTEND:${icsStamp(end)}`);
+  } else {
+    const p = n => String(n).padStart(2, "0");
+    lines.push(`DTSTART;VALUE=DATE:${start.getFullYear()}${p(start.getMonth() + 1)}${p(start.getDate())}`);
+  }
+  lines.push(`RRULE:${rrule.join(";")}`);
+  lines.push(`SUMMARY:${icsEscape(event.title)}`);
+  lines.push(`DESCRIPTION:${icsEscape(description)}`);
+  lines.push(`LOCATION:${icsEscape(eventLocationLine(event))}`);
+  lines.push("END:VEVENT", "END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+function downloadIcsFile(filename, content) {
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function addRecurringEventToCalendar(id) {
+  const event = events.find(item => item.id === Number(id));
+  if (!event) return;
+  const recurrence = eventRecurrence(event);
+  if (!recurrence) { toast("This event doesn't repeat on a set schedule."); return; }
+  const ics = buildEventIcs(event, recurrence);
+  if (!ics) { toast("This event is missing a date to schedule."); return; }
+  const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
+  downloadIcsFile(`${slug}.ics`, ics);
+  toast(`Added to your calendar â€” repeats ${recurrence.label}.`);
+}
 
 
+
+// Inspirational lines that rotate on the welcome screen (CSS-animated).
+const ONBOARD_ROTATOR_LINES = ["The city is in motion.", "Find your people.", "Find your home in DC.", "Never miss the moment."];
+const ONBOARD_INTEREST_OPTIONS = ["Live music", "Concerts", "Nightlife", "Happy hours", "Trivia", "Museums", "Performing arts", "Comedy", "Sports", "Festivals", "Food & drink", "Markets", "Community", "Free events"];
+const ONBOARD_AREA_OPTIONS = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia", "Columbia Heights", "Petworth", "The Wharf", "Downtown"];
+
+function onboardProgressDots(active) {
+  return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
+}
+
+// Streamlined signup: an immersive, animated welcome, then three quick steps
+// (name -> contact -> interests & neighborhoods). Interests + neighborhoods feed
+// feed curation. Answers accumulate in state.signupDraft across steps.
 function renderOnboarding() {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const birthdayMax = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
-  const signupEventOptions = ["Live music", "Nightlife", "Museums", "Sports", "Comedy", "Restaurants", "Performing arts", "Festivals", "Free events", "Markets"];
-  const signupAreaOptions = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia"];
-  const steps = [
-    { type: "welcome", title: "Your city,<br>in motion.", text: "Find the things worth leaving the house for, and see what your friends are into." },
-    { type: "account", title: "Create your account.", text: "Pick what you like and where you want to explore. Lokal will use this to shape your feed." },
-    { type: "contacts", title: "Find your people.", text: "See what friends save, build groups, and make plans without starting a new group chat." }
-  ];
-  const s = steps[state.onboardStep];
-  const content = s.type === "welcome" ? `<div class="intro-art"><span>LOKAL</span></div><button class="wide-button" data-next>Get started</button>`
-    : s.type === "account" ? `<div class="account-fields"><input data-signup-full-name placeholder="Full name" aria-label="Full name" autocomplete="name"><input data-signup-email placeholder="Email" type="email" aria-label="Email" autocomplete="email"><input data-signup-phone placeholder="Phone number" type="tel" inputmode="numeric" maxlength="14" aria-label="Phone number" autocomplete="tel"><input data-signup-username placeholder="Public username" aria-label="Public username" autocomplete="username"><label class="birth-field">Birthday<input data-signup-birthdate type="date" max="${birthdayMax}" aria-label="Birthday" autocomplete="bday"></label><input data-signup-password placeholder="Create a password" type="password" aria-label="Create a password" autocomplete="new-password"><small>Birthday must be in the past and age 14+. Phone numbers use (xxx) xxx-xxxx format.</small></div><p class="settings-label">Event interests</p><div class="select-grid preference-grid compact-select-grid">${signupEventOptions.map(o => `<button class="select-tile" data-signup-interest="${o}">${o}</button>`).join("")}</div><p class="settings-label">Areas to explore</p><div class="select-grid preference-grid compact-select-grid">${signupAreaOptions.map(o => `<button class="select-tile" data-signup-area="${o}">${o}</button>`).join("")}</div><p class="account-error" data-account-error></p><button class="wide-button" data-create-account>Create account</button>`
-    : `<div class="contacts-art">${avatarStack(["AL","MR","DV","JS"])}</div><button class="wide-button" data-next>Sync contacts</button><button class="skip-button" data-next>Maybe later</button>`;
-  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">${state.onboardStep === 0 ? "WELCOME TO LOKAL" : `STEP ${state.onboardStep} OF ${steps.length - 1}`}</p><h1>${s.title}</h1><p class="lede">${s.text}</p>${content}</section></div>`);
+  state.signupDraft = state.signupDraft || {};
+  const d = state.signupDraft;
+  const step = state.onboardStep || 0;
+
+  if (step === 0) {
+    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-immersive">
+      <div class="welcome-bg"></div>
+      <div class="welcome-scrim"></div>
+      <div class="welcome-content">
+        <div class="welcome-top"><span class="welcome-brand">LOKAL</span><span class="welcome-place">Washington, DC</span></div>
+        <div class="welcome-message">
+          <p class="welcome-eyebrow">Welcome to your city</p>
+          <div class="welcome-rotator" aria-label="${escapeHtml(ONBOARD_ROTATOR_LINES.join(" "))}">${ONBOARD_ROTATOR_LINES.map(line => `<span>${escapeHtml(line)}</span>`).join("")}</div>
+          <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
+        </div>
+        <div class="welcome-choice-row">
+          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a Local</button>
+          <button class="welcome-cta secondary" data-onboard-start data-account-type="venue">Join as a venue</button>
+        </div>
+      </div>
+    </div>`);
+    return;
+  }
+
+  let inner = "";
+  if (step === 1 && d.accountType === "venue") {
+    inner = `<h1 class="onboard-title">Tell us about your venue.</h1>
+      <p class="lede">This starts your venue profile and sends verification to Lokal for review.</p>
+      <div class="onboard-fields">
+        <label class="float-field"><span>Venue name</span><input data-onboard-venue-name value="${escapeHtml(d.venueName || "")}" autocomplete="organization" placeholder="Dacha Beer Garden"></label>
+        <label class="float-field"><span>Venue address</span><input data-onboard-venue-address value="${escapeHtml(d.venueAddress || "")}" autocomplete="street-address" placeholder="1600 7th St NW"></label>
+        <label class="float-field"><span>Website</span><input data-onboard-venue-website type="url" value="${escapeHtml(d.website || "")}" placeholder="https://..."></label>
+        <label class="float-field"><span>Venue image URL</span><input data-onboard-venue-image type="url" value="${escapeHtml(d.venueImageUrl || "")}" placeholder="https://..."></label>
+        <label class="float-field"><span>Venue description</span><textarea data-onboard-venue-description placeholder="Beer garden, patio crowd, trivia, watch parties...">${escapeHtml(d.venueDescription || "")}</textarea></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-venue>Continue</button>`;
+  } else if (step === 1) {
+    inner = `<h1 class="onboard-title">First, what's your name?</h1>
+      <p class="lede">So friends know it's really you.</p>
+      <div class="onboard-fields">
+        <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
+        <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-name>Continue</button>`;
+  } else if (step === 2) {
+    const isVenueContact = d.accountType === "venue";
+    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "How can we reach you?"}</h1>
+      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "Your email and number keep your saves and plans in sync."}</p>
+      <div class="onboard-fields">
+        ${isVenueContact ? `<label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
+        <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
+        <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
+        <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-contact>Continue</button>`;
+  } else if (d.accountType === "venue") {
+    const interests = new Set(d.interests || []);
+    const areas = new Set(d.areas || []);
+    inner = `<h1 class="onboard-title">What do you host?</h1>
+      <p class="lede">Choose the event types and neighborhood that fit your venue.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Venue neighborhood</p>
+      <p class="section-subnote">Choose one primary location.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;
+  } else {
+    const interests = new Set(d.interests || []);
+    const areas = new Set(d.areas || []);
+    inner = `<h1 class="onboard-title">What are you into?</h1>
+      <p class="lede">Pick a few â€” we'll tune your feed to match.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Neighborhoods you explore</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="account-error" data-account-error></p>
+      <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
+  }
+
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-steps">
+    <section class="onboard-card onboard-step-card">
+      <div class="onboard-head"><button class="onboard-back" data-onboard-back aria-label="Back">&#8249;</button>${onboardProgressDots(step)}</div>
+      ${inner}
+    </section>
+  </div>`);
 }
 
 function renderPhoneVerification() {
@@ -6458,6 +7533,12 @@ document.addEventListener("click", async event => {
   if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
+  if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.feedShown = 10; renderHome(); }
+  if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.feedShown = 10; renderHome(); }
+  if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.feedShown = 10; renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedShown = 10; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
@@ -6509,6 +7590,7 @@ document.addEventListener("click", async event => {
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
   }
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await navigator.clipboard?.writeText(lokalEventShareUrl(shareEvent)); } catch {} const original = t.textContent; t.textContent = "Link copied âœ“"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
+  if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
@@ -6561,6 +7643,83 @@ document.addEventListener("click", async event => {
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
+  if (t.dataset.dismissVenueVerification !== undefined) {
+    mark();
+    state.venueVerificationDismissed = true;
+    localStorage.setItem("lokalVenueVerificationDismissed", "1");
+    renderProfile();
+    toast("Venue tools hidden");
+  }
+  if (t.dataset.venueVerify !== undefined) { mark(); openVenueVerificationSheet(); }
+  if (t.dataset.submitVenueVerification !== undefined) {
+    mark();
+    const sheet = t.closest(".venue-form-sheet");
+    const error = sheet.querySelector("[data-venue-verify-error]");
+    const payload = {
+      venueName: sheet.querySelector("[data-verify-venue-name]")?.value.trim(),
+      venueAddress: sheet.querySelector("[data-verify-venue-address]")?.value.trim(),
+      website: sheet.querySelector("[data-verify-venue-website]")?.value.trim(),
+      venueImageUrl: sheet.querySelector("[data-verify-venue-image]")?.value.trim(),
+      venueDescription: sheet.querySelector("[data-verify-venue-description]")?.value.trim(),
+      role: sheet.querySelector("[data-verify-role]")?.value.trim(),
+      email: sheet.querySelector("[data-verify-email]")?.value.trim(),
+      phone: sheet.querySelector("[data-verify-phone]")?.value.trim(),
+      notes: sheet.querySelector("[data-verify-notes]")?.value.trim()
+    };
+    if (!payload.venueName || !payload.venueAddress || !payload.role || !payload.email) { error.textContent = "Add venue name, address, your role, and contact email."; return; }
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      await submitVenueVerificationRequest(payload);
+      modalRoot.innerHTML = "";
+      renderProfile();
+      toast("Venue verification sent for review");
+    } catch {
+      error.textContent = "Could not submit yet. Try again in a minute.";
+      t.disabled = false;
+    }
+  }
+  if (t.dataset.postVenueEvent) { mark(); openVenueEventPostSheet(t.dataset.postVenueEvent); }
+  if (t.dataset.submitVenueEvent !== undefined) {
+    mark();
+    const sheet = t.closest(".venue-form-sheet");
+    const error = sheet.querySelector("[data-post-event-error]");
+    const venueName = sheet.querySelector("[data-post-venue-name]")?.value.trim();
+    const title = sheet.querySelector("[data-post-event-title]")?.value.trim();
+    const startsAt = sheet.querySelector("[data-post-starts-at]")?.value;
+    const isRecurring = Boolean(sheet.querySelector("[data-post-recurring]")?.checked);
+    const recurrenceFrequency = sheet.querySelector("[data-post-recurrence-frequency]")?.value || "";
+    if (!venueName || !title || !startsAt) { error.textContent = "Add an event name and start date/time."; return; }
+    if (isRecurring && !recurrenceFrequency) { error.textContent = "Choose how often this recurring event repeats."; return; }
+    const tags = String(sheet.querySelector("[data-post-tags]")?.value || "").split(",").map(tag => tag.trim()).filter(Boolean);
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      await submitVenueEventPost({
+        venueName,
+        venueAddress: sheet.querySelector("[data-post-venue-address]")?.value.trim(),
+        title,
+        startsAt: new Date(startsAt).toISOString(),
+        endsAt: sheet.querySelector("[data-post-ends-at]")?.value ? new Date(sheet.querySelector("[data-post-ends-at]").value).toISOString() : "",
+        category: sheet.querySelector("[data-post-category]")?.value,
+        tags,
+        ticketUrl: sheet.querySelector("[data-post-ticket-url]")?.value.trim(),
+        price: sheet.querySelector("[data-post-price]")?.value.trim(),
+        imageUrl: sheet.querySelector("[data-post-image-url]")?.value.trim(),
+        description: sheet.querySelector("[data-post-description]")?.value.trim(),
+        isRecurring,
+        recurrenceFrequency,
+        recurrenceUntil: sheet.querySelector("[data-post-recurrence-until]")?.value || ""
+      });
+      modalRoot.innerHTML = "";
+      if (state.route === "profile") renderProfile();
+      else openVenueEvents(venueName);
+      toast("Event submitted for Lokal review");
+    } catch {
+      error.textContent = "Could not submit this event yet. Try again in a minute.";
+      t.disabled = false;
+    }
+  }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
   if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
   if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }
@@ -6568,9 +7727,6 @@ document.addEventListener("click", async event => {
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
-  if (t.dataset.shareYear !== undefined) { mark(); openYearShareSheet(); }
-  if (t.dataset.copyYear !== undefined) { mark(); try { await navigator.clipboard?.writeText(lokalYearSummary()); } catch {} toast("Lokal year copied"); }
-  if (t.dataset.nativeShareYear !== undefined) { mark(); const text = lokalYearSummary(); try { if (navigator.share) await navigator.share({ title: "My Lokal year", text }); else await navigator.clipboard?.writeText(text); toast(navigator.share ? "Share sheet opened" : "Lokal year copied"); } catch { toast("Share canceled"); } }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {
     mark();
@@ -6612,13 +7768,154 @@ document.addEventListener("click", async event => {
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
   if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
-  if (t.dataset.saveSettings !== undefined) { const input = document.querySelector("[data-age-input]"); const bio = document.querySelector("[data-bio-input]"); const privateInput = document.querySelector("[data-private-account]"); if (input) state.age = Math.max(13, Number(input.value) || 27); if (bio?.value.trim()) state.bio = bio.value.trim(); state.privateAccount = Boolean(privateInput?.checked); state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount }; localStorage.setItem("lokalProfile", JSON.stringify(state.profile)); modalRoot.innerHTML = ""; renderProfile(); toast(state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated"); }
+  if (t.dataset.saveSettings !== undefined) {
+    const input = document.querySelector("[data-age-input]");
+    const bio = document.querySelector("[data-bio-input]");
+    const venueImage = document.querySelector("[data-venue-image-input]");
+    const venueDescription = document.querySelector("[data-venue-description-input]");
+    const privateInput = document.querySelector("[data-private-account]");
+    if (input) state.age = Math.max(13, Number(input.value) || 27);
+    if (bio?.value.trim()) state.bio = bio.value.trim();
+    state.privateAccount = Boolean(privateInput?.checked);
+    state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueImageUrl: venueImage ? venueImage.value.trim() : state.profile.venueImageUrl || "", venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
+    if (isVenueAccount()) registerLocalVenueProfile();
+    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
+    modalRoot.innerHTML = "";
+    renderProfile();
+    toast(isVenueAccount() ? "Venue profile updated" : state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated");
+  }
   if (t.dataset.ticket !== undefined) toast("External ticket link opened in the real app");
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
   if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }
   if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
-  if (t.dataset.signupInterest || t.dataset.signupArea) { mark(); t.classList.toggle("selected"); }
+  if (t.dataset.signupInterest || t.dataset.signupArea) {
+    mark();
+    const draft = (state.signupDraft = state.signupDraft || {});
+    const key = t.dataset.signupInterest ? "interests" : "areas";
+    const value = t.dataset.signupInterest || t.dataset.signupArea;
+    if (key === "areas" && draft.accountType === "venue") {
+      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.toggle("selected", button === t));
+      draft.areas = [value];
+    } else {
+      t.classList.toggle("selected");
+      const chosen = new Set(draft[key] || []);
+      chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+      draft[key] = [...chosen];
+    }
+  }
+  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
+  if (t.dataset.onboardVenue !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const venueName = card.querySelector("[data-onboard-venue-name]").value.trim();
+    const venueAddress = card.querySelector("[data-onboard-venue-address]").value.trim();
+    const website = card.querySelector("[data-onboard-venue-website]").value.trim();
+    const venueImageUrl = card.querySelector("[data-onboard-venue-image]").value.trim();
+    const venueDescription = card.querySelector("[data-onboard-venue-description]").value.trim();
+    if (!venueName || !venueAddress) { error.textContent = "Enter the venue name and address."; return; }
+    state.signupDraft.venueName = venueName;
+    state.signupDraft.venueAddress = venueAddress;
+    state.signupDraft.website = website;
+    state.signupDraft.venueImageUrl = venueImageUrl;
+    state.signupDraft.venueDescription = venueDescription;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 2;
+    renderOnboarding();
+  }
+  if (t.dataset.onboardName !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const first = card.querySelector("[data-onboard-first]").value.trim();
+    const last = card.querySelector("[data-onboard-last]").value.trim();
+    if (!first || !last) { error.textContent = "Enter your first and last name."; return; }
+    state.signupDraft.firstName = first;
+    state.signupDraft.lastName = last;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 2;
+    renderOnboarding();
+  }
+  if (t.dataset.onboardContact !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const email = card.querySelector("[data-onboard-email]").value.trim();
+    const phone = card.querySelector("[data-onboard-phone]").value.trim();
+    const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
+    const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
+    if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
+    let formattedPhone = "";
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); }
+    catch (contactError) { error.textContent = contactError.message; return; }
+    state.signupDraft.firstName = first;
+    state.signupDraft.lastName = last;
+    state.signupDraft.email = email;
+    state.signupDraft.phone = formattedPhone;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 3;
+    renderOnboarding();
+  }
+  if (t.dataset.onboardFinish !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const draft = state.signupDraft || {};
+    const eventInterests = draft.interests || [];
+    const areaInterests = draft.areas || [];
+    if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
+    const isVenue = draft.accountType === "venue";
+    if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
+    const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const fullName = ownerName;
+    const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const onboardingProfile = {
+      fullName,
+      email: draft.email,
+      phone: formatSignupPhone(draft.phone),
+      username,
+      birthdate: "2000-01-01",
+      eventInterests,
+      areaInterests,
+      accountType: isVenue ? "venue" : "person",
+      ownerName: isVenue ? ownerName : "",
+      venueName: isVenue ? draft.venueName : "",
+      venueAddress: isVenue ? draft.venueAddress : "",
+      venueWebsite: isVenue ? draft.website : "",
+      venueImageUrl: isVenue ? draft.venueImageUrl : "",
+      venueDescription: isVenue ? draft.venueDescription : ""
+    };
+    finalizeLokalProfile(onboardingProfile);
+    if (isVenue) registerLocalVenueProfile();
+    let supabaseSynced = true;
+    try { await submitOnboardingProfile(onboardingProfile); }
+    catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
+    if (isVenue) {
+      try {
+        await submitVenueVerificationRequest({
+          venueName: draft.venueName,
+          venueAddress: draft.venueAddress,
+          website: draft.website,
+          venueImageUrl: draft.venueImageUrl,
+          venueDescription: draft.venueDescription,
+          eventInterests,
+          areaInterests,
+          role: "Venue owner or manager",
+          email: draft.email,
+          phone: draft.phone,
+          notes: "Submitted during venue onboarding."
+        });
+      } catch (error) { supabaseSynced = false; console.warn("[supabase] venue verification request failed", error); }
+    }
+    localStorage.setItem("lokalAccountCreated", "true");
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 0;
+    isVenue ? renderProfile() : renderHome();
+    toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
+    if (!isVenue) showDiscoverHint();
+  }
   if (t.dataset.createAccount !== undefined) {
     mark();
     const card = t.closest(".onboard-card");
@@ -6642,14 +7939,14 @@ document.addEventListener("click", async event => {
       finalizeLokalProfile(state.pendingSignupProfile);
       state.onboardStep++;
       renderOnboarding();
-      toast(result.access_token ? "Account created" : "Account created. Check your email to confirm it.");
+      toast(result.access_token ? "100 Lokal points for joining" : "100 Lokal points for joining. Check your email to confirm it.");
     } catch (accountError) {
       error.textContent = accountError.message;
       t.disabled = false;
     }
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); showDiscoverHint(); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("100 Lokal points for joining"); showDiscoverHint(); } }
   if (!handled && !t.disabled) toast("Action opened");
 });
 
@@ -6668,7 +7965,7 @@ modalRoot.addEventListener("touchend", event => {
 
 document.addEventListener("input", event => {
   const input = event.target;
-  if (input.matches("[data-signup-phone]")) {
+  if (input.matches("[data-signup-phone], [data-onboard-phone]")) {
     const digits = input.value.replace(/\D/g, "").slice(0, 10);
     input.value = digits.length > 6 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : digits.length > 3 ? `(${digits.slice(0, 3)}) ${digits.slice(3)}` : digits.length ? `(${digits}` : "";
   }
@@ -6821,8 +8118,16 @@ document.addEventListener("wheel", event => {
 
 document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
 const startupParams = new URLSearchParams(location.search);
-if (startupParams.has("newUser")) {
-  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts"].forEach(key => localStorage.removeItem(key));
+const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
+if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
+  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+  state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
+  state.signupDraft = {};
+  state.verifiedVenues = new Set();
+  state.verifiedVenueNames = [];
+  state.pendingVenueRequests = [];
+  state.venueVerificationDismissed = false;
+  state.privateAccount = false;
   history.replaceState(null, "", location.pathname);
 }
 if (startupParams.has("bypassSignup")) {
@@ -6830,6 +8135,7 @@ if (startupParams.has("bypassSignup")) {
   history.replaceState(null, "", location.pathname);
 }
 setRoute("home");
+updateProfileShortcut();
 if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
 syncSupabaseEvents();
 syncSupabaseProfiles();

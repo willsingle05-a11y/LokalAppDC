@@ -140,6 +140,15 @@ function queuePendingEventInteraction(record) {
   localStorage.setItem(supabaseStorageKeys.pendingInteractions, JSON.stringify(pending.slice(-40)));
 }
 
+function supabaseJsonHeaders(extra = {}) {
+  return {
+    apikey: supabaseConfig.publishableKey,
+    Authorization: `Bearer ${localStorage.getItem(supabaseStorageKeys.accessToken) || supabaseConfig.publishableKey}`,
+    "Content-Type": "application/json",
+    ...extra
+  };
+}
+
 function supabaseInteractionHeaders() {
   const token = localStorage.getItem(supabaseStorageKeys.accessToken);
   const headers = {
@@ -194,6 +203,110 @@ async function saveEventInteraction(eventId, kind = "save", active = true) {
     console.warn("[supabase] event interaction queued locally:", error.message);
     return { queued: true, error };
   }
+}
+
+async function submitVenueVerificationRequest(profile) {
+  const record = {
+    requester_user_id: currentInteractionUserId(),
+    requester_name: state.profile.fullName || "",
+    requester_email: profile.email || state.profile.email || "",
+    requester_phone: profile.phone || state.profile.phone || "",
+    venue_name: profile.venueName,
+    venue_address: profile.venueAddress,
+    venue_website: profile.website || "",
+    venue_image_url: profile.venueImageUrl || "",
+    venue_description: profile.venueDescription || "",
+    event_interests: profile.eventInterests || [],
+    area_interests: profile.areaInterests || [],
+    requester_role: profile.role || "",
+    notes: profile.notes || "",
+    status: "pending"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_verification_requests`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Venue verification request returned ${response.status}`);
+  state.pendingVenueRequests = [record, ...(state.pendingVenueRequests || [])].slice(0, 20);
+  localStorage.setItem("lokalPendingVenueRequests", JSON.stringify(state.pendingVenueRequests));
+  return record;
+}
+
+async function submitOnboardingProfile(profile) {
+  const record = {
+    user_key: currentInteractionUserId(),
+    account_type: profile.accountType || "person",
+    full_name: profile.fullName || "",
+    owner_name: profile.ownerName || profile.fullName || "",
+    username: profile.username || "",
+    email: profile.email || "",
+    phone: profile.phone || "",
+    birthdate: profile.birthdate || null,
+    event_interests: profile.eventInterests || [],
+    area_interests: profile.areaInterests || [],
+    venue_name: profile.venueName || "",
+    venue_address: profile.venueAddress || "",
+    venue_website: profile.venueWebsite || "",
+    venue_image_url: profile.venueImageUrl || "",
+    venue_description: profile.venueDescription || ""
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/onboarding_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Onboarding submission returned ${response.status}`);
+  return record;
+}
+
+async function syncVenueVerificationStatus() {
+  try {
+    const userId = currentInteractionUserId();
+    const url = `${supabaseConfig.url}/rest/v1/venue_verification_requests?select=venue_name,status,requester_user_id&requester_user_id=eq.${encodeURIComponent(userId)}&status=eq.approved&limit=200`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) return;
+    const rows = await response.json();
+    const names = [];
+    rows.forEach(row => {
+      if (row.requester_user_id !== userId) return;
+      const key = venueImageKeyName(row.venue_name);
+      if (key) state.verifiedVenues.add(key);
+      if (row.venue_name && !names.some(name => venueImageKeyName(name) === key)) names.push(row.venue_name);
+    });
+    state.verifiedVenueNames = names;
+    localStorage.setItem("lokalVerifiedVenues", JSON.stringify(Array.from(state.verifiedVenues)));
+    localStorage.setItem("lokalVerifiedVenueNames", JSON.stringify(state.verifiedVenueNames));
+    updateProfileShortcut();
+  } catch {}
+}
+
+async function submitVenueEventPost(payload) {
+  const record = {
+    requester_user_id: currentInteractionUserId(),
+    venue_name: payload.venueName,
+    venue_address: payload.venueAddress || "",
+    title: payload.title,
+    description: payload.description || "",
+    category: payload.category || "community",
+    tags: payload.tags || [],
+    starts_at: payload.startsAt,
+    ends_at: payload.endsAt || null,
+    image_url: payload.imageUrl || "",
+    ticket_url: payload.ticketUrl || "",
+    price: payload.price || "",
+    is_recurring: Boolean(payload.isRecurring),
+    recurrence_frequency: payload.recurrenceFrequency || "",
+    recurrence_until: payload.recurrenceUntil || null,
+    status: "pending_review"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_event_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Venue event submission returned ${response.status}`);
+  return record;
 }
 
 function cleanSupabaseDescription(value) {
@@ -310,21 +423,20 @@ function normalizeSupabaseVenue(row) {
 
 function normalizeSupabaseArea(row) {
   const extracted = extractLocationFromDescription(row.description || row.desc);
-  return row.neighborhood || row.area || row.location || extracted.address || "Washington, DC";
+  return row.neighborhood || row.area || extracted.address || "Washington, DC";
 }
 
 function supabaseLocationText(row) {
-  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.location || ""} ${row.venue_name || ""} ${row.venue || ""} ${row.raw_json?.geo?.address?.locality || ""} ${row.raw_json?.geo?.address?.region || ""} ${row.raw_json?.geo?.address?.country_code || ""}`.toLowerCase();
+  return `${row.venue_address || ""} ${row.address || ""} ${rawEventApiAddress(row)} ${row.neighborhood || ""} ${row.area || ""} ${row.venue_name || ""} ${row.venue || ""} ${row.raw_json?.geo?.address?.locality || ""} ${row.raw_json?.geo?.address?.region || ""} ${row.raw_json?.geo?.address?.country_code || ""}`.toLowerCase();
 }
 
 function isSupabaseEventInDc(row) {
-  // Washingtonian is a hand-curated DC-area guide; keep its picks (some at metro
-  // venues like Wolf Trap or Strathmore) rather than dropping them as non-DC.
-  if (String(row.source || "").toLowerCase() === "washingtonian") return true;
   const text = supabaseLocationText(row);
   const nonDcText = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore|md\b|va\b|virginia|maryland)\b/.test(text);
-  const dcText = /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
+  const knownDcVenue = /\b(miracle theatre|sixth\s*&\s*i|mlk library|martin luther king jr memorial library|rock creek park tennis center|politics and prose|kennedy center|national theatre|warner theatre|the anthem|union stage|9:30 club|930 club|the atlantis|howard theatre|echostage|capital one arena|nationals park|carefirst arena)\b/.test(text);
+  const dcText = knownDcVenue || /washington,\s*(dc|d\.c\.)|washington,\s*district of columbia|district of columbia|\bdc\b|\bd\.c\.\b|\bnw\b|\bne\b|\bsw\b|\bse\b/.test(text);
   if (nonDcText && !dcText) return false;
+  if (dcText) return true;
   if (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) {
     const lat = Number(row.latitude);
     const lng = Number(row.longitude);
@@ -724,6 +836,7 @@ async function syncSupabaseEvents(showToast = false) {
   }, 5000);
   if (state.route === "home") renderHome();
   await syncSupabaseVenueImages();
+  await syncVenueVerificationStatus();
   try {
     const rowSets = await Promise.all(discoveryWindowQueries().map(fetchSupabaseEventPages));
     const rows = [...new Map(rowSets.flat().map(row => [row.id, row])).values()];
@@ -851,7 +964,9 @@ function profileInitials(fullName) {
 
 function updateProfileShortcut() {
   const shortcut = document.querySelector("#profile-shortcut .avatar");
-  if (shortcut) shortcut.textContent = state.profile.initials;
+  const label = document.querySelector("#profile-shortcut .account-label");
+  if (shortcut) shortcut.textContent = currentAccountInitials();
+  if (label) label.textContent = currentAccountDisplayName().split(/\s+/).slice(0, 3).join(" ");
 }
 
 function finalizeLokalProfile(profile) {
@@ -862,11 +977,38 @@ function finalizeLokalProfile(profile) {
     initials: profileInitials(profile.fullName),
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
-    areas: profile.areaInterests || []
+    areas: profile.areaInterests || [],
+    accountType: profile.accountType || "person",
+    ownerName: profile.ownerName || "",
+    venueName: profile.venueName || "",
+    venueAddress: profile.venueAddress || "",
+    venueWebsite: profile.venueWebsite || "",
+    venueImageUrl: profile.venueImageUrl || "",
+    venueDescription: profile.venueDescription || "",
+    lokalScore: 100
   };
   state.profile = saved;
   state.age = saved.age;
   state.tastes = saved.tastes;
+  if (saved.accountType !== "venue") {
+    state.friends = new Set();
+    state.receipts = [];
+    state.attended = new Set();
+    state.saved = new Set();
+    state.rsvps = new Set();
+    state.savedSources = new Set();
+    state.rsvpSources = new Set();
+    localStorage.setItem("lokalReceipts", "[]");
+    localStorage.setItem("lokalAttended", "[]");
+    localStorage.setItem("lokalSavedSources", "[]");
+    localStorage.setItem("lokalRsvpSources", "[]");
+    state.verifiedVenues = new Set();
+    state.verifiedVenueNames = [];
+    state.pendingVenueRequests = [];
+    state.venueVerificationDismissed = false;
+    ["lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+  }
+  if (saved.accountType === "venue") registerLocalVenueProfile();
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
   updateProfileShortcut();
 }
@@ -914,12 +1056,20 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
       id: userId,
       username: profile.username,
       full_name: profile.fullName,
+      owner_name: profile.ownerName || profile.fullName || "",
       birthdate: profile.birthdate,
       phone: profile.phone,
       email: profile.email,
       event_interests: profile.eventInterests,
       area_interests: profile.areaInterests,
+      account_type: profile.accountType || "person",
+      venue_name: profile.venueName || null,
+      venue_address: profile.venueAddress || null,
+      venue_website: profile.venueWebsite || null,
+      venue_image_url: profile.venueImageUrl || null,
+      venue_description: profile.venueDescription || null,
       home_city: "Washington, DC",
+      lokal_score: 100,
       is_demo: false
     }])
   });
@@ -948,7 +1098,8 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       phone: formattedPhone,
       email,
       event_interests: eventInterests,
-      area_interests: areaInterests
+      area_interests: areaInterests,
+      lokal_score: 100
     }
   });
   if (data.access_token) {

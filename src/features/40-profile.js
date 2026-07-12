@@ -1,11 +1,27 @@
+const LOKAL_SCORE_LEVELS = [
+  { name: "New in Town", min: 0, next: 200 },
+  { name: "Explorer", min: 200, next: 275 },
+  { name: "District Scout", min: 275, next: 350 },
+  { name: "Neighborhood Regular", min: 350, next: 450 },
+  { name: "Plan Maker", min: 450, next: 575 },
+  { name: "Ward Wanderer", min: 575, next: 725 },
+  { name: "Metro Connector", min: 725, next: 900 },
+  { name: "District Insider", min: 900, next: 1100 },
+  { name: "Downtown Regular", min: 1100, next: 1350 },
+  { name: "Capital Connector", min: 1350, next: 1650 },
+  { name: "DC Tastemaker", min: 1650, next: 2000 },
+  { name: "Certified Lokal", min: 2000, next: 2400 },
+  { name: "District Icon", min: 2400, next: 2900 },
+  { name: "Lokal Legend", min: 2900, next: 3600 },
+  { name: "DC Hall of Fame", min: 3600, next: null }
+];
+
 function scoreLevel(score) {
-  if (score >= 500) return { name: "Local Legend", min: 500, next: null };
-  if (score >= 200) return { name: "Insider", min: 200, next: 500 };
-  return { name: "Explorer", min: 0, next: 200 };
+  return LOKAL_SCORE_LEVELS.slice().reverse().find(level => score >= level.min) || LOKAL_SCORE_LEVELS[0];
 }
 
 function nextLevelName(level) {
-  return level.next === 500 ? "Local Legend" : "Insider";
+  return LOKAL_SCORE_LEVELS.find(item => item.min === level.next)?.name || "";
 }
 
 function tasteColor(taste) {
@@ -54,34 +70,65 @@ function attendanceHistorySection() {
   return `${body}${toggle}`;
 }
 
-function lokalYearSummary() {
-  const receipts = profileReceipts();
-  const count = receipts.length;
-  const categories = new Set(receipts.map(receipt => receipt.cat).filter(Boolean)).size;
-  const withFriends = receiptFriendUnits(receipts);
-  const score = lokalScore();
-  const level = scoreLevel(score).name;
-  return `My Lokal year so far: ${count} event${count === 1 ? "" : "s"} across ${categories} kind${categories === 1 ? "" : "s"} of night out, ${withFriends} plan${withFriends === 1 ? "" : "s"} with friends, and a Lokal score of ${score} (${level}). See what's happening in DC on Lokal.`;
+function approvedVenueProfileName() {
+  return Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] || "" : "";
 }
 
-function openYearShareSheet() {
-  const summary = lokalYearSummary();
-  const score = lokalScore();
-  const level = scoreLevel(score).name;
-  const receipts = profileReceipts();
-  const smsBody = encodeURIComponent(summary);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share my Lokal year">
-    <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Your year on Lokal</p><h2>Share my Lokal year</h2><p class="lede">Send a recap of everywhere you have been around DC.</p>
-    <div class="share-preview"><b>${escapeHtml(state.profile.fullName)} on Lokal</b><span>${receipts.length} events attended / ${level}</span><small>Lokal score ${score}</small><em>${escapeHtml(summary)}</em></div>
-    <div class="share-channel-grid">
-      <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
-      <button class="share-channel" data-native-share-year>Share sheet</button>
-      <a class="share-channel" href="mailto:?subject=${encodeURIComponent("My Lokal year")}&body=${smsBody}">Email</a>
-      <button class="share-channel" data-copy-year>Copy recap</button>
-    </div>
-    <button class="wide-button" data-copy-year>Copy my Lokal year</button>
-  </section></div>`;
+function hasApprovedVenueProfile() {
+  return Boolean(approvedVenueProfileName() || state.verifiedVenues?.size);
+}
+
+function hostedEventsForVenue() {
+  const name = accountVenueName();
+  if (!name) return [];
+  return displayableDcEvents().filter(event => venueEventMatch(event, name)).sort(sortEventsByStart);
+}
+
+function hostedEventRow(event, index = 0) {
+  const art = eventCardImageSrc(event);
+  const style = event.image ? cleanEventThumbStyle(art) : `background-image: linear-gradient(160deg, rgba(0,0,0,.04), rgba(0,0,0,.3)), ${art};`;
+  return `<button class="attend-row" style="--i:${index}" data-event="${event.id}"><span class="attend-thumb" style="${style}"></span><span class="attend-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`;
+}
+
+function venueHostedSection() {
+  const hosted = hostedEventsForVenue();
+  if (!hosted.length) return `<p class="section-helper">Events you post or host will show up here after they are approved.</p>`;
+  return `<div class="attend-list">${hosted.slice(0, 5).map((event, index) => hostedEventRow(event, index)).join("")}</div>`;
+}
+
+function venueInsightPanel() {
+  const hosted = hostedEventsForVenue();
+  const venueName = accountVenueName();
+  const categories = hosted.reduce((totals, event) => {
+    const label = discoverCategoryLabel(event.cat || "community");
+    totals[label] = (totals[label] || 0) + 1;
+    return totals;
+  }, {});
+  const categoryRows = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const topCount = Math.max(1, ...categoryRows.map(row => row[1]));
+  const localFollow = state.follows.has(`venue:${venueName}`) ? 1 : 0;
+  const followers = Math.max(localFollow, hosted.reduce((total, event) => total + (Array.isArray(event.friends) ? event.friends.length : 0), 0));
+  const upcoming = hosted.filter(event => !event.start || event.start >= Date.now() - 86400000).length;
+  return `<section class="section profile-insights"><div class="section-heading"><div><p class="eyebrow">Venue stats</p><h2>Hosting pulse</h2></div><span class="profile-pulse">Live</span></div>
+    <div class="insight-grid"><div class="insight-card"><b>${hosted.length}</b><small>Events hosted</small></div><div class="insight-card"><b>${upcoming}</b><small>Upcoming</small></div><div class="insight-card"><b>${followers}</b><small>Followers</small></div></div>
+    <div class="category-bars">${categoryRows.map(([label, count], index) => `<div class="category-bar" style="--level:${Math.max(18, Math.round((count / topCount) * 100))}%; --delay:${index * 80}ms"><span><b>${escapeHtml(label)}</b><small>${count} event${count === 1 ? "" : "s"}</small></span><i></i></div>`).join("") || `<p class="section-helper">Post events to build your venue dashboard.</p>`}</div>
+  </section>`;
+}
+
+function venueFocusSection() {
+  const hosted = hostedEventsForVenue();
+  const labels = [...new Set(hosted.map(event => discoverCategoryLabel(event.cat || "community")))].slice(0, 5);
+  const chips = (labels.length ? labels : ["Event hosting", "Local audience", "Venue updates"]).map(label => `<span class="taste-pill" style="--c:${tasteColor(label)}">${escapeHtml(label)}</span>`).join("");
+  return `<p class="eyebrow">Venue focus</p>
+    <p class="section-subnote">These are based on the events connected to your venue.</p>
+    <div class="chips profile-taste-chips">${chips}</div>`;
+}
+
+function userTasteSection(tastePills) {
+  return `<p class="eyebrow">Your tastes</p>
+    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
+    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
+    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>`;
 }
 
 function profileInsightPanel() {
@@ -101,7 +148,32 @@ function profileInsightPanel() {
   </section>`;
 }
 
+function venueVerificationPanel() {
+  const pending = state.pendingVenueRequests || [];
+  const approvedNames = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames : [];
+  const approvedName = accountVenueName() || approvedNames[0] || "";
+  const hasApprovedVenue = Boolean(approvedName || state.verifiedVenues?.size);
+  if (!hasApprovedVenue && state.venueVerificationDismissed) return "";
+  const status = hasApprovedVenue
+    ? "Venue approved"
+    : pending.length
+      ? "Request pending"
+      : "No venue attached";
+  const approvedRow = approvedName ? `<div class="venue-owner-row"><span><b>${escapeHtml(approvedName)}</b><small>Approved to post events</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(approvedName)}" aria-label="Post event for ${escapeHtml(approvedName)}">+</button></div>` : "";
+  return `<section class="section venue-owner-panel">
+    ${!hasApprovedVenue ? `<button class="venue-owner-dismiss" data-dismiss-venue-verification aria-label="Hide venue verification">&times;</button>` : ""}
+    <div class="section-heading"><div><p class="eyebrow">Venue tools</p><h2>For venue owners</h2></div><span class="profile-pulse">${escapeHtml(status)}</span></div>
+    <p class="section-helper">Request verification so approved venues can post events from Profile. Requests are stored for Lokal review.</p>
+    ${approvedRow ? `<div class="venue-owner-list">${approvedRow}</div>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
+  </section>`;
+}
+
 function renderProfile() {
+  const isVenueProfile = isVenueAccount();
+  const venueName = accountVenueName() || currentAccountDisplayName();
+  const venueDescription = state.profile.venueDescription || "Add a venue description so people know the kind of nights, crowds, and events you host.";
+  const venueImage = currentVenueImage();
+  const venueOwnerName = state.profile.ownerName || state.profile.fullName || "";
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -109,23 +181,21 @@ function renderProfile() {
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><div><h2>${escapeHtml(state.profile.fullName)}</h2><p>@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}</p><button class="text-button" data-settings>Settings</button></div></div>
-    <p class="bio">${escapeHtml(state.bio)}</p>
-    <button class="score-block" data-settings-page="faq">
+    <div class="profile-card"><div class="profile-avatar">${isVenueProfile && venueImage ? `<img src="${escapeHtml(venueImage)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
+    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
+    ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
       <div class="score-row-top"><span class="score-big">${score}</span><span class="score-level-tag">${escapeHtml(level.name)}</span></div>
       <div class="score-progress"><i style="width:${Math.round(progress * 100)}%"></i></div>
-      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached — you're a Local Legend"}</p>
+      <p class="score-next">${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached - you're in the DC Hall of Fame"}</p>
       <p class="score-context">Your score grows every time you attend an event, make plans with friends, or engage with the community.</p>
-    </button>
-    <p class="eyebrow">Your tastes</p>
-    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
-    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
-    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>
-    ${state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
-    <div class="attend-head"><div><p class="eyebrow">Your history</p><h2>Events you've been to</h2></div><button class="text-button" data-share-year>Share my Lokal year</button></div>
-    ${attendanceHistorySection()}
-    ${profileInsightPanel()}
+    </button>`}
+    ${isVenueProfile ? venueFocusSection() : userTasteSection(tastePills)}
+    ${venueVerificationPanel()}
+    ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
+    <div class="attend-head"><div><p class="eyebrow">${isVenueProfile ? "Venue history" : "Your history"}</p><h2>${isVenueProfile ? "Events you've hosted" : "Events you've been to"}</h2></div></div>
+    ${isVenueProfile ? venueHostedSection() : attendanceHistorySection()}
+    ${isVenueProfile ? venueInsightPanel() : profileInsightPanel()}
   </section>`;
 }
 
@@ -175,7 +245,7 @@ function scoreBreakdown() {
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
   const savedOnlyCount = Array.from(state.saved || []).filter(id => !state.rsvps.has(id) && !state.removedPlans?.has(id)).length;
   const breakdown = [
-    { label: "Base profile", value: 100, detail: "Starting score for creating a profile." },
+    { label: "New in Town", value: 100, detail: "100 starting points for creating a profile and joining Lokal." },
     { label: "Verified attendance", value: receipts.length * 15, detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - no lifetime cap.` },
     { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
     { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
@@ -261,14 +331,17 @@ function openTasteEditor() {
 }
 
 function openSettings() {
+  const isVenueProfile = isVenueAccount();
+  const venueDescription = state.profile.venueDescription || "";
+  const venueImage = currentVenueImage();
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Profile settings"><button class="modal-close" aria-label="Close settings">&times;</button>
     <p class="eyebrow">Profile and account</p><h2>Settings</h2>
-    <div class="settings-avatar"><div class="profile-avatar">${escapeHtml(state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
+    <div class="settings-avatar"><div class="profile-avatar">${isVenueProfile && venueImage ? `<img src="${escapeHtml(venueImage)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
     <p class="settings-group-label">Account</p>
-    <label class="settings-field">Name<input value="${escapeHtml(state.profile.fullName)}" readonly></label>
+    <label class="settings-field">${isVenueProfile ? "Venue name" : "Name"}<input value="${escapeHtml(isVenueProfile ? currentAccountDisplayName() : state.profile.fullName)}" readonly></label>
     <label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label>
-    <label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>
-    <label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>
+    ${isVenueProfile ? `<label class="settings-field">Venue image URL<input data-venue-image-input type="url" value="${escapeHtml(venueImage)}" placeholder="https://..."></label><label class="settings-field">Venue description<textarea data-venue-description-input placeholder="Tell people what your venue is known for.">${escapeHtml(venueDescription)}</textarea></label>` : `<label class="settings-field">Bio<input data-bio-input value="${escapeHtml(state.bio)}"></label>`}
+    ${isVenueProfile ? "" : `<label class="privacy-toggle"><span><b>Private account</b><small>Only friends can see your saved interests and profile activity.</small></span><input data-private-account type="checkbox" ${state.privateAccount ? "checked" : ""}></label>`}
     <hr class="settings-divider">
     <p class="settings-group-label">Preferences</p>
     <label class="settings-field">Home city<input value="Washington, DC"></label>
@@ -278,10 +351,28 @@ function openSettings() {
     <hr class="settings-divider">
     <p class="settings-group-label">App</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label>
-    <button class="share-group" data-settings-page="verification"><span class="share-group-copy"><h3>Become a Lokal</h3><p>Apply for manual verification</p></span></button>
+    <button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>
     <button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button>
     <div class="settings-danger"><button class="settings-minor" data-signout>Sign out</button><button class="settings-minor danger" data-deactivate>Delete account</button></div>
+  </section></div>`;
+}
+
+function openVenueVerificationSheet() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Request venue verification"><button class="modal-close" aria-label="Close venue verification">&times;</button>
+    <p class="eyebrow">Venue access</p><h2>Request verification</h2>
+    <p class="lede">Tell us which venue you manage. Lokal can review this on the owner side, then approve posting access for that venue page.</p>
+    <label class="settings-field">Venue name<input data-verify-venue-name placeholder="The Anthem"></label>
+    <label class="settings-field">Venue address<input data-verify-venue-address placeholder="901 Wharf St SW, Washington, DC"></label>
+    <label class="settings-field">Website<input data-verify-venue-website type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue image URL<input data-verify-venue-image type="url" placeholder="https://..."></label>
+    <label class="settings-field">Venue description<textarea data-verify-venue-description placeholder="What should locals know about the venue?"></textarea></label>
+    <label class="settings-field">Your role<input data-verify-role placeholder="Owner, GM, marketing manager"></label>
+    <label class="settings-field">Contact email<input data-verify-email type="email" value="${escapeHtml(state.profile.email || "")}" placeholder="you@venue.com"></label>
+    <label class="settings-field">Contact phone<input data-verify-phone value="${escapeHtml(formatDisplayPhone(state.profile.phone || ""))}" placeholder="(202) 555-0123"></label>
+    <label class="settings-field">Anything we should know<textarea data-verify-notes placeholder="Best way to confirm ownership, booking contact, social handles, etc."></textarea></label>
+    <p class="account-error" data-venue-verify-error></p>
+    <button class="wide-button" data-submit-venue-verification>Submit for review</button>
   </section></div>`;
 }
 

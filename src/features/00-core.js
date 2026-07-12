@@ -11,6 +11,7 @@ const icons = {
   clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
   tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
+  megaphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 13h3l10-5v11L7 14H4v-1Z"/><path d="M7 14l1.4 5.2a1.2 1.2 0 0 0 1.2.8h1.6"/><path d="M19 9.5c1 .7 1.5 1.5 1.5 3s-.5 2.3-1.5 3"/><path d="M21 6.5c1.5 1.5 2.3 3.5 2.3 6s-.8 4.5-2.3 6"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>'
 };
 
@@ -37,7 +38,7 @@ const defaultReceipts = [
   { id: "receipt-open-streets", title: "Open Streets DC", time: "May 18, 12:00 PM", venue: "Shaw", price: "Free", cat: "community", desc: "A community receipt showing who you went with and how it contributes to your Lokal score.", friends: ["MR"], attendedAt: new Date("2026-05-18T12:00:00").getTime() },
   { id: "receipt-hirshhorn", title: "After Dark at the Hirshhorn", time: "May 9, 7:00 PM", venue: "Hirshhorn Museum", price: "$20", cat: "performing-arts", desc: "Receipts can reopen the event memory later, including friends and category.", friends: ["JS", "AL"], attendedAt: new Date("2026-05-09T19:00:00").getTime() }
 ];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(["songbyrd"]), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -50,6 +51,40 @@ state.rsvpSources = new Set(JSON.parse(localStorage.getItem("lokalRsvpSources") 
 state.whatFilter = new Set();
 state.whereFilter = new Set();
 state.whenFilter = new Set();
+
+function accountVenueName() {
+  if (state.profile?.accountType !== "venue") return "";
+  const approved = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] : "";
+  return state.profile?.venueName || approved || "";
+}
+
+function isVenueAccount() {
+  return state.profile?.accountType === "venue";
+}
+
+function currentAccountDisplayName() {
+  return isVenueAccount() ? accountVenueName() || state.profile.fullName : state.profile.fullName;
+}
+
+function currentAccountInitials() {
+  return profileInitials(currentAccountDisplayName());
+}
+
+function currentVenueImage() {
+  return state.profile?.venueImageUrl || "";
+}
+
+function registerLocalVenueProfile() {
+  const name = accountVenueName();
+  const image = currentVenueImage();
+  if (!name || !image) return;
+  const key = venueImageKeyName(name);
+  venueImageMap[key] = image;
+  venueImageKeys = Object.keys(venueImageMap).sort((a, b) => b.length - a.length);
+  const existing = venueDirectory.find(venue => venueImageKeyName(venue.name) === key);
+  if (existing) existing.image_url = image;
+  else venueDirectory.unshift({ name, address: state.profile.venueAddress || "", neighborhood: (state.profile.areas || [])[0] || "", venue_type: "Venue", website_url: state.profile.venueWebsite || "", image_url: image });
+}
 
 // Record a save/RSVP by the event's stable source id and persist it.
 function setPlanSource(kind, id, on) {
@@ -391,19 +426,58 @@ function eventNeighborhoodLine(event) {
     .join(" ");
 }
 
+const DISCOVER_CITY_SECTIONS = [
+  "National Mall",
+  "Downtown",
+  "Dupont",
+  "U Street / Shaw Area",
+  "Adams Morgan",
+  "Georgetown",
+  "Capitol Hill / H Street Area",
+  "NoMa / Union Market Area",
+  "Navy Yard",
+  "Wharf",
+  "Upper Northwest",
+  "Anacostia / Southeast"
+];
+
+const CITY_SECTION_PATTERNS = [
+  ["National Mall", /\bnational mall|federal triangle|smithsonian|hirshhorn|renwick|national gallery|portrait gallery|saam|american art museum|air and space|natural history|american history|african american history|american indian|botanic garden|constitution ave|madison dr|jefferson dr|independence ave|l'enfant plaza|the mall\b/i],
+  ["Downtown", /\bdowntown|penn quarter|chinatown|gallery place|metro center|citycenter|city center|mount vernon square|mount vernon triangle|convention center|franklin park|white house|farragut|mcpherson|judiciary square|anthem row|national theatre|warner theatre|hard rock cafe|mlk library|sixth\s*&\s*i|e street|g st nw|k street|i street nw|new york ave nw/i],
+  ["Dupont", /\bdupont|dupont circle|logan circle|14th street|14th st|thomas circle|scott circle|admiral|number nine|fireplace|st\.? arnold|bier baron|dc comedy loft|swingers|kramerbooks|black cat|s street nw|p street nw|q street nw|22nd st nw/i],
+  ["U Street / Shaw Area", /\bu street|u st|shaw|cardozo|le droit|ledroit|blagden alley|truxton circle|9:30 club|930 club|the atlantis|howard theatre|howard theater|lincoln theatre|room 808|atlantic plumbing|florida ave nw|7th st nw|9th st nw|v street|v st nw|t street nw|upshur st nw/i],
+  ["Adams Morgan", /\badams morgan|columbia heights|mount pleasant|mt pleasant|meridian hill|kalorama|lanier heights|bedrock billiards|town tavern|tryst|roofer'?s union|18th st nw|columbia rd|wonderland ballroom|club timehri/i],
+  ["Georgetown", /\bgeorgetown|foggy bottom|west end|kennedy center|watergate|rose park|palisades|macarthur|loughboro|sibley|gw university|george washington university|m street nw|wisconsin ave|k street waterfront|dumbarton|glover park|tenleytown/i],
+  ["Capitol Hill / H Street Area", /\bcapitol hill|h street|h st|barracks row|eastern market|lincoln park|atlas performing|miracle theatre|trusty'?s|tune inn|union pub|union station|noma bid|h street corridor|trinidad|benning road|kingman park|stadium-armory|118 park st se/i],
+  ["NoMa / Union Market Area", /\bnoma|no ma|union market|ivy city|brookland|edgewood|eckington|bloomingdale|rhode island ave|michigan ave ne|monroe street market|la cosecha|gallaudet|city state|wunder ?garten|red bear|echostage|queens chapel|penn st ne|1st st\.? ne|3rd street ne|m and n streets ne|v st nw/i],
+  ["Navy Yard", /\bnavy yard|capitol riverfront|capitol waterfront|nationals park|nats park|yards park|the yards|half street|half st se|potomac avenue se|n st se|water street se|m street se|first street se|dacha|bullpen|atlas brew works navy yard|royal sands|sandlot|takoda navy yard|solace outpost|the brig|tap99|walter'?s/i],
+  ["Wharf", /\bwharf|southwest waterfront|sw waterfront|waterfront|district pier|transit pier|pearl street warehouse|union stage|anthem\b|arena stage|maine ave|kirwan|boardwalk bar|farmers market sw|12 stories|officina|tiki tnt|water st sw|wharf st sw/i],
+  ["Upper Northwest", /\bupper northwest|cleveland park|woodley park|van ness|tenleytown|friendship heights|chevy chase|cathedral heights|forest hills|petworth|brightwood|park view|takoma|fort reno|fort totten|lamond riggs|lamont riggs|south dakota ave|rock creek park|rock creek park tennis center|politics and prose|crestwood|colorado ave|connecticut ave nw|jackie lee'?s/i],
+  ["Anacostia / Southeast", /\banacostia|southeast|se dc|congress heights|bellevue|atlantic street sw|hillcrest|naval yard|good hope|mlk ave|minnesota ave|east capitol|benning|fairlawn|skyland|historic anacostia|oxon run|wheeler road se|mississippi ave se|fort pl se|parkside pl ne|ord st ne|oak drive se|carefirst arena|thearc|kenilworth|simon elementary/i]
+];
+
+function eventCitySections(event) {
+  const text = eventNeighborhoodLine(event).toLowerCase();
+  if (/\b(various dc|rotating (dc|locations|observatories|regional|parks|trails)|multiple locations|across dc)\b/.test(text)) {
+    return DISCOVER_CITY_SECTIONS;
+  }
+  const matches = CITY_SECTION_PATTERNS
+    .filter(([, pattern]) => pattern.test(text))
+    .map(([name]) => name);
+  return matches.length ? matches : ["Downtown"];
+}
+
 function eventNeighborhoodMatches(event, value) {
   if (!value || value === "Any neighborhood") return true;
   const normalized = String(value || "").trim().toLowerCase();
+  if (DISCOVER_CITY_SECTIONS.some(section => section.toLowerCase() === normalized)) {
+    return eventCitySections(event).some(section => section.toLowerCase() === normalized);
+  }
   return eventNeighborhoodLine(event).toLowerCase().includes(normalized);
 }
 
-function discoverNeighborhoodOptions(sourceEvents = events) {
-  const blocked = /^(washington,?\s*d\.?c\.?|dc|d\.c\.|district of columbia|location in description|unknown)$/i;
-  return sourceEvents
-    .map(event => cleanLocationPart(event.area || event.neighborhood))
-    .filter(area => area && !blocked.test(area))
-    .filter((area, index, all) => all.findIndex(item => item.toLowerCase() === area.toLowerCase()) === index)
-    .sort((a, b) => a.localeCompare(b));
+function discoverNeighborhoodOptions() {
+  return DISCOVER_CITY_SECTIONS;
 }
 const CATEGORY_COLORS = {
   concerts: "#00C9A7",

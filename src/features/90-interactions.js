@@ -118,6 +118,83 @@ document.addEventListener("click", async event => {
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
   if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
+  if (t.dataset.dismissVenueVerification !== undefined) {
+    mark();
+    state.venueVerificationDismissed = true;
+    localStorage.setItem("lokalVenueVerificationDismissed", "1");
+    renderProfile();
+    toast("Venue tools hidden");
+  }
+  if (t.dataset.venueVerify !== undefined) { mark(); openVenueVerificationSheet(); }
+  if (t.dataset.submitVenueVerification !== undefined) {
+    mark();
+    const sheet = t.closest(".venue-form-sheet");
+    const error = sheet.querySelector("[data-venue-verify-error]");
+    const payload = {
+      venueName: sheet.querySelector("[data-verify-venue-name]")?.value.trim(),
+      venueAddress: sheet.querySelector("[data-verify-venue-address]")?.value.trim(),
+      website: sheet.querySelector("[data-verify-venue-website]")?.value.trim(),
+      venueImageUrl: sheet.querySelector("[data-verify-venue-image]")?.value.trim(),
+      venueDescription: sheet.querySelector("[data-verify-venue-description]")?.value.trim(),
+      role: sheet.querySelector("[data-verify-role]")?.value.trim(),
+      email: sheet.querySelector("[data-verify-email]")?.value.trim(),
+      phone: sheet.querySelector("[data-verify-phone]")?.value.trim(),
+      notes: sheet.querySelector("[data-verify-notes]")?.value.trim()
+    };
+    if (!payload.venueName || !payload.venueAddress || !payload.role || !payload.email) { error.textContent = "Add venue name, address, your role, and contact email."; return; }
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      await submitVenueVerificationRequest(payload);
+      modalRoot.innerHTML = "";
+      renderProfile();
+      toast("Venue verification sent for review");
+    } catch {
+      error.textContent = "Could not submit yet. Try again in a minute.";
+      t.disabled = false;
+    }
+  }
+  if (t.dataset.postVenueEvent) { mark(); openVenueEventPostSheet(t.dataset.postVenueEvent); }
+  if (t.dataset.submitVenueEvent !== undefined) {
+    mark();
+    const sheet = t.closest(".venue-form-sheet");
+    const error = sheet.querySelector("[data-post-event-error]");
+    const venueName = sheet.querySelector("[data-post-venue-name]")?.value.trim();
+    const title = sheet.querySelector("[data-post-event-title]")?.value.trim();
+    const startsAt = sheet.querySelector("[data-post-starts-at]")?.value;
+    const isRecurring = Boolean(sheet.querySelector("[data-post-recurring]")?.checked);
+    const recurrenceFrequency = sheet.querySelector("[data-post-recurrence-frequency]")?.value || "";
+    if (!venueName || !title || !startsAt) { error.textContent = "Add an event name and start date/time."; return; }
+    if (isRecurring && !recurrenceFrequency) { error.textContent = "Choose how often this recurring event repeats."; return; }
+    const tags = String(sheet.querySelector("[data-post-tags]")?.value || "").split(",").map(tag => tag.trim()).filter(Boolean);
+    t.disabled = true;
+    error.textContent = "";
+    try {
+      await submitVenueEventPost({
+        venueName,
+        venueAddress: sheet.querySelector("[data-post-venue-address]")?.value.trim(),
+        title,
+        startsAt: new Date(startsAt).toISOString(),
+        endsAt: sheet.querySelector("[data-post-ends-at]")?.value ? new Date(sheet.querySelector("[data-post-ends-at]").value).toISOString() : "",
+        category: sheet.querySelector("[data-post-category]")?.value,
+        tags,
+        ticketUrl: sheet.querySelector("[data-post-ticket-url]")?.value.trim(),
+        price: sheet.querySelector("[data-post-price]")?.value.trim(),
+        imageUrl: sheet.querySelector("[data-post-image-url]")?.value.trim(),
+        description: sheet.querySelector("[data-post-description]")?.value.trim(),
+        isRecurring,
+        recurrenceFrequency,
+        recurrenceUntil: sheet.querySelector("[data-post-recurrence-until]")?.value || ""
+      });
+      modalRoot.innerHTML = "";
+      if (state.route === "profile") renderProfile();
+      else openVenueEvents(venueName);
+      toast("Event submitted for Lokal review");
+    } catch {
+      error.textContent = "Could not submit this event yet. Try again in a minute.";
+      t.disabled = false;
+    }
+  }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
   if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
   if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }
@@ -125,9 +202,6 @@ document.addEventListener("click", async event => {
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
-  if (t.dataset.shareYear !== undefined) { mark(); openYearShareSheet(); }
-  if (t.dataset.copyYear !== undefined) { mark(); try { await navigator.clipboard?.writeText(lokalYearSummary()); } catch {} toast("Lokal year copied"); }
-  if (t.dataset.nativeShareYear !== undefined) { mark(); const text = lokalYearSummary(); try { if (navigator.share) await navigator.share({ title: "My Lokal year", text }); else await navigator.clipboard?.writeText(text); toast(navigator.share ? "Share sheet opened" : "Lokal year copied"); } catch { toast("Share canceled"); } }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {
     mark();
@@ -169,7 +243,22 @@ document.addEventListener("click", async event => {
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
   if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
-  if (t.dataset.saveSettings !== undefined) { const input = document.querySelector("[data-age-input]"); const bio = document.querySelector("[data-bio-input]"); const privateInput = document.querySelector("[data-private-account]"); if (input) state.age = Math.max(13, Number(input.value) || 27); if (bio?.value.trim()) state.bio = bio.value.trim(); state.privateAccount = Boolean(privateInput?.checked); state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount }; localStorage.setItem("lokalProfile", JSON.stringify(state.profile)); modalRoot.innerHTML = ""; renderProfile(); toast(state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated"); }
+  if (t.dataset.saveSettings !== undefined) {
+    const input = document.querySelector("[data-age-input]");
+    const bio = document.querySelector("[data-bio-input]");
+    const venueImage = document.querySelector("[data-venue-image-input]");
+    const venueDescription = document.querySelector("[data-venue-description-input]");
+    const privateInput = document.querySelector("[data-private-account]");
+    if (input) state.age = Math.max(13, Number(input.value) || 27);
+    if (bio?.value.trim()) state.bio = bio.value.trim();
+    state.privateAccount = Boolean(privateInput?.checked);
+    state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueImageUrl: venueImage ? venueImage.value.trim() : state.profile.venueImageUrl || "", venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
+    if (isVenueAccount()) registerLocalVenueProfile();
+    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
+    modalRoot.innerHTML = "";
+    renderProfile();
+    toast(isVenueAccount() ? "Venue profile updated" : state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated");
+  }
   if (t.dataset.ticket !== undefined) toast("External ticket link opened in the real app");
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
@@ -177,16 +266,40 @@ document.addEventListener("click", async event => {
   if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
   if (t.dataset.signupInterest || t.dataset.signupArea) {
     mark();
-    t.classList.toggle("selected");
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    const chosen = new Set(draft[key] || []);
-    chosen.has(value) ? chosen.delete(value) : chosen.add(value);
-    draft[key] = [...chosen];
+    if (key === "areas" && draft.accountType === "venue") {
+      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.toggle("selected", button === t));
+      draft.areas = [value];
+    } else {
+      t.classList.toggle("selected");
+      const chosen = new Set(draft[key] || []);
+      chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+      draft[key] = [...chosen];
+    }
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = state.signupDraft || {}; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
+  if (t.dataset.onboardVenue !== undefined) {
+    mark();
+    const card = t.closest(".onboard-card");
+    const error = card.querySelector("[data-account-error]");
+    const venueName = card.querySelector("[data-onboard-venue-name]").value.trim();
+    const venueAddress = card.querySelector("[data-onboard-venue-address]").value.trim();
+    const website = card.querySelector("[data-onboard-venue-website]").value.trim();
+    const venueImageUrl = card.querySelector("[data-onboard-venue-image]").value.trim();
+    const venueDescription = card.querySelector("[data-onboard-venue-description]").value.trim();
+    if (!venueName || !venueAddress) { error.textContent = "Enter the venue name and address."; return; }
+    state.signupDraft.venueName = venueName;
+    state.signupDraft.venueAddress = venueAddress;
+    state.signupDraft.website = website;
+    state.signupDraft.venueImageUrl = venueImageUrl;
+    state.signupDraft.venueDescription = venueDescription;
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 2;
+    renderOnboarding();
+  }
   if (t.dataset.onboardName !== undefined) {
     mark();
     const card = t.closest(".onboard-card");
@@ -206,10 +319,16 @@ document.addEventListener("click", async event => {
     const error = card.querySelector("[data-account-error]");
     const email = card.querySelector("[data-onboard-email]").value.trim();
     const phone = card.querySelector("[data-onboard-phone]").value.trim();
-    try { validateSignupEmail(email); formatSignupPhone(phone); }
+    const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
+    const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
+    if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
+    let formattedPhone = "";
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); }
     catch (contactError) { error.textContent = contactError.message; return; }
+    state.signupDraft.firstName = first;
+    state.signupDraft.lastName = last;
     state.signupDraft.email = email;
-    state.signupDraft.phone = phone;
+    state.signupDraft.phone = formattedPhone;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 3;
     renderOnboarding();
@@ -222,23 +341,55 @@ document.addEventListener("click", async event => {
     const eventInterests = draft.interests || [];
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
-    const fullName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
-    const username = ((draft.firstName || "lokal") + (draft.lastName || "")).toLowerCase().replace(/[^a-z0-9]+/g, "");
-    finalizeLokalProfile({
+    const isVenue = draft.accountType === "venue";
+    if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
+    const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const fullName = ownerName;
+    const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const onboardingProfile = {
       fullName,
       email: draft.email,
       phone: formatSignupPhone(draft.phone),
       username,
       birthdate: "2000-01-01",
       eventInterests,
-      areaInterests
-    });
+      areaInterests,
+      accountType: isVenue ? "venue" : "person",
+      ownerName: isVenue ? ownerName : "",
+      venueName: isVenue ? draft.venueName : "",
+      venueAddress: isVenue ? draft.venueAddress : "",
+      venueWebsite: isVenue ? draft.website : "",
+      venueImageUrl: isVenue ? draft.venueImageUrl : "",
+      venueDescription: isVenue ? draft.venueDescription : ""
+    };
+    finalizeLokalProfile(onboardingProfile);
+    if (isVenue) registerLocalVenueProfile();
+    let supabaseSynced = true;
+    try { await submitOnboardingProfile(onboardingProfile); }
+    catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
+    if (isVenue) {
+      try {
+        await submitVenueVerificationRequest({
+          venueName: draft.venueName,
+          venueAddress: draft.venueAddress,
+          website: draft.website,
+          venueImageUrl: draft.venueImageUrl,
+          venueDescription: draft.venueDescription,
+          eventInterests,
+          areaInterests,
+          role: "Venue owner or manager",
+          email: draft.email,
+          phone: draft.phone,
+          notes: "Submitted during venue onboarding."
+        });
+      } catch (error) { supabaseSynced = false; console.warn("[supabase] venue verification request failed", error); }
+    }
     localStorage.setItem("lokalAccountCreated", "true");
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
-    renderHome();
-    toast("Welcome to Lokal");
-    showDiscoverHint();
+    isVenue ? renderProfile() : renderHome();
+    toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
+    if (!isVenue) showDiscoverHint();
   }
   if (t.dataset.createAccount !== undefined) {
     mark();
@@ -263,14 +414,14 @@ document.addEventListener("click", async event => {
       finalizeLokalProfile(state.pendingSignupProfile);
       state.onboardStep++;
       renderOnboarding();
-      toast(result.access_token ? "Account created" : "Account created. Check your email to confirm it.");
+      toast(result.access_token ? "100 Lokal points for joining" : "100 Lokal points for joining. Check your email to confirm it.");
     } catch (accountError) {
       error.textContent = accountError.message;
       t.disabled = false;
     }
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("Your Lokal feed is ready"); showDiscoverHint(); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("100 Lokal points for joining"); showDiscoverHint(); } }
   if (!handled && !t.disabled) toast("Action opened");
 });
 
@@ -289,7 +440,7 @@ modalRoot.addEventListener("touchend", event => {
 
 document.addEventListener("input", event => {
   const input = event.target;
-  if (input.matches("[data-signup-phone]")) {
+  if (input.matches("[data-signup-phone], [data-onboard-phone]")) {
     const digits = input.value.replace(/\D/g, "").slice(0, 10);
     input.value = digits.length > 6 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : digits.length > 3 ? `(${digits.slice(0, 3)}) ${digits.slice(3)}` : digits.length ? `(${digits}` : "";
   }
@@ -442,8 +593,16 @@ document.addEventListener("wheel", event => {
 
 document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
 const startupParams = new URLSearchParams(location.search);
-if (startupParams.has("newUser")) {
-  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts"].forEach(key => localStorage.removeItem(key));
+const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
+if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
+  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+  state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
+  state.signupDraft = {};
+  state.verifiedVenues = new Set();
+  state.verifiedVenueNames = [];
+  state.pendingVenueRequests = [];
+  state.venueVerificationDismissed = false;
+  state.privateAccount = false;
   history.replaceState(null, "", location.pathname);
 }
 if (startupParams.has("bypassSignup")) {
@@ -451,6 +610,7 @@ if (startupParams.has("bypassSignup")) {
   history.replaceState(null, "", location.pathname);
 }
 setRoute("home");
+updateProfileShortcut();
 if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
 syncSupabaseEvents();
 syncSupabaseProfiles();
