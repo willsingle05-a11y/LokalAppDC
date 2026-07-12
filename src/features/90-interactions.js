@@ -592,7 +592,7 @@ document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.d
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
-  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts"].forEach(key => localStorage.removeItem(key));
+  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   history.replaceState(null, "", location.pathname);
 }
 if (startupParams.has("bypassSignup")) {

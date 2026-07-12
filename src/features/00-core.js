@@ -53,12 +53,13 @@ state.whereFilter = new Set();
 state.whenFilter = new Set();
 
 function accountVenueName() {
+  if (state.profile?.accountType !== "venue") return "";
   const approved = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] : "";
-  return approved || state.profile?.venueName || "";
+  return state.profile?.venueName || approved || "";
 }
 
 function isVenueAccount() {
-  return Boolean(accountVenueName() || state.profile?.accountType === "venue");
+  return state.profile?.accountType === "venue";
 }
 
 function currentAccountDisplayName() {
