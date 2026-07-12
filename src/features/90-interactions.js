@@ -363,7 +363,9 @@ document.addEventListener("click", async event => {
     };
     finalizeLokalProfile(onboardingProfile);
     if (isVenue) registerLocalVenueProfile();
-    try { await submitOnboardingProfile(onboardingProfile); } catch {}
+    let supabaseSynced = true;
+    try { await submitOnboardingProfile(onboardingProfile); }
+    catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
     if (isVenue) {
       try {
         await submitVenueVerificationRequest({
@@ -379,13 +381,13 @@ document.addEventListener("click", async event => {
           phone: draft.phone,
           notes: "Submitted during venue onboarding."
         });
-      } catch {}
+      } catch (error) { supabaseSynced = false; console.warn("[supabase] venue verification request failed", error); }
     }
     localStorage.setItem("lokalAccountCreated", "true");
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     isVenue ? renderProfile() : renderHome();
-    toast(isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal");
+    toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
     if (!isVenue) showDiscoverHint();
   }
   if (t.dataset.createAccount !== undefined) {
