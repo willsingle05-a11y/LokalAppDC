@@ -265,13 +265,18 @@ document.addEventListener("click", async event => {
   if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
   if (t.dataset.signupInterest || t.dataset.signupArea) {
     mark();
-    t.classList.toggle("selected");
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    const chosen = new Set(draft[key] || []);
-    chosen.has(value) ? chosen.delete(value) : chosen.add(value);
-    draft[key] = [...chosen];
+    if (key === "areas" && draft.accountType === "venue") {
+      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.toggle("selected", button === t));
+      draft.areas = [value];
+    } else {
+      t.classList.toggle("selected");
+      const chosen = new Set(draft[key] || []);
+      chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+      draft[key] = [...chosen];
+    }
   }
   if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { ...(state.signupDraft || {}), accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
@@ -313,10 +318,16 @@ document.addEventListener("click", async event => {
     const error = card.querySelector("[data-account-error]");
     const email = card.querySelector("[data-onboard-email]").value.trim();
     const phone = card.querySelector("[data-onboard-phone]").value.trim();
-    try { validateSignupEmail(email); formatSignupPhone(phone); }
+    const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
+    const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
+    if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
+    let formattedPhone = "";
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); }
     catch (contactError) { error.textContent = contactError.message; return; }
+    state.signupDraft.firstName = first;
+    state.signupDraft.lastName = last;
     state.signupDraft.email = email;
-    state.signupDraft.phone = phone;
+    state.signupDraft.phone = formattedPhone;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 3;
     renderOnboarding();
@@ -330,7 +341,9 @@ document.addEventListener("click", async event => {
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
     const isVenue = draft.accountType === "venue";
-    const fullName = isVenue ? draft.venueName : `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
+    const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const fullName = ownerName;
     const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
     const onboardingProfile = {
       fullName,
@@ -341,6 +354,7 @@ document.addEventListener("click", async event => {
       eventInterests,
       areaInterests,
       accountType: isVenue ? "venue" : "person",
+      ownerName: isVenue ? ownerName : "",
       venueName: isVenue ? draft.venueName : "",
       venueAddress: isVenue ? draft.venueAddress : "",
       venueWebsite: isVenue ? draft.website : "",
@@ -423,7 +437,7 @@ modalRoot.addEventListener("touchend", event => {
 
 document.addEventListener("input", event => {
   const input = event.target;
-  if (input.matches("[data-signup-phone]")) {
+  if (input.matches("[data-signup-phone], [data-onboard-phone]")) {
     const digits = input.value.replace(/\D/g, "").slice(0, 10);
     input.value = digits.length > 6 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : digits.length > 3 ? `(${digits.slice(0, 3)}) ${digits.slice(3)}` : digits.length ? `(${digits}` : "";
   }

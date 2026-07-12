@@ -58,11 +58,14 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-name>Continue</button>`;
   } else if (step === 2) {
-    inner = `<h1 class="onboard-title">How can we reach you?</h1>
-      <p class="lede">Your email and number keep your saves and plans in sync.</p>
+    const isVenueContact = d.accountType === "venue";
+    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "How can we reach you?"}</h1>
+      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "Your email and number keep your saves and plans in sync."}</p>
       <div class="onboard-fields">
+        ${isVenueContact ? `<label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
+        <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
-        <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="tel" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-contact>Continue</button>`;
@@ -73,6 +76,7 @@ function renderOnboarding() {
       <p class="lede">Choose the event types and neighborhood that fit your venue.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="settings-label">Venue neighborhood</p>
+      <p class="section-subnote">Choose one primary location.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;

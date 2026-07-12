@@ -6875,6 +6875,7 @@ function renderProfile() {
   const venueName = accountVenueName() || currentAccountDisplayName();
   const venueDescription = state.profile.venueDescription || "Add a venue description so people know the kind of nights, crowds, and events you host.";
   const venueImage = currentVenueImage();
+  const venueOwnerName = state.profile.ownerName || state.profile.fullName || "";
   const score = lokalScore();
   const level = scoreLevel(score);
   const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
@@ -6882,7 +6883,7 @@ function renderProfile() {
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
-    <div class="profile-card"><div class="profile-avatar">${isVenueProfile && venueImage ? `<img src="${escapeHtml(venueImage)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? (hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending") : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
+    <div class="profile-card"><div class="profile-avatar">${isVenueProfile && venueImage ? `<img src="${escapeHtml(venueImage)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : `<button class="score-block" data-settings-page="faq">
       <p class="eyebrow">Lokal score</p>
@@ -7429,11 +7430,14 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-name>Continue</button>`;
   } else if (step === 2) {
-    inner = `<h1 class="onboard-title">How can we reach you?</h1>
-      <p class="lede">Your email and number keep your saves and plans in sync.</p>
+    const isVenueContact = d.accountType === "venue";
+    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "How can we reach you?"}</h1>
+      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "Your email and number keep your saves and plans in sync."}</p>
       <div class="onboard-fields">
+        ${isVenueContact ? `<label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
+        <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
-        <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="tel" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-contact>Continue</button>`;
@@ -7444,6 +7448,7 @@ function renderOnboarding() {
       <p class="lede">Choose the event types and neighborhood that fit your venue.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="settings-label">Venue neighborhood</p>
+      <p class="section-subnote">Choose one primary location.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;
@@ -7776,13 +7781,18 @@ document.addEventListener("click", async event => {
   if (t.dataset.select) { t.classList.toggle("selected"); t.classList.contains("selected") ? state.selections.add(t.dataset.select) : state.selections.delete(t.dataset.select); t.closest(".onboard-card").querySelector("[data-next]").disabled = state.selections.size === 0; }
   if (t.dataset.signupInterest || t.dataset.signupArea) {
     mark();
-    t.classList.toggle("selected");
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    const chosen = new Set(draft[key] || []);
-    chosen.has(value) ? chosen.delete(value) : chosen.add(value);
-    draft[key] = [...chosen];
+    if (key === "areas" && draft.accountType === "venue") {
+      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.toggle("selected", button === t));
+      draft.areas = [value];
+    } else {
+      t.classList.toggle("selected");
+      const chosen = new Set(draft[key] || []);
+      chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+      draft[key] = [...chosen];
+    }
   }
   if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { ...(state.signupDraft || {}), accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
@@ -7824,10 +7834,16 @@ document.addEventListener("click", async event => {
     const error = card.querySelector("[data-account-error]");
     const email = card.querySelector("[data-onboard-email]").value.trim();
     const phone = card.querySelector("[data-onboard-phone]").value.trim();
-    try { validateSignupEmail(email); formatSignupPhone(phone); }
+    const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
+    const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
+    if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
+    let formattedPhone = "";
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); }
     catch (contactError) { error.textContent = contactError.message; return; }
+    state.signupDraft.firstName = first;
+    state.signupDraft.lastName = last;
     state.signupDraft.email = email;
-    state.signupDraft.phone = phone;
+    state.signupDraft.phone = formattedPhone;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 3;
     renderOnboarding();
@@ -7841,7 +7857,9 @@ document.addEventListener("click", async event => {
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
     const isVenue = draft.accountType === "venue";
-    const fullName = isVenue ? draft.venueName : `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
+    const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
+    const fullName = ownerName;
     const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
     const onboardingProfile = {
       fullName,
@@ -7852,6 +7870,7 @@ document.addEventListener("click", async event => {
       eventInterests,
       areaInterests,
       accountType: isVenue ? "venue" : "person",
+      ownerName: isVenue ? ownerName : "",
       venueName: isVenue ? draft.venueName : "",
       venueAddress: isVenue ? draft.venueAddress : "",
       venueWebsite: isVenue ? draft.website : "",
@@ -7934,7 +7953,7 @@ modalRoot.addEventListener("touchend", event => {
 
 document.addEventListener("input", event => {
   const input = event.target;
-  if (input.matches("[data-signup-phone]")) {
+  if (input.matches("[data-signup-phone], [data-onboard-phone]")) {
     const digits = input.value.replace(/\D/g, "").slice(0, 10);
     input.value = digits.length > 6 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : digits.length > 3 ? `(${digits.slice(0, 3)}) ${digits.slice(3)}` : digits.length ? `(${digits}` : "";
   }
