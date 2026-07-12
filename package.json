@@ -1,17 +1,24 @@
 {
-  "name": "lokal-demo",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite --host 127.0.0.1 --port 5173",
-    "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1 --port 4173",
-    "build:standalone": "powershell -ExecutionPolicy Bypass -File ./build-standalone.ps1",
-    "enrich:ticketmaster": "node tools/enrich-ticketmaster-events.mjs",
-    "import:happy-hours": "node tools/import-happy-hours.mjs"
-  },
-  "devDependencies": {
-    "vite": "^8.0.16"
-  }
+    "name": "lokal-demo",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite --host 127.0.0.1 --port 5173",
+        "build": "vite build",
+        "preview": "vite preview --host 127.0.0.1 --port 4173",
+        "build:standalone": "powershell -ExecutionPolicy Bypass -File ./build-standalone.ps1",
+        "enrich:ticketmaster": "node tools/enrich-ticketmaster-events.mjs",
+        "import:happy-hours": "node tools/import-happy-hours.mjs",
+        "mobile:install": "npm.cmd install @capacitor/core @capacitor/cli @capacitor/ios --save-dev",
+        "mobile:init": "npx cap add ios",
+        "mobile:sync": "npm.cmd run build && npx cap sync ios",
+        "mobile:open": "npx cap open ios"
+    },
+    "devDependencies": {
+        "@capacitor/cli": "^8.4.1",
+        "@capacitor/core": "^8.4.1",
+        "@capacitor/ios": "^8.4.1",
+        "vite": "^8.0.16"
+    }
 }
