@@ -1479,3 +1479,64 @@ h3 { font-weight: 800; }
   height: 17px;
 }
 .calendar-recur-button:hover { background: rgba(8, 217, 154, .18); }
+
+/* ============================================================
+   Blended "For You" feed — header toggle + labelled sections
+   (powered by the get-blended-feed Edge Function)
+   ============================================================ */
+.feed-section .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.feed-mode-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 3px;
+  border: 1px solid rgba(23, 28, 26, .12);
+  border-radius: 999px;
+  background: #fff;
+}
+.feed-mode-btn {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.feed-mode-btn.active { color: #fff; background: var(--ink-green); }
+
+.blended-section { margin: 0 0 22px; }
+.blended-section-head { display: flex; align-items: baseline; gap: 9px; margin: 4px 2px 11px; }
+.blended-section-head h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+}
+.blended-section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  align-self: center;
+  background: linear-gradient(90deg, rgba(8, 217, 154, .45), transparent);
+}
+.blended-mode-note,
+.blended-fallback-note {
+  margin: 2px 2px 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(8, 217, 154, .28);
+  border-radius: 12px;
+  background: rgba(8, 217, 154, .08);
+  color: var(--accent-strong);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.blended-fallback-note { border-color: rgba(23, 28, 26, .12); background: rgba(23, 28, 26, .04); color: var(--muted); }

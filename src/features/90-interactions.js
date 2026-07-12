@@ -18,6 +18,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
+  if (t.dataset.feedMode) { mark(); const mode = t.dataset.feedMode; if (mode !== state.feedMode) { state.feedMode = mode; state.feedShown = 10; if (mode === "blended" && state.blendedFeed.status !== "ready") fetchBlendedFeed(); else renderHome(); } }
   if (t.dataset.neighborhood !== undefined) { mark(); state.neighborhoodFilter = t.dataset.neighborhood; state.feedShown = 10; renderHome(); }
   if (t.dataset.daytime !== undefined) { mark(); const colon = t.dataset.daytime.indexOf(":"); const dim = t.dataset.daytime.slice(0, colon); const val = t.dataset.daytime.slice(colon + 1); if (dim === "date") state.filter.date = val || "Any date"; else if (dim === "time") state.filter.time = val || "Any time"; state.feedShown = 10; renderHome(); }
   if (t.dataset.pickDate !== undefined) { mark(); openDatePickerSheet(); }

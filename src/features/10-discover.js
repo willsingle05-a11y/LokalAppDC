@@ -497,8 +497,8 @@ function renderHome() {
     ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div></div>
-    <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
 }
 
