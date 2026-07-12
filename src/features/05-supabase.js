@@ -233,6 +233,32 @@ async function submitVenueVerificationRequest(profile) {
   return record;
 }
 
+async function submitOnboardingProfile(profile) {
+  const record = {
+    user_key: currentInteractionUserId(),
+    account_type: profile.accountType || "person",
+    full_name: profile.fullName || "",
+    username: profile.username || "",
+    email: profile.email || "",
+    phone: profile.phone || "",
+    birthdate: profile.birthdate || null,
+    event_interests: profile.eventInterests || [],
+    area_interests: profile.areaInterests || [],
+    venue_name: profile.venueName || "",
+    venue_address: profile.venueAddress || "",
+    venue_website: profile.venueWebsite || "",
+    venue_image_url: profile.venueImageUrl || "",
+    venue_description: profile.venueDescription || ""
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/onboarding_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Onboarding submission returned ${response.status}`);
+  return record;
+}
+
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();

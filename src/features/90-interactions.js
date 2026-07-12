@@ -332,7 +332,7 @@ document.addEventListener("click", async event => {
     const isVenue = draft.accountType === "venue";
     const fullName = isVenue ? draft.venueName : `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
     const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
-    finalizeLokalProfile({
+    const onboardingProfile = {
       fullName,
       email: draft.email,
       phone: formatSignupPhone(draft.phone),
@@ -346,8 +346,10 @@ document.addEventListener("click", async event => {
       venueWebsite: isVenue ? draft.website : "",
       venueImageUrl: isVenue ? draft.venueImageUrl : "",
       venueDescription: isVenue ? draft.venueDescription : ""
-    });
+    };
+    finalizeLokalProfile(onboardingProfile);
     if (isVenue) registerLocalVenueProfile();
+    try { await submitOnboardingProfile(onboardingProfile); } catch {}
     if (isVenue) {
       try {
         await submitVenueVerificationRequest({
