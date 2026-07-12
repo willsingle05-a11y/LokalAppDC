@@ -5,7 +5,8 @@ import "./styles/redesign.css";
 import coreSource from "./features/00-core.js?raw";
 import demoProfilesSource from "./features/01-demo-profiles.js?raw";
 import supabaseSource from "./features/05-supabase.js?raw";
-import scoringSource from "./features/06-scoring.js?raw"; 
+import scoringSource from "./features/06-scoring.js?raw";
+import blendedFeedSource from "./features/07-blended-feed.js?raw";
 import discoverSource from "./features/10-discover.js?raw";
 import socialSource from "./features/30-social.js?raw";
 import profileSource from "./features/40-profile.js?raw";
@@ -17,7 +18,8 @@ const featureScripts = [
   ["00-core.js", coreSource],
   ["01-demo-profiles.js", demoProfilesSource],
   ["05-supabase.js", supabaseSource],
-  ["06-scoring.js", scoringSource],   
+  ["06-scoring.js", scoringSource],
+  ["07-blended-feed.js", blendedFeedSource],
   ["10-discover.js", discoverSource],
   ["30-social.js", socialSource],
   ["40-profile.js", profileSource],
