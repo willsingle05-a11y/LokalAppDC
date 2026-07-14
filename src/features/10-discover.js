@@ -483,6 +483,20 @@ function openTimePickerSheet() {
   </section></div>`;
 }
 
+// Live count under the feed heading. Reflects the active What/Where/When filters
+// so the number tracks what's actually shown, not the full loaded catalog.
+function feedFilterCountLabel(count) {
+  const whenActive = (state.whenFilter && state.whenFilter.size)
+    || (state.filter.date && state.filter.date !== "Any date")
+    || (state.filter.time && state.filter.time !== "Any time");
+  const filtersActive = (state.whatFilter && state.whatFilter.size)
+    || (state.whereFilter && state.whereFilter.size)
+    || whenActive;
+  const plural = count === 1 ? "" : "s";
+  if (filtersActive) return `${count} event${plural} match${count === 1 ? "es" : ""} your filters`;
+  return `${count} upcoming DC event${plural}`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -497,7 +511,7 @@ function renderHome() {
     ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
 }
