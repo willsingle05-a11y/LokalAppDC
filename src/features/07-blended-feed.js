@@ -71,23 +71,9 @@ function feedModeToggle() {
   </div>`;
 }
 
-// Blended feed content, grouped into labelled sections. Falls back to the local
-// feed (rendered from fallbackList) on loading-timeout, error, or empty mapping.
-function renderBlendedFeedContent(fallbackList) {
-  const bf = state.blendedFeed;
-  if (bf.status === "idle" || bf.status === "loading") return feedSkeleton();
-  if (bf.status === "error") {
-    return `<div class="blended-fallback-note">Personalized feed unavailable (${escapeHtml(bf.error)}) — showing the standard feed.</div>${renderDiscoverFeedContent(fallbackList)}`;
-  }
-  // Attach each row to a loaded event; drop rows outside the loaded window.
-  const mapped = bf.rows
-    .map(row => ({ bucket: row.bucket, event: blendedRowToEvent(row) }))
-    .filter(item => item.event);
-  if (!mapped.length) {
-    return `<div class="blended-fallback-note">No personalized matches in the current window yet — showing the standard feed.</div>${renderDiscoverFeedContent(fallbackList)}`;
-  }
-  const byBucket = {};
-  mapped.forEach(item => { (byBucket[item.bucket] = byBucket[item.bucket] || []).push(item.event); });
+// Render a {bucket: [events]} map into the labelled section layout. Shared by the
+// server-blended path and the local fallback so both look identical.
+function renderBucketSections(byBucket, modeNote) {
   const sections = BLENDED_SECTIONS
     .filter(([key]) => byBucket[key] && byBucket[key].length)
     .map(([key, label]) => {
@@ -97,8 +83,86 @@ function renderBlendedFeedContent(fallbackList) {
         <div class="feed-masonry">${cards}</div>
       </section>`;
     }).join("");
-  const modeNote = bf.mode === "new_user_fallback"
-    ? `<p class="blended-mode-note">New here — showing big DC moments and your neighborhood until you save a few events.</p>`
-    : "";
-  return `${modeNote}${sections}`;
+  return `${modeNote || ""}${sections}`;
+}
+
+// The user's "home" neighborhoods: onboarding areas plus wherever they save/RSVP.
+function blendedHomeKeys() {
+  const keys = new Set();
+  const add = value => { const key = String(cleanLocationPart(value) || "").toLowerCase().trim(); if (key) keys.add(key); };
+  (state.profile?.areas || []).forEach(add);
+  [...(state.saved || []), ...(state.rsvps || [])].forEach(id => {
+    const event = events.find(item => item.id === id);
+    if (event) add(event.area || event.neighborhood);
+  });
+  return keys;
+}
+
+// Client-side version of the blended_feed view: bucket the already-filtered feed
+// into the same five sections using the app's own taste + popularity scoring, so
+// "For You" still shows real, sectioned picks when the Edge Function isn't
+// deployed. Each event lands in exactly one bucket (priority order below), which
+// keeps the mix from collapsing back into an echo chamber.
+function localBlendedSections(list) {
+  const weights = userPreferenceWeights();
+  const homeKeys = blendedHomeKeys();
+  const used = new Set();
+  const personal = event => eventPersonalScore(event, weights);
+  const popular = event => eventPopularityScore(event);
+  const friendCount = event => Array.isArray(event.friends) ? event.friends.length : 0;
+  const hoodKey = event => String(cleanLocationPart(event.area || event.neighborhood) || "").toLowerCase().trim();
+  const take = (pool, limit) => {
+    const picks = [];
+    for (const event of pool) {
+      if (picks.length >= limit) break;
+      if (used.has(event.id)) continue;
+      used.add(event.id);
+      picks.push(event);
+    }
+    return picks;
+  };
+  const byPersonal = list.filter(event => personal(event) > 0).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
+  const byBig = list.filter(event => popular(event) >= 4).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
+  const byHood = list.filter(event => homeKeys.has(hoodKey(event))).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
+  const byTrending = list.filter(event => friendCount(event) > 0 || popular(event) >= 4).sort((a, b) => friendCount(b) - friendCount(a) || popular(b) - popular(a) || sortEventsByStart(a, b));
+  const byDiscovery = list.filter(event => personal(event) === 0).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
+  // Order of take() calls = bucket priority; the `used` set prevents duplicates.
+  return {
+    personalized: take(byPersonal, 6),
+    big_dc: take(byBig, 5),
+    neighborhood: take(byHood, 4),
+    trending: take(byTrending, 4),
+    discovery: take(byDiscovery, 4)
+  };
+}
+
+function renderLocalBlendedFeed(list) {
+  const source = Array.isArray(list) ? list : [];
+  if (!source.length) return renderDiscoverFeedContent(source);
+  const buckets = localBlendedSections(source);
+  const total = BLENDED_SECTIONS.reduce((sum, [key]) => sum + (buckets[key] ? buckets[key].length : 0), 0);
+  if (!total) return renderDiscoverFeedContent(source);
+  return renderBucketSections(buckets, "");
+}
+
+// Blended feed content, grouped into labelled sections. Uses the Edge Function's
+// ranking when it returns mappable rows; otherwise (not deployed, error, still
+// loading, or rows outside the loaded window) blends locally so the personalized
+// feed always displays.
+function renderBlendedFeedContent(fallbackList) {
+  const bf = state.blendedFeed;
+  if (bf.status === "ready") {
+    const mapped = bf.rows
+      .map(row => ({ bucket: row.bucket, event: blendedRowToEvent(row) }))
+      .filter(item => item.event);
+    if (mapped.length) {
+      const byBucket = {};
+      mapped.forEach(item => { (byBucket[item.bucket] = byBucket[item.bucket] || []).push(item.event); });
+      const modeNote = bf.mode === "new_user_fallback"
+        ? `<p class="blended-mode-note">New here — showing big DC moments and your neighborhood until you save a few events.</p>`
+        : "";
+      return renderBucketSections(byBucket, modeNote);
+    }
+  }
+  return renderLocalBlendedFeed(fallbackList);
 }
