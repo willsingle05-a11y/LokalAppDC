@@ -25,6 +25,7 @@ The repo now has a Capacitor iOS wrapper started. Capacitor is free/open-source;
 
 - `npm.cmd run build` builds the web app.
 - `cmd /c npx cap sync ios` copies the latest build into the iOS project.
+- `npm.cmd run mobile:sync:prod` builds with `VITE_APP_MODE=production` and syncs the iOS project without the desktop demo sidebar.
 - `cmd /c npx cap open ios` opens the project in Xcode on a Mac.
 
 ## When you create the Apple Developer account
@@ -40,8 +41,16 @@ The repo now has a Capacitor iOS wrapper started. Capacitor is free/open-source;
 
 ## Before App Store submission
 
-- Remove demo/bypass-only flows from the public product.
-- Add Privacy Policy and Terms URLs.
-- Add or document account deletion.
+- Use `npm.cmd run mobile:sync:prod` for App Store-oriented builds so the desktop demo controls are hidden.
+- Remove or disable remaining demo/bypass-only flows from the public product before submission.
+- Publish Privacy Policy and Terms URLs using the drafts in this folder.
+- Test the in-app account deletion request path.
 - Confirm Supabase auth/profile/onboarding writes in production mode.
 - Prepare screenshots, subtitle, keywords, support URL, and review notes.
+
+## Launch prep docs
+
+- `docs/app-store-metadata-draft.md`
+- `docs/privacy-policy-draft.md`
+- `docs/terms-of-service-draft.md`
+- `docs/app-review-checklist.md`

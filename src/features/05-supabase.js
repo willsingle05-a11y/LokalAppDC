@@ -260,6 +260,27 @@ async function submitOnboardingProfile(profile) {
   return record;
 }
 
+async function submitAccountDeletionRequest(reason = "") {
+  const record = {
+    user_key: currentInteractionUserId(),
+    account_type: state.profile?.accountType || "person",
+    full_name: state.profile?.fullName || "",
+    username: state.profile?.username || "",
+    email: state.profile?.email || "",
+    phone: state.profile?.phone || "",
+    reason: reason || "",
+    status: "pending"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/account_deletion_requests`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Account deletion request returned ${response.status}`);
+  localStorage.setItem("lokalAccountDeletionRequested", "1");
+  return record;
+}
+
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();

@@ -240,8 +240,22 @@ document.addEventListener("click", async event => {
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You'll be signed out of this demo session.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Signed out (demo)"); }
-  if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
-  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
+  if (t.dataset.deactivate !== undefined) {
+    mark();
+    openSimpleSheet("Delete account", "Request permanent deletion of your Lokal account and profile data. Lokal will review and process deletion requests as part of launch operations.", `<label class="settings-field">Reason (optional)<textarea data-delete-reason placeholder="Anything we should know?"></textarea></label><button class="danger-button" data-confirm-deactivate>Request account deletion</button>`);
+  }
+  if (t.dataset.confirmDeactivate !== undefined) {
+    mark();
+    const reason = document.querySelector("[data-delete-reason]")?.value.trim() || "";
+    try {
+      await submitAccountDeletionRequest(reason);
+      modalRoot.innerHTML = "";
+      toast("Account deletion request submitted");
+    } catch (error) {
+      console.warn("[supabase] account deletion request failed", error);
+      toast("Could not submit deletion request");
+    }
+  }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
   if (t.dataset.saveSettings !== undefined) {
     const input = document.querySelector("[data-age-input]");

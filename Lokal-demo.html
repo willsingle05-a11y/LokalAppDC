@@ -38,6 +38,11 @@ button { border: 0; color: inherit; cursor: pointer; font: inherit; }
 button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
 .demo-stage { min-height: 100vh; }
 .demo-sidebar { display: none; }
+.production-app .demo-stage {
+  display: block;
+  padding: 0;
+}
+.production-app .demo-sidebar { display: none !important; }
 .app-shell {
   position: relative;
   width: min(100%, 620px);
@@ -494,6 +499,9 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
   .app-shell { width: 620px; margin: 0; min-height: calc(100vh - 48px); border-radius: 25px; }
   .bottom-nav { right: auto; left: calc(50% - 113px); bottom: 34px; width: 600px; }
   .modal { margin-bottom: 24px; }
+  .production-app body { background: #e7edf2; }
+  .production-app .demo-stage { display: block; padding: 0; }
+  .production-app .app-shell { margin: 0 auto; min-height: 100vh; }
 }
 
 
@@ -3236,6 +3244,67 @@ h3 { font-weight: 800; }
 }
 .calendar-recur-button:hover { background: rgba(8, 217, 154, .18); }
 
+/* ============================================================
+   Blended "For You" feed â€” header toggle + labelled sections
+   (powered by the get-blended-feed Edge Function)
+   ============================================================ */
+.feed-section .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.feed-mode-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 3px;
+  border: 1px solid rgba(23, 28, 26, .12);
+  border-radius: 999px;
+  background: #fff;
+}
+.feed-mode-btn {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.feed-mode-btn.active { color: #fff; background: var(--ink-green); }
+
+.blended-section { margin: 0 0 22px; }
+.blended-section-head { display: flex; align-items: baseline; gap: 9px; margin: 4px 2px 11px; }
+.blended-section-head h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+}
+.blended-section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  align-self: center;
+  background: linear-gradient(90deg, rgba(8, 217, 154, .45), transparent);
+}
+.blended-mode-note,
+.blended-fallback-note {
+  margin: 2px 2px 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(8, 217, 154, .28);
+  border-radius: 12px;
+  background: rgba(8, 217, 154, .08);
+  color: var(--accent-strong);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.blended-fallback-note { border-color: rgba(23, 28, 26, .12); background: rgba(23, 28, 26, .04); color: var(--muted); }
+
     </style>
   </head>
   <body>
@@ -4429,6 +4498,27 @@ async function submitOnboardingProfile(profile) {
   return record;
 }
 
+async function submitAccountDeletionRequest(reason = "") {
+  const record = {
+    user_key: currentInteractionUserId(),
+    account_type: state.profile?.accountType || "person",
+    full_name: state.profile?.fullName || "",
+    username: state.profile?.username || "",
+    email: state.profile?.email || "",
+    phone: state.profile?.phone || "",
+    reason: reason || "",
+    status: "pending"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/account_deletion_requests`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Account deletion request returned ${response.status}`);
+  localStorage.setItem("lokalAccountDeletionRequested", "1");
+  return record;
+}
+
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();
@@ -5405,6 +5495,111 @@ refreshScores().then((res) => {
   }
 });
 
+// Optional "For You" blended feed, powered by the get-blended-feed Supabase
+// Edge Function (see supabase/functions/get-blended-feed). This is an A/B
+// alternative to the local client-side feed: a toggle in the Discover header
+// switches between "All" (the existing feed) and "For You" (server-blended,
+// grouped into sections). Any failure falls back to the local feed.
+
+const blendedFeedConfig = {
+  endpoint: `${supabaseConfig.url}/functions/v1/get-blended-feed`,
+  pageSize: 30
+};
+
+// Section render order + labels. Must match the Edge Function's SECTION_LABELS.
+const BLENDED_SECTIONS = [
+  ["personalized", "For You"],
+  ["big_dc", "Big in DC"],
+  ["neighborhood", "In Your Neighborhood"],
+  ["trending", "Trending"],
+  ["discovery", "Something Different"]
+];
+
+// Runtime state (state is defined in 00-core.js; this file is eval'd after it).
+if (!state.feedMode) state.feedMode = "local";
+state.blendedFeed = { status: "idle", mode: "", rows: [], error: "" };
+
+function blendedFeedEnabled() {
+  return state.feedMode === "blended";
+}
+
+// Call the Edge Function for the current interaction user and cache the result.
+// Re-renders the home feed on both the loading transition and completion.
+async function fetchBlendedFeed() {
+  state.blendedFeed = { ...state.blendedFeed, status: "loading", error: "" };
+  if (state.route === "home") renderHome();
+  try {
+    const userId = currentInteractionUserId();
+    const response = await fetch(blendedFeedConfig.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: supabaseConfig.publishableKey,
+        Authorization: `Bearer ${supabaseConfig.publishableKey}`
+      },
+      body: JSON.stringify({ user_id: userId, limit: blendedFeedConfig.pageSize })
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    state.blendedFeed = {
+      status: "ready",
+      mode: data.mode || "",
+      rows: Array.isArray(data.feed) ? data.feed : [],
+      error: ""
+    };
+  } catch (error) {
+    state.blendedFeed = { status: "error", mode: "", rows: [], error: error.message || "unavailable" };
+  }
+  if (state.route === "home") renderHome();
+}
+
+// A blended row is keyed by Supabase events.id; loaded app events carry that as
+// event.sourceId. Map back so the existing card renderer has full event data.
+function blendedRowToEvent(row) {
+  return events.find(event => String(event.sourceId) === String(row.id)) || null;
+}
+
+// Feed-mode toggle for the Discover header.
+function feedModeToggle() {
+  const mode = blendedFeedEnabled() ? "blended" : "local";
+  return `<div class="feed-mode-toggle" role="tablist" aria-label="Feed mode">
+    <button class="feed-mode-btn ${mode === "local" ? "active" : ""}" data-feed-mode="local" role="tab" aria-selected="${mode === "local"}">All</button>
+    <button class="feed-mode-btn ${mode === "blended" ? "active" : ""}" data-feed-mode="blended" role="tab" aria-selected="${mode === "blended"}">For You</button>
+  </div>`;
+}
+
+// Blended feed content, grouped into labelled sections. Falls back to the local
+// feed (rendered from fallbackList) on loading-timeout, error, or empty mapping.
+function renderBlendedFeedContent(fallbackList) {
+  const bf = state.blendedFeed;
+  if (bf.status === "idle" || bf.status === "loading") return feedSkeleton();
+  if (bf.status === "error") {
+    return `<div class="blended-fallback-note">Personalized feed unavailable (${escapeHtml(bf.error)}) â€” showing the standard feed.</div>${renderDiscoverFeedContent(fallbackList)}`;
+  }
+  // Attach each row to a loaded event; drop rows outside the loaded window.
+  const mapped = bf.rows
+    .map(row => ({ bucket: row.bucket, event: blendedRowToEvent(row) }))
+    .filter(item => item.event);
+  if (!mapped.length) {
+    return `<div class="blended-fallback-note">No personalized matches in the current window yet â€” showing the standard feed.</div>${renderDiscoverFeedContent(fallbackList)}`;
+  }
+  const byBucket = {};
+  mapped.forEach(item => { (byBucket[item.bucket] = byBucket[item.bucket] || []).push(item.event); });
+  const sections = BLENDED_SECTIONS
+    .filter(([key]) => byBucket[key] && byBucket[key].length)
+    .map(([key, label]) => {
+      const cards = byBucket[key].map(event => eventRow(event, "", { showBadge: true })).join("");
+      return `<section class="blended-section" data-bucket="${escapeHtml(key)}">
+        <div class="blended-section-head"><h3>${escapeHtml(label)}</h3></div>
+        <div class="feed-masonry">${cards}</div>
+      </section>`;
+    }).join("");
+  const modeNote = bf.mode === "new_user_fallback"
+    ? `<p class="blended-mode-note">New here â€” showing big DC moments and your neighborhood until you save a few events.</p>`
+    : "";
+  return `${modeNote}${sections}`;
+}
+
 function friendsActivityFeed(limit = 10) {
   const times = ["just now", "8m ago", "23m ago", "1h ago", "2h ago", "4h ago", "yesterday"];
   const verbs = ["saved", "is going", "saved", "RSVPed"];
@@ -5904,8 +6099,8 @@ function renderHome() {
     ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div></div>
-    <div data-feed-content>${renderDiscoverFeedContent(deduped)}</div></section>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
 }
 
@@ -7544,6 +7739,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
+  if (t.dataset.feedMode) { mark(); const mode = t.dataset.feedMode; if (mode !== state.feedMode) { state.feedMode = mode; state.feedShown = 10; if (mode === "blended" && state.blendedFeed.status !== "ready") fetchBlendedFeed(); else renderHome(); } }
   if (t.dataset.neighborhood !== undefined) { mark(); state.neighborhoodFilter = t.dataset.neighborhood; state.feedShown = 10; renderHome(); }
   if (t.dataset.daytime !== undefined) { mark(); const colon = t.dataset.daytime.indexOf(":"); const dim = t.dataset.daytime.slice(0, colon); const val = t.dataset.daytime.slice(colon + 1); if (dim === "date") state.filter.date = val || "Any date"; else if (dim === "time") state.filter.time = val || "Any time"; state.feedShown = 10; renderHome(); }
   if (t.dataset.pickDate !== undefined) { mark(); openDatePickerSheet(); }
@@ -7765,8 +7961,22 @@ document.addEventListener("click", async event => {
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You'll be signed out of this demo session.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Signed out (demo)"); }
-  if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
-  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
+  if (t.dataset.deactivate !== undefined) {
+    mark();
+    openSimpleSheet("Delete account", "Request permanent deletion of your Lokal account and profile data. Lokal will review and process deletion requests as part of launch operations.", `<label class="settings-field">Reason (optional)<textarea data-delete-reason placeholder="Anything we should know?"></textarea></label><button class="danger-button" data-confirm-deactivate>Request account deletion</button>`);
+  }
+  if (t.dataset.confirmDeactivate !== undefined) {
+    mark();
+    const reason = document.querySelector("[data-delete-reason]")?.value.trim() || "";
+    try {
+      await submitAccountDeletionRequest(reason);
+      modalRoot.innerHTML = "";
+      toast("Account deletion request submitted");
+    } catch (error) {
+      console.warn("[supabase] account deletion request failed", error);
+      toast("Could not submit deletion request");
+    }
+  }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
   if (t.dataset.saveSettings !== undefined) {
     const input = document.querySelector("[data-age-input]");
