@@ -4,6 +4,16 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
+  if (loggedKey && typeof recordAppAction === "function") {
+    recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
+      value: t.dataset[loggedKey] || "",
+      eventId: t.dataset.eventId || "",
+      groupName: t.dataset.groupName || "",
+      friendName: t.dataset.friendName || ""
+    });
+  }
   if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
@@ -235,11 +245,31 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text: input.value.trim() }]; openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>&#8981;</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
-  if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
-  if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
+  if (t.dataset.changePhoto !== undefined) {
+    mark();
+    openSimpleSheet("Change photo", "Add an image URL for now. Native photo-library upload can be added once the production storage bucket is finalized.", `<label class="settings-field">Image URL<input data-profile-photo-url type="url" value="${escapeHtml(currentVenueImage() || state.profile?.avatarUrl || "")}" placeholder="https://..."></label><button class="wide-button" data-confirm-photo>Save photo</button>`);
+  }
+  if (t.dataset.confirmPhoto !== undefined) {
+    mark();
+    const imageUrl = document.querySelector("[data-profile-photo-url]")?.value.trim() || "";
+    if (!imageUrl) { toast("Add an image URL first"); return; }
+    state.profile = isVenueAccount() ? { ...state.profile, venueImageUrl: imageUrl } : { ...state.profile, avatarUrl: imageUrl };
+    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
+    modalRoot.innerHTML = "";
+    renderProfile();
+    toast("Profile photo updated");
+  }
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
-  if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You'll be signed out of this demo session.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
-  if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Signed out (demo)"); }
+  if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You will be signed out on this device.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
+  if (t.dataset.confirmSignout !== undefined) {
+    mark();
+    ["lokalAccountCreated", "lokalProfile", "lokalSupabaseAccessToken", "lokalSupabaseUserId"].forEach(key => localStorage.removeItem(key));
+    modalRoot.innerHTML = "";
+    document.querySelector(".onboarding")?.remove();
+    state.onboardStep = 0;
+    renderOnboarding();
+    toast("Signed out");
+  }
   if (t.dataset.deactivate !== undefined) {
     mark();
     openSimpleSheet("Delete account", "Request permanent deletion of your Lokal account and profile data. Lokal will review and process deletion requests as part of launch operations.", `<label class="settings-field">Reason (optional)<textarea data-delete-reason placeholder="Anything we should know?"></textarea></label><button class="danger-button" data-confirm-deactivate>Request account deletion</button>`);

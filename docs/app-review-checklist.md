@@ -18,6 +18,7 @@
 - Venue verification request tested.
 - Event submission request tested.
 - Saved events and RSVP persistence tested.
+- Demo action ledger tested in `public.app_action_events`.
 - User-generated content moderation process documented.
 
 ## Apple Review Risk Areas
@@ -34,6 +35,7 @@
 - `npm.cmd run mobile:sync` succeeds.
 - Account deletion request path exists and writes to Supabase once the migration is applied.
 - Metadata, privacy policy, terms, and review notes have drafts.
+- Demo actionability audit exists at `docs/demo-actionability-audit.md`.
 
 ## Remaining Paid or Mac-Only Work
 

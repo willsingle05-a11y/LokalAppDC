@@ -281,6 +281,23 @@ async function submitAccountDeletionRequest(reason = "") {
   return record;
 }
 
+function recordAppAction(actionType, payload = {}) {
+  if (!actionType) return;
+  const record = {
+    user_key: currentInteractionUserId(),
+    action_type: actionType,
+    route: state.route || "",
+    profile_name: state.profile?.fullName || "",
+    account_type: state.profile?.accountType || "person",
+    payload
+  };
+  fetch(`${supabaseConfig.url}/rest/v1/app_action_events`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  }).catch(error => console.warn("[supabase] app action not recorded", actionType, error));
+}
+
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();
