@@ -65,6 +65,7 @@ function friendInitials(name) {
 function addFriendToPrivateGroup(group, name) {
   if (!state.privateGroupMembers[group]) state.privateGroupMembers[group] = ["You"];
   if (!state.privateGroupMembers[group].includes(name)) state.privateGroupMembers[group].push(name);
+  submitGroupMembership(group, name, "active", "invite");
 }
 
 function removeGroupMembership(name) {
@@ -72,6 +73,7 @@ function removeGroupMembership(name) {
   state.joinedGroups.delete(name);
   state.pinnedGroups.delete(name);
   state.newGroups = state.newGroups.filter(group => group.name !== name);
+  submitGroupMembership(name, "You", "left", "leave");
 }
 
 function groupSuggestedEvents(name, limit = 4) {
@@ -119,6 +121,7 @@ function acceptFriendship(name) {
   if (!state.friendConnections[name]) state.friendConnections[name] = [];
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
   if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
+  submitFriendRelationship(name, "accepted", "demo");
 }
 
 function groupContent() {

@@ -37,8 +37,8 @@ async function fetchBlendedFeed() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: supabaseConfig.publishableKey,
-        Authorization: `Bearer ${supabaseConfig.publishableKey}`
+        apikey: supabaseConfig.anonKey || supabaseConfig.publishableKey,
+        Authorization: `Bearer ${localStorage.getItem(supabaseStorageKeys.accessToken) || supabaseConfig.anonKey || supabaseConfig.publishableKey}`
       },
       body: JSON.stringify({ user_id: userId, limit: blendedFeedConfig.pageSize })
     });

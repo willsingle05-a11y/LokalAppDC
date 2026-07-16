@@ -19,6 +19,7 @@
 - Event submission request tested.
 - Saved events and RSVP persistence tested.
 - Demo action ledger tested in `public.app_action_events`.
+- Dedicated social action tables tested: `friend_relationships`, `group_memberships`, `group_messages`, and `direct_messages`.
 - User-generated content moderation process documented.
 
 ## Apple Review Risk Areas

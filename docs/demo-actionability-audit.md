@@ -10,6 +10,10 @@ This document tracks whether visible demo actions are backed by Supabase, GitHub
 - Venue verification requests: `public.venue_verification_requests`
 - Venue event submissions: `public.venue_event_submissions`
 - Account deletion requests: `public.account_deletion_requests`
+- Accepted friend relationships: `public.friend_relationships`
+- Group creates, joins, invites, and leaves: `public.group_memberships`
+- Group chat/event shares: `public.group_messages`
+- Direct messages: `public.direct_messages`
 
 ## Backed By Generic Supabase Action Ledger
 
@@ -20,21 +24,20 @@ These actions are now logged to `public.app_action_events` so demo behavior is a
 - Group/event sharing
 - Add friends and invite actions
 - Location enable intent
-- Group create, join, pin, leave, and message actions
+- Group pin actions
 - Following and unfollowing users/venues
 - Venue tools dismissal
-- Direct message attempts and sends
 - Profile photo changes
 - Sign out
 - Settings save
 - Taste preference updates
-- Friend request accept/decline
+- Friend request declines
 
 ## Still Needs Production-Specific Work
 
 - Real native photo upload should use a Supabase Storage bucket instead of image URLs.
-- Group chat and direct messages should move from action ledger/local state into dedicated message tables.
-- Friend requests should move from action ledger/local state into dedicated relationship tables.
+- Friend requests need a full pending-request workflow rather than only accepted relationship persistence.
+- Group pinning can stay in the action ledger until group preference settings get a final table.
 - Production auth should replace demo bypass links for App Store submission.
 - Privacy policy and terms URLs need to be published outside the repo.
 
@@ -44,3 +47,4 @@ All action code, schemas, and docs are versioned in GitHub. New schema files:
 
 - `supabase/sql/app-action-events.sql`
 - `supabase/sql/account-deletion-requests.sql`
+- `supabase/sql/social-actions.sql`

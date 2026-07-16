@@ -1,6 +1,7 @@
 const supabaseConfig = {
   url: "https://iglzcjtklryapmcpyoam.supabase.co",
-  publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH"
+  publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlnbHpjanRrbHJ5YXBtY3B5b2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNDI0ODgsImV4cCI6MjA5NTkxODQ4OH0.oxugfaHmc7Jvq5nay5U7eRaKYYlW5rexv2UIfcM4hvo"
 };
 const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
 const supabaseStorageKeys = {
@@ -141,18 +142,19 @@ function queuePendingEventInteraction(record) {
 }
 
 function supabaseJsonHeaders(extra = {}) {
+  const bearerToken = localStorage.getItem(supabaseStorageKeys.accessToken) || supabaseConfig.anonKey || supabaseConfig.publishableKey;
   return {
-    apikey: supabaseConfig.publishableKey,
-    Authorization: `Bearer ${localStorage.getItem(supabaseStorageKeys.accessToken) || supabaseConfig.publishableKey}`,
+    apikey: supabaseConfig.anonKey || supabaseConfig.publishableKey,
+    Authorization: `Bearer ${bearerToken}`,
     "Content-Type": "application/json",
     ...extra
   };
 }
 
 function supabaseInteractionHeaders() {
-  const token = localStorage.getItem(supabaseStorageKeys.accessToken);
+  const token = localStorage.getItem(supabaseStorageKeys.accessToken) || supabaseConfig.anonKey;
   const headers = {
-    apikey: supabaseConfig.publishableKey,
+    apikey: supabaseConfig.anonKey || supabaseConfig.publishableKey,
     "Content-Type": "application/json"
   };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -296,6 +298,66 @@ function recordAppAction(actionType, payload = {}) {
     headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
     body: JSON.stringify([record])
   }).catch(error => console.warn("[supabase] app action not recorded", actionType, error));
+}
+
+function socialUpsert(table, conflictColumns, record) {
+  const url = `${supabaseConfig.url}/rest/v1/${table}?on_conflict=${encodeURIComponent(conflictColumns)}`;
+  return fetch(url, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+    body: JSON.stringify([{ ...record, updated_at: new Date().toISOString() }])
+  }).catch(error => console.warn(`[supabase] ${table} not recorded`, error));
+}
+
+function socialInsert(table, record) {
+  return fetch(`${supabaseConfig.url}/rest/v1/${table}`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  }).catch(error => console.warn(`[supabase] ${table} not recorded`, error));
+}
+
+function submitFriendRelationship(friendName, status = "accepted", source = "demo") {
+  if (!friendName) return;
+  return socialUpsert("friend_relationships", "user_key,friend_name", {
+    user_key: currentInteractionUserId(),
+    friend_name: friendName,
+    status,
+    source
+  });
+}
+
+function submitGroupMembership(groupName, memberName = "You", status = "active", source = "demo", role = "member") {
+  if (!groupName || !memberName) return;
+  return socialUpsert("group_memberships", "user_key,group_name,member_name", {
+    user_key: currentInteractionUserId(),
+    group_name: groupName,
+    member_name: memberName,
+    role,
+    status,
+    source
+  });
+}
+
+function submitGroupMessage(groupName, message = {}) {
+  if (!groupName) return;
+  return socialInsert("group_messages", {
+    user_key: currentInteractionUserId(),
+    group_name: groupName,
+    message_type: message.type || "text",
+    message_text: message.text || "",
+    event_id: message.eventId === undefined || message.eventId === null ? null : String(message.eventId)
+  });
+}
+
+function submitDirectMessage(friendName, text) {
+  if (!friendName || !String(text || "").trim()) return;
+  return socialInsert("direct_messages", {
+    user_key: currentInteractionUserId(),
+    friend_name: friendName,
+    direction: "outbound",
+    message_text: String(text).trim()
+  });
 }
 
 async function syncVenueVerificationStatus() {
