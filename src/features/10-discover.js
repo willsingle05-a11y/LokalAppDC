@@ -508,7 +508,7 @@ function renderHome() {
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${followingRail()}
     ${renderFilterBar()}
-    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or friends" aria-label="Search events, venues, or friends"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or neighborhoods" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
@@ -809,15 +809,36 @@ const followingStories = [
   { id: "atlas", icon: "A", name: "Atlas", type: "Venue", intro: "What's coming up at Atlas over the next few days.", eventIds: [10], venueKeywords: ["atlas"] }
 ];
 
+function diverseEventSelection(list, limit = 5) {
+  const picked = [];
+  const usedIds = new Set();
+  const usedCategories = new Set();
+  list.forEach(event => {
+    if (picked.length >= limit) return;
+    if (usedCategories.has(event.cat)) return;
+    picked.push(event);
+    usedIds.add(event.id);
+    usedCategories.add(event.cat);
+  });
+  list.forEach(event => {
+    if (picked.length >= limit) return;
+    if (usedIds.has(event.id)) return;
+    picked.push(event);
+    usedIds.add(event.id);
+  });
+  return picked;
+}
+
 function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dcEvents = displayableDcEvents().sort(sortEventsByStart);
-    const todaysEvents = dcEvents
+    const todaysEvents = diverseEventSelection(dcEvents
       .filter(event => sameCalendarDate(eventDateValue(event), today))
-      .slice(0, 5);
-    return (todaysEvents.length ? todaysEvents : dcEvents.slice(0, 5));
+      .filter(event => event.image), 5);
+    const fallbackEvents = diverseEventSelection(dcEvents.filter(event => event.image), 5);
+    return (todaysEvents.length ? todaysEvents : fallbackEvents);
   }
   const venueKeywords = story.venueKeywords || [];
   const textKeywords = story.textKeywords || [];
