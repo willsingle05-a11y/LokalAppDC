@@ -109,14 +109,14 @@ function localBlendedSections(list) {
   const used = new Set();
   const personal = event => eventPersonalScore(event, weights);
   const popular = event => eventPopularityScore(event);
-  const friendCount = event => Array.isArray(event.friends) ? event.friends.length : 0;
   const hoodKey = event => String(cleanLocationPart(event.area || event.neighborhood) || "").toLowerCase().trim();
   const take = (pool, limit) => {
     const picks = [];
     for (const event of pool) {
       if (picks.length >= limit) break;
-      if (used.has(event.id)) continue;
-      used.add(event.id);
+      const key = eventDedupeKey(event);
+      if (used.has(key)) continue;
+      used.add(key);
       picks.push(event);
     }
     return picks;
@@ -124,7 +124,7 @@ function localBlendedSections(list) {
   const byPersonal = list.filter(event => personal(event) > 0).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
   const byBig = list.filter(event => popular(event) >= 4).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
   const byHood = list.filter(event => homeKeys.has(hoodKey(event))).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
-  const byTrending = list.filter(event => friendCount(event) > 0 || popular(event) >= 4).sort((a, b) => friendCount(b) - friendCount(a) || popular(b) - popular(a) || sortEventsByStart(a, b));
+  const byTrending = list.filter(event => popular(event) >= 4).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
   const byDiscovery = list.filter(event => personal(event) === 0).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
   // Order of take() calls = bucket priority; the `used` set prevents duplicates.
   return {
@@ -157,7 +157,13 @@ function renderBlendedFeedContent(fallbackList) {
       .filter(item => item.event);
     if (mapped.length) {
       const byBucket = {};
-      mapped.forEach(item => { (byBucket[item.bucket] = byBucket[item.bucket] || []).push(item.event); });
+      const used = new Set();
+      mapped.forEach(item => {
+        const key = eventDedupeKey(item.event);
+        if (used.has(key)) return;
+        used.add(key);
+        (byBucket[item.bucket] = byBucket[item.bucket] || []).push(item.event);
+      });
       const modeNote = bf.mode === "new_user_fallback"
         ? `<p class="blended-mode-note">New here — showing big DC moments and your neighborhood until you save a few events.</p>`
         : "";

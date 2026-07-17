@@ -965,7 +965,18 @@ async function syncSupabaseEvents(showToast = false) {
   }
   reconcileUserPlans();
   if (state.route === "home") renderHome();
+  openSharedEventFromUrl();
   if (showToast) toast(state.eventSync.label);
+}
+
+function openSharedEventFromUrl() {
+  if (state.sharedEventOpened) return;
+  const eventParam = new URLSearchParams(location.search).get("event");
+  if (!eventParam) return;
+  const sharedEvent = events.find(event => String(event.sourceId || event.id) === String(eventParam) || String(event.id) === String(eventParam));
+  if (!sharedEvent) return;
+  state.sharedEventOpened = true;
+  openDetail(sharedEvent.id);
 }
 
 function normalizeSupabaseGroup(row) {

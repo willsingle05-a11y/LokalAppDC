@@ -95,7 +95,7 @@ function followingRail() {
   if (!stories.length && !venues.length) return "";
   const venueChips = venues.map(name => `<button class="following-chip" data-venue-events="${escapeHtml(name)}"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><b>${escapeHtml(name)}</b><small>Following</small></button>`).join("");
   return `<div class="following-head"><p class="eyebrow">Following</p></div>
-    <div class="following-rail">${venueChips}${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.name)}</b><small>${escapeHtml(story.type)}</small></button>`).join("")}</div>
+    <div class="following-rail">${venueChips}${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.todayOnly ? "Happening today" : story.name)}</b><small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small></button>`).join("")}</div>
     <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
 }
 
@@ -260,8 +260,6 @@ function eventPopularityScore(event) {
   if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
   const catTier = { concerts: 4, festivals: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
-  // Social proof: friends going is a direct popularity signal.
-  score += Math.min(6, (Array.isArray(event.friends) ? event.friends.length : 0) * 2);
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
   return score;
@@ -297,13 +295,14 @@ function liveTicker() {
 // Paginated feed: every event renders as a full image-then-text card, 10 at a
 // time. "View more" reveals the next 10 only (state.feedShown), not everything.
 function renderEventFeed(list, opts = {}) {
-  if (!list.length) return `<p class="section-helper">No events match those filters right now.</p>`;
+  const uniqueList = dedupeFeedEvents(list);
+  if (!uniqueList.length) return `<p class="section-helper">No events match those filters right now.</p>`;
   const shown = Math.max(10, state.feedShown || 10);
-  const visible = list.slice(0, shown);
+  const visible = uniqueList.slice(0, shown);
   // Show the "Because you like …" reason only in the personalized mixed feed.
   const weights = (opts.showBadge !== false && state.homeFilter === "all") ? userPreferenceWeights() : null;
   const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false, reason: weights ? eventPersonalReason(event, weights) : "" })).join("");
-  const remaining = list.length - shown;
+  const remaining = uniqueList.length - shown;
   const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
   // Masonry: cards size to their image so they aren't all identical, packed into
   // multiple columns. The "View more" button sits outside the columns.
@@ -526,7 +525,7 @@ function renderDiscoverCategoryPage(category) {
   const label = getCategoryFeedConfig(category).label || discoverCategoryLabel(category);
   const hasCategorySearch = searchableDiscoverCategory(category);
   if (!hasCategorySearch) state.discoverGenreFilter = "";
-  const categoryEvents = displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart);
+  const categoryEvents = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, category)).sort(sortEventsByStart));
   const visibleEvents = hasCategorySearch && state.discoverGenreFilter
     ? categoryEvents.filter(event => eventMatchesCategoryFacet(event, state.discoverGenreFilter))
     : categoryEvents;
@@ -711,7 +710,7 @@ function renderDiscoverEventSearch(query) {
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
-  const dcEvents = displayableDcEvents().filter(event => matchesFilter(event, "all"));
+  const dcEvents = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
   const venueMatches = venueSearchMatches(normalizedQuery, 8);
@@ -853,7 +852,9 @@ function activeFollowingStories() {
     eventIds: state.storyPosts.map(post => post.eventId)
   }] : [];
   const [featuredStory, ...otherStories] = followingStories;
-  return [featuredStory, ...ownStory, ...otherStories]
+  const followedVenues = followedVenueNames().map(name => name.toLowerCase());
+  const isFollowedStory = story => state.follows.has(story.id) || followedVenues.some(name => String(story.name || "").toLowerCase().includes(name) || (story.venueKeywords || []).some(keyword => name.includes(keyword) || keyword.includes(name)));
+  return [featuredStory, ...ownStory, ...otherStories.filter(isFollowedStory)]
     .filter(Boolean)
     .map(story => ({ ...story, storyEvents: storyEventPool(story) }))
     .filter(story => story.storyEvents.length);
@@ -871,9 +872,9 @@ function openStory(index) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet story-sheet" role="dialog" aria-modal="true" aria-label="${story.name}" data-story-sheet="${storyIndex}">
     <button class="modal-close" aria-label="Close ${story.name}">&times;</button>
     <div class="story-progress">${stories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
-    <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.name}</h2></div><span class="group-icon">${story.icon}</span></div>
+    <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.todayOnly ? "Happening today" : escapeHtml(story.name)}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
-    <div class="event-stack">${storyEvents.map(eventRow).join("")}</div>
+    <div class="event-stack">${storyEvents.map(event => eventListRow(event)).join("")}</div>
     <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }

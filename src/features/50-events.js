@@ -23,9 +23,9 @@ function openDetail(id) {
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
     ${occurrencesBlock}
+    <div class="calendar-action-row"><button class="wide-button calendar-recur-button" data-add-calendar="apple" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Apple Calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</button><button class="wide-button calendar-recur-button secondary-calendar" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button></div>
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved ✓" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going ✓" : "RSVP"}</button>${shareButton}</div>
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
-    ${recurrence ? `<button class="wide-button calendar-recur-button" data-add-recurring="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar · ${escapeHtml(recurrence.label)}</button>` : ""}
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
     <button class="wide-button" data-ticket="${e.id}">${e.detailsUrl ? "Get tickets / details" : "Open shareable event page"}</button></div>
   </section></div>`;
@@ -68,7 +68,12 @@ function shareMessageForEvent(event) {
 }
 
 function lokalEventShareUrl(event) {
-  return `https://lokal.app/event/${encodeURIComponent(event.sourceId || event.id)}`;
+  const base = location.protocol.startsWith("http") ? `${location.origin}${location.pathname}` : "https://willsingle05-a11y.github.io/LokalAppDC/";
+  const url = new URL(base);
+  const existing = new URLSearchParams(location.search);
+  if (existing.get("bypassSignup")) url.searchParams.set("bypassSignup", existing.get("bypassSignup"));
+  url.searchParams.set("event", String(event.sourceId || event.id));
+  return url.toString();
 }
 
 function lokalEventSharePayload(event) {
@@ -159,6 +164,66 @@ function downloadIcsFile(filename, content) {
   link.click();
   document.body.removeChild(link);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function eventCalendarStart(event) {
+  if (Number.isFinite(event.startSort) && event.startSort !== Number.MAX_SAFE_INTEGER) return new Date(event.startSort);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(event.startDate || ""))) return new Date(`${event.startDate}T${String(event.startHour || 9).padStart(2, "0")}:00:00`);
+  return null;
+}
+
+function buildSingleEventIcs(event) {
+  const start = eventCalendarStart(event);
+  if (!start) return null;
+  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const description = [String(event.desc || "").replace(/<[^>]*>/g, "").trim(), lokalEventShareUrl(event)].filter(Boolean).join("\n");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Lokal//DC Events//EN", "CALSCALE:GREGORIAN", "BEGIN:VEVENT"];
+  lines.push(`UID:lokal-${event.sourceId || event.id}-single@lokal.app`);
+  lines.push(`DTSTAMP:${icsStampUtc(new Date())}`);
+  lines.push(`DTSTART:${icsStamp(start)}`, `DTEND:${icsStamp(end)}`);
+  lines.push(`SUMMARY:${icsEscape(event.title)}`);
+  lines.push(`DESCRIPTION:${icsEscape(description)}`);
+  lines.push(`LOCATION:${icsEscape(eventLocationLine(event))}`);
+  lines.push("END:VEVENT", "END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+function googleCalendarUrl(event) {
+  const start = eventCalendarStart(event);
+  if (!start) return "";
+  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const recurrence = eventRecurrence(event);
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.title || "Lokal event",
+    dates: `${icsStampUtc(start)}/${icsStampUtc(end)}`,
+    details: [String(event.desc || "").replace(/<[^>]*>/g, "").trim(), lokalEventShareUrl(event)].filter(Boolean).join("\n"),
+    location: eventLocationLine(event)
+  });
+  if (recurrence) {
+    const rrule = [`FREQ=${recurrence.freq}`];
+    if (recurrence.interval > 1) rrule.push(`INTERVAL=${recurrence.interval}`);
+    if (recurrence.byday?.length) rrule.push(`BYDAY=${recurrence.byday.join(",")}`);
+    params.set("recur", `RRULE:${rrule.join(";")}`);
+  }
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function addEventToCalendar(id, provider = "apple") {
+  const event = events.find(item => item.id === Number(id));
+  if (!event) return;
+  if (provider === "google") {
+    const url = googleCalendarUrl(event);
+    if (!url) { toast("This event is missing a date to schedule."); return; }
+    window.open(url, "_blank", "noopener,noreferrer") || window.location.assign(url);
+    return;
+  }
+  const recurrence = eventRecurrence(event);
+  const ics = recurrence ? buildEventIcs(event, recurrence) : buildSingleEventIcs(event);
+  if (!ics) { toast("This event is missing a date to schedule."); return; }
+  const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
+  downloadIcsFile(`${slug}.ics`, ics);
+  toast(recurrence ? `Calendar file ready — repeats ${recurrence.label}.` : "Calendar file ready.");
 }
 
 function addRecurringEventToCalendar(id) {
