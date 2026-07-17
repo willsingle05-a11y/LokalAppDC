@@ -74,7 +74,7 @@ document.addEventListener("click", async event => {
     saveEventInteraction(id, "rsvp", isRsvp);
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
   }
-  if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await navigator.clipboard?.writeText(lokalEventShareUrl(shareEvent)); } catch {} const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
+  if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await copyText(lokalEventShareUrl(shareEvent)); } catch { toast("Could not copy the link"); return; } const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
@@ -82,19 +82,27 @@ document.addEventListener("click", async event => {
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }
   if (t.dataset.calendarDay) { mark(); openCalendarPlans(t.dataset.calendarDay); }
   if (t.dataset.plannerWeek) { mark(); state.plannerWeekOffset += Number(t.dataset.plannerWeek); renderSocial(); }
-  if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await navigator.clipboard?.writeText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast("Share canceled"); } }
-  if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await navigator.clipboard?.writeText(lokalEventSharePayload(eventToShare)); } catch {} toast("Lokal event copied"); }
+  if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await copyText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast(navigator.share ? "Share canceled" : "Could not copy the event"); } }
+  if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await copyText(lokalEventSharePayload(eventToShare)); toast("Lokal event copied"); } catch { toast("Could not copy the event"); } }
   if (t.dataset.postStory) { mark(); const eventId = Number(t.dataset.postStory); state.storyPosts = [{ eventId, postedAt: Date.now() }, ...state.storyPosts.filter(post => post.eventId !== eventId)].slice(0, 12); localStorage.setItem("lokalStoryPosts", JSON.stringify(state.storyPosts)); modalRoot.innerHTML = ""; if (state.route === "home") renderHome(); toast("Added to your story"); }
-  if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await navigator.clipboard?.writeText(profileUrl); } catch {} toast("Profile link copied"); }
+  if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await copyText(profileUrl); toast("Profile link copied"); } catch { toast("Could not copy the profile link"); } }
   if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "event", eventId }); openGroup(group); toast(`Event sent to ${group}`); }
-  if (t.dataset.copyLink !== undefined) { mark(); try { await navigator.clipboard?.writeText(location.href); } catch {} toast("Demo link copied"); }
+  if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
   if (t.dataset.addFriendsLink !== undefined) { mark(); openSimpleSheet("Add friends", "Share this link to invite someone to Lokal. After installing the app, they will be connected to your profile.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button>`); }
-  if (t.dataset.copyAppInvite !== undefined) { mark(); try { await navigator.clipboard?.writeText("https://lokal.app/join"); } catch {} toast("App invite link copied"); }
+  if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
   if (t.dataset.notifications !== undefined) openNotifications();
   if (t.dataset.moreFilters !== undefined) openFilters();
   if (t.dataset.refreshEvents !== undefined) syncSupabaseEvents(true);
-  if (t.dataset.location !== undefined) toast("Location enabled for nearby events");
+  if (t.dataset.location !== undefined) {
+    mark();
+    if (!navigator.geolocation) { toast("Location is not available on this device"); }
+    else navigator.geolocation.getCurrentPosition(position => {
+      state.userLocation = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+      localStorage.setItem("lokalUserLocation", JSON.stringify(state.userLocation));
+      toast("Location enabled for nearby events");
+    }, error => toast(error.code === 1 ? "Location permission was not granted" : "Could not get your location"), { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+  }
   if (t.dataset.mapArea !== undefined) { mark(); const input = document.querySelector("[data-map-search]"); state.mapSearch = input?.value.trim() || ""; applyMapSearch(); renderMap(); toast(state.mapSearch ? `Showing ${state.mapSearch}` : "Showing all DC events"); }
   if (t.dataset.mapZoom) { mark(); if (t.dataset.mapZoom === "reset") { state.mapZoom = 1; state.mapSearch = ""; state.mapCenter = { x: 50, y: 50 }; } renderMap(); }
   if (t.dataset.createGroup !== undefined) openCreateGroup();
@@ -104,7 +112,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.openFriend) openFriend(t.dataset.openFriend);
   if (t.dataset.invite !== undefined) openInvite(t.dataset.groupName);
   if (t.dataset.backGroup) openGroup(t.dataset.backGroup);
-  if (t.dataset.copyInvite !== undefined) toast("Invite link copied");
+  if (t.dataset.copyInvite !== undefined) { mark(); const input = t.closest(".invite-sheet")?.querySelector("input[readonly]"); try { await copyText(input?.value || "https://lokal.app/join"); toast("Invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.addInvite !== undefined) { mark(); t.textContent = "Added"; t.classList.add("selected"); toast("Friend invited"); }
   if (t.dataset.invitePeopleOption) { const group = t.dataset.groupName; addFriendToPrivateGroup(group, t.dataset.invitePeopleOption); if (state.route === "social") renderSocial(); const selected = document.querySelector("[data-selected-invite-people]"); const input = document.querySelector("[data-invite-people-search]"); if (selected && !selected.textContent.includes(t.dataset.invitePeopleOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.invitePeopleOption}</span>`); if (input) input.value = ""; const results = document.querySelector("[data-invite-people-results]"); if (results) { results.hidden = true; results.innerHTML = ""; } toast(`${t.dataset.invitePeopleOption} added to ${group}`); }
   if (t.dataset.groupFriendOption) { const selected = document.querySelector("[data-selected-group-friends]"); const input = document.querySelector("[data-create-friends]"); if (selected && !selected.textContent.includes(t.dataset.groupFriendOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.groupFriendOption}</span>`); if (input) input.value = ""; const autocomplete = document.querySelector("[data-autocomplete]"); if (autocomplete) { autocomplete.hidden = true; autocomplete.innerHTML = ""; } toast(`${t.dataset.groupFriendOption} added to group`); }
@@ -241,17 +249,20 @@ document.addEventListener("click", async event => {
   if (t.dataset.storyNext !== undefined) openStory(Number(t.dataset.storyNext) + 1);
   if (t.dataset.directInbox !== undefined) { mark(); openDirectInbox(); }
   if (t.dataset.openDirectChat) { mark(); openDirectChat(t.dataset.openDirectChat); }
-  if (t.dataset.messageFriend) { mark(); toast("Direct messages are not part of this demo flow"); }
+  if (t.dataset.messageFriend) { mark(); openDirectChat(t.dataset.messageFriend); }
   if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { const text = input.value.trim(); state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text }]; submitDirectMessage(name, text); openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>&#8981;</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
   if (t.dataset.changePhoto !== undefined) {
     mark();
-    openSimpleSheet("Change photo", "Add an image URL for now. Native photo-library upload can be added once the production storage bucket is finalized.", `<label class="settings-field">Image URL<input data-profile-photo-url type="url" value="${escapeHtml(currentVenueImage() || state.profile?.avatarUrl || "")}" placeholder="https://..."></label><button class="wide-button" data-confirm-photo>Save photo</button>`);
+    openSimpleSheet("Change photo", "Choose a photo from this device or paste an image URL.", `<label class="settings-field">Choose photo<input data-profile-photo-file type="file" accept="image/*"></label><label class="settings-field">Or use an image URL<input data-profile-photo-url type="url" value="${escapeHtml(currentVenueImage() || state.profile?.avatarUrl || "")}" placeholder="https://..."></label><button class="wide-button" data-confirm-photo>Save photo</button>`);
   }
   if (t.dataset.confirmPhoto !== undefined) {
     mark();
-    const imageUrl = document.querySelector("[data-profile-photo-url]")?.value.trim() || "";
+    const file = document.querySelector("[data-profile-photo-file]")?.files?.[0];
+    let imageUrl = document.querySelector("[data-profile-photo-url]")?.value.trim() || "";
+    if (file?.size > 2 * 1024 * 1024) { toast("Choose a photo smaller than 2 MB"); return; }
+    if (file) imageUrl = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result || "")); reader.onerror = reject; reader.readAsDataURL(file); });
     if (!imageUrl) { toast("Add an image URL first"); return; }
     state.profile = isVenueAccount() ? { ...state.profile, venueImageUrl: imageUrl } : { ...state.profile, avatarUrl: imageUrl };
     localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
@@ -303,7 +314,14 @@ document.addEventListener("click", async event => {
     renderProfile();
     toast(isVenueAccount() ? "Venue profile updated" : state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated");
   }
-  if (t.dataset.ticket !== undefined) toast("External ticket link opened in the real app");
+  if (t.dataset.ticket !== undefined) {
+    mark();
+    const eventToOpen = events.find(item => item.id === Number(t.dataset.ticket));
+    const destination = eventToOpen?.detailsUrl || (eventToOpen ? lokalEventShareUrl(eventToOpen) : "");
+    if (!destination) { toast("No event link is available"); return; }
+    const opened = window.open(destination, "_blank", "noopener,noreferrer");
+    if (!opened) window.location.assign(destination);
+  }
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
   if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }

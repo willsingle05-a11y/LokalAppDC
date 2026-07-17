@@ -556,46 +556,53 @@ function normalizeSupabaseDescription(row) {
 }
 
 function hasReliableSupabaseStart(row) {
-  // Any concrete start field (including starts_at) makes the event schedulable.
-  // Previously starts_at was ignored for Smithsonian rows, which hid hundreds of
-  // scheduled museum events as "ongoing".
-  return Boolean(row.date || row.time || row.start_time || row.start_at || row.starts_at);
+  // Discovery should only show events with a real scheduled start. Date-only
+  // rows are kept in Supabase, but they should not appear in the app feed.
+  if (row.starts_at || row.start_time || row.start_at) return Number.isFinite(eventStartSortFromRow(row));
+  return Boolean(row.date && eventStartTimePartsFromRow(row));
 }
 
-function eventStartHourFromRow(row) {
-  if (!hasReliableSupabaseStart(row)) return null;
+function eventStartTimePartsFromRow(row) {
   const source = row.starts_at || row.start_time || row.start_at;
   if (source) {
     const date = new Date(source);
-    if (!Number.isNaN(date.getTime())) return Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hour12: false }).format(date)) % 24;
+    if (!Number.isNaN(date.getTime())) {
+      const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", hour12: false }).formatToParts(date);
+      return {
+        hour: Number(parts.find(part => part.type === "hour")?.value || 0) % 24,
+        minute: Number(parts.find(part => part.type === "minute")?.value || 0)
+      };
+    }
   }
-  const timeText = String(row.time || "");
-  const match = timeText.match(/(\d{1,2})(?::\d{2})?\s*(AM|PM)/i);
+  const timeText = String(row.time || row.start_time || row.start_at || "");
+  const match = timeText.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
   if (!match) return null;
   let hour = Number(match[1]) % 12;
-  if (match[2].toUpperCase() === "PM") hour += 12;
-  return hour;
+  if (match[3].toUpperCase() === "PM") hour += 12;
+  return { hour, minute: Number(match[2] || 0) };
+}
+
+function eventStartHourFromRow(row) {
+  const parts = eventStartTimePartsFromRow(row);
+  return parts ? parts.hour : null;
 }
 
 function eventStartSortFromRow(row) {
-  if (!hasReliableSupabaseStart(row)) return Number.POSITIVE_INFINITY;
   const source = row.starts_at || row.start_time || row.start_at;
   if (source) {
     const date = new Date(source);
     if (!Number.isNaN(date.getTime())) return date.getTime();
   }
-  if (row.date) {
-    const hour = eventStartHourFromRow(row) || 0;
+  const parts = row.date ? eventStartTimePartsFromRow(row) : null;
+  if (row.date && parts) {
     const date = new Date(`${row.date}T00:00:00`);
-    if (!Number.isNaN(date.getTime())) return date.getTime() + hour * 60 * 60 * 1000;
+    if (!Number.isNaN(date.getTime())) return date.getTime() + parts.hour * 60 * 60 * 1000 + parts.minute * 60 * 1000;
   }
   return Number.MAX_SAFE_INTEGER;
 }
 
-function startOfTodaySortValue() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today.getTime();
+function startOfDiscoveryWindowSortValue() {
+  return Date.now();
 }
 
 function endOfDiscoveryWindowSortValue() {
@@ -611,19 +618,20 @@ function localDateKey(date) {
 }
 
 function discoveryWindowQueries() {
-  const start = new Date(startOfTodaySortValue());
+  const start = new Date(startOfDiscoveryWindowSortValue());
   const end = new Date(endOfDiscoveryWindowSortValue());
   const selectAndStatus = "select=*&status=eq.published";
+  const today = localDateKey(start);
   return [
-    `${selectAndStatus}&date=gte.${localDateKey(start)}&date=lte.${localDateKey(end)}`,
+    `${selectAndStatus}&date=gte.${today}&date=lte.${localDateKey(end)}`,
     `${selectAndStatus}&starts_at=gte.${encodeURIComponent(start.toISOString())}&starts_at=lte.${encodeURIComponent(end.toISOString())}`
   ];
 }
 
 
 function isEventInDiscoveryWindow(event) {
-  if (!Number.isFinite(event.startSort)) return true;
-  return event.startSort >= startOfTodaySortValue() && event.startSort <= endOfDiscoveryWindowSortValue();
+  if (!Number.isFinite(event.startSort) || event.startSort === Number.MAX_SAFE_INTEGER) return false;
+  return event.startSort >= startOfDiscoveryWindowSortValue() && event.startSort <= endOfDiscoveryWindowSortValue();
 }
 
 function normalizeImportedCategory(row) {
@@ -885,6 +893,7 @@ function normalizeSupabaseEvent(row, index) {
     id: 1000 + index,
     sourceId: row.id,
     source: row.source || "manual",
+    detailsUrl: row.ticket_url || row.external_url || row.url || "",
     title: row.title || row.name || "Untitled Lokal event",
     venue: normalizeSupabaseVenue(row),
     area: normalizeSupabaseArea(row),

@@ -27,7 +27,7 @@ function openDetail(id) {
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
     ${recurrence ? `<button class="wide-button calendar-recur-button" data-add-recurring="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar · ${escapeHtml(recurrence.label)}</button>` : ""}
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
-    <button class="wide-button" data-ticket>Get tickets / details</button></div>
+    <button class="wide-button" data-ticket="${e.id}">${e.detailsUrl ? "Get tickets / details" : "Open shareable event page"}</button></div>
   </section></div>`;
 }
 
