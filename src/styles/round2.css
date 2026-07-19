@@ -931,6 +931,16 @@ h1, h2, h3, .brand b { color: #326f91; }
   color: #fff;
   background: #16A085;
 }
+.profile-top-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.profile-top-actions .filter-button {
+  margin: 0;
+}
 .detail-actions .action[data-save] {
   font-size: 0;
 }

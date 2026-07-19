@@ -220,7 +220,7 @@ function renderProfile() {
   const toNext = level.next ? Math.max(0, level.next - score) : 0;
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
-    <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
+    <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><div class="profile-top-actions"><button class="filter-button" data-feedback>Feedback</button><button class="filter-button" data-settings>Settings</button></div></div>
     <div class="profile-card"><div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${profileSummaryStrip(isVenueProfile)}
@@ -370,6 +370,17 @@ function openScoreGuideSheet() {
 
 function openFaqSheet() {
   openSimpleSheet("FAQ", "Use Discover to find events, save plans, RSVP, follow venues, and build your Lokal profile over time.");
+}
+
+function openFeedbackSheet() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet feedback-sheet" role="dialog" aria-modal="true" aria-label="Send feedback"><button class="modal-close" aria-label="Close feedback">&times;</button>
+    <p class="eyebrow">Help shape Lokal</p><h2>Send feedback</h2>
+    <p class="lede">Tell us what felt confusing, what broke, or what would make the app more useful.</p>
+    <label class="settings-field">What should we know?<textarea data-feedback-message maxlength="1200" placeholder="Type feedback here"></textarea></label>
+    <label class="settings-field">Where did this happen? <input data-feedback-context value="${escapeHtml(state.route || "profile")}" placeholder="Profile, Discover, Saved, etc."></label>
+    <p class="account-error" data-feedback-error></p>
+    <button class="wide-button" data-submit-feedback>Submit feedback</button>
+  </section></div>`;
 }
 
 function profileReceipts() {

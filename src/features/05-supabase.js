@@ -290,6 +290,30 @@ async function submitAccountDeletionRequest(reason = "") {
   return record;
 }
 
+async function submitFeedbackSubmission(message = "", context = "") {
+  const cleanMessage = String(message || "").trim();
+  if (!cleanMessage) throw new Error("Feedback is empty");
+  const record = {
+    user_key: currentInteractionUserId(),
+    account_type: state.profile?.accountType || "person",
+    full_name: state.profile?.fullName || "",
+    username: state.profile?.username || "",
+    email: state.profile?.email || "",
+    phone: state.profile?.phone || "",
+    route: state.route || "",
+    context: String(context || "").trim(),
+    message: cleanMessage,
+    status: "new"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/feedback_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Feedback submission returned ${response.status}`);
+  return record;
+}
+
 function recordAppAction(actionType, payload = {}) {
   if (!actionType) return;
   const record = {

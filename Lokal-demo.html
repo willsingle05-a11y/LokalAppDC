@@ -1439,6 +1439,16 @@ h1, h2, h3, .brand b { color: #326f91; }
   color: #fff;
   background: #16A085;
 }
+.profile-top-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.profile-top-actions .filter-button {
+  margin: 0;
+}
 .detail-actions .action[data-save] {
   font-size: 0;
 }
@@ -4738,6 +4748,30 @@ async function submitAccountDeletionRequest(reason = "") {
   return record;
 }
 
+async function submitFeedbackSubmission(message = "", context = "") {
+  const cleanMessage = String(message || "").trim();
+  if (!cleanMessage) throw new Error("Feedback is empty");
+  const record = {
+    user_key: currentInteractionUserId(),
+    account_type: state.profile?.accountType || "person",
+    full_name: state.profile?.fullName || "",
+    username: state.profile?.username || "",
+    email: state.profile?.email || "",
+    phone: state.profile?.phone || "",
+    route: state.route || "",
+    context: String(context || "").trim(),
+    message: cleanMessage,
+    status: "new"
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/feedback_submissions`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Feedback submission returned ${response.status}`);
+  return record;
+}
+
 function recordAppAction(actionType, payload = {}) {
   if (!actionType) return;
   const record = {
@@ -7627,7 +7661,7 @@ function renderProfile() {
   const toNext = level.next ? Math.max(0, level.next - score) : 0;
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
-    <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><button class="filter-button" data-settings>Settings</button></div>
+    <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><div class="profile-top-actions"><button class="filter-button" data-feedback>Feedback</button><button class="filter-button" data-settings>Settings</button></div></div>
     <div class="profile-card"><div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
     <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${profileSummaryStrip(isVenueProfile)}
@@ -7777,6 +7811,17 @@ function openScoreGuideSheet() {
 
 function openFaqSheet() {
   openSimpleSheet("FAQ", "Use Discover to find events, save plans, RSVP, follow venues, and build your Lokal profile over time.");
+}
+
+function openFeedbackSheet() {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet feedback-sheet" role="dialog" aria-modal="true" aria-label="Send feedback"><button class="modal-close" aria-label="Close feedback">&times;</button>
+    <p class="eyebrow">Help shape Lokal</p><h2>Send feedback</h2>
+    <p class="lede">Tell us what felt confusing, what broke, or what would make the app more useful.</p>
+    <label class="settings-field">What should we know?<textarea data-feedback-message maxlength="1200" placeholder="Type feedback here"></textarea></label>
+    <label class="settings-field">Where did this happen? <input data-feedback-context value="${escapeHtml(state.route || "profile")}" placeholder="Profile, Discover, Saved, etc."></label>
+    <p class="account-error" data-feedback-error></p>
+    <button class="wide-button" data-submit-feedback>Submit feedback</button>
+  </section></div>`;
 }
 
 function profileReceipts() {
@@ -8448,7 +8493,7 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -8746,6 +8791,24 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "score-guide") { openScoreGuideSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.feedback !== undefined) { mark(); openFeedbackSheet(); }
+  if (t.dataset.submitFeedback !== undefined) {
+    mark();
+    const messageInput = document.querySelector("[data-feedback-message]");
+    const contextInput = document.querySelector("[data-feedback-context]");
+    const error = document.querySelector("[data-feedback-error]");
+    const message = messageInput?.value.trim() || "";
+    if (message.length < 4) { if (error) error.textContent = "Add a little more detail before submitting."; return; }
+    try {
+      await submitFeedbackSubmission(message, contextInput?.value || "");
+      modalRoot.innerHTML = "";
+      toast("Feedback sent. Thank you.");
+    } catch (err) {
+      console.warn("[supabase] feedback submission failed", err);
+      if (error) error.textContent = "Could not submit feedback yet. Try again in a moment.";
+      toast("Feedback did not send");
+    }
+  }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You will be signed out on this device.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
   if (t.dataset.confirmSignout !== undefined) {
     mark();

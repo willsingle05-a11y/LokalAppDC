@@ -4,7 +4,7 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -302,6 +302,24 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "score-guide") { openScoreGuideSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.feedback !== undefined) { mark(); openFeedbackSheet(); }
+  if (t.dataset.submitFeedback !== undefined) {
+    mark();
+    const messageInput = document.querySelector("[data-feedback-message]");
+    const contextInput = document.querySelector("[data-feedback-context]");
+    const error = document.querySelector("[data-feedback-error]");
+    const message = messageInput?.value.trim() || "";
+    if (message.length < 4) { if (error) error.textContent = "Add a little more detail before submitting."; return; }
+    try {
+      await submitFeedbackSubmission(message, contextInput?.value || "");
+      modalRoot.innerHTML = "";
+      toast("Feedback sent. Thank you.");
+    } catch (err) {
+      console.warn("[supabase] feedback submission failed", err);
+      if (error) error.textContent = "Could not submit feedback yet. Try again in a moment.";
+      toast("Feedback did not send");
+    }
+  }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You will be signed out on this device.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
   if (t.dataset.confirmSignout !== undefined) {
     mark();
