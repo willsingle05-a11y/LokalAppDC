@@ -615,6 +615,10 @@ body { font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, A
 .friend-directory-card > .follow-button { align-self: stretch; min-width: 42px; border-left: 1px solid var(--line); border-radius: 0; }
 .invite-added-friend { width: 76px; font-size: 9px; line-height: 1.15; }
 .see-all-friends { display: block; margin: 10px auto 0; color: var(--blue); font-weight: 900; }
+.friend-search-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; align-items: start; margin-top: 14px; }
+.friend-search-column { min-width: 0; }
+.friend-search-column .group-divider { margin-top: 0; }
+.friend-search-column .follow-list { max-height: 285px; overflow-y: auto; padding-right: 2px; }
 .message-empty { margin: 4px 0 2px; padding: 12px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); background: #fbf8f2; font-size: 11px; line-height: 1.45; }
 .event-message { max-width: 100%; }
 .message-event-link { display: grid; width: 100%; gap: 3px; margin-top: 5px; padding: 9px; border-radius: 10px; color: var(--ink); background: var(--paper); text-align: left; }
@@ -1880,6 +1884,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .recurring-toggle { display: flex; align-items: center; gap: 9px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 13px; font-weight: 800; }
 .recurring-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 430px) {
+  .friend-search-columns { grid-template-columns: 1fr; }
   .recurring-fields { grid-template-columns: 1fr; }
 }
 
@@ -8264,7 +8269,7 @@ document.addEventListener("click", async event => {
       .slice(0, 10)
       .map(friend => friendCard(friend, "add"))
       .join("");
-    openSimpleSheet("Add friends", "Share your Lokal invite link, search your current friends, or find new people to add.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><p class="eyebrow group-divider">Your friends</p><label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Search friends you already have" aria-label="Search friends you already have"></label><div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div><p class="search-empty" data-existing-friend-empty>No current friends match that search.</p><p class="eyebrow group-divider">Find new friends</p><label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="Search people to add" aria-label="Search people to add"></label><div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-new-friend-empty>No new people match that search.</p>`);
+    openSimpleSheet("Add friends", "Share your Lokal invite link, search your current friends, or find new people to add.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><div class="friend-search-columns"><section class="friend-search-column"><p class="eyebrow group-divider">Search your friends</p><label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Search friends you already have" aria-label="Search friends you already have"></label><div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div><p class="search-empty" data-existing-friend-empty>No current friends match that search.</p></section><section class="friend-search-column"><p class="eyebrow group-divider">Find new friends</p><label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="Search people to add" aria-label="Search people to add"></label><div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-new-friend-empty>No new people match that search.</p></section></div>`);
   }
   if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
