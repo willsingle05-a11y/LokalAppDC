@@ -306,12 +306,11 @@ document.addEventListener("click", async event => {
   if (t.dataset.submitFeedback !== undefined) {
     mark();
     const messageInput = document.querySelector("[data-feedback-message]");
-    const contextInput = document.querySelector("[data-feedback-context]");
     const error = document.querySelector("[data-feedback-error]");
     const message = messageInput?.value.trim() || "";
     if (message.length < 4) { if (error) error.textContent = "Add a little more detail before submitting."; return; }
     try {
-      await submitFeedbackSubmission(message, contextInput?.value || "");
+      await submitFeedbackSubmission(message, state.route || "profile");
       modalRoot.innerHTML = "";
       toast("Feedback sent. Thank you.");
     } catch (err) {

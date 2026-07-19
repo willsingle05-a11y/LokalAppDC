@@ -377,7 +377,6 @@ function openFeedbackSheet() {
     <p class="eyebrow">Help shape Lokal</p><h2>Send feedback</h2>
     <p class="lede">Tell us what felt confusing, what broke, or what would make the app more useful.</p>
     <label class="settings-field">What should we know?<textarea data-feedback-message maxlength="1200" placeholder="Type feedback here"></textarea></label>
-    <label class="settings-field">Where did this happen? <input data-feedback-context value="${escapeHtml(state.route || "profile")}" placeholder="Profile, Discover, Saved, etc."></label>
     <p class="account-error" data-feedback-error></p>
     <button class="wide-button" data-submit-feedback>Submit feedback</button>
   </section></div>`;
