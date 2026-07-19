@@ -901,8 +901,23 @@ h1, h2, h3, .brand b { color: #326f91; }
 .saved-suggestion-rail .event-open {
   grid-template-rows: 230px auto;
 }
-.planner-actions .text-button[data-share]::before {
-  content: "\2197 ";
+.planner-share-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border: 0;
+  border-radius: 999px;
+  color: #082417;
+  background: #e9f7f3;
+  box-shadow: inset 0 0 0 1px rgba(14,124,102,.08);
+  cursor: pointer;
+}
+.planner-share-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.35;
 }
 .planner-actions .attendance-link {
   padding: 5px 8px;

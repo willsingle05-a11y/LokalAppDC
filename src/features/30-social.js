@@ -315,7 +315,7 @@ function combinedPlannerList(plans) {
     const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
     return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="text-button" data-share="${event.id}">Share</button></div>
+    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`;
   }).join("")}</div>`;
 }
@@ -347,7 +347,7 @@ function venueHostedList(eventsToShow) {
   if (!eventsToShow.length) return `<p class="section-helper empty-planner">No upcoming hosted events are connected to this venue yet. Use the + button on Profile to submit one for review.</p>`;
   return `<div class="planner-list">${eventsToShow.map(event => `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${escapeHtml(discoverCategoryLabel(event.cat))}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+    <div class="planner-actions"><span>${escapeHtml(discoverCategoryLabel(event.cat))}</span><button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`).join("")}</div>`;
 }
 
@@ -395,7 +395,7 @@ function plannerList(plans, emptyText, statusLabel) {
     const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
     return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${attended ? "Attended" : statusLabel}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="text-button" data-share="${event.id}">Share</button></div>
+    <div class="planner-actions"><span>${attended ? "Attended" : statusLabel}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`;
   }).join("")}</div>`;
 }
