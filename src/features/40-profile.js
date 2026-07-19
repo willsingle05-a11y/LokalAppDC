@@ -169,7 +169,7 @@ function profileSummaryStrip(isVenueProfile = false) {
 
 function profileScoreSection(score, level, progress, toNext) {
   return `<section class="section compact-profile-section profile-score-section">
-    <button class="score-block compact-score-block" data-settings-page="faq">
+    <button class="score-block compact-score-block" data-score-activity>
       <span><p class="eyebrow">Lokal score</p><b>${score}</b><small>${escapeHtml(level.name)}</small></span>
       <span class="score-mini-progress"><i style="width:${Math.round(progress * 100)}%"></i></span>
       <em>${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached"}</em>
@@ -308,14 +308,68 @@ function scoreBreakdown() {
   return { total: breakdown.reduce((sum, item) => sum + item.value, 0), items: breakdown };
 }
 
-function openFaqSheet() {
+function scoreActionDateLabel(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return "Recently";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function scoreActivityItems() {
+  const items = [];
+  profileReceipts().forEach(receipt => items.push({
+    at: receipt.attendedAt || receipt.startSort || Date.now(),
+    title: `Attended ${receipt.title}`,
+    detail: [receipt.venue, receipt.cat].filter(Boolean).join(" / "),
+    points: 15
+  }));
+  Array.from(state.rsvps || []).forEach(id => {
+    const event = events.find(item => item.id === Number(id));
+    if (!event || state.removedPlans?.has(event.id)) return;
+    items.push({ at: event.startSort || Date.now(), title: `RSVP'd to ${event.title}`, detail: eventLocationLine(event), points: 3 });
+  });
+  Array.from(state.saved || []).forEach(id => {
+    if (state.rsvps.has(id)) return;
+    const event = events.find(item => item.id === Number(id));
+    if (!event || state.removedPlans?.has(event.id)) return;
+    items.push({ at: event.startSort || Date.now(), title: `Saved ${event.title}`, detail: eventLocationLine(event), points: 1 });
+  });
+  Array.from(state.follows || []).forEach(value => {
+    const text = String(value || "");
+    items.push({ at: Date.now() - 60000, title: text.startsWith("venue:") ? `Followed ${text.replace(/^venue:/, "")}` : `Followed ${text}`, detail: text.startsWith("venue:") ? "Venue follow" : "Event follow", points: 1 });
+  });
+  if (state.friends?.size) items.push({ at: Date.now() - 120000, title: `Connected with ${state.friends.size} friend${state.friends.size === 1 ? "" : "s"}`, detail: "Friend activity", points: Math.min(state.friends.size, 30) });
+  if (Number(state.inviteLinksSent || 0) > 0) items.push({ at: Date.now() - 180000, title: `Sent ${state.inviteLinksSent} invite link${state.inviteLinksSent === 1 ? "" : "s"}`, detail: "Invite activity", points: Math.min(Number(state.inviteLinksSent || 0), 10) });
+  if (state.friendSignupCredits?.size) items.push({ at: Date.now() - 240000, title: `${state.friendSignupCredits.size} friend signup credit${state.friendSignupCredits.size === 1 ? "" : "s"}`, detail: "Referral activity", points: Math.min(state.friendSignupCredits.size * 3, 30) });
+  if (socialActivityUnits() > 0) items.push({ at: Date.now() - 300000, title: "Shared or messaged about plans", detail: "Social activity", points: Math.min(socialActivityUnits(), 30) });
+  return items
+    .filter(item => item.points > 0)
+    .sort((a, b) => (b.at || 0) - (a.at || 0))
+    .slice(0, 12);
+}
+
+function openScoreActivitySheet() {
+  const score = lokalScore();
+  const level = scoreLevel(score);
+  const items = scoreActivityItems();
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score activity"><button class="modal-close" aria-label="Close score activity">&times;</button>
+    <p class="eyebrow">Lokal score</p><h2>Recent score activity</h2>
+    <p class="lede">${score} points / ${escapeHtml(level.name)}</p>
+    ${items.length ? `<div class="score-breakdown score-activity-list">${items.map(item => `<div class="score-row score-activity-row"><span><b>${escapeHtml(item.title)}</b><small>${escapeHtml(scoreActionDateLabel(item.at))}${item.detail ? ` / ${escapeHtml(item.detail)}` : ""}</small></span><strong>+${item.points}</strong></div>`).join("")}</div>` : `<p class="section-helper">No score-changing actions yet. Save, RSVP, follow, invite friends, or mark past events as attended to build your activity.</p>`}
+  </section></div>`;
+}
+
+function openScoreGuideSheet() {
   const breakdown = scoreBreakdown();
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="FAQ"><button class="modal-close" aria-label="Close FAQ">&times;</button>
-    <p class="eyebrow">FAQ</p><h2>How Lokal works</h2>
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score guide"><button class="modal-close" aria-label="Close score guide">&times;</button>
+    <p class="eyebrow">Settings</p><h2>Lokal score guide</h2>
     <div class="score-safeguard"><b>Is there a max Lokal score?</b><p>No. There is no lifetime max score. The score can keep growing as someone attends more unique events. Lower-confidence actions like saves, RSVPs, follows, and messages are limited so they cannot be spammed.</p></div>
     <div class="score-breakdown">${breakdown.items.map(item => `<div class="score-row"><span><b>${escapeHtml(item.label)}</b><small>${escapeHtml(item.detail)}</small></span><strong>+${item.value}</strong></div>`).join("")}</div>
     <div class="score-safeguard"><b>How do you prevent cheating?</b><p>Each event can only count once, future events cannot be marked attended, repeated saves or RSVPs are deduped, and short duplicate messages do not inflate the score. In a real app, higher-value attendance would also use check-ins, ticket scans, organizer confirmation, or friend verification.</p></div>
   </section></div>`;
+}
+
+function openFaqSheet() {
+  openSimpleSheet("FAQ", "Use Discover to find events, save plans, RSVP, follow venues, and build your Lokal profile over time.");
 }
 
 function profileReceipts() {
@@ -404,6 +458,7 @@ function openSettings() {
     <label class="settings-field">Age<input data-age-input type="number" min="13" max="120" value="${state.age}"></label>
     <button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Friend requests, event recommendations, and saved-event reminders</p></span></button>
     <button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button>
+    ${isVenueProfile ? "" : `<button class="share-group" data-settings-page="score-guide"><span class="share-group-copy"><h3>Lokal score guide</h3><p>See what types of activity affect your score</p></span></button>`}
     <hr class="settings-divider">
     <p class="settings-group-label">App</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label>
