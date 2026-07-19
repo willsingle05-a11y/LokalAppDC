@@ -967,7 +967,8 @@ h1, h2, h3, .brand b { color: #326f91; }
   grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
   gap: 8px;
 }
-.profile-summary-strip div {
+.profile-summary-strip div,
+.profile-summary-strip button {
   display: grid;
   gap: 3px;
   min-width: 0;
@@ -977,6 +978,12 @@ h1, h2, h3, .brand b { color: #326f91; }
   background: var(--paper);
   box-shadow: 0 3px 10px rgba(17,24,39,.035);
   text-align: center;
+}
+.profile-summary-strip button {
+  color: inherit;
+}
+.profile-summary-strip button:active {
+  transform: translateY(1px);
 }
 .profile-summary-strip b {
   color: var(--ink);
@@ -989,6 +996,48 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-weight: 900;
   letter-spacing: .02em;
   text-transform: uppercase;
+}
+.followed-venue-card {
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+.followed-venue-main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 11px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+.followed-venue-main span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.followed-venue-main b,
+.followed-venue-main small,
+.followed-venue-main em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.followed-venue-main em {
+  color: var(--steel);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+}
+.followed-venue-card > .follow-button {
+  align-self: stretch;
+  min-width: 92px;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  font-size: 9px;
 }
 .compact-profile-section {
   padding: 14px;

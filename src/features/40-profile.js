@@ -158,10 +158,12 @@ function profileSummaryStrip(isVenueProfile = false) {
   }
   const receipts = profileReceipts();
   const plans = profilePlanEvents();
+  const venueCount = typeof followedVenueNames === "function" ? followedVenueNames().length : 0;
   return `<section class="profile-summary-strip">
-    <div><b>${receipts.length}</b><small>Attended</small></div>
-    <div><b>${plans.length}</b><small>Saved & RSVPs</small></div>
-    <div><b>${state.friends.size}</b><small>Friends</small></div>
+    <button data-profile-list="attended"><b>${receipts.length}</b><small>Attended</small></button>
+    <button data-profile-list="plans"><b>${plans.length}</b><small>Saved & RSVPs</small></button>
+    <button data-profile-list="friends"><b>${state.friends.size}</b><small>Friends</small></button>
+    <button data-profile-list="venues"><b>${venueCount}</b><small>Venues following</small></button>
   </section>`;
 }
 
@@ -517,10 +519,33 @@ function profilePlanEvents() {
 
 function openProfileList(type) {
   const plans = profilePlanEvents();
+  if (type === "venues") {
+    openFollowedVenuesList();
+    return;
+  }
   const rows = type === "friends"
     ? friendDirectory.filter(friend => state.friends.has(friend[1])).map(friend => friendCard(friend)).join("")
+    : type === "attended"
+      ? profileReceipts().map((receipt, index) => attendanceRow(receipt, index)).join("")
     : plans.map(event => {
       return `<div class="managed-list-row managed-plan-row"><button class="managed-plan-main" data-event="${event.id}"><span><b>${event.title}</b><small>${event.time} / ${escapeHtml(eventLocationLine(event))}</small></span></button><div><button class="text-button" data-event="${event.id}">Open plan</button><button class="text-button danger-text" data-remove-plan="${event.id}">Remove plan</button></div></div>`;
     }).join("");
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${type[0].toUpperCase()+type.slice(1)}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
+  const title = type === "attended" ? "Attended" : type[0].toUpperCase()+type.slice(1);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${type} list"><button class="modal-close" aria-label="Close list">&times;</button><p class="eyebrow">Your profile</p><h2>${title}</h2><div class="managed-list">${rows || `<p class="section-helper">Nothing here yet.</p>`}</div></section></div>`;
+}
+
+function followedVenueRows(query = "") {
+  const normalized = String(query || "").trim().toLowerCase();
+  const names = typeof followedVenueNames === "function" ? followedVenueNames() : [];
+  const rows = names.map(name => {
+    const venue = (typeof venueDirectory !== "undefined" ? venueDirectory : []).find(item => venueImageKeyName(item.name) === venueImageKeyName(name)) || { name };
+    const searchText = `${venue.name || name} ${venue.neighborhood || ""} ${venue.address || ""} ${venue.venue_type || ""}`.toLowerCase();
+    return { name, venue, searchText };
+  }).filter(item => !normalized || item.searchText.includes(normalized));
+  return rows.map(({ name, venue, searchText }) => `<div class="follow-card followed-venue-card" data-followed-venue-card data-search-text="${escapeHtml(searchText)}"><button class="followed-venue-main" data-venue-events="${escapeHtml(name)}"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(venue.name || name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small><em>Open venue page</em></span></button><button class="follow-button selected" data-follow-venue="venue:${escapeHtml(name)}">Unfollow venue</button></div>`).join("");
+}
+
+function openFollowedVenuesList(query = "") {
+  const rows = followedVenueRows(query);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet followed-venues-sheet" role="dialog" aria-modal="true" aria-label="Venues following"><button class="modal-close" aria-label="Close venues following">&times;</button><p class="eyebrow">Your profile</p><h2>Venues following</h2><label class="search-box social-search"><span>&#8981;</span><input data-followed-venue-search value="${escapeHtml(query)}" placeholder="Search venues you follow" aria-label="Search venues you follow"></label><div class="managed-list" data-followed-venue-list>${rows || `<p class="section-helper">You are not following any matching venues yet.</p>`}</div></section></div>`;
 }
