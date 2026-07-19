@@ -91,12 +91,16 @@ document.addEventListener("click", async event => {
   if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
   if (t.dataset.addFriendsLink !== undefined) {
     mark();
+    const existingFriends = friendDirectory
+      .filter(friend => state.friends.has(friend[1]))
+      .map(friend => friendCard(friend))
+      .join("");
     const suggestions = friendDirectory
       .filter(friend => !state.friends.has(friend[1]))
       .slice(0, 10)
       .map(friend => friendCard(friend, "add"))
       .join("");
-    openSimpleSheet("Add friends", "Share your Lokal invite link, or search people already in the demo.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><label class="search-box social-search"><span>&#8981;</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label><div class="follow-list">${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-friend-empty>No friends match that search.</p>`);
+    openSimpleSheet("Add friends", "Share your Lokal invite link, search your current friends, or find new people to add.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><p class="eyebrow group-divider">Your friends</p><label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Search friends you already have" aria-label="Search friends you already have"></label><div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div><p class="search-empty" data-existing-friend-empty>No current friends match that search.</p><p class="eyebrow group-divider">Find new friends</p><label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="Search people to add" aria-label="Search people to add"></label><div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-new-friend-empty>No new people match that search.</p>`);
   }
   if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
@@ -511,6 +515,18 @@ modalRoot.addEventListener("touchend", event => {
 
 document.addEventListener("input", event => {
   const input = event.target;
+  const filterFriendCards = (query, listSelector, emptySelector) => {
+    const list = document.querySelector(listSelector);
+    if (!list) return;
+    let visible = 0;
+    list.querySelectorAll("[data-friend-card]").forEach(card => {
+      const match = card.dataset.searchText.includes(query);
+      card.style.display = match ? "" : "none";
+      if (match) visible++;
+    });
+    const empty = document.querySelector(emptySelector);
+    if (empty) empty.style.display = visible ? "none" : "block";
+  };
   if (input.matches("[data-signup-phone], [data-onboard-phone]")) {
     const digits = input.value.replace(/\D/g, "").slice(0, 10);
     input.value = digits.length > 6 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : digits.length > 3 ? `(${digits.slice(0, 3)}) ${digits.slice(3)}` : digits.length ? `(${digits}` : "";
@@ -532,6 +548,12 @@ document.addEventListener("input", event => {
     let visible = 0;
     document.querySelectorAll("[data-friend-card]").forEach(card => { const match = card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
     const empty = document.querySelector("[data-friend-empty]"); if (empty) empty.style.display = visible ? "none" : "block";
+  }
+  if (input.matches("[data-existing-friend-search]")) {
+    filterFriendCards(input.value.trim().toLowerCase(), "[data-existing-friend-list]", "[data-existing-friend-empty]");
+  }
+  if (input.matches("[data-new-friend-search]")) {
+    filterFriendCards(input.value.trim().toLowerCase(), "[data-new-friend-list]", "[data-new-friend-empty]");
   }
   if (input.matches("[data-create-friends]")) {
     const query = input.value.trim().toLowerCase();
