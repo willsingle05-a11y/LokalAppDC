@@ -4,7 +4,7 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -78,6 +78,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.addCalendar) { mark(); addEventToCalendar(t.dataset.calendarEvent, t.dataset.addCalendar); }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
+  if (t.dataset.planAttended) { mark(); const result = markEventAttended(Number(t.dataset.planAttended)); if (state.route === "social") renderSocial(); else if (state.route === "profile") renderProfile(); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }

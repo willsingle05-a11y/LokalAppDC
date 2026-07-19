@@ -901,8 +901,20 @@ h1, h2, h3, .brand b { color: #326f91; }
 .saved-suggestion-rail .event-open {
   grid-template-rows: 230px auto;
 }
-.planner-actions .text-button::before {
+.planner-actions .text-button[data-share]::before {
   content: "\2197 ";
+}
+.planner-actions .attendance-link {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #0E7C66;
+  background: #e9f7f3;
+  font-size: 9px;
+  font-weight: 900;
+}
+.planner-actions .attendance-link.selected {
+  color: #fff;
+  background: #16A085;
 }
 .detail-actions .action[data-save] {
   font-size: 0;

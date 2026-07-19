@@ -274,6 +274,18 @@ function receiptEventKey(receipt) {
   return String(receipt?.eventId || receipt?.id || `${receipt?.title || ""}|${receipt?.venue || ""}|${receipt?.time || ""}`).toLowerCase();
 }
 
+function attendanceTimeKey(item) {
+  const raw = Number(item?.startSort || item?.attendedAt || 0);
+  if (Number.isFinite(raw) && raw > 0) return String(Math.floor(raw / 60000));
+  return String(item?.time || "").toLowerCase().trim();
+}
+
+function sameTimeAttendanceCount(event) {
+  const key = attendanceTimeKey(event);
+  if (!key) return 0;
+  return profileReceipts().filter(receipt => attendanceTimeKey(receipt) === key).length;
+}
+
 function scoreBreakdown() {
   const receipts = profileReceipts();
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
@@ -306,7 +318,7 @@ function profileReceipts() {
   const attendedRows = Array.from(state.attended || []).map(id => {
     const event = events.find(item => item.id === Number(id));
     if (!event) return null;
-    return { id: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+    return { id: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now(), startSort: event.startSort || 0 };
   }).filter(Boolean);
   return [...stored, ...attendedRows]
     .filter(receipt => !legacyDemoReceiptIds.has(String(receipt?.id || "")))
@@ -339,12 +351,14 @@ function markEventAttended(id) {
   if (!event) return { ok: false, message: "Event not found" };
   if (Number.isFinite(event.startSort) && event.startSort > Date.now()) return { ok: false, message: "You can add this after the event starts" };
   if (state.attended.has(event.id) || profileReceipts().some(receipt => receiptEventKey(receipt) === receiptEventKey(event))) return { ok: false, message: "This event is already counted once" };
+  if (sameTimeAttendanceCount(event) >= 2) return { ok: false, message: "You can only mark two events at the same time" };
   state.attended.add(event.id);
   state.rsvps.delete(event.id);
-  const receipt = { id: event.id, eventId: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  const receipt = { id: event.id, eventId: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now(), startSort: event.startSort || 0 };
   state.receipts = [receipt, ...(state.receipts || []).filter(item => Number(item.id) !== Number(event.id))];
   localStorage.setItem("lokalAttended", JSON.stringify(Array.from(state.attended)));
   localStorage.setItem("lokalReceipts", JSON.stringify(state.receipts));
+  if (typeof submitAttendanceReceipt === "function") submitAttendanceReceipt(receipt);
   return { ok: true, message: "Receipt, score, and best friends updated" };
 }
 

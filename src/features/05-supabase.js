@@ -391,6 +391,32 @@ async function submitVenueFollow(venueName, active = true, source = "event_detai
   }
 }
 
+async function submitAttendanceReceipt(receipt) {
+  if (!receipt?.id && !receipt?.eventId) return;
+  const record = {
+    user_key: currentInteractionUserId(),
+    event_key: String(receipt.eventId || receipt.id),
+    title: receipt.title || "",
+    venue: receipt.venue || "",
+    category: receipt.cat || "",
+    event_time: receipt.time || "",
+    attended_at: receipt.attendedAt ? new Date(receipt.attendedAt).toISOString() : new Date().toISOString(),
+    active: true
+  };
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/event_attendance_receipts?on_conflict=user_key%2Cevent_key`, {
+      method: "POST",
+      headers: supabaseJsonHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+      body: JSON.stringify([{ ...record, updated_at: new Date().toISOString() }])
+    });
+    if (!response.ok) throw new Error(`Supabase attendance receipt returned ${response.status}`);
+    return { synced: true };
+  } catch (error) {
+    console.warn("[supabase] attendance receipt not recorded:", error.message);
+    return { queued: true, error };
+  }
+}
+
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();

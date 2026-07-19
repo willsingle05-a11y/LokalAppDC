@@ -1409,8 +1409,20 @@ h1, h2, h3, .brand b { color: #326f91; }
 .saved-suggestion-rail .event-open {
   grid-template-rows: 230px auto;
 }
-.planner-actions .text-button::before {
+.planner-actions .text-button[data-share]::before {
   content: "\2197 ";
+}
+.planner-actions .attendance-link {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #0E7C66;
+  background: #e9f7f3;
+  font-size: 9px;
+  font-weight: 900;
+}
+.planner-actions .attendance-link.selected {
+  color: #fff;
+  background: #16A085;
 }
 .detail-actions .action[data-save] {
   font-size: 0;
@@ -4812,6 +4824,32 @@ async function submitVenueFollow(venueName, active = true, source = "event_detai
   }
 }
 
+async function submitAttendanceReceipt(receipt) {
+  if (!receipt?.id && !receipt?.eventId) return;
+  const record = {
+    user_key: currentInteractionUserId(),
+    event_key: String(receipt.eventId || receipt.id),
+    title: receipt.title || "",
+    venue: receipt.venue || "",
+    category: receipt.cat || "",
+    event_time: receipt.time || "",
+    attended_at: receipt.attendedAt ? new Date(receipt.attendedAt).toISOString() : new Date().toISOString(),
+    active: true
+  };
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/event_attendance_receipts?on_conflict=user_key%2Cevent_key`, {
+      method: "POST",
+      headers: supabaseJsonHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+      body: JSON.stringify([{ ...record, updated_at: new Date().toISOString() }])
+    });
+    if (!response.ok) throw new Error(`Supabase attendance receipt returned ${response.status}`);
+    return { synced: true };
+  } catch (error) {
+    console.warn("[supabase] attendance receipt not recorded:", error.message);
+    return { queued: true, error };
+  }
+}
+
 async function syncVenueVerificationStatus() {
   try {
     const userId = currentInteractionUserId();
@@ -7197,9 +7235,11 @@ function combinedPlannerList(plans) {
   if (!plans.length) return savedEmptyState();
   return `<div class="planner-list">${plans.map(event => {
     const status = state.rsvps.has(event.id) ? "RSVP" : "Saved";
+    const attended = state.attended.has(event.id);
+    const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
     return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${status}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="text-button" data-share="${event.id}">Share</button></div>
   </article>`;
   }).join("")}</div>`;
 }
@@ -7263,10 +7303,14 @@ function savedPlannerEvents(mode = "all") {
 
 function plannerList(plans, emptyText, statusLabel) {
   if (!plans.length) return `<p class="section-helper empty-planner">${emptyText}</p>`;
-  return `<div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}">
+  return `<div class="planner-list">${plans.map(event => {
+    const attended = state.attended.has(event.id);
+    const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
+    return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${statusLabel}</span><button class="text-button" data-share="${event.id}">Share</button></div>
-  </article>`).join("")}</div>`;
+    <div class="planner-actions"><span>${attended ? "Attended" : statusLabel}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="text-button" data-share="${event.id}">Share</button></div>
+  </article>`;
+  }).join("")}</div>`;
 }
 
 function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it will appear in Your Plans.") {
@@ -7608,6 +7652,18 @@ function receiptEventKey(receipt) {
   return String(receipt?.eventId || receipt?.id || `${receipt?.title || ""}|${receipt?.venue || ""}|${receipt?.time || ""}`).toLowerCase();
 }
 
+function attendanceTimeKey(item) {
+  const raw = Number(item?.startSort || item?.attendedAt || 0);
+  if (Number.isFinite(raw) && raw > 0) return String(Math.floor(raw / 60000));
+  return String(item?.time || "").toLowerCase().trim();
+}
+
+function sameTimeAttendanceCount(event) {
+  const key = attendanceTimeKey(event);
+  if (!key) return 0;
+  return profileReceipts().filter(receipt => attendanceTimeKey(receipt) === key).length;
+}
+
 function scoreBreakdown() {
   const receipts = profileReceipts();
   const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
@@ -7640,7 +7696,7 @@ function profileReceipts() {
   const attendedRows = Array.from(state.attended || []).map(id => {
     const event = events.find(item => item.id === Number(id));
     if (!event) return null;
-    return { id: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+    return { id: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now(), startSort: event.startSort || 0 };
   }).filter(Boolean);
   return [...stored, ...attendedRows]
     .filter(receipt => !legacyDemoReceiptIds.has(String(receipt?.id || "")))
@@ -7673,12 +7729,14 @@ function markEventAttended(id) {
   if (!event) return { ok: false, message: "Event not found" };
   if (Number.isFinite(event.startSort) && event.startSort > Date.now()) return { ok: false, message: "You can add this after the event starts" };
   if (state.attended.has(event.id) || profileReceipts().some(receipt => receiptEventKey(receipt) === receiptEventKey(event))) return { ok: false, message: "This event is already counted once" };
+  if (sameTimeAttendanceCount(event) >= 2) return { ok: false, message: "You can only mark two events at the same time" };
   state.attended.add(event.id);
   state.rsvps.delete(event.id);
-  const receipt = { id: event.id, eventId: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now() };
+  const receipt = { id: event.id, eventId: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now(), startSort: event.startSort || 0 };
   state.receipts = [receipt, ...(state.receipts || []).filter(item => Number(item.id) !== Number(event.id))];
   localStorage.setItem("lokalAttended", JSON.stringify(Array.from(state.attended)));
   localStorage.setItem("lokalReceipts", JSON.stringify(state.receipts));
+  if (typeof submitAttendanceReceipt === "function") submitAttendanceReceipt(receipt);
   return { ok: true, message: "Receipt, score, and best friends updated" };
 }
 
@@ -8278,7 +8336,7 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -8352,6 +8410,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.addCalendar) { mark(); addEventToCalendar(t.dataset.calendarEvent, t.dataset.addCalendar); }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
+  if (t.dataset.planAttended) { mark(); const result = markEventAttended(Number(t.dataset.planAttended)); if (state.route === "social") renderSocial(); else if (state.route === "profile") renderProfile(); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }

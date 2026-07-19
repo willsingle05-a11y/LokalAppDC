@@ -309,9 +309,11 @@ function combinedPlannerList(plans) {
   if (!plans.length) return savedEmptyState();
   return `<div class="planner-list">${plans.map(event => {
     const status = state.rsvps.has(event.id) ? "RSVP" : "Saved";
+    const attended = state.attended.has(event.id);
+    const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
     return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${status}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="text-button" data-share="${event.id}">Share</button></div>
   </article>`;
   }).join("")}</div>`;
 }
@@ -375,10 +377,14 @@ function savedPlannerEvents(mode = "all") {
 
 function plannerList(plans, emptyText, statusLabel) {
   if (!plans.length) return `<p class="section-helper empty-planner">${emptyText}</p>`;
-  return `<div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}">
+  return `<div class="planner-list">${plans.map(event => {
+    const attended = state.attended.has(event.id);
+    const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
+    return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${statusLabel}</span><button class="text-button" data-share="${event.id}">Share</button></div>
-  </article>`).join("")}</div>`;
+    <div class="planner-actions"><span>${attended ? "Attended" : statusLabel}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="text-button" data-share="${event.id}">Share</button></div>
+  </article>`;
+  }).join("")}</div>`;
 }
 
 function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it will appear in Your Plans.") {
