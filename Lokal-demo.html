@@ -4380,7 +4380,8 @@ const supabaseStorageKeys = {
   accessToken: "lokalSupabaseAccessToken",
   userId: "lokalSupabaseUserId",
   demoUserId: "lokalDemoInteractionUserId",
-  pendingInteractions: "lokalPendingEventInteractions"
+  pendingInteractions: "lokalPendingEventInteractions",
+  pendingVenueFollows: "lokalPendingVenueFollows"
 };
 
 function formatSupabaseTime(value) {
@@ -4511,6 +4512,12 @@ function queuePendingEventInteraction(record) {
   const pending = JSON.parse(localStorage.getItem(supabaseStorageKeys.pendingInteractions) || "[]");
   pending.push({ ...record, queued_at: new Date().toISOString() });
   localStorage.setItem(supabaseStorageKeys.pendingInteractions, JSON.stringify(pending.slice(-40)));
+}
+
+function queuePendingVenueFollow(record) {
+  const pending = JSON.parse(localStorage.getItem(supabaseStorageKeys.pendingVenueFollows) || "[]");
+  pending.push({ ...record, queued_at: new Date().toISOString() });
+  localStorage.setItem(supabaseStorageKeys.pendingVenueFollows, JSON.stringify(pending.slice(-40)));
 }
 
 function supabaseJsonHeaders(extra = {}) {
@@ -4730,6 +4737,30 @@ function submitDirectMessage(friendName, text) {
     direction: "outbound",
     message_text: String(text).trim()
   });
+}
+
+async function submitVenueFollow(venueName, active = true, source = "event_detail") {
+  const cleanVenueName = String(venueName || "").trim();
+  if (!cleanVenueName) return;
+  const record = {
+    user_key: currentInteractionUserId(),
+    venue_name: cleanVenueName,
+    active: Boolean(active),
+    source
+  };
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_follows?on_conflict=user_key%2Cvenue_name`, {
+      method: "POST",
+      headers: supabaseJsonHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+      body: JSON.stringify([{ ...record, updated_at: new Date().toISOString() }])
+    });
+    if (!response.ok) throw new Error(`Supabase venue follow returned ${response.status}`);
+    return { synced: true };
+  } catch (error) {
+    queuePendingVenueFollow(record);
+    console.warn("[supabase] venue follow queued locally:", error.message);
+    return { queued: true, error };
+  }
 }
 
 async function syncVenueVerificationStatus() {
@@ -8316,7 +8347,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { const text = input.value.trim(); state.groupMessages[group] = [{ type: "text", text }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "text", text }); openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.manageFollowing !== undefined) { mark(); openFollowingManager(); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
-  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); t.classList.toggle("selected", on); t.textContent = t.classList.contains("detail-follow-venue") ? (on ? "Following venue" : "Follow venue") : (on ? "Following" : "Follow"); if (state.route === "home") renderHome(); toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
+  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : "venue_page"); t.classList.toggle("selected", on); t.textContent = t.classList.contains("detail-follow-venue") ? (on ? "Following venue" : "Follow venue") : (on ? "Following" : "Follow"); if (state.route === "home") renderHome(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
   if (t.dataset.dismissVenueVerification !== undefined) {
     mark();

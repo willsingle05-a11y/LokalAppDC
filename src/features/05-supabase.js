@@ -8,7 +8,8 @@ const supabaseStorageKeys = {
   accessToken: "lokalSupabaseAccessToken",
   userId: "lokalSupabaseUserId",
   demoUserId: "lokalDemoInteractionUserId",
-  pendingInteractions: "lokalPendingEventInteractions"
+  pendingInteractions: "lokalPendingEventInteractions",
+  pendingVenueFollows: "lokalPendingVenueFollows"
 };
 
 function formatSupabaseTime(value) {
@@ -139,6 +140,12 @@ function queuePendingEventInteraction(record) {
   const pending = JSON.parse(localStorage.getItem(supabaseStorageKeys.pendingInteractions) || "[]");
   pending.push({ ...record, queued_at: new Date().toISOString() });
   localStorage.setItem(supabaseStorageKeys.pendingInteractions, JSON.stringify(pending.slice(-40)));
+}
+
+function queuePendingVenueFollow(record) {
+  const pending = JSON.parse(localStorage.getItem(supabaseStorageKeys.pendingVenueFollows) || "[]");
+  pending.push({ ...record, queued_at: new Date().toISOString() });
+  localStorage.setItem(supabaseStorageKeys.pendingVenueFollows, JSON.stringify(pending.slice(-40)));
 }
 
 function supabaseJsonHeaders(extra = {}) {
@@ -358,6 +365,30 @@ function submitDirectMessage(friendName, text) {
     direction: "outbound",
     message_text: String(text).trim()
   });
+}
+
+async function submitVenueFollow(venueName, active = true, source = "event_detail") {
+  const cleanVenueName = String(venueName || "").trim();
+  if (!cleanVenueName) return;
+  const record = {
+    user_key: currentInteractionUserId(),
+    venue_name: cleanVenueName,
+    active: Boolean(active),
+    source
+  };
+  try {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/venue_follows?on_conflict=user_key%2Cvenue_name`, {
+      method: "POST",
+      headers: supabaseJsonHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+      body: JSON.stringify([{ ...record, updated_at: new Date().toISOString() }])
+    });
+    if (!response.ok) throw new Error(`Supabase venue follow returned ${response.status}`);
+    return { synced: true };
+  } catch (error) {
+    queuePendingVenueFollow(record);
+    console.warn("[supabase] venue follow queued locally:", error.message);
+    return { queued: true, error };
+  }
 }
 
 async function syncVenueVerificationStatus() {
