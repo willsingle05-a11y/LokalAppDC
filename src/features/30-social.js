@@ -117,6 +117,8 @@ function currentUserName() {
 function acceptFriendship(name) {
   const you = currentUserName();
   state.friends.add(name);
+  state.friendSignupCredits.add(name);
+  localStorage.setItem("lokalFriendSignupCredits", JSON.stringify(Array.from(state.friendSignupCredits)));
   if (!state.friendConnections[you]) state.friendConnections[you] = [];
   if (!state.friendConnections[name]) state.friendConnections[name] = [];
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
@@ -318,6 +320,16 @@ function combinedPlannerList(plans) {
   }).join("")}</div>`;
 }
 
+function pastAttendanceSection() {
+  const receipts = typeof profileReceipts === "function" ? profileReceipts() : [];
+  const rows = receipts.slice(0, 6).map((receipt, index) => attendanceRow(receipt, index)).join("");
+  const helper = receipts.length
+    ? `<p class="section-helper">These are events you marked as attended. They also appear on your Profile and count toward Lokal score.</p>`
+    : `<p class="section-helper">When you mark a past saved event as "I went," it will show up here and on your Profile.</p>`;
+  const more = receipts.length > 6 ? `<button class="text-button view-all-receipts" data-profile-list="attended">View all ${receipts.length}</button>` : "";
+  return `<section class="section saved-plans-section past-events-section"><div class="section-heading"><div><p class="eyebrow">Previous events</p><h2>Actually attended</h2></div></div>${helper}${rows ? `<div class="attend-list">${rows}</div>${more}` : ""}</section>`;
+}
+
 function venueSavedEvents() {
   const name = accountVenueName();
   if (!name) return [];
@@ -362,6 +374,7 @@ function renderSocial() {
     <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Top 3</h2></div></div>${savedSuggestionRail()}</section>
     <section class="section planner-calendar-section"><div class="section-heading"><div><h2>Calendar</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><h2>Your Plans</h2></div></div>${combinedPlannerList(allPlans)}</section>
+    ${pastAttendanceSection()}
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
