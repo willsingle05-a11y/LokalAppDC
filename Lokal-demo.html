@@ -1440,6 +1440,20 @@ h1, h2, h3, .brand b { color: #326f91; }
 .detail-title-block h2 { margin: 0; color: var(--steel); font-size: 15px; line-height: 1.25; }
 .detail-title-block .event-meta { margin: 0; }
 .detail-price { margin: 2px 0 0; color: var(--ink); font-size: 13px; font-weight: 900; }
+.detail-follow-venue {
+  justify-self: start;
+  margin-top: 5px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: var(--blue);
+  background: var(--blue-soft);
+  font-size: 10px;
+  font-weight: 900;
+}
+.detail-follow-venue.selected {
+  color: #fff;
+  background: var(--blue);
+}
 
 /* Profile analytics */
 .profile-page {
@@ -1995,40 +2009,6 @@ h3 { font-weight: 700; }
 .card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
 .card-save svg { fill: none; }
 .card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
-.card-venue-follow {
-  min-width: 54px;
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 999px;
-  color: #fff;
-  background: rgba(0, 0, 0, .42);
-  backdrop-filter: blur(5px);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .02em;
-  pointer-events: auto;
-}
-.card-venue-follow.selected {
-  background: rgba(22, 160, 133, .92);
-}
-.card-venue-follow:hover {
-  background: rgba(0, 0, 0, .62);
-  transform: translateY(-1px);
-}
-.card-venue-follow.list-follow {
-  min-width: 48px;
-  height: 24px;
-  padding: 0 8px;
-  color: var(--accent-strong);
-  background: rgba(22, 160, 133, .12);
-  font-size: 8px;
-  pointer-events: auto;
-}
-.card-venue-follow.list-follow.selected {
-  color: #fff;
-  background: var(--accent-strong);
-}
-
 .event-card-bottom {
   position: absolute;
   inset: auto 0 0 0;
@@ -2801,8 +2781,7 @@ h3 { font-weight: 800; }
 }
 .event-card-media .event-card-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
 .event-card-actions { position: absolute; top: 9px; right: 9px; bottom: auto; left: auto; z-index: 2; display: flex; align-items: center; gap: 6px; pointer-events: none; }
-.event-card-actions .card-icon-btn,
-.event-card-actions .card-venue-follow { pointer-events: auto; }
+.event-card-actions .card-icon-btn { pointer-events: auto; }
 .event-card-body {
   display: grid;
   gap: 5px;
@@ -4054,7 +4033,6 @@ function eventRow(event, variant = "", opts = {}) {
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
       <span class="event-card-actions">
-        <button class="card-venue-follow ${state.follows.has(`venue:${event.venue}`) ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(event.venue)}" aria-label="${state.follows.has(`venue:${event.venue}`) ? "Unfollow" : "Follow"} ${escapeHtml(event.venue)}">${state.follows.has(`venue:${event.venue}`) ? "Following" : "Follow"}</button>
         <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
         <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
       </span>
@@ -4097,7 +4075,6 @@ function eventListRow(event, opts = {}) {
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
-      <button class="card-venue-follow list-follow ${state.follows.has(`venue:${event.venue}`) ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(event.venue)}" aria-label="${state.follows.has(`venue:${event.venue}`) ? "Unfollow" : "Follow"} ${escapeHtml(event.venue)}">${state.follows.has(`venue:${event.venue}`) ? "Following" : "Follow"}</button>
       <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
       ${eventListSideBadge(event)}
     </span>
@@ -7815,9 +7792,11 @@ function openDetail(id) {
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
+  const venueFollowKey = `venue:${e.venue}`;
+  const isFollowingVenue = state.follows.has(venueFollowKey);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}<button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
@@ -8332,7 +8311,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { const text = input.value.trim(); state.groupMessages[group] = [{ type: "text", text }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "text", text }); openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.manageFollowing !== undefined) { mark(); openFollowingManager(); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
-  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; if (state.route === "home") renderHome(); toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
+  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); t.classList.toggle("selected", on); t.textContent = t.classList.contains("detail-follow-venue") ? (on ? "Following venue" : "Follow venue") : (on ? "Following" : "Follow"); if (state.route === "home") renderHome(); toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
   if (t.dataset.dismissVenueVerification !== undefined) {
     mark();

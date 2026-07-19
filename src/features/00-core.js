@@ -555,7 +555,6 @@ function eventRow(event, variant = "", opts = {}) {
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
       <span class="event-card-actions">
-        <button class="card-venue-follow ${state.follows.has(`venue:${event.venue}`) ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(event.venue)}" aria-label="${state.follows.has(`venue:${event.venue}`) ? "Unfollow" : "Follow"} ${escapeHtml(event.venue)}">${state.follows.has(`venue:${event.venue}`) ? "Following" : "Follow"}</button>
         <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
         <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
       </span>
@@ -598,7 +597,6 @@ function eventListRow(event, opts = {}) {
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
-      <button class="card-venue-follow list-follow ${state.follows.has(`venue:${event.venue}`) ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(event.venue)}" aria-label="${state.follows.has(`venue:${event.venue}`) ? "Unfollow" : "Follow"} ${escapeHtml(event.venue)}">${state.follows.has(`venue:${event.venue}`) ? "Following" : "Follow"}</button>
       <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
       ${eventListSideBadge(event)}
     </span>

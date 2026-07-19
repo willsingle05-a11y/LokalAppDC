@@ -932,6 +932,20 @@ h1, h2, h3, .brand b { color: #326f91; }
 .detail-title-block h2 { margin: 0; color: var(--steel); font-size: 15px; line-height: 1.25; }
 .detail-title-block .event-meta { margin: 0; }
 .detail-price { margin: 2px 0 0; color: var(--ink); font-size: 13px; font-weight: 900; }
+.detail-follow-venue {
+  justify-self: start;
+  margin-top: 5px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: var(--blue);
+  background: var(--blue-soft);
+  font-size: 10px;
+  font-weight: 900;
+}
+.detail-follow-venue.selected {
+  color: #fff;
+  background: var(--blue);
+}
 
 /* Profile analytics */
 .profile-page {

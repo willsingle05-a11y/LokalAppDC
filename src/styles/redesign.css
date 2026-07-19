@@ -124,40 +124,6 @@ h3 { font-weight: 700; }
 .card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
 .card-save svg { fill: none; }
 .card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
-.card-venue-follow {
-  min-width: 54px;
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 999px;
-  color: #fff;
-  background: rgba(0, 0, 0, .42);
-  backdrop-filter: blur(5px);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .02em;
-  pointer-events: auto;
-}
-.card-venue-follow.selected {
-  background: rgba(22, 160, 133, .92);
-}
-.card-venue-follow:hover {
-  background: rgba(0, 0, 0, .62);
-  transform: translateY(-1px);
-}
-.card-venue-follow.list-follow {
-  min-width: 48px;
-  height: 24px;
-  padding: 0 8px;
-  color: var(--accent-strong);
-  background: rgba(22, 160, 133, .12);
-  font-size: 8px;
-  pointer-events: auto;
-}
-.card-venue-follow.list-follow.selected {
-  color: #fff;
-  background: var(--accent-strong);
-}
-
 .event-card-bottom {
   position: absolute;
   inset: auto 0 0 0;
@@ -930,8 +896,7 @@ h3 { font-weight: 800; }
 }
 .event-card-media .event-card-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
 .event-card-actions { position: absolute; top: 9px; right: 9px; bottom: auto; left: auto; z-index: 2; display: flex; align-items: center; gap: 6px; pointer-events: none; }
-.event-card-actions .card-icon-btn,
-.event-card-actions .card-venue-follow { pointer-events: auto; }
+.event-card-actions .card-icon-btn { pointer-events: auto; }
 .event-card-body {
   display: grid;
   gap: 5px;

@@ -16,9 +16,11 @@ function openDetail(id) {
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
+  const venueFollowKey = `venue:${e.venue}`;
+  const isFollowingVenue = state.follows.has(venueFollowKey);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}<button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
