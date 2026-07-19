@@ -162,7 +162,6 @@ function profileSummaryStrip(isVenueProfile = false) {
     <div><b>${receipts.length}</b><small>Attended</small></div>
     <div><b>${plans.length}</b><small>Saved & RSVPs</small></div>
     <div><b>${state.friends.size}</b><small>Friends</small></div>
-    <div><b>${lokalScore()}</b><small>Lokal score</small></div>
   </section>`;
 }
 
@@ -225,7 +224,7 @@ function renderProfile() {
     ${profileSummaryStrip(isVenueProfile)}
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
-    ${venueVerificationPanel()}
+    ${isVenueProfile ? venueVerificationPanel() : ""}
     ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
     ${profileHistorySection(isVenueProfile)}
     ${isVenueProfile ? venueInsightPanel() : profileInsightPanel()}
@@ -386,7 +385,7 @@ function openSettings() {
     <hr class="settings-divider">
     <p class="settings-group-label">App</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label>
-    <button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>
+    ${isVenueProfile ? `<button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>` : ""}
     <button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button>
     <div class="settings-danger"><button class="settings-minor" data-signout>Sign out</button><button class="settings-minor danger" data-deactivate>Delete account</button></div>

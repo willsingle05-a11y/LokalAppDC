@@ -1422,8 +1422,12 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-size: 0;
 }
 .detail-actions .primary[data-share]::before {
-  content: "\2197";
-  font-size: 18px;
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M22 2 11 13' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='m22 2-7 20-4-9-9-4 20-7Z' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M22 2 11 13' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='m22 2-7 20-4-9-9-4 20-7Z' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .detail-hero.has-image {
   min-height: 285px;
@@ -1449,7 +1453,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 }
 .profile-summary-strip {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
   gap: 8px;
 }
 .profile-summary-strip div {
@@ -1970,6 +1974,7 @@ h3 { font-weight: 700; }
   right: 9px;
   z-index: 3;
   display: flex;
+  align-items: center;
   gap: 6px;
   pointer-events: none;
 }
@@ -1989,6 +1994,39 @@ h3 { font-weight: 700; }
 .card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
 .card-save svg { fill: none; }
 .card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
+.card-venue-follow {
+  min-width: 54px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .42);
+  backdrop-filter: blur(5px);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  pointer-events: auto;
+}
+.card-venue-follow.selected {
+  background: rgba(22, 160, 133, .92);
+}
+.card-venue-follow:hover {
+  background: rgba(0, 0, 0, .62);
+  transform: translateY(-1px);
+}
+.card-venue-follow.list-follow {
+  min-width: 48px;
+  height: 24px;
+  padding: 0 8px;
+  color: var(--accent-strong);
+  background: rgba(22, 160, 133, .12);
+  font-size: 8px;
+  pointer-events: auto;
+}
+.card-venue-follow.list-follow.selected {
+  color: #fff;
+  background: var(--accent-strong);
+}
 
 .event-card-bottom {
   position: absolute;
@@ -2761,8 +2799,9 @@ h3 { font-weight: 800; }
   background-repeat: no-repeat;
 }
 .event-card-media .event-card-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
-.event-card-actions { position: absolute; top: 9px; right: 9px; bottom: auto; left: auto; z-index: 2; display: flex; gap: 6px; pointer-events: none; }
-.event-card-actions .card-icon-btn { pointer-events: auto; }
+.event-card-actions { position: absolute; top: 9px; right: 9px; bottom: auto; left: auto; z-index: 2; display: flex; align-items: center; gap: 6px; pointer-events: none; }
+.event-card-actions .card-icon-btn,
+.event-card-actions .card-venue-follow { pointer-events: auto; }
 .event-card-body {
   display: grid;
   gap: 5px;
@@ -4014,6 +4053,7 @@ function eventRow(event, variant = "", opts = {}) {
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
       <span class="event-card-actions">
+        <button class="card-venue-follow ${state.follows.has(`venue:${event.venue}`) ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(event.venue)}" aria-label="${state.follows.has(`venue:${event.venue}`) ? "Unfollow" : "Follow"} ${escapeHtml(event.venue)}">${state.follows.has(`venue:${event.venue}`) ? "Following" : "Follow"}</button>
         <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
         <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
       </span>
@@ -4056,6 +4096,7 @@ function eventListRow(event, opts = {}) {
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
+      <button class="card-venue-follow list-follow ${state.follows.has(`venue:${event.venue}`) ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(event.venue)}" aria-label="${state.follows.has(`venue:${event.venue}`) ? "Unfollow" : "Follow"} ${escapeHtml(event.venue)}">${state.follows.has(`venue:${event.venue}`) ? "Following" : "Follow"}</button>
       <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
       ${eventListSideBadge(event)}
     </span>
@@ -7392,7 +7433,6 @@ function profileSummaryStrip(isVenueProfile = false) {
     <div><b>${receipts.length}</b><small>Attended</small></div>
     <div><b>${plans.length}</b><small>Saved & RSVPs</small></div>
     <div><b>${state.friends.size}</b><small>Friends</small></div>
-    <div><b>${lokalScore()}</b><small>Lokal score</small></div>
   </section>`;
 }
 
@@ -7455,7 +7495,7 @@ function renderProfile() {
     ${profileSummaryStrip(isVenueProfile)}
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
-    ${venueVerificationPanel()}
+    ${isVenueProfile ? venueVerificationPanel() : ""}
     ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
     ${profileHistorySection(isVenueProfile)}
     ${isVenueProfile ? venueInsightPanel() : profileInsightPanel()}
@@ -7616,7 +7656,7 @@ function openSettings() {
     <hr class="settings-divider">
     <p class="settings-group-label">App</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label>
-    <button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>
+    ${isVenueProfile ? `<button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>` : ""}
     <button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button>
     <div class="settings-danger"><button class="settings-minor" data-signout>Sign out</button><button class="settings-minor danger" data-deactivate>Delete account</button></div>
@@ -8233,7 +8273,15 @@ document.addEventListener("click", async event => {
   if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await copyText(profileUrl); toast("Profile link copied"); } catch { toast("Could not copy the profile link"); } }
   if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "event", eventId }); openGroup(group); toast(`Event sent to ${group}`); }
   if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
-  if (t.dataset.addFriendsLink !== undefined) { mark(); openSimpleSheet("Add friends", "Share this link to invite someone to Lokal. After installing the app, they will be connected to your profile.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button>`); }
+  if (t.dataset.addFriendsLink !== undefined) {
+    mark();
+    const suggestions = friendDirectory
+      .filter(friend => !state.friends.has(friend[1]))
+      .slice(0, 10)
+      .map(friend => friendCard(friend, "add"))
+      .join("");
+    openSimpleSheet("Add friends", "Share your Lokal invite link, or search people already in the demo.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><label class="search-box social-search"><span>&#8981;</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label><div class="follow-list">${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-friend-empty>No friends match that search.</p>`);
+  }
   if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
   if (t.dataset.notifications !== undefined) openNotifications();

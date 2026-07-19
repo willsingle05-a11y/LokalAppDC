@@ -89,7 +89,15 @@ document.addEventListener("click", async event => {
   if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await copyText(profileUrl); toast("Profile link copied"); } catch { toast("Could not copy the profile link"); } }
   if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "event", eventId }); openGroup(group); toast(`Event sent to ${group}`); }
   if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
-  if (t.dataset.addFriendsLink !== undefined) { mark(); openSimpleSheet("Add friends", "Share this link to invite someone to Lokal. After installing the app, they will be connected to your profile.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button>`); }
+  if (t.dataset.addFriendsLink !== undefined) {
+    mark();
+    const suggestions = friendDirectory
+      .filter(friend => !state.friends.has(friend[1]))
+      .slice(0, 10)
+      .map(friend => friendCard(friend, "add"))
+      .join("");
+    openSimpleSheet("Add friends", "Share your Lokal invite link, or search people already in the demo.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><label class="search-box social-search"><span>&#8981;</span><input data-friend-search placeholder="Search friends by name or username" aria-label="Search friends"></label><div class="follow-list">${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-friend-empty>No friends match that search.</p>`);
+  }
   if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
   if (t.dataset.notifications !== undefined) openNotifications();
