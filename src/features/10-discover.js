@@ -864,13 +864,14 @@ function storyEventPool(story) {
 }
 
 function activeFollowingStories() {
-  const ownStory = state.storyPosts.length ? [{
+  const userStoryPosts = (state.storyPosts || []).filter(post => post?.source === "user");
+  const ownStory = userStoryPosts.length ? [{
     id: "your-story",
     icon: state.profile.initials,
     name: "Your story",
     type: "Just posted",
     intro: "Events you shared with your friends on Lokal.",
-    eventIds: state.storyPosts.map(post => post.eventId)
+    eventIds: userStoryPosts.map(post => post.eventId)
   }] : [];
   const [featuredStory, ...otherStories] = followingStories;
   const followedVenues = followedVenueNames().map(name => name.toLowerCase());
