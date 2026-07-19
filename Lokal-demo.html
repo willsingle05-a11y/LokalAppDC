@@ -6536,6 +6536,7 @@ function renderHome() {
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
+  if (state.resetDiscoverScrollAfterRender && typeof resetAppScroll === "function") resetAppScroll();
 }
 
 function discoverCategoryLabel(category) {
@@ -8330,6 +8331,28 @@ function setRoute(route) {
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
 }
 
+function resetAppScroll() {
+  const scrollers = [
+    window,
+    document.scrollingElement,
+    document.documentElement,
+    document.body,
+    document.querySelector(".demo-stage"),
+    document.querySelector(".app-shell"),
+    document.querySelector("#app")
+  ].filter(Boolean);
+  const reset = () => scrollers.forEach(scroller => {
+    if (scroller === window) scroller.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    else {
+      scroller.scrollTop = 0;
+      scroller.scrollLeft = 0;
+    }
+  });
+  reset();
+  requestAnimationFrame(reset);
+  setTimeout(reset, 80);
+}
+
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
   const t = event.target.closest("button");
@@ -8347,7 +8370,7 @@ document.addEventListener("click", async event => {
     });
   }
   if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
-  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); window.scrollTo({ top: 0, left: 0, behavior: "auto" }); app.scrollTop = 0; }
+  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; state.resetDiscoverScrollAfterRender = t.dataset.homeFilter === "for-you"; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); resetAppScroll(); if (state.resetDiscoverScrollAfterRender) setTimeout(() => { state.resetDiscoverScrollAfterRender = false; }, 1200); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }

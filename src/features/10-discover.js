@@ -513,6 +513,7 @@ function renderHome() {
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
+  if (state.resetDiscoverScrollAfterRender && typeof resetAppScroll === "function") resetAppScroll();
 }
 
 function discoverCategoryLabel(category) {

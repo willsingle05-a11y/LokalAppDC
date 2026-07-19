@@ -141,3 +141,25 @@ function setRoute(route) {
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
 }
+
+function resetAppScroll() {
+  const scrollers = [
+    window,
+    document.scrollingElement,
+    document.documentElement,
+    document.body,
+    document.querySelector(".demo-stage"),
+    document.querySelector(".app-shell"),
+    document.querySelector("#app")
+  ].filter(Boolean);
+  const reset = () => scrollers.forEach(scroller => {
+    if (scroller === window) scroller.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    else {
+      scroller.scrollTop = 0;
+      scroller.scrollLeft = 0;
+    }
+  });
+  reset();
+  requestAnimationFrame(reset);
+  setTimeout(reset, 80);
+}
