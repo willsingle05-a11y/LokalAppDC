@@ -731,7 +731,8 @@ document.addEventListener("wheel", event => {
 document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
-if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
+const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
+if (forceOnboarding || startupAccountType === "person" || startupAccountType === "local") {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
   state.signupDraft = {};
@@ -740,7 +741,7 @@ if (startupParams.has("newUser") || startupAccountType === "person" || startupAc
   state.pendingVenueRequests = [];
   state.venueVerificationDismissed = false;
   state.privateAccount = false;
-  history.replaceState(null, "", location.pathname);
+  if (!forceOnboarding) history.replaceState(null, "", location.pathname);
 }
 if (startupParams.has("bypassSignup")) {
   localStorage.setItem("lokalAccountCreated", "true");

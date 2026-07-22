@@ -1987,6 +1987,11 @@ h1, h2, h3, .brand b { color: #326f91; }
   --urgent: #FF4757;
   --warm: #FF7B54;
   --display: "Barlow Condensed", "Aptos Display", Aptos, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "Courier New", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* Warm onboarding palette (the founders' welcome letter) */
+  --onboard-cream: #F7F5EF;
+  --onboard-green: #2D5A2D;
+  --onboard-ink: #1a1a1a;
 }
 
 /* ---- Typography ---- */
@@ -3521,6 +3526,219 @@ h3 { font-weight: 800; }
 }
 .blended-fallback-note { border-color: rgba(23, 28, 26, .12); background: rgba(23, 28, 26, .04); color: var(--muted); }
 
+/* ============================================================
+   Warm onboarding â€” founders' welcome letter, plus the login
+   and password-reset screens. Loaded last so it overrides the
+   earlier teal onboarding rules with a cream + green feel.
+   ============================================================ */
+
+/* Every onboarding/auth overlay gets the warm cream ground + green accents. */
+.onboarding.onboard-letter-screen,
+.onboarding.onboard-steps,
+.onboarding.auth-screen { background: var(--onboard-cream); }
+
+/* Green replaces teal on the step buttons, tiles, back arrow and progress. */
+.onboarding .wide-button { background: var(--onboard-green); }
+.onboarding .wide-button:hover { background: #24491f; }
+.onboard-steps .select-tile.selected { border-color: var(--onboard-green); background: var(--onboard-green); color: #fff; }
+.onboard-progress span.on { background: var(--onboard-green); }
+.onboard-back { color: var(--onboard-green); }
+.onboard-back:hover { background: rgba(45, 90, 45, .1); }
+.onboard-title { color: var(--onboard-ink); }
+.onboard-steps .float-field input:focus {
+  border-color: var(--onboard-green);
+  box-shadow: 0 0 0 3px rgba(45, 90, 45, .16);
+}
+
+/* ---- The welcome letter (step 0) ---- */
+.onboard-letter-screen {
+  padding: 0;
+  align-items: stretch;
+  justify-items: stretch;
+  color: var(--onboard-ink);
+  font-family: var(--mono);
+}
+.letter-screen {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: max(64px, env(safe-area-inset-top)) 34px max(44px, env(safe-area-inset-bottom));
+}
+.letter-logo { margin-bottom: 34px; }
+.letter-line {
+  margin: 0;
+  min-height: 1px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--onboard-ink);
+}
+.letter-mono {
+  margin: 0;
+  min-height: 1px;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #444;
+  word-break: break-word;
+}
+.letter-body { width: 100%; }
+.letter-sp { height: 18px; }
+.letter-g { color: var(--onboard-green); font-weight: 700; }
+.letter-cur {
+  display: inline-block;
+  width: 1.5px;
+  height: 12px;
+  margin-left: 1px;
+  vertical-align: middle;
+  background: #444;
+  animation: letterBlink .65s step-end infinite;
+}
+@keyframes letterBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+/* Signature + buttons sit just under the message (a small gap, not pinned to the
+   bottom of the viewport). */
+.letter-foot { margin-top: 40px; width: 100%; }
+.letter-from { margin: 0 0 8px; min-height: 1px; font-size: 12px; color: #888; }
+.letter-sign {
+  margin: 0 0 30px;
+  min-height: 1px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-style: italic;
+  letter-spacing: -.5px;
+  color: var(--onboard-ink);
+}
+.letter-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--onboard-green);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .3px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .5s ease, transform .1s ease, background .15s ease;
+}
+/* Keep the CTAs untappable until the letter finishes typing (they sit at opacity 0). */
+.letter-cta { pointer-events: none; }
+.letter-cta.show { pointer-events: auto; }
+.letter-btn.show { opacity: 1; }
+.letter-btn:hover { background: #24491f; }
+.letter-btn:active { transform: scale(.98); }
+.letter-venue-link {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  color: #8a8a7e;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .5s ease .1s, color .15s ease;
+}
+.letter-venue-link.show { opacity: 1; }
+.letter-venue-link:hover { color: var(--onboard-green); }
+
+/* ---- Login + password reset (shared card) ---- */
+.auth-screen { align-items: center; }
+.auth-card { justify-content: flex-start; }
+.auth-card .letter-logo { margin-top: 6vh; }
+.auth-title {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--onboard-ink);
+}
+.auth-sub {
+  margin: 0 0 26px;
+  max-width: 20em;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #6b6b60;
+}
+.auth-fields { width: 100%; display: grid; gap: 14px; margin-bottom: 8px; text-align: left; }
+.letter-field { display: grid; gap: 7px; }
+.letter-field > span {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #8a8a7e;
+}
+.letter-field input {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid #ddd8cc;
+  border-radius: 14px;
+  background: #fff;
+  font-family: var(--mono);
+  font-size: 16px;
+}
+.letter-field input:focus {
+  outline: none;
+  border-color: var(--onboard-green);
+  box-shadow: 0 0 0 3px rgba(45, 90, 45, .16);
+}
+.letter-link-right {
+  align-self: flex-end;
+  margin: 12px 0 4px auto;
+  padding: 2px;
+  background: transparent;
+  border: none;
+  color: var(--onboard-green);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+}
+.auth-card .letter-btn { margin-top: 16px; }
+.auth-card .account-error { margin: 8px 0 0; width: 100%; text-align: left; }
+.auth-swap {
+  margin-top: 22px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: #6b6b60;
+}
+.letter-inline-link {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--onboard-green);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.auth-confirm {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(45, 90, 45, .3);
+  border-radius: 14px;
+  background: rgba(45, 90, 45, .07);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #3a4a3a;
+  text-align: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-btn, .letter-venue-link, .letter-cur { animation: none; transition: none; }
+}
+
     </style>
   </head>
   <body>
@@ -4464,6 +4682,7 @@ const supabaseConfig = {
 const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
 const supabaseStorageKeys = {
   accessToken: "lokalSupabaseAccessToken",
+  refreshToken: "lokalSupabaseRefreshToken",
   userId: "lokalSupabaseUserId",
   demoUserId: "lokalDemoInteractionUserId",
   pendingInteractions: "lokalPendingEventInteractions",
@@ -5792,6 +6011,132 @@ async function verifyLokalPhone(token) {
   }
   finalizeLokalProfile(state.pendingSignupProfile);
   return data;
+}
+
+// Apply a profile onto app state without wiping the user's saved events/plans
+// (unlike finalizeLokalProfile, which clears them for a fresh signup).
+function setActiveProfile(profile) {
+  const saved = {
+    ...profile,
+    phone: formatDisplayPhone(profile.phone),
+    age: profile.birthdate ? calculateAge(profile.birthdate) : (state.profile?.age || 27),
+    initials: profileInitials(profile.fullName || "Lokal"),
+    bio: state.bio,
+    tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
+    areas: profile.areaInterests || [],
+    accountType: profile.accountType || "person",
+    ownerName: profile.ownerName || "",
+    venueName: profile.venueName || "",
+    venueAddress: profile.venueAddress || "",
+    venueWebsite: profile.venueWebsite || "",
+    venueImageUrl: profile.venueImageUrl || "",
+    venueDescription: profile.venueDescription || "",
+    lokalScore: profile.lokalScore || 100
+  };
+  state.profile = saved;
+  state.age = saved.age;
+  state.tastes = saved.tastes;
+  if (saved.accountType === "venue") registerLocalVenueProfile();
+  localStorage.setItem("lokalProfile", JSON.stringify(saved));
+  updateProfileShortcut();
+  return saved;
+}
+
+// Resolve a login identifier (email / phone / username) into the credentials that
+// Supabase's password grant understands. Usernames are looked up to their email.
+async function resolveLoginCredentials(identifier) {
+  const value = String(identifier || "").trim();
+  if (value.includes("@")) return { email: value.toLowerCase() };
+  const digits = value.replace(/\D/g, "");
+  if (!/[a-z]/i.test(value) && digits.length >= 10) return { phone: formatSignupPhone(value) };
+  const email = await lookupEmailByUsername(value);
+  if (!email) throw new Error("We couldn't find that username. Try logging in with your email instead.");
+  return { email };
+}
+
+async function lookupEmailByUsername(username) {
+  try {
+    const url = `${supabaseConfig.url}/rest/v1/profiles?select=email&username=eq.${encodeURIComponent(username.toLowerCase())}&limit=1`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) return "";
+    const rows = await response.json();
+    return rows?.[0]?.email || "";
+  } catch {
+    return "";
+  }
+}
+
+// Pull the user's stored profile after a successful login and hydrate app state.
+// Falls back to any locally saved profile if the row can't be read.
+async function hydrateProfileAfterLogin(accessToken, identifier) {
+  const userId = decodeJwtPayload(accessToken).sub;
+  let row = null;
+  try {
+    const url = `${supabaseConfig.url}/rest/v1/profiles?select=*&id=eq.${encodeURIComponent(userId)}&limit=1`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (response.ok) row = (await response.json())?.[0] || null;
+  } catch {}
+  if (row) {
+    setActiveProfile({
+      id: userId,
+      fullName: row.full_name || row.owner_name || identifier,
+      email: row.email || (identifier.includes("@") ? identifier : ""),
+      phone: row.phone || "",
+      username: row.username || "",
+      birthdate: row.birthdate || "",
+      eventInterests: row.event_interests || [],
+      areaInterests: row.area_interests || [],
+      accountType: row.account_type || "person",
+      ownerName: row.owner_name || "",
+      venueName: row.venue_name || "",
+      venueAddress: row.venue_address || "",
+      venueWebsite: row.venue_website || "",
+      venueImageUrl: row.venue_image_url || "",
+      venueDescription: row.venue_description || "",
+      lokalScore: row.lokal_score || 100
+    });
+    state.profile.id = userId;
+    return;
+  }
+  const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
+  if (savedProfile) { state.profile = savedProfile; state.profile.id = userId; updateProfileShortcut(); }
+  else setActiveProfile({ id: userId, fullName: identifier, email: identifier.includes("@") ? identifier : "", username: identifier, accountType: "person" });
+}
+
+async function loginLokalUser({ identifier, password }) {
+  const value = String(identifier || "").trim();
+  if (!value || !password) throw new Error("Enter your login and password.");
+  const credentials = await resolveLoginCredentials(value);
+  const data = await supabaseAuthRequest("token?grant_type=password", { ...credentials, password });
+  if (!data.access_token) throw new Error("That login didn't work. Check your details and try again.");
+  persistSupabaseSession(data.access_token);
+  if (data.refresh_token) localStorage.setItem(supabaseStorageKeys.refreshToken, data.refresh_token);
+  await hydrateProfileAfterLogin(data.access_token, value);
+  localStorage.setItem("lokalAccountCreated", "true");
+  localStorage.setItem("lokalHasAccount", "true");
+  localStorage.setItem("lokalLastIdentifier", value);
+  return data;
+}
+
+async function sendPasswordReset(email) {
+  const value = String(email || "").trim();
+  validateSignupEmail(value);
+  await supabaseAuthRequest("recover", { email: value });
+  return true;
+}
+
+function clearSupabaseSession() {
+  [supabaseStorageKeys.accessToken, supabaseStorageKeys.refreshToken, supabaseStorageKeys.userId].forEach(key => localStorage.removeItem(key));
+}
+
+// Ends the local session: drops the Supabase tokens and the active profile, but
+// keeps lokalHasAccount / lokalLastIdentifier so the login screen is shown next.
+function logoutLokalUser() {
+  clearSupabaseSession();
+  localStorage.removeItem("lokalAccountCreated");
+  localStorage.removeItem("lokalProfile");
+  localStorage.removeItem("lokalOnboardingShown");
+  localStorage.setItem("lokalHasAccount", "true");
 }
 
 // 06-scoring.js
@@ -8322,6 +8667,156 @@ function addRecurringEventToCalendar(id) {
 
 // Inspirational lines that rotate on the welcome screen (CSS-animated).
 const ONBOARD_ROTATOR_LINES = ["The city is in motion.", "Find your people.", "Find your home in DC.", "Never miss the moment."];
+
+// The little person mark used on the welcome letter and the login/reset screens.
+const LOKAL_MARK_SVG = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <circle cx="18" cy="12" r="5" stroke="#2D5A2D" stroke-width="1.8"/>
+  <path d="M8 30c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#2D5A2D" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M18 22v8M14 28l4 2 4-2" stroke="#2D5A2D" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+// A warm, hand-typed welcome letter from the founders. Each block is typed out in
+// sequence with a blinking cursor; green segments (g:true) are the emphasized words.
+// `role` drives styling/placement: greeting + body flow as the message; from + sign
+// are the closing signature. Edit the blocks freely â€” the markup is generated from
+// this array, so adding or removing a block never desyncs the layout.
+const WELCOME_LETTER_BLOCKS = [
+  { role: "greeting", speed: 46, segs: [{ t: "hey, friend" }] },
+  { role: "body", speed: 30, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never know." }] },
+  { role: "body", speed: 32, segs: [{ t: "So...we built Lokal because we want to get the most out of our " }, { t: "lives;", g: true }, { t: " to experience more with more " }, { t: "people", g: true }, { t: "." }] },
+  { role: "body", speed: 34, segs: [{ t: "And we bet you are here because you feel the same way." }] },
+  { role: "body", speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
+  { role: "from", speed: 40, segs: [{ t: "your friends," }] },
+  { role: "sign", speed: 44, segs: [{ t: "Jack, Will & Reese" }] }
+];
+
+const WELCOME_LETTER_ROLE_CLASS = { greeting: "letter-line", body: "letter-mono", from: "letter-from", sign: "letter-sign" };
+
+// Build the letter markup straight from WELCOME_LETTER_BLOCKS. Message blocks
+// (greeting/body) stack in the flowing body; the signature (from/sign) sits in the
+// footer above the buttons. Each paragraph carries its array index as data-letter.
+function welcomeLetterMarkup() {
+  const bodyHtml = WELCOME_LETTER_BLOCKS
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => block.role !== "from" && block.role !== "sign")
+    .map(({ block, index }, position) => `${position > 0 ? '<div class="letter-sp"></div>' : ""}<p class="${WELCOME_LETTER_ROLE_CLASS[block.role] || "letter-mono"}" data-letter="${index}"></p>`)
+    .join("");
+  const footHtml = WELCOME_LETTER_BLOCKS
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => block.role === "from" || block.role === "sign")
+    .map(({ block, index }) => `<p class="${WELCOME_LETTER_ROLE_CLASS[block.role]}" data-letter="${index}"></p>`)
+    .join("");
+  return `<div class="letter-screen">
+        <div class="letter-logo">${LOKAL_MARK_SVG}</div>
+        <div class="letter-body">${bodyHtml}</div>
+        <div class="letter-foot">
+          ${footHtml}
+          <button class="letter-btn letter-cta" data-onboard-start data-account-type="person">get started</button>
+          <button class="letter-venue-link letter-cta" data-onboard-start data-account-type="venue">have a venue? join here</button>
+        </div>
+      </div>`;
+}
+
+function welcomeLetterTotal(segs) {
+  return segs.reduce((sum, seg) => sum + [...seg.t].length, 0);
+}
+
+// Build the partial HTML for a block, revealing `upTo` characters, wrapping the
+// emphasized segments in a green span.
+function welcomeLetterHtml(segs, upTo) {
+  let count = 0;
+  let html = "";
+  for (const seg of segs) {
+    let piece = "";
+    for (const character of [...seg.t]) {
+      if (count >= upTo) break;
+      piece += escapeHtml(character);
+      count++;
+    }
+    if (piece) html += seg.g ? `<span class="letter-g">${piece}</span>` : piece;
+    if (count >= upTo) break;
+  }
+  return html;
+}
+
+// Runs the typewriter reveal after the welcome letter is inserted. Tapping the
+// letter (anywhere but a button) fast-forwards to the end; reduced-motion users
+// get the whole letter instantly.
+async function playWelcomeLetter() {
+  const screen = document.querySelector(".onboard-letter-screen");
+  if (!screen || screen.dataset.played) return;
+  screen.dataset.played = "1";
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const reveal = () => { screen.querySelectorAll(".letter-cta").forEach(node => node.classList.add("show")); };
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let skip = reduce;
+  screen.addEventListener("click", event => { if (!event.target.closest("button")) skip = true; });
+
+  const typeBlock = async (block, index) => {
+    const el = screen.querySelector(`[data-letter="${index}"]`);
+    if (!el) return;
+    const total = welcomeLetterTotal(block.segs);
+    if (skip) { el.innerHTML = welcomeLetterHtml(block.segs, total); return; }
+    const cursor = document.createElement("span");
+    cursor.className = "letter-cur";
+    for (let i = 1; i <= total; i++) {
+      if (skip) break;
+      el.innerHTML = welcomeLetterHtml(block.segs, i);
+      el.appendChild(cursor);
+      await sleep(block.speed + (Math.random() * 16 - 8));
+    }
+    el.innerHTML = welcomeLetterHtml(block.segs, total);
+  };
+
+  await sleep(skip ? 0 : 380);
+  for (const [index, block] of WELCOME_LETTER_BLOCKS.entries()) {
+    await typeBlock(block, index);
+    if (!skip) await sleep(block.speed * 4);
+  }
+  reveal();
+}
+
+// Returning users who have logged out land here: re-enter email / username / phone
+// + password. Warm styling mirrors the welcome letter.
+function renderLogin() {
+  document.querySelector(".onboarding")?.remove();
+  const lastIdentifier = localStorage.getItem("lokalLastIdentifier") || "";
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen auth-screen">
+    <div class="letter-screen auth-card">
+      <div class="letter-logo">${LOKAL_MARK_SVG}</div>
+      <h1 class="auth-title">welcome back</h1>
+      <p class="auth-sub">log in to pick up right where you left off.</p>
+      <div class="auth-fields">
+        <label class="letter-field"><span>email, username, or phone</span><input data-login-id type="text" autocomplete="username" value="${escapeHtml(lastIdentifier)}" placeholder="you@email.com"></label>
+        <label class="letter-field"><span>password</span><input data-login-password type="password" autocomplete="current-password" placeholder="your password"></label>
+      </div>
+      <button class="letter-link-right" data-show-forgot>forgot password?</button>
+      <p class="account-error" data-account-error></p>
+      <button class="letter-btn show" data-login-submit>log in</button>
+      <p class="auth-swap">new to lokal? <button class="letter-inline-link" data-show-signup>create an account</button></p>
+    </div>
+  </div>`);
+}
+
+// Password recovery â€” sends a Supabase reset email.
+function renderForgotPassword() {
+  document.querySelector(".onboarding")?.remove();
+  const lastIdentifier = localStorage.getItem("lokalLastIdentifier") || "";
+  const prefill = lastIdentifier.includes("@") ? lastIdentifier : "";
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen auth-screen">
+    <div class="letter-screen auth-card">
+      <div class="letter-logo">${LOKAL_MARK_SVG}</div>
+      <h1 class="auth-title">reset your password</h1>
+      <p class="auth-sub">enter your email and we'll send you a link to set a new one.</p>
+      <div class="auth-fields">
+        <label class="letter-field"><span>email</span><input data-reset-email type="email" autocomplete="email" value="${escapeHtml(prefill)}" placeholder="you@email.com"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="letter-btn show" data-reset-submit>send reset link</button>
+      <p class="auth-swap"><button class="letter-inline-link" data-show-login>&#8249; back to log in</button></p>
+    </div>
+  </div>`);
+}
 const ONBOARD_INTEREST_OPTIONS = ["Live music", "Concerts", "Nightlife", "Happy hours", "Trivia", "Museums", "Performing arts", "Comedy", "Sports", "Festivals", "Food & drink", "Markets", "Community", "Free events"];
 const ONBOARD_AREA_OPTIONS = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia", "Columbia Heights", "Petworth", "The Wharf", "Downtown"];
 
@@ -8338,22 +8833,8 @@ function renderOnboarding() {
   const step = state.onboardStep || 0;
 
   if (step === 0) {
-    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-immersive">
-      <div class="welcome-bg"></div>
-      <div class="welcome-scrim"></div>
-      <div class="welcome-content">
-        <div class="welcome-top"><span class="welcome-brand">LOKAL</span><span class="welcome-place">Washington, DC</span></div>
-        <div class="welcome-message">
-          <p class="welcome-eyebrow">Welcome to your city</p>
-          <div class="welcome-rotator" aria-label="${escapeHtml(ONBOARD_ROTATOR_LINES.join(" "))}">${ONBOARD_ROTATOR_LINES.map(line => `<span>${escapeHtml(line)}</span>`).join("")}</div>
-          <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
-        </div>
-        <div class="welcome-choice-row">
-          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a Local</button>
-          <button class="welcome-cta secondary" data-onboard-start data-account-type="venue">Join as a venue</button>
-        </div>
-      </div>
-    </div>`);
+    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
+    playWelcomeLetter();
     return;
   }
 
@@ -8371,8 +8852,8 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-venue>Continue</button>`;
   } else if (step === 1) {
-    inner = `<h1 class="onboard-title">First, what's your name?</h1>
-      <p class="lede">So friends know it's really you.</p>
+    inner = `<h1 class="onboard-title">First, what should we call you?</h1>
+      <p class="lede">So your friends know it's really you.</p>
       <div class="onboard-fields">
         <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
@@ -8381,13 +8862,15 @@ function renderOnboarding() {
       <button class="wide-button" data-onboard-name>Continue</button>`;
   } else if (step === 2) {
     const isVenueContact = d.accountType === "venue";
-    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "How can we reach you?"}</h1>
-      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "Your email and number keep your saves and plans in sync."}</p>
+    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "Let's set up your login."}</h1>
+      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "This is how you'll get back in and keep your plans in sync â€” even on a new phone."}</p>
       <div class="onboard-fields">
         ${isVenueContact ? `<label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters"></label>
+        <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-contact>Continue</button>`;
@@ -8771,68 +9254,13 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { const text = input.value.trim(); state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text }]; submitDirectMessage(name, text); openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>&#8981;</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
-  if (t.dataset.changePhoto !== undefined) {
-    mark();
-    openSimpleSheet("Change photo", "Choose a photo from this device or paste an image URL.", `<label class="settings-field">Choose photo<input data-profile-photo-file type="file" accept="image/*"></label><label class="settings-field">Or use an image URL<input data-profile-photo-url type="url" value="${escapeHtml(currentVenueImage() || state.profile?.avatarUrl || "")}" placeholder="https://..."></label><button class="wide-button" data-confirm-photo>Save photo</button>`);
-  }
-  if (t.dataset.confirmPhoto !== undefined) {
-    mark();
-    const file = document.querySelector("[data-profile-photo-file]")?.files?.[0];
-    let imageUrl = document.querySelector("[data-profile-photo-url]")?.value.trim() || "";
-    if (file?.size > 2 * 1024 * 1024) { toast("Choose a photo smaller than 2 MB"); return; }
-    if (file) imageUrl = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result || "")); reader.onerror = reject; reader.readAsDataURL(file); });
-    if (!imageUrl) { toast("Add an image URL first"); return; }
-    state.profile = isVenueAccount() ? { ...state.profile, venueImageUrl: imageUrl } : { ...state.profile, avatarUrl: imageUrl };
-    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
-    modalRoot.innerHTML = "";
-    renderProfile();
-    toast("Profile photo updated");
-  }
-  if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
-  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "score-guide") { openScoreGuideSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
-  if (t.dataset.feedback !== undefined) { mark(); openFeedbackSheet(); }
-  if (t.dataset.submitFeedback !== undefined) {
-    mark();
-    const messageInput = document.querySelector("[data-feedback-message]");
-    const error = document.querySelector("[data-feedback-error]");
-    const message = messageInput?.value.trim() || "";
-    if (message.length < 4) { if (error) error.textContent = "Add a little more detail before submitting."; return; }
-    try {
-      await submitFeedbackSubmission(message, state.route || "profile");
-      modalRoot.innerHTML = "";
-      toast("Feedback sent. Thank you.");
-    } catch (err) {
-      console.warn("[supabase] feedback submission failed", err);
-      if (error) error.textContent = "Could not submit feedback yet. Try again in a moment.";
-      toast("Feedback did not send");
-    }
-  }
-  if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You will be signed out on this device.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
-  if (t.dataset.confirmSignout !== undefined) {
-    mark();
-    ["lokalAccountCreated", "lokalProfile", "lokalSupabaseAccessToken", "lokalSupabaseUserId"].forEach(key => localStorage.removeItem(key));
-    modalRoot.innerHTML = "";
-    document.querySelector(".onboarding")?.remove();
-    state.onboardStep = 0;
-    renderOnboarding();
-    toast("Signed out");
-  }
-  if (t.dataset.deactivate !== undefined) {
-    mark();
-    openSimpleSheet("Delete account", "Request permanent deletion of your Lokal account and profile data. Lokal will review and process deletion requests as part of launch operations.", `<label class="settings-field">Reason (optional)<textarea data-delete-reason placeholder="Anything we should know?"></textarea></label><button class="danger-button" data-confirm-deactivate>Request account deletion</button>`);
-  }
-  if (t.dataset.confirmDeactivate !== undefined) {
-    mark();
-    const reason = document.querySelector("[data-delete-reason]")?.value.trim() || "";
-    try {
-      await submitAccountDeletionRequest(reason);
-      modalRoot.innerHTML = "";
-      toast("Account deletion request submitted");
-    } catch (error) {
-      console.warn("[supabase] account deletion request failed", error);
-      toast("Could not submit deletion request");
-    }
-  }
+  if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
+  if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
+  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
+  if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
+  if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
+  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
   if (t.dataset.saveSettings !== undefined) {
     const input = document.querySelector("[data-age-input]");
@@ -8919,14 +9347,19 @@ document.addEventListener("click", async event => {
     const phone = card.querySelector("[data-onboard-phone]").value.trim();
     const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
     const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
+    const password = card.querySelector("[data-onboard-password]")?.value || "";
+    const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
     if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
     try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); }
     catch (contactError) { error.textContent = contactError.message; return; }
+    if (password.length < 8) { error.textContent = "Use a password with at least 8 characters."; return; }
+    if (password !== confirmPassword) { error.textContent = "Those passwords don't match."; return; }
     state.signupDraft.firstName = first;
     state.signupDraft.lastName = last;
     state.signupDraft.email = email;
     state.signupDraft.phone = formattedPhone;
+    state.signupDraft.password = password;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 3;
     renderOnboarding();
@@ -8963,6 +9396,22 @@ document.addEventListener("click", async event => {
     finalizeLokalProfile(onboardingProfile);
     if (isVenue) registerLocalVenueProfile();
     let supabaseSynced = true;
+    // Create the real Supabase auth account (email + password) so the user can log
+    // back in and reset their password later. Failures don't block local entry.
+    if (draft.password) {
+      try {
+        await createLokalAccount({
+          fullName: fullName || username,
+          email: draft.email,
+          phone: draft.phone,
+          username,
+          birthdate: onboardingProfile.birthdate,
+          password: draft.password,
+          eventInterests,
+          areaInterests
+        });
+      } catch (accountError) { supabaseSynced = false; console.warn("[supabase] account creation failed", accountError); }
+    }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
     if (isVenue) {
@@ -8983,6 +9432,10 @@ document.addEventListener("click", async event => {
       } catch (error) { supabaseSynced = false; console.warn("[supabase] venue verification request failed", error); }
     }
     localStorage.setItem("lokalAccountCreated", "true");
+    // Mark that an account now exists on this device, so a later logout returns the
+    // user to the login screen (not the first-run welcome letter).
+    localStorage.setItem("lokalHasAccount", "true");
+    localStorage.setItem("lokalLastIdentifier", draft.email || username);
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     isVenue ? renderProfile() : renderHome();
@@ -9020,6 +9473,39 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
   if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("100 Lokal points for joining"); showDiscoverHint(); } }
+  if (t.dataset.showLogin !== undefined) { mark(); renderLogin(); }
+  if (t.dataset.showForgot !== undefined) { mark(); renderForgotPassword(); }
+  if (t.dataset.showSignup !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.signupDraft = {}; state.onboardStep = 0; renderOnboarding(); }
+  if (t.dataset.loginSubmit !== undefined) {
+    mark();
+    const card = t.closest(".auth-card");
+    const error = card.querySelector("[data-account-error]");
+    const identifier = card.querySelector("[data-login-id]").value.trim();
+    const password = card.querySelector("[data-login-password]").value;
+    t.disabled = true; error.textContent = "";
+    try {
+      await loginLokalUser({ identifier, password });
+      document.querySelector(".onboarding")?.remove();
+      state.onboardStep = 0;
+      setRoute(isVenueAccount() ? "profile" : "home");
+      updateProfileShortcut();
+      syncSupabaseEvents(); syncSupabaseProfiles(); syncSupabaseGroups();
+      toast("Welcome back to Lokal");
+    } catch (loginError) { error.textContent = loginError.message; t.disabled = false; }
+  }
+  if (t.dataset.resetSubmit !== undefined) {
+    mark();
+    const card = t.closest(".auth-card");
+    const error = card.querySelector("[data-account-error]");
+    const email = card.querySelector("[data-reset-email]").value.trim();
+    t.disabled = true; error.textContent = "";
+    try {
+      await sendPasswordReset(email);
+      card.querySelector(".auth-fields").innerHTML = `<p class="auth-confirm">Check your inbox â€” we sent a reset link to <b>${escapeHtml(email)}</b>. Follow it to set a new password, then come back and log in.</p>`;
+      t.remove();
+      toast("Reset link sent");
+    } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
+  }
   if (!handled && !t.disabled) toast("Action opened");
 });
 
@@ -9216,8 +9702,9 @@ document.addEventListener("wheel", event => {
 document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
-if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
-  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
+if (forceOnboarding || startupAccountType === "person" || startupAccountType === "local") {
+  ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
   state.signupDraft = {};
   state.verifiedVenues = new Set();
@@ -9225,7 +9712,7 @@ if (startupParams.has("newUser") || startupAccountType === "person" || startupAc
   state.pendingVenueRequests = [];
   state.venueVerificationDismissed = false;
   state.privateAccount = false;
-  history.replaceState(null, "", location.pathname);
+  if (!forceOnboarding) history.replaceState(null, "", location.pathname);
 }
 if (startupParams.has("bypassSignup")) {
   localStorage.setItem("lokalAccountCreated", "true");
@@ -9233,7 +9720,12 @@ if (startupParams.has("bypassSignup")) {
 }
 setRoute("home");
 updateProfileShortcut();
-if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
+// Boot routing: an active local session enters the app (auto sign-in); a returning
+// user who logged out sees the login screen; a brand-new device sees the welcome letter.
+if (!localStorage.getItem("lokalAccountCreated")) {
+  if (localStorage.getItem("lokalHasAccount")) renderLogin();
+  else renderOnboarding();
+}
 syncSupabaseEvents();
 syncSupabaseProfiles();
 syncSupabaseGroups();
