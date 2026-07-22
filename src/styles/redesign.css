@@ -1048,11 +1048,11 @@ h3 { font-weight: 800; }
 }
 .tonight-pin {
   position: absolute;
-  max-width: 72%;
+  max-width: min(74%, 260px);
   padding: 7px 11px;
   overflow: hidden;
   border: 1px solid rgba(22, 160, 133, .45);
-  border-radius: 999px;
+  border-radius: 14px;
   color: #fff;
   background: rgba(8, 24, 16, .82);
   box-shadow: 0 6px 18px rgba(0, 0, 0, .4);
@@ -1060,15 +1060,22 @@ h3 { font-weight: 800; }
   font-size: 10px;
   font-weight: 600;
   letter-spacing: .02em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   opacity: 0;
   transform: translate(-50%, -50%) scale(.6);
   animation: pinPop .55s cubic-bezier(.2, .9, .3, 1.4) forwards, pinFloat 5.5s ease-in-out infinite;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-align: left;
 }
 .tonight-pin:hover { border-color: #16A085; background: rgba(8, 24, 16, .92); }
-.tonight-pin-dot { display: inline-block; width: 6px; height: 6px; margin-right: 6px; vertical-align: middle; border-radius: 50%; background: #16A085; box-shadow: 0 0 8px rgba(22, 160, 133, .9); }
+.tonight-pin-dot { flex: 0 0 auto; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #16A085; box-shadow: 0 0 8px rgba(22, 160, 133, .9); }
+.tonight-pin-copy { min-width: 0; display: grid; gap: 1px; }
+.tonight-pin-copy b,
+.tonight-pin-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tonight-pin-copy b { font-size: 10px; line-height: 1.15; }
+.tonight-pin-copy small { color: rgba(255,255,255,.72); font-size: 8px; line-height: 1.1; }
 @keyframes pinPop { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 @keyframes pinFloat { 0%, 100% { margin-top: 0; } 50% { margin-top: -7px; } }
 @media (prefers-reduced-motion: reduce) { .tonight-pin { animation: none; opacity: 1; transform: translate(-50%, -50%); } }

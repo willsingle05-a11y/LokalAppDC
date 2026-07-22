@@ -361,7 +361,7 @@ function renderTonightMap() {
   const pins = events.map((event, index) => {
     const [x, y] = spots[index % spots.length];
     const venue = cleanLocationPart(event.venue) || eventLocationLine(event) || "DC";
-    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)} at ${escapeHtml(venue)}"><span class="tonight-pin-dot"></span>${escapeHtml(venue)}</button>`;
+    return `<button class="tonight-pin" data-event="${event.id}" style="left:${x}%;top:${y}%;animation-delay:${(index * 0.45).toFixed(2)}s" aria-label="Open ${escapeHtml(event.title)} at ${escapeHtml(venue)}"><span class="tonight-pin-dot"></span><span class="tonight-pin-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(venue)}</small></span></button>`;
   }).join("");
   return `<section class="tonight-map">
     <div class="tonight-head"><span class="tonight-dot"></span><h2>Happening Today</h2></div>
