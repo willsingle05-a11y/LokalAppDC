@@ -6682,13 +6682,34 @@ function eventPopularityScore(event) {
   return score;
 }
 
-// Mixed-feed ordering: personal-taste match + a popularity boost, so the feed
-// reflects the user's interests AND leans toward bigger/buzzier events. Ties
-// break by soonest start.
+// Personalized ordering for the For You feed: taste match + a popularity boost.
 function feedPersonalSort(list) {
   const weights = userPreferenceWeights();
   const key = event => eventPersonalScore(event, weights) + eventPopularityScore(event);
   return list.slice().sort((a, b) => key(b) - key(a) || sortEventsByStart(a, b));
+}
+
+// General All feed ordering: keep it broadly similar for everyone by using time
+// and category variety instead of personal tastes.
+function feedMixedSort(list) {
+  const groups = new Map();
+  list.slice().sort(sortEventsByStart).forEach(event => {
+    const category = String(discoverCategoryLabel(event.cat || "other")).toLowerCase();
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category).push(event);
+  });
+  const result = [];
+  while (groups.size) {
+    const candidates = Array.from(groups.entries())
+      .filter(([, items]) => items.length)
+      .sort((a, b) => sortEventsByStart(a[1][0], b[1][0]));
+    const recentCategories = new Set(result.slice(-3).map(event => String(discoverCategoryLabel(event.cat || "other")).toLowerCase()));
+    const pick = candidates.find(([category]) => !recentCategories.has(category)) || candidates[0];
+    const [category, items] = pick;
+    result.push(items.shift());
+    if (!items.length) groups.delete(category);
+  }
+  return result;
 }
 
 function neighborhoodControls(sourceEvents) {
@@ -6716,8 +6737,8 @@ function renderEventFeed(list, opts = {}) {
   if (!uniqueList.length) return `<p class="section-helper">No events match those filters right now.</p>`;
   const shown = Math.max(10, state.feedShown || 10);
   const visible = uniqueList.slice(0, shown);
-  // Show the "Because you like â€¦" reason only in the personalized mixed feed.
-  const weights = (opts.showBadge !== false && state.homeFilter === "all") ? userPreferenceWeights() : null;
+  // Show the "Because you like ..." reason only in explicitly personalized feeds.
+  const weights = (opts.personalized && opts.showBadge !== false) ? userPreferenceWeights() : null;
   const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false, reason: weights ? eventPersonalReason(event, weights) : "" })).join("");
   const remaining = uniqueList.length - shown;
   const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
@@ -6917,8 +6938,8 @@ function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
   const base = dcEvents.filter(eventMatchesFilters);
-  // Personalize only the mixed feed; a specific "What" selection sorts by soonest.
-  const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedPersonalSort(base);
+  // All should feel broadly shared; For You is where onboarding interests tailor order.
+  const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
   app.innerHTML = `<section class="page discover-page">
     ${renderTonightMap()}
