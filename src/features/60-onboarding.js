@@ -10,15 +10,45 @@ const LOKAL_MARK_SVG = `<svg width="40" height="40" viewBox="0 0 36 36" fill="no
 
 // A warm, hand-typed welcome letter from the founders. Each block is typed out in
 // sequence with a blinking cursor; green segments (g:true) are the emphasized words.
+// `role` drives styling/placement: greeting + body flow as the message; from + sign
+// are the closing signature. Edit the blocks freely — the markup is generated from
+// this array, so adding or removing a block never desyncs the layout.
 const WELCOME_LETTER_BLOCKS = [
-  { id: 0, speed: 46, segs: [{ t: "hey, friend" }] },
-  { id: 1, speed: 32, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never know." }] },
-  { id: 2, speed: 30, segs: [{ t: "So...we built Lokal because we want to get the most out of our " }, { t: "lives;", g: true }, { t: "to experience more with more " }, { t: "people", g: true }, { t: "." }] },
-  { id: 3, speed: 34, segs: [{ t: "And we bet you are here because you feel the same way" }]},
-  { id: 4, speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
-  { id: 5, speed: 40, segs: [{ t: "your friends," }] },
-  { id: 6, speed: 44, segs: [{ t: "Jack, Will & Reese" }] }
+  { role: "greeting", speed: 46, segs: [{ t: "hey, friend" }] },
+  { role: "body", speed: 30, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never know." }] },
+  { role: "body", speed: 32, segs: [{ t: "So...we built Lokal because we want to get the most out of our " }, { t: "lives;", g: true }, { t: " to experience more with more " }, { t: "people", g: true }, { t: "." }] },
+  { role: "body", speed: 34, segs: [{ t: "And we bet you are here because you feel the same way." }] },
+  { role: "body", speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
+  { role: "from", speed: 40, segs: [{ t: "your friends," }] },
+  { role: "sign", speed: 44, segs: [{ t: "Jack, Will & Reese" }] }
 ];
+
+const WELCOME_LETTER_ROLE_CLASS = { greeting: "letter-line", body: "letter-mono", from: "letter-from", sign: "letter-sign" };
+
+// Build the letter markup straight from WELCOME_LETTER_BLOCKS. Message blocks
+// (greeting/body) stack in the flowing body; the signature (from/sign) sits in the
+// footer above the buttons. Each paragraph carries its array index as data-letter.
+function welcomeLetterMarkup() {
+  const bodyHtml = WELCOME_LETTER_BLOCKS
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => block.role !== "from" && block.role !== "sign")
+    .map(({ block, index }, position) => `${position > 0 ? '<div class="letter-sp"></div>' : ""}<p class="${WELCOME_LETTER_ROLE_CLASS[block.role] || "letter-mono"}" data-letter="${index}"></p>`)
+    .join("");
+  const footHtml = WELCOME_LETTER_BLOCKS
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => block.role === "from" || block.role === "sign")
+    .map(({ block, index }) => `<p class="${WELCOME_LETTER_ROLE_CLASS[block.role]}" data-letter="${index}"></p>`)
+    .join("");
+  return `<div class="letter-screen">
+        <div class="letter-logo">${LOKAL_MARK_SVG}</div>
+        <div class="letter-body">${bodyHtml}</div>
+        <div class="letter-foot">
+          ${footHtml}
+          <button class="letter-btn letter-cta" data-onboard-start data-account-type="person">get started</button>
+          <button class="letter-venue-link letter-cta" data-onboard-start data-account-type="venue">have a venue? join here</button>
+        </div>
+      </div>`;
+}
 
 function welcomeLetterTotal(segs) {
   return segs.reduce((sum, seg) => sum + [...seg.t].length, 0);
@@ -55,8 +85,8 @@ async function playWelcomeLetter() {
   let skip = reduce;
   screen.addEventListener("click", event => { if (!event.target.closest("button")) skip = true; });
 
-  const typeBlock = async block => {
-    const el = screen.querySelector(`[data-letter="${block.id}"]`);
+  const typeBlock = async (block, index) => {
+    const el = screen.querySelector(`[data-letter="${index}"]`);
     if (!el) return;
     const total = welcomeLetterTotal(block.segs);
     if (skip) { el.innerHTML = welcomeLetterHtml(block.segs, total); return; }
@@ -72,8 +102,8 @@ async function playWelcomeLetter() {
   };
 
   await sleep(skip ? 0 : 380);
-  for (const block of WELCOME_LETTER_BLOCKS) {
-    await typeBlock(block);
+  for (const [index, block] of WELCOME_LETTER_BLOCKS.entries()) {
+    await typeBlock(block, index);
     if (!skip) await sleep(block.speed * 4);
   }
   reveal();
@@ -136,24 +166,7 @@ function renderOnboarding() {
   const step = state.onboardStep || 0;
 
   if (step === 0) {
-    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">
-      <div class="letter-screen">
-        <div class="letter-logo">${LOKAL_MARK_SVG}</div>
-        <p class="letter-line" data-letter="0"></p>
-        <div class="letter-sp"></div>
-        <p class="letter-mono" data-letter="1"></p>
-        <div class="letter-sp"></div>
-        <p class="letter-mono" data-letter="2"></p>
-        <div class="letter-sp"></div>
-        <p class="letter-mono" data-letter="3"></p>
-        <div class="letter-foot">
-          <p class="letter-from" data-letter="4"></p>
-          <p class="letter-sign" data-letter="5"></p>
-          <button class="letter-btn letter-cta" data-onboard-start data-account-type="person">get started</button>
-          <button class="letter-venue-link letter-cta" data-onboard-start data-account-type="venue">have a venue? join here</button>
-        </div>
-      </div>
-    </div>`);
+    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
     playWelcomeLetter();
     return;
   }
