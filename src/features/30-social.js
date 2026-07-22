@@ -65,6 +65,7 @@ function friendInitials(name) {
 function addFriendToPrivateGroup(group, name) {
   if (!state.privateGroupMembers[group]) state.privateGroupMembers[group] = ["You"];
   if (!state.privateGroupMembers[group].includes(name)) state.privateGroupMembers[group].push(name);
+  submitGroupMembership(group, name, "active", "invite");
 }
 
 function removeGroupMembership(name) {
@@ -72,6 +73,7 @@ function removeGroupMembership(name) {
   state.joinedGroups.delete(name);
   state.pinnedGroups.delete(name);
   state.newGroups = state.newGroups.filter(group => group.name !== name);
+  submitGroupMembership(name, "You", "left", "leave");
 }
 
 function groupSuggestedEvents(name, limit = 4) {
@@ -115,10 +117,13 @@ function currentUserName() {
 function acceptFriendship(name) {
   const you = currentUserName();
   state.friends.add(name);
+  state.friendSignupCredits.add(name);
+  localStorage.setItem("lokalFriendSignupCredits", JSON.stringify(Array.from(state.friendSignupCredits)));
   if (!state.friendConnections[you]) state.friendConnections[you] = [];
   if (!state.friendConnections[name]) state.friendConnections[name] = [];
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
   if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
+  submitFriendRelationship(name, "accepted", "demo");
 }
 
 function groupContent() {
@@ -252,8 +257,12 @@ function openAllFriends() {
 
 function followingContent() {
   const accounts = [["songbyrd","S","Songbyrd Music House","Venue","Concerts, DJ nights, and neighborhood picks"],["dcafterdark","D","@dcafterdark","Local curator","Late-night lists and weekend roundups"],["smithsonian","M","Smithsonian After Hours","Venue collection","Museum events worth planning around"],["eaterdc","E","@eater_dc","Food curator","Pop-ups, openings, and neighborhood food guides"]];
+  const followedAccounts = accounts.filter(account => state.follows.has(account[0]));
+  const followedVenues = followedVenueNames().map(name => ["venue:" + name, String(name).slice(0, 1).toUpperCase(), name, "Venue", "Followed from Discover"]);
+  const visible = [...followedVenues, ...followedAccounts];
+  if (!visible.length) return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues from Discover to build this page. Once you follow one, it will show here and shape your feed.</p></div><p class="section-helper">You are not following any venues or curators yet.</p>`;
   return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues, public groups, and curators to shape what shows up in Discover.</p></div>
-  <div class="follow-list">${accounts.map(account => { const followed = state.follows.has(account[0]); return `<div class="follow-card"><span class="group-icon">${account[1]}</span><span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button ${followed ? "selected" : ""}" data-follow="${account[0]}">${followed ? "Following" : "Follow"}</button></div>`; }).join("")}</div>`;
+  <div class="follow-list">${visible.map(account => `<div class="follow-card"><span class="group-icon">${account[1]}</span><span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button selected" data-follow="${account[0]}">Following</button></div>`).join("")}</div>`;
 }
 
 function personalizedEvents(limit = 3) {
@@ -302,11 +311,23 @@ function combinedPlannerList(plans) {
   if (!plans.length) return savedEmptyState();
   return `<div class="planner-list">${plans.map(event => {
     const status = state.rsvps.has(event.id) ? "RSVP" : "Saved";
+    const attended = state.attended.has(event.id);
+    const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
     return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${status}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`;
   }).join("")}</div>`;
+}
+
+function pastAttendanceSection() {
+  const receipts = typeof profileReceipts === "function" ? profileReceipts() : [];
+  const rows = receipts.slice(0, 6).map((receipt, index) => attendanceRow(receipt, index)).join("");
+  const helper = receipts.length
+    ? `<p class="section-helper">These are events you marked as attended. They also appear on your Profile and count toward Lokal score.</p>`
+    : `<p class="section-helper">When you mark a past saved event as "I went," it will show up here and on your Profile.</p>`;
+  const more = receipts.length > 6 ? `<button class="text-button view-all-receipts" data-profile-list="attended">View all ${receipts.length}</button>` : "";
+  return `<section class="section saved-plans-section past-events-section"><div class="section-heading"><div><p class="eyebrow">Previous events</p><h2>Actually attended</h2></div></div>${helper}${rows ? `<div class="attend-list">${rows}</div>${more}` : ""}</section>`;
 }
 
 function venueSavedEvents() {
@@ -326,7 +347,7 @@ function venueHostedList(eventsToShow) {
   if (!eventsToShow.length) return `<p class="section-helper empty-planner">No upcoming hosted events are connected to this venue yet. Use the + button on Profile to submit one for review.</p>`;
   return `<div class="planner-list">${eventsToShow.map(event => `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${escapeHtml(discoverCategoryLabel(event.cat))}</span><button class="text-button" data-share="${event.id}">Share</button></div>
+    <div class="planner-actions"><span>${escapeHtml(discoverCategoryLabel(event.cat))}</span><button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`).join("")}</div>`;
 }
 
@@ -353,6 +374,7 @@ function renderSocial() {
     <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Top 3</h2></div></div>${savedSuggestionRail()}</section>
     <section class="section planner-calendar-section"><div class="section-heading"><div><h2>Calendar</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><h2>Your Plans</h2></div></div>${combinedPlannerList(allPlans)}</section>
+    ${pastAttendanceSection()}
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
@@ -368,10 +390,14 @@ function savedPlannerEvents(mode = "all") {
 
 function plannerList(plans, emptyText, statusLabel) {
   if (!plans.length) return `<p class="section-helper empty-planner">${emptyText}</p>`;
-  return `<div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}">
+  return `<div class="planner-list">${plans.map(event => {
+    const attended = state.attended.has(event.id);
+    const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
+    return `<article class="planner-card planner-${event.cat}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${statusLabel}</span><button class="text-button" data-share="${event.id}">Share</button></div>
-  </article>`).join("")}</div>`;
+    <div class="planner-actions"><span>${attended ? "Attended" : statusLabel}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
+  </article>`;
+  }).join("")}</div>`;
 }
 
 function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it will appear in Your Plans.") {
@@ -430,7 +456,7 @@ function openFriend(name) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal friend-profile" role="dialog" aria-modal="true" aria-label="${name} profile"><button class="modal-close" aria-label="Close friend profile">&times;</button>
     <div class="friend-profile-head"><div class="profile-avatar">${profile[0]}</div><div><p class="eyebrow">${isFriend ? "Friend profile" : "Profile preview"}</p><h2>${escapeHtml(name)}</h2><p>${escapeHtml(profile[2])} / ${escapeHtml(profile[4] || "Washington, DC")}</p></div></div>
     <div class="friendship-status ${isFriend ? "" : "pending"}"><b>${isFriend ? "Friends" : "Not friends yet"}</b><p>${isFriend ? `${name} shares event interests with you.` : "Add them to see more profile activity in a full app."}</p></div>
-    <div class="friend-profile-actions"><button class="secondary" data-share-profile="${name}">Share profile</button></div>
+    <div class="friend-profile-actions"><button class="secondary" data-message-friend="${escapeHtml(name)}">Message</button><button class="secondary" data-share-profile="${escapeHtml(name)}">Share profile</button></div>
     <p class="eyebrow">Interested in</p><div class="chips profile-taste-chips">${tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("")}</div>
     <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
   </section></div>`;

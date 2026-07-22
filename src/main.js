@@ -32,4 +32,6 @@ const appSource = featureScripts
   .map(([name, source]) => `\n// ${name}\n${source}`)
   .join("\n");
 
-(0, eval)(`${appSource}\n//# sourceURL=/src/lokal-vite-app.js`);
+const script = document.createElement("script");
+script.textContent = `${appSource}\n//# sourceURL=/src/lokal-vite-app.js`;
+document.body.appendChild(script);

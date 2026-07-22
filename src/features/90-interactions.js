@@ -4,8 +4,18 @@ document.addEventListener("click", async event => {
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
+  if (loggedKey && typeof recordAppAction === "function") {
+    recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
+      value: t.dataset[loggedKey] || "",
+      eventId: t.dataset.eventId || "",
+      groupName: t.dataset.groupName || "",
+      friendName: t.dataset.friendName || ""
+    });
+  }
   if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
-  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); }
+  if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; state.resetDiscoverScrollAfterRender = t.dataset.homeFilter === "for-you"; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); resetAppScroll(); if (state.resetDiscoverScrollAfterRender) setTimeout(() => { resetAppScroll(); state.resetDiscoverScrollAfterRender = false; }, 1200); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
@@ -18,7 +28,23 @@ document.addEventListener("click", async event => {
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
-  if (t.dataset.feedMode) { mark(); const mode = t.dataset.feedMode; if (mode !== state.feedMode) { state.feedMode = mode; state.feedShown = 10; if (mode === "blended" && state.blendedFeed.status !== "ready") fetchBlendedFeed(); else renderHome(); } }
+  if (t.dataset.feedMode) {
+    mark();
+    const mode = t.dataset.feedMode;
+    if (mode !== state.feedMode) {
+      state.feedMode = mode;
+      state.feedShown = 10;
+      state.resetDiscoverScrollAfterRender = true;
+      resetAppScroll();
+      if (mode === "blended" && state.blendedFeed.status !== "ready") {
+        await fetchBlendedFeed();
+      } else {
+        renderHome();
+      }
+      resetAppScroll();
+      setTimeout(() => { resetAppScroll(); state.resetDiscoverScrollAfterRender = false; }, 250);
+    }
+  }
   if (t.dataset.neighborhood !== undefined) { mark(); state.neighborhoodFilter = t.dataset.neighborhood; state.feedShown = 10; renderHome(); }
   if (t.dataset.daytime !== undefined) { mark(); const colon = t.dataset.daytime.indexOf(":"); const dim = t.dataset.daytime.slice(0, colon); const val = t.dataset.daytime.slice(colon + 1); if (dim === "date") state.filter.date = val || "Any date"; else if (dim === "time") state.filter.time = val || "Any time"; state.feedShown = 10; renderHome(); }
   if (t.dataset.pickDate !== undefined) { mark(); openDatePickerSheet(); }
@@ -64,37 +90,59 @@ document.addEventListener("click", async event => {
     saveEventInteraction(id, "rsvp", isRsvp);
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
   }
-  if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await navigator.clipboard?.writeText(lokalEventShareUrl(shareEvent)); } catch {} const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
+  if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await copyText(lokalEventShareUrl(shareEvent)); } catch { toast("Could not copy the link"); return; } const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
+  if (t.dataset.addCalendar) { mark(); addEventToCalendar(t.dataset.calendarEvent, t.dataset.addCalendar); }
   if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
+  if (t.dataset.planAttended) { mark(); const result = markEventAttended(Number(t.dataset.planAttended)); if (state.route === "social") renderSocial(); else if (state.route === "profile") renderProfile(); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }
   if (t.dataset.calendarDay) { mark(); openCalendarPlans(t.dataset.calendarDay); }
   if (t.dataset.plannerWeek) { mark(); state.plannerWeekOffset += Number(t.dataset.plannerWeek); renderSocial(); }
-  if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await navigator.clipboard?.writeText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast("Share canceled"); } }
-  if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await navigator.clipboard?.writeText(lokalEventSharePayload(eventToShare)); } catch {} toast("Lokal event copied"); }
-  if (t.dataset.postStory) { mark(); const eventId = Number(t.dataset.postStory); state.storyPosts = [{ eventId, postedAt: Date.now() }, ...state.storyPosts.filter(post => post.eventId !== eventId)].slice(0, 12); localStorage.setItem("lokalStoryPosts", JSON.stringify(state.storyPosts)); modalRoot.innerHTML = ""; if (state.route === "home") renderHome(); toast("Added to your story"); }
-  if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await navigator.clipboard?.writeText(profileUrl); } catch {} toast("Profile link copied"); }
-  if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; openGroup(group); toast(`Event sent to ${group}`); }
-  if (t.dataset.copyLink !== undefined) { mark(); try { await navigator.clipboard?.writeText(location.href); } catch {} toast("Demo link copied"); }
-  if (t.dataset.addFriendsLink !== undefined) { mark(); openSimpleSheet("Add friends", "Share this link to invite someone to Lokal. After installing the app, they will be connected to your profile.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button>`); }
-  if (t.dataset.copyAppInvite !== undefined) { mark(); try { await navigator.clipboard?.writeText("https://lokal.app/join"); } catch {} toast("App invite link copied"); }
+  if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await copyText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast(navigator.share ? "Share canceled" : "Could not copy the event"); } }
+  if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await copyText(lokalEventSharePayload(eventToShare)); toast("Lokal event copied"); } catch { toast("Could not copy the event"); } }
+  if (t.dataset.postStory) { mark(); const eventId = Number(t.dataset.postStory); state.storyPosts = [{ eventId, postedAt: Date.now(), source: "user" }, ...state.storyPosts.filter(post => post.eventId !== eventId)].slice(0, 12); localStorage.setItem("lokalStoryPosts", JSON.stringify(state.storyPosts)); modalRoot.innerHTML = ""; if (state.route === "home") renderHome(); toast("Added to your story"); }
+  if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await copyText(profileUrl); toast("Profile link copied"); } catch { toast("Could not copy the profile link"); } }
+  if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "event", eventId }); openGroup(group); toast(`Event sent to ${group}`); }
+  if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
+  if (t.dataset.addFriendsLink !== undefined) {
+    mark();
+    const existingFriends = friendDirectory
+      .filter(friend => state.friends.has(friend[1]))
+      .map(friend => friendCard(friend))
+      .join("");
+    const suggestions = friendDirectory
+      .filter(friend => !state.friends.has(friend[1]))
+      .slice(0, 10)
+      .map(friend => friendCard(friend, "add"))
+      .join("");
+    openSimpleSheet("Add friends", "Share your Lokal invite link, search your current friends, or find new people to add.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><div class="friend-search-columns"><section class="friend-search-column"><p class="eyebrow group-divider">Search your friends</p><label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Search friends you already have" aria-label="Search friends you already have"></label><div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div><p class="search-empty" data-existing-friend-empty>No current friends match that search.</p></section><section class="friend-search-column"><p class="eyebrow group-divider">Find new friends</p><label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="Search people to add" aria-label="Search people to add"></label><div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-new-friend-empty>No new people match that search.</p></section></div>`);
+  }
+  if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1; localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent)); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
   if (t.dataset.notifications !== undefined) openNotifications();
   if (t.dataset.moreFilters !== undefined) openFilters();
   if (t.dataset.refreshEvents !== undefined) syncSupabaseEvents(true);
-  if (t.dataset.location !== undefined) toast("Location enabled for nearby events");
+  if (t.dataset.location !== undefined) {
+    mark();
+    if (!navigator.geolocation) { toast("Location is not available on this device"); }
+    else navigator.geolocation.getCurrentPosition(position => {
+      state.userLocation = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+      localStorage.setItem("lokalUserLocation", JSON.stringify(state.userLocation));
+      toast("Location enabled for nearby events");
+    }, error => toast(error.code === 1 ? "Location permission was not granted" : "Could not get your location"), { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+  }
   if (t.dataset.mapArea !== undefined) { mark(); const input = document.querySelector("[data-map-search]"); state.mapSearch = input?.value.trim() || ""; applyMapSearch(); renderMap(); toast(state.mapSearch ? `Showing ${state.mapSearch}` : "Showing all DC events"); }
   if (t.dataset.mapZoom) { mark(); if (t.dataset.mapZoom === "reset") { state.mapZoom = 1; state.mapSearch = ""; state.mapCenter = { x: 50, y: 50 }; } renderMap(); }
   if (t.dataset.createGroup !== undefined) openCreateGroup();
   if (t.dataset.groupType) { state.groupType = t.dataset.groupType; document.querySelectorAll(".group-type").forEach(button => button.classList.toggle("selected", button.dataset.groupType === state.groupType)); }
-  if (t.dataset.saveGroup !== undefined) { const input = document.querySelector("[data-group-name]"); const name = input?.value.trim() || "New Lokal group"; const labels = { private: "Private", event: "Event chat", public: "Public" }; if (state.leftGroups.has(name)) { toast("Choose a different group name"); return; } state.newGroups.unshift({ name, type: labels[state.groupType] }); if (state.groupType !== "public" && !state.privateGroupMembers[name]) state.privateGroupMembers[name] = ["You"]; modalRoot.innerHTML = ""; state.socialTab = "groups"; renderSocial(); toast(`${name} created`); }
+  if (t.dataset.saveGroup !== undefined) { const input = document.querySelector("[data-group-name]"); const name = input?.value.trim() || "New Lokal group"; const labels = { private: "Private", event: "Event chat", public: "Public" }; if (state.leftGroups.has(name)) { toast("Choose a different group name"); return; } state.newGroups.unshift({ name, type: labels[state.groupType] }); if (state.groupType !== "public" && !state.privateGroupMembers[name]) state.privateGroupMembers[name] = ["You"]; submitGroupMembership(name, "You", "active", "create", "owner"); [...document.querySelectorAll("[data-selected-group-friends] span")].map(item => item.textContent.trim()).filter(Boolean).forEach(friend => addFriendToPrivateGroup(name, friend)); modalRoot.innerHTML = ""; state.socialTab = "groups"; renderSocial(); toast(`${name} created`); }
   if (t.dataset.openGroup) openGroup(t.dataset.openGroup);
   if (t.dataset.openFriend) openFriend(t.dataset.openFriend);
   if (t.dataset.invite !== undefined) openInvite(t.dataset.groupName);
   if (t.dataset.backGroup) openGroup(t.dataset.backGroup);
-  if (t.dataset.copyInvite !== undefined) toast("Invite link copied");
+  if (t.dataset.copyInvite !== undefined) { mark(); const input = t.closest(".invite-sheet")?.querySelector("input[readonly]"); try { await copyText(input?.value || "https://lokal.app/join"); state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1; localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent)); toast("Invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.addInvite !== undefined) { mark(); t.textContent = "Added"; t.classList.add("selected"); toast("Friend invited"); }
   if (t.dataset.invitePeopleOption) { const group = t.dataset.groupName; addFriendToPrivateGroup(group, t.dataset.invitePeopleOption); if (state.route === "social") renderSocial(); const selected = document.querySelector("[data-selected-invite-people]"); const input = document.querySelector("[data-invite-people-search]"); if (selected && !selected.textContent.includes(t.dataset.invitePeopleOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.invitePeopleOption}</span>`); if (input) input.value = ""; const results = document.querySelector("[data-invite-people-results]"); if (results) { results.hidden = true; results.innerHTML = ""; } toast(`${t.dataset.invitePeopleOption} added to ${group}`); }
   if (t.dataset.groupFriendOption) { const selected = document.querySelector("[data-selected-group-friends]"); const input = document.querySelector("[data-create-friends]"); if (selected && !selected.textContent.includes(t.dataset.groupFriendOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.groupFriendOption}</span>`); if (input) input.value = ""; const autocomplete = document.querySelector("[data-autocomplete]"); if (autocomplete) { autocomplete.hidden = true; autocomplete.innerHTML = ""; } toast(`${t.dataset.groupFriendOption} added to group`); }
@@ -104,8 +152,8 @@ document.addEventListener("click", async event => {
   if (t.dataset.schedule !== undefined) { mark(); openSimpleSheet("Schedule an event", "Add an event for the group and let members know when it is happening.", `<label class="settings-field">Event name<input placeholder="Event name"></label><label class="settings-field">Date and time<input type="datetime-local"></label><button class="wide-button" data-confirm-schedule>Schedule event</button>`); }
   if (t.dataset.confirmSchedule !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Event scheduled for the group"); }
   if (t.dataset.shareGroupEvent !== undefined) { mark(); const group = t.dataset.shareGroupEvent; openSimpleSheet("Share an event", "Choose an event to send to this group.", `<div class="interest-list">${groupSharePicker(group)}</div>`); }
-  if (t.dataset.sendEvent !== undefined) { mark(); const group = t.dataset.groupName; const eventId = Number(t.dataset.sendEvent); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Event added to group messages"); }
-  if (t.dataset.joinGroup) { if (state.leftGroups.has(t.dataset.joinGroup)) { toast("You left this group"); return; } state.joinedGroups.add(t.dataset.joinGroup); if (state.route === "social") renderSocial(); openGroup(t.dataset.joinGroup); toast("Group joined"); }
+  if (t.dataset.sendEvent !== undefined) { mark(); const group = t.dataset.groupName; const eventId = Number(t.dataset.sendEvent); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "event", eventId }); openGroup(group); toast("Event added to group messages"); }
+  if (t.dataset.joinGroup) { if (state.leftGroups.has(t.dataset.joinGroup)) { toast("You left this group"); return; } state.joinedGroups.add(t.dataset.joinGroup); submitGroupMembership(t.dataset.joinGroup, "You", "active", "join"); if (state.route === "social") renderSocial(); openGroup(t.dataset.joinGroup); toast("Group joined"); }
   if (t.dataset.groupOptions) { modalRoot.innerHTML += `<div class="options-menu"><button data-pin-group="${t.dataset.groupOptions}">${state.pinnedGroups.has(t.dataset.groupOptions) ? "Unpin group" : "Pin group"}</button><button data-leave-group="${t.dataset.groupOptions}">Leave group</button></div>`; }
   if (t.dataset.pinGroup) { state.pinnedGroups.has(t.dataset.pinGroup) ? state.pinnedGroups.delete(t.dataset.pinGroup) : state.pinnedGroups.add(t.dataset.pinGroup); modalRoot.innerHTML = ""; renderSocial(); toast("Group list updated"); }
   if (t.dataset.leaveGroup) { removeGroupMembership(t.dataset.leaveGroup); modalRoot.innerHTML = ""; renderSocial(); toast("You left the group"); }
@@ -113,10 +161,10 @@ document.addEventListener("click", async event => {
   if (t.dataset.seeMorePublicGroups !== undefined) openPublicGroupDirectory();
   if (t.dataset.removePlan) { if (!state.removedPlans) state.removedPlans = new Set(); const id = Number(t.dataset.removePlan); state.removedPlans.add(id); state.rsvps.delete(id); state.saved.delete(id); saveEventInteraction(id, "remove", false); renderProfile(); openProfileList("plans"); toast("Plan removed"); }
   if (t.dataset.groupView) { document.querySelectorAll("[data-group-view]").forEach(button => button.classList.toggle("selected", button.dataset.groupView === t.dataset.groupView)); document.querySelectorAll("[data-group-panel]").forEach(panel => panel.hidden = panel.dataset.groupPanel !== t.dataset.groupView); }
-  if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { state.groupMessages[group] = [{ type: "text", text: input.value.trim() }, ...(state.groupMessages[group] || [])]; openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
+  if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { const text = input.value.trim(); state.groupMessages[group] = [{ type: "text", text }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "text", text }); openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.manageFollowing !== undefined) { mark(); openFollowingManager(); }
-  if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
-  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const on = !state.follows.has(key); on ? state.follows.add(key) : state.follows.delete(key); t.classList.toggle("selected", on); t.textContent = on ? "Following" : "Follow"; toast(on ? `Following ${key.slice(6)}` : "Unfollowed venue"); }
+  if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
+  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); const inFollowedVenuesSheet = Boolean(t.closest(".followed-venues-sheet")); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : inFollowedVenuesSheet ? "profile_following" : "venue_page"); t.classList.toggle("selected", on); t.textContent = t.classList.contains("detail-follow-venue") ? (on ? "Following venue" : "Follow venue") : inFollowedVenuesSheet ? "Unfollow venue" : (on ? "Following" : "Follow"); if (inFollowedVenuesSheet && typeof openFollowedVenuesList === "function") openFollowedVenuesList(document.querySelector("[data-followed-venue-search]")?.value || ""); if (state.route === "home") renderHome(); if (state.route === "profile") renderProfile(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
   if (t.dataset.dismissVenueVerification !== undefined) {
     mark();
@@ -222,7 +270,7 @@ document.addEventListener("click", async event => {
     renderProfile();
     toast("Tastes updated");
   }
-  if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); openGroup(request.name); } else if (request?.type === "friend") { acceptFriendship(request.name); if (state.route === "social") renderSocial(); openFriend(request.name); } toast(request?.type === "friend" ? `${request.name} is now your friend` : "Request accepted"); }
+  if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); submitGroupMembership(request.name, "You", "active", "request"); openGroup(request.name); } else if (request?.type === "friend") { acceptFriendship(request.name); if (state.route === "social") renderSocial(); openFriend(request.name); } toast(request?.type === "friend" ? `${request.name} is now your friend` : "Request accepted"); }
   if (t.dataset.declineRequest) { state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.declineRequest); openNotifications(); toast("Request declined"); }
   if (t.dataset.notificationProfile !== undefined) { modalRoot.innerHTML = ""; setRoute("profile"); toast("Profile activity opened"); }
   if (t.dataset.notificationGroup) { modalRoot.innerHTML = ""; openGroup(t.dataset.notificationGroup); toast(`Opened ${t.dataset.notificationGroup}`); }
@@ -231,8 +279,8 @@ document.addEventListener("click", async event => {
   if (t.dataset.storyNext !== undefined) openStory(Number(t.dataset.storyNext) + 1);
   if (t.dataset.directInbox !== undefined) { mark(); openDirectInbox(); }
   if (t.dataset.openDirectChat) { mark(); openDirectChat(t.dataset.openDirectChat); }
-  if (t.dataset.messageFriend) { mark(); toast("Direct messages are not part of this demo flow"); }
-  if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text: input.value.trim() }]; openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
+  if (t.dataset.messageFriend) { mark(); openDirectChat(t.dataset.messageFriend); }
+  if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { const text = input.value.trim(); state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text }]; submitDirectMessage(name, text); openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>&#8981;</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
   if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
@@ -259,7 +307,14 @@ document.addEventListener("click", async event => {
     renderProfile();
     toast(isVenueAccount() ? "Venue profile updated" : state.age < 21 ? "Profile updated. 21+ picks hidden." : state.privateAccount ? "Profile updated. Account is private." : "Profile updated");
   }
-  if (t.dataset.ticket !== undefined) toast("External ticket link opened in the real app");
+  if (t.dataset.ticket !== undefined) {
+    mark();
+    const eventToOpen = events.find(item => item.id === Number(t.dataset.ticket));
+    const destination = eventToOpen?.detailsUrl || (eventToOpen ? lokalEventShareUrl(eventToOpen) : "");
+    if (!destination) { toast("No event link is available"); return; }
+    const opened = window.open(destination, "_blank", "noopener,noreferrer");
+    if (!opened) window.location.assign(destination);
+  }
   if (t.dataset.socialTab) { state.socialTab = t.dataset.socialTab; renderSocial(); }
   if (t.dataset.hype) { const id = Number(t.dataset.hype); state.hype.has(id) ? state.hype.delete(id) : state.hype.add(id); renderSocial(); toast(state.hype.has(id) ? "Added to your radar" : "Removed from your radar"); }
   if (t.dataset.mapEvent) { const e = events.find(x => x.id === Number(t.dataset.mapEvent)); const card = document.querySelector("#map-card"); card.innerHTML = eventRow(e); card.classList.add("visible"); }
@@ -498,6 +553,18 @@ modalRoot.addEventListener("touchend", event => {
 
 document.addEventListener("input", event => {
   const input = event.target;
+  const filterFriendCards = (query, listSelector, emptySelector) => {
+    const list = document.querySelector(listSelector);
+    if (!list) return;
+    let visible = 0;
+    list.querySelectorAll("[data-friend-card]").forEach(card => {
+      const match = card.dataset.searchText.includes(query);
+      card.style.display = match ? "" : "none";
+      if (match) visible++;
+    });
+    const empty = document.querySelector(emptySelector);
+    if (empty) empty.style.display = visible ? "none" : "block";
+  };
   if (input.matches("[data-signup-phone], [data-onboard-phone]")) {
     const digits = input.value.replace(/\D/g, "").slice(0, 10);
     input.value = digits.length > 6 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : digits.length > 3 ? `(${digits.slice(0, 3)}) ${digits.slice(3)}` : digits.length ? `(${digits}` : "";
@@ -519,6 +586,18 @@ document.addEventListener("input", event => {
     let visible = 0;
     document.querySelectorAll("[data-friend-card]").forEach(card => { const match = card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; if (match) visible++; });
     const empty = document.querySelector("[data-friend-empty]"); if (empty) empty.style.display = visible ? "none" : "block";
+  }
+  if (input.matches("[data-existing-friend-search]")) {
+    filterFriendCards(input.value.trim().toLowerCase(), "[data-existing-friend-list]", "[data-existing-friend-empty]");
+  }
+  if (input.matches("[data-new-friend-search]")) {
+    filterFriendCards(input.value.trim().toLowerCase(), "[data-new-friend-list]", "[data-new-friend-empty]");
+  }
+  if (input.matches("[data-followed-venue-search]")) {
+    const list = document.querySelector("[data-followed-venue-list]");
+    if (list && typeof followedVenueRows === "function") {
+      list.innerHTML = followedVenueRows(input.value) || `<p class="section-helper">You are not following any matching venues yet.</p>`;
+    }
   }
   if (input.matches("[data-create-friends]")) {
     const query = input.value.trim().toLowerCase();

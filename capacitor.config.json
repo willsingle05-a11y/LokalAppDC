@@ -1,0 +1,11 @@
+{
+  "appId": "com.lokalapp.dc",
+  "appName": "Lokal",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "scheme": "Lokal"
+  }
+}

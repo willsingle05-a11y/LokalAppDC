@@ -27,6 +27,11 @@ button { border: 0; color: inherit; cursor: pointer; font: inherit; }
 button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
 .demo-stage { min-height: 100vh; }
 .demo-sidebar { display: none; }
+.production-app .demo-stage {
+  display: block;
+  padding: 0;
+}
+.production-app .demo-sidebar { display: none !important; }
 .app-shell {
   position: relative;
   width: min(100%, 620px);
@@ -483,6 +488,9 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
   .app-shell { width: 620px; margin: 0; min-height: calc(100vh - 48px); border-radius: 25px; }
   .bottom-nav { right: auto; left: calc(50% - 113px); bottom: 34px; width: 600px; }
   .modal { margin-bottom: 24px; }
+  .production-app body { background: #e7edf2; }
+  .production-app .demo-stage { display: block; padding: 0; }
+  .production-app .app-shell { margin: 0 auto; min-height: 100vh; }
 }
 
 
