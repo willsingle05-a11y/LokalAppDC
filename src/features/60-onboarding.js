@@ -12,11 +12,12 @@ const LOKAL_MARK_SVG = `<svg width="40" height="40" viewBox="0 0 36 36" fill="no
 // sequence with a blinking cursor; green segments (g:true) are the emphasized words.
 const WELCOME_LETTER_BLOCKS = [
   { id: 0, speed: 46, segs: [{ t: "hey, friend" }] },
-  { id: 1, speed: 30, segs: [{ t: "we built lokal because we wanted to get the most out of our " }, { t: "lives", g: true }, { t: ", to experience more, with more " }, { t: "people", g: true }, { t: "." }] },
-  { id: 2, speed: 32, segs: [{ t: "as " }, { t: "DC locals", g: true }, { t: ", we know this city never stops. most people just never knew." }] },
-  { id: 3, speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
-  { id: 4, speed: 40, segs: [{ t: "your friends," }] },
-  { id: 5, speed: 44, segs: [{ t: "Jack, Will & Reese" }] }
+  { id: 1, speed: 32, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never know." }] },
+  { id: 2, speed: 30, segs: [{ t: "So...we built Lokal because we want to get the most out of our " }, { t: "lives;", g: true }, { t: "to experience more with more " }, { t: "people", g: true }, { t: "." }] },
+  { id: 3, speed: 34, segs: [{ t: "And we bet you are here because you feel the same way" }]},
+  { id: 4, speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
+  { id: 5, speed: 40, segs: [{ t: "your friends," }] },
+  { id: 6, speed: 44, segs: [{ t: "Jack, Will & Reese" }] }
 ];
 
 function welcomeLetterTotal(segs) {
