@@ -9333,6 +9333,24 @@ document.addEventListener("click", async event => {
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
   if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
   if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
+  if (t.dataset.feedback !== undefined) { mark(); openFeedbackSheet(); }
+  if (t.dataset.submitFeedback !== undefined) {
+    mark();
+    const message = document.querySelector("[data-feedback-message]")?.value.trim() || "";
+    const error = document.querySelector("[data-feedback-error]");
+    if (!message) { if (error) error.textContent = "Type your feedback before submitting."; return; }
+    t.disabled = true;
+    if (error) error.textContent = "";
+    try {
+      await submitFeedbackSubmission(message);
+      modalRoot.innerHTML = "";
+      toast("Feedback sent");
+    } catch (feedbackError) {
+      if (error) error.textContent = "Could not send feedback. Try again in a moment.";
+      t.disabled = false;
+      console.warn("[supabase] feedback submission failed", feedbackError);
+    }
+  }
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
