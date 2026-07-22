@@ -1,5 +1,124 @@
 // Inspirational lines that rotate on the welcome screen (CSS-animated).
 const ONBOARD_ROTATOR_LINES = ["The city is in motion.", "Find your people.", "Find your home in DC.", "Never miss the moment."];
+
+// The little person mark used on the welcome letter and the login/reset screens.
+const LOKAL_MARK_SVG = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <circle cx="18" cy="12" r="5" stroke="#2D5A2D" stroke-width="1.8"/>
+  <path d="M8 30c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#2D5A2D" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M18 22v8M14 28l4 2 4-2" stroke="#2D5A2D" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+// A warm, hand-typed welcome letter from the founders. Each block is typed out in
+// sequence with a blinking cursor; green segments (g:true) are the emphasized words.
+const WELCOME_LETTER_BLOCKS = [
+  { id: 0, speed: 46, segs: [{ t: "hey, friend" }] },
+  { id: 1, speed: 30, segs: [{ t: "we built lokal because we wanted to get the most out of our " }, { t: "lives", g: true }, { t: ", to experience more, with more " }, { t: "people", g: true }, { t: "." }] },
+  { id: 2, speed: 32, segs: [{ t: "as " }, { t: "DC locals", g: true }, { t: ", we know this city never stops. most people just never knew." }] },
+  { id: 3, speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
+  { id: 4, speed: 40, segs: [{ t: "your friends," }] },
+  { id: 5, speed: 44, segs: [{ t: "Jack, Will & Reese" }] }
+];
+
+function welcomeLetterTotal(segs) {
+  return segs.reduce((sum, seg) => sum + [...seg.t].length, 0);
+}
+
+// Build the partial HTML for a block, revealing `upTo` characters, wrapping the
+// emphasized segments in a green span.
+function welcomeLetterHtml(segs, upTo) {
+  let count = 0;
+  let html = "";
+  for (const seg of segs) {
+    let piece = "";
+    for (const character of [...seg.t]) {
+      if (count >= upTo) break;
+      piece += escapeHtml(character);
+      count++;
+    }
+    if (piece) html += seg.g ? `<span class="letter-g">${piece}</span>` : piece;
+    if (count >= upTo) break;
+  }
+  return html;
+}
+
+// Runs the typewriter reveal after the welcome letter is inserted. Tapping the
+// letter (anywhere but a button) fast-forwards to the end; reduced-motion users
+// get the whole letter instantly.
+async function playWelcomeLetter() {
+  const screen = document.querySelector(".onboard-letter-screen");
+  if (!screen || screen.dataset.played) return;
+  screen.dataset.played = "1";
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const reveal = () => { screen.querySelectorAll(".letter-cta").forEach(node => node.classList.add("show")); };
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let skip = reduce;
+  screen.addEventListener("click", event => { if (!event.target.closest("button")) skip = true; });
+
+  const typeBlock = async block => {
+    const el = screen.querySelector(`[data-letter="${block.id}"]`);
+    if (!el) return;
+    const total = welcomeLetterTotal(block.segs);
+    if (skip) { el.innerHTML = welcomeLetterHtml(block.segs, total); return; }
+    const cursor = document.createElement("span");
+    cursor.className = "letter-cur";
+    for (let i = 1; i <= total; i++) {
+      if (skip) break;
+      el.innerHTML = welcomeLetterHtml(block.segs, i);
+      el.appendChild(cursor);
+      await sleep(block.speed + (Math.random() * 16 - 8));
+    }
+    el.innerHTML = welcomeLetterHtml(block.segs, total);
+  };
+
+  await sleep(skip ? 0 : 380);
+  for (const block of WELCOME_LETTER_BLOCKS) {
+    await typeBlock(block);
+    if (!skip) await sleep(block.speed * 4);
+  }
+  reveal();
+}
+
+// Returning users who have logged out land here: re-enter email / username / phone
+// + password. Warm styling mirrors the welcome letter.
+function renderLogin() {
+  document.querySelector(".onboarding")?.remove();
+  const lastIdentifier = localStorage.getItem("lokalLastIdentifier") || "";
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen auth-screen">
+    <div class="letter-screen auth-card">
+      <div class="letter-logo">${LOKAL_MARK_SVG}</div>
+      <h1 class="auth-title">welcome back</h1>
+      <p class="auth-sub">log in to pick up right where you left off.</p>
+      <div class="auth-fields">
+        <label class="letter-field"><span>email, username, or phone</span><input data-login-id type="text" autocomplete="username" value="${escapeHtml(lastIdentifier)}" placeholder="you@email.com"></label>
+        <label class="letter-field"><span>password</span><input data-login-password type="password" autocomplete="current-password" placeholder="your password"></label>
+      </div>
+      <button class="letter-link-right" data-show-forgot>forgot password?</button>
+      <p class="account-error" data-account-error></p>
+      <button class="letter-btn show" data-login-submit>log in</button>
+      <p class="auth-swap">new to lokal? <button class="letter-inline-link" data-show-signup>create an account</button></p>
+    </div>
+  </div>`);
+}
+
+// Password recovery — sends a Supabase reset email.
+function renderForgotPassword() {
+  document.querySelector(".onboarding")?.remove();
+  const lastIdentifier = localStorage.getItem("lokalLastIdentifier") || "";
+  const prefill = lastIdentifier.includes("@") ? lastIdentifier : "";
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen auth-screen">
+    <div class="letter-screen auth-card">
+      <div class="letter-logo">${LOKAL_MARK_SVG}</div>
+      <h1 class="auth-title">reset your password</h1>
+      <p class="auth-sub">enter your email and we'll send you a link to set a new one.</p>
+      <div class="auth-fields">
+        <label class="letter-field"><span>email</span><input data-reset-email type="email" autocomplete="email" value="${escapeHtml(prefill)}" placeholder="you@email.com"></label>
+      </div>
+      <p class="account-error" data-account-error></p>
+      <button class="letter-btn show" data-reset-submit>send reset link</button>
+      <p class="auth-swap"><button class="letter-inline-link" data-show-login>&#8249; back to log in</button></p>
+    </div>
+  </div>`);
+}
 const ONBOARD_INTEREST_OPTIONS = ["Live music", "Concerts", "Nightlife", "Happy hours", "Trivia", "Museums", "Performing arts", "Comedy", "Sports", "Festivals", "Food & drink", "Markets", "Community", "Free events"];
 const ONBOARD_AREA_OPTIONS = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia", "Columbia Heights", "Petworth", "The Wharf", "Downtown"];
 
@@ -16,22 +135,25 @@ function renderOnboarding() {
   const step = state.onboardStep || 0;
 
   if (step === 0) {
-    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-immersive">
-      <div class="welcome-bg"></div>
-      <div class="welcome-scrim"></div>
-      <div class="welcome-content">
-        <div class="welcome-top"><span class="welcome-brand">LOKAL</span><span class="welcome-place">Washington, DC</span></div>
-        <div class="welcome-message">
-          <p class="welcome-eyebrow">Welcome to your city</p>
-          <div class="welcome-rotator" aria-label="${escapeHtml(ONBOARD_ROTATOR_LINES.join(" "))}">${ONBOARD_ROTATOR_LINES.map(line => `<span>${escapeHtml(line)}</span>`).join("")}</div>
-          <p class="welcome-tagline">Discover what's happening, and who's already going.</p>
-        </div>
-        <div class="welcome-choice-row">
-          <button class="welcome-cta" data-onboard-start data-account-type="person">Join as a Local</button>
-          <button class="welcome-cta secondary" data-onboard-start data-account-type="venue">Join as a venue</button>
+    document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">
+      <div class="letter-screen">
+        <div class="letter-logo">${LOKAL_MARK_SVG}</div>
+        <p class="letter-line" data-letter="0"></p>
+        <div class="letter-sp"></div>
+        <p class="letter-mono" data-letter="1"></p>
+        <div class="letter-sp"></div>
+        <p class="letter-mono" data-letter="2"></p>
+        <div class="letter-sp"></div>
+        <p class="letter-mono" data-letter="3"></p>
+        <div class="letter-foot">
+          <p class="letter-from" data-letter="4"></p>
+          <p class="letter-sign" data-letter="5"></p>
+          <button class="letter-btn letter-cta" data-onboard-start data-account-type="person">get started</button>
+          <button class="letter-venue-link letter-cta" data-onboard-start data-account-type="venue">have a venue? join here</button>
         </div>
       </div>
     </div>`);
+    playWelcomeLetter();
     return;
   }
 
@@ -49,8 +171,8 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-venue>Continue</button>`;
   } else if (step === 1) {
-    inner = `<h1 class="onboard-title">First, what's your name?</h1>
-      <p class="lede">So friends know it's really you.</p>
+    inner = `<h1 class="onboard-title">First, what should we call you?</h1>
+      <p class="lede">So your friends know it's really you.</p>
       <div class="onboard-fields">
         <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
@@ -59,13 +181,15 @@ function renderOnboarding() {
       <button class="wide-button" data-onboard-name>Continue</button>`;
   } else if (step === 2) {
     const isVenueContact = d.accountType === "venue";
-    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "How can we reach you?"}</h1>
-      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "Your email and number keep your saves and plans in sync."}</p>
+    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "Let's set up your login."}</h1>
+      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "This is how you'll get back in and keep your plans in sync — even on a new phone."}</p>
       <div class="onboard-fields">
         ${isVenueContact ? `<label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters"></label>
+        <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-contact>Continue</button>`;

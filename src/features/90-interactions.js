@@ -238,8 +238,8 @@ document.addEventListener("click", async event => {
   if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
   if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
-  if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Sign out", "You'll be signed out of this demo session.", `<button class="wide-button" data-confirm-signout>Sign out</button>`); }
-  if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Signed out (demo)"); }
+  if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
+  if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
   if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
@@ -321,14 +321,19 @@ document.addEventListener("click", async event => {
     const phone = card.querySelector("[data-onboard-phone]").value.trim();
     const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
     const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
+    const password = card.querySelector("[data-onboard-password]")?.value || "";
+    const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
     if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
     try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); }
     catch (contactError) { error.textContent = contactError.message; return; }
+    if (password.length < 8) { error.textContent = "Use a password with at least 8 characters."; return; }
+    if (password !== confirmPassword) { error.textContent = "Those passwords don't match."; return; }
     state.signupDraft.firstName = first;
     state.signupDraft.lastName = last;
     state.signupDraft.email = email;
     state.signupDraft.phone = formattedPhone;
+    state.signupDraft.password = password;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 3;
     renderOnboarding();
@@ -365,6 +370,22 @@ document.addEventListener("click", async event => {
     finalizeLokalProfile(onboardingProfile);
     if (isVenue) registerLocalVenueProfile();
     let supabaseSynced = true;
+    // Create the real Supabase auth account (email + password) so the user can log
+    // back in and reset their password later. Failures don't block local entry.
+    if (draft.password) {
+      try {
+        await createLokalAccount({
+          fullName: fullName || username,
+          email: draft.email,
+          phone: draft.phone,
+          username,
+          birthdate: onboardingProfile.birthdate,
+          password: draft.password,
+          eventInterests,
+          areaInterests
+        });
+      } catch (accountError) { supabaseSynced = false; console.warn("[supabase] account creation failed", accountError); }
+    }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
     if (isVenue) {
@@ -385,6 +406,10 @@ document.addEventListener("click", async event => {
       } catch (error) { supabaseSynced = false; console.warn("[supabase] venue verification request failed", error); }
     }
     localStorage.setItem("lokalAccountCreated", "true");
+    // Mark that an account now exists on this device, so a later logout returns the
+    // user to the login screen (not the first-run welcome letter).
+    localStorage.setItem("lokalHasAccount", "true");
+    localStorage.setItem("lokalLastIdentifier", draft.email || username);
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     isVenue ? renderProfile() : renderHome();
@@ -422,6 +447,39 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
   if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("100 Lokal points for joining"); showDiscoverHint(); } }
+  if (t.dataset.showLogin !== undefined) { mark(); renderLogin(); }
+  if (t.dataset.showForgot !== undefined) { mark(); renderForgotPassword(); }
+  if (t.dataset.showSignup !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.signupDraft = {}; state.onboardStep = 0; renderOnboarding(); }
+  if (t.dataset.loginSubmit !== undefined) {
+    mark();
+    const card = t.closest(".auth-card");
+    const error = card.querySelector("[data-account-error]");
+    const identifier = card.querySelector("[data-login-id]").value.trim();
+    const password = card.querySelector("[data-login-password]").value;
+    t.disabled = true; error.textContent = "";
+    try {
+      await loginLokalUser({ identifier, password });
+      document.querySelector(".onboarding")?.remove();
+      state.onboardStep = 0;
+      setRoute(isVenueAccount() ? "profile" : "home");
+      updateProfileShortcut();
+      syncSupabaseEvents(); syncSupabaseProfiles(); syncSupabaseGroups();
+      toast("Welcome back to Lokal");
+    } catch (loginError) { error.textContent = loginError.message; t.disabled = false; }
+  }
+  if (t.dataset.resetSubmit !== undefined) {
+    mark();
+    const card = t.closest(".auth-card");
+    const error = card.querySelector("[data-account-error]");
+    const email = card.querySelector("[data-reset-email]").value.trim();
+    t.disabled = true; error.textContent = "";
+    try {
+      await sendPasswordReset(email);
+      card.querySelector(".auth-fields").innerHTML = `<p class="auth-confirm">Check your inbox — we sent a reset link to <b>${escapeHtml(email)}</b>. Follow it to set a new password, then come back and log in.</p>`;
+      t.remove();
+      toast("Reset link sent");
+    } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
+  }
   if (!handled && !t.disabled) toast("Action opened");
 });
 
@@ -595,7 +653,7 @@ document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.d
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
-  ["lokalAccountCreated", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+  ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
   state.signupDraft = {};
   state.verifiedVenues = new Set();
@@ -611,7 +669,12 @@ if (startupParams.has("bypassSignup")) {
 }
 setRoute("home");
 updateProfileShortcut();
-if (!localStorage.getItem("lokalAccountCreated")) renderOnboarding();
+// Boot routing: an active local session enters the app (auto sign-in); a returning
+// user who logged out sees the login screen; a brand-new device sees the welcome letter.
+if (!localStorage.getItem("lokalAccountCreated")) {
+  if (localStorage.getItem("lokalHasAccount")) renderLogin();
+  else renderOnboarding();
+}
 syncSupabaseEvents();
 syncSupabaseProfiles();
 syncSupabaseGroups();

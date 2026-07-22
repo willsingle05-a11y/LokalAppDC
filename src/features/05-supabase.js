@@ -5,6 +5,7 @@ const supabaseConfig = {
 const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
 const supabaseStorageKeys = {
   accessToken: "lokalSupabaseAccessToken",
+  refreshToken: "lokalSupabaseRefreshToken",
   userId: "lokalSupabaseUserId",
   demoUserId: "lokalDemoInteractionUserId",
   pendingInteractions: "lokalPendingEventInteractions"
@@ -1133,4 +1134,130 @@ async function verifyLokalPhone(token) {
   }
   finalizeLokalProfile(state.pendingSignupProfile);
   return data;
+}
+
+// Apply a profile onto app state without wiping the user's saved events/plans
+// (unlike finalizeLokalProfile, which clears them for a fresh signup).
+function setActiveProfile(profile) {
+  const saved = {
+    ...profile,
+    phone: formatDisplayPhone(profile.phone),
+    age: profile.birthdate ? calculateAge(profile.birthdate) : (state.profile?.age || 27),
+    initials: profileInitials(profile.fullName || "Lokal"),
+    bio: state.bio,
+    tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
+    areas: profile.areaInterests || [],
+    accountType: profile.accountType || "person",
+    ownerName: profile.ownerName || "",
+    venueName: profile.venueName || "",
+    venueAddress: profile.venueAddress || "",
+    venueWebsite: profile.venueWebsite || "",
+    venueImageUrl: profile.venueImageUrl || "",
+    venueDescription: profile.venueDescription || "",
+    lokalScore: profile.lokalScore || 100
+  };
+  state.profile = saved;
+  state.age = saved.age;
+  state.tastes = saved.tastes;
+  if (saved.accountType === "venue") registerLocalVenueProfile();
+  localStorage.setItem("lokalProfile", JSON.stringify(saved));
+  updateProfileShortcut();
+  return saved;
+}
+
+// Resolve a login identifier (email / phone / username) into the credentials that
+// Supabase's password grant understands. Usernames are looked up to their email.
+async function resolveLoginCredentials(identifier) {
+  const value = String(identifier || "").trim();
+  if (value.includes("@")) return { email: value.toLowerCase() };
+  const digits = value.replace(/\D/g, "");
+  if (!/[a-z]/i.test(value) && digits.length >= 10) return { phone: formatSignupPhone(value) };
+  const email = await lookupEmailByUsername(value);
+  if (!email) throw new Error("We couldn't find that username. Try logging in with your email instead.");
+  return { email };
+}
+
+async function lookupEmailByUsername(username) {
+  try {
+    const url = `${supabaseConfig.url}/rest/v1/profiles?select=email&username=eq.${encodeURIComponent(username.toLowerCase())}&limit=1`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) return "";
+    const rows = await response.json();
+    return rows?.[0]?.email || "";
+  } catch {
+    return "";
+  }
+}
+
+// Pull the user's stored profile after a successful login and hydrate app state.
+// Falls back to any locally saved profile if the row can't be read.
+async function hydrateProfileAfterLogin(accessToken, identifier) {
+  const userId = decodeJwtPayload(accessToken).sub;
+  let row = null;
+  try {
+    const url = `${supabaseConfig.url}/rest/v1/profiles?select=*&id=eq.${encodeURIComponent(userId)}&limit=1`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (response.ok) row = (await response.json())?.[0] || null;
+  } catch {}
+  if (row) {
+    setActiveProfile({
+      id: userId,
+      fullName: row.full_name || row.owner_name || identifier,
+      email: row.email || (identifier.includes("@") ? identifier : ""),
+      phone: row.phone || "",
+      username: row.username || "",
+      birthdate: row.birthdate || "",
+      eventInterests: row.event_interests || [],
+      areaInterests: row.area_interests || [],
+      accountType: row.account_type || "person",
+      ownerName: row.owner_name || "",
+      venueName: row.venue_name || "",
+      venueAddress: row.venue_address || "",
+      venueWebsite: row.venue_website || "",
+      venueImageUrl: row.venue_image_url || "",
+      venueDescription: row.venue_description || "",
+      lokalScore: row.lokal_score || 100
+    });
+    state.profile.id = userId;
+    return;
+  }
+  const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
+  if (savedProfile) { state.profile = savedProfile; state.profile.id = userId; updateProfileShortcut(); }
+  else setActiveProfile({ id: userId, fullName: identifier, email: identifier.includes("@") ? identifier : "", username: identifier, accountType: "person" });
+}
+
+async function loginLokalUser({ identifier, password }) {
+  const value = String(identifier || "").trim();
+  if (!value || !password) throw new Error("Enter your login and password.");
+  const credentials = await resolveLoginCredentials(value);
+  const data = await supabaseAuthRequest("token?grant_type=password", { ...credentials, password });
+  if (!data.access_token) throw new Error("That login didn't work. Check your details and try again.");
+  persistSupabaseSession(data.access_token);
+  if (data.refresh_token) localStorage.setItem(supabaseStorageKeys.refreshToken, data.refresh_token);
+  await hydrateProfileAfterLogin(data.access_token, value);
+  localStorage.setItem("lokalAccountCreated", "true");
+  localStorage.setItem("lokalHasAccount", "true");
+  localStorage.setItem("lokalLastIdentifier", value);
+  return data;
+}
+
+async function sendPasswordReset(email) {
+  const value = String(email || "").trim();
+  validateSignupEmail(value);
+  await supabaseAuthRequest("recover", { email: value });
+  return true;
+}
+
+function clearSupabaseSession() {
+  [supabaseStorageKeys.accessToken, supabaseStorageKeys.refreshToken, supabaseStorageKeys.userId].forEach(key => localStorage.removeItem(key));
+}
+
+// Ends the local session: drops the Supabase tokens and the active profile, but
+// keeps lokalHasAccount / lokalLastIdentifier so the login screen is shown next.
+function logoutLokalUser() {
+  clearSupabaseSession();
+  localStorage.removeItem("lokalAccountCreated");
+  localStorage.removeItem("lokalProfile");
+  localStorage.removeItem("lokalOnboardingShown");
+  localStorage.setItem("lokalHasAccount", "true");
 }
