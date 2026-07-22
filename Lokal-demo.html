@@ -5957,13 +5957,13 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
   }
 }
 
-async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [] }) {
+async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [], accountType = "person", ownerName = "", venueName = "", venueAddress = "", venueWebsite = "", venueImageUrl = "", venueDescription = "" }) {
   if (!fullName || !email || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
   if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
   validateSignupEmail(email);
   validateBirthday(birthdate);
   const formattedPhone = formatSignupPhone(phone);
-  state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests };
+  state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests, accountType, ownerName, venueName, venueAddress, venueWebsite, venueImageUrl, venueDescription };
   state.pendingSignupPhone = formattedPhone;
   if (demoAuthConfig.useMockOtp) return { demoOtp: true };
   const data = await supabaseAuthRequest("signup", {
@@ -5977,6 +5977,13 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       email,
       event_interests: eventInterests,
       area_interests: areaInterests,
+      account_type: accountType,
+      owner_name: ownerName || fullName,
+      venue_name: venueName,
+      venue_address: venueAddress,
+      venue_website: venueWebsite,
+      venue_image_url: venueImageUrl,
+      venue_description: venueDescription,
       lokal_score: 100
     }
   });
@@ -6171,9 +6178,32 @@ const SCORE_MIN_INTERVAL_MS = 6 * 60 * 60 * 1000; // mirror the server's 6h cach
 // Server-side it only re-scores stale (>6h) or missing scores, so it's cheap.
 async function refreshScores(opts) {
   opts = opts || {};
+  const accessToken = typeof supabaseStorageKeys !== "undefined" ? localStorage.getItem(supabaseStorageKeys.accessToken) : "";
+  if (!accessToken && !lokalSb) return { skipped: "no-signed-in-user" };
   if (!lokalSb) {
-    console.error("[scoring] No Supabase client found â€” check the lokalSb line in 06-scoring.js");
-    return { error: "no-client" };
+    const now = Date.now();
+    if (!opts.force && now - _lastScoreRun < SCORE_MIN_INTERVAL_MS) return { skipped: "throttled" };
+    if (_scoreInFlight) return _scoreInFlight;
+    _scoreInFlight = (async () => {
+      try {
+        const response = await fetch(`${supabaseConfig.url}/functions/v1/score-events`, {
+          method: "POST",
+          headers: {
+            apikey: supabaseConfig.anonKey || supabaseConfig.publishableKey,
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({})
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) return { error: data.message || `score-events returned ${response.status}` };
+        _lastScoreRun = Date.now();
+        return data || { success: true };
+      } finally {
+        _scoreInFlight = null;
+      }
+    })();
+    return _scoreInFlight;
   }
 
   const userRes = await lokalSb.auth.getUser();
@@ -6210,7 +6240,21 @@ async function refreshScores(opts) {
 // Read the signed-in user's personalized feed (the personalized_feed view,
 // already filtered to auth.uid() and ordered by boosted relevance score).
 async function getPersonalizedFeed() {
-  if (!lokalSb) return [];
+  if (!lokalSb) {
+    const accessToken = typeof supabaseStorageKeys !== "undefined" ? localStorage.getItem(supabaseStorageKeys.accessToken) : "";
+    if (!accessToken) return [];
+    try {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/personalized_feed?select=*`, {
+        headers: {
+          apikey: supabaseConfig.anonKey || supabaseConfig.publishableKey,
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      return response.ok ? await response.json() : [];
+    } catch {
+      return [];
+    }
+  }
   const { data, error } = await lokalSb.from("personalized_feed").select("*");
   if (error) {
     console.error("[scoring] getPersonalizedFeed error:", error.message);
@@ -8732,8 +8776,8 @@ function welcomeLetterMarkup() {
         <div class="letter-body">${bodyHtml}</div>
         <div class="letter-foot">
           ${footHtml}
-          <button class="letter-btn letter-cta" data-onboard-start data-account-type="person">get started</button>
-          <button class="letter-venue-link letter-cta" data-onboard-start data-account-type="venue">have a venue? join here</button>
+          <button class="letter-btn letter-cta show" data-onboard-start data-account-type="person">get started</button>
+          <button class="letter-venue-link letter-cta show" data-onboard-start data-account-type="venue">have a venue? join here</button>
         </div>
       </div>`;
 }
@@ -8845,6 +8889,13 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
+function startOnboardingFlow(accountType = "person") {
+  state.signupDraft = { accountType: accountType || "person" };
+  state.onboardStep = 1;
+  document.querySelector(".onboarding")?.remove();
+  requestAnimationFrame(() => renderOnboarding());
+}
+
 // Streamlined signup: an immersive, animated welcome, then three quick steps
 // (name -> contact -> interests & neighborhoods). Interests + neighborhoods feed
 // feed curation. Answers accumulate in state.signupDraft across steps.
@@ -8855,6 +8906,11 @@ function renderOnboarding() {
 
   if (step === 0) {
     document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
+    document.querySelectorAll("[data-onboard-start]").forEach(button => button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      startOnboardingFlow(button.dataset.accountType || "person");
+    }, { once: true }));
     playWelcomeLetter();
     return;
   }
@@ -9326,7 +9382,7 @@ document.addEventListener("click", async event => {
       draft[key] = [...chosen];
     }
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardStart !== undefined) { mark(); startOnboardingFlow(t.dataset.accountType || "person"); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
   if (t.dataset.onboardVenue !== undefined) {
     mark();
@@ -9387,6 +9443,7 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.onboardFinish !== undefined) {
     mark();
+    if (t.disabled) return;
     const card = t.closest(".onboard-card");
     const error = card.querySelector("[data-account-error]");
     const draft = state.signupDraft || {};
@@ -9414,6 +9471,7 @@ document.addEventListener("click", async event => {
       venueImageUrl: isVenue ? draft.venueImageUrl : "",
       venueDescription: isVenue ? draft.venueDescription : ""
     };
+    t.disabled = true;
     finalizeLokalProfile(onboardingProfile);
     if (isVenue) registerLocalVenueProfile();
     let supabaseSynced = true;
@@ -9429,7 +9487,14 @@ document.addEventListener("click", async event => {
           birthdate: onboardingProfile.birthdate,
           password: draft.password,
           eventInterests,
-          areaInterests
+          areaInterests,
+          accountType: onboardingProfile.accountType,
+          ownerName: onboardingProfile.ownerName,
+          venueName: onboardingProfile.venueName,
+          venueAddress: onboardingProfile.venueAddress,
+          venueWebsite: onboardingProfile.venueWebsite,
+          venueImageUrl: onboardingProfile.venueImageUrl,
+          venueDescription: onboardingProfile.venueDescription
         });
       } catch (accountError) { supabaseSynced = false; console.warn("[supabase] account creation failed", accountError); }
     }
@@ -9459,6 +9524,7 @@ document.addEventListener("click", async event => {
     localStorage.setItem("lokalLastIdentifier", draft.email || username);
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
+    state.signupDraft = {};
     isVenue ? renderProfile() : renderHome();
     toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
     if (!isVenue) showDiscoverHint();
@@ -9724,10 +9790,12 @@ document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.d
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
 const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
-if (forceOnboarding || startupAccountType === "person" || startupAccountType === "local") {
+const startupAccountReset = ["person", "local", "venue"].includes(startupAccountType);
+if (forceOnboarding || startupAccountReset) {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
-  state.signupDraft = {};
+  state.signupDraft = startupAccountType === "venue" && !forceOnboarding ? { accountType: "venue" } : {};
+  state.onboardStep = startupAccountType === "venue" && !forceOnboarding ? 1 : 0;
   state.verifiedVenues = new Set();
   state.verifiedVenueNames = [];
   state.pendingVenueRequests = [];
@@ -9735,18 +9803,23 @@ if (forceOnboarding || startupAccountType === "person" || startupAccountType ===
   state.privateAccount = false;
   if (!forceOnboarding) history.replaceState(null, "", location.pathname);
 }
-if (startupParams.has("bypassSignup")) {
+if (startupParams.has("bypassSignup") && !forceOnboarding) {
   localStorage.setItem("lokalAccountCreated", "true");
   history.replaceState(null, "", location.pathname);
 }
-setRoute("home");
-updateProfileShortcut();
 // Boot routing: an active local session enters the app (auto sign-in); a returning
 // user who logged out sees the login screen; a brand-new device sees the welcome letter.
-if (!localStorage.getItem("lokalAccountCreated")) {
+if (forceOnboarding) {
+  state.route = "home";
+  renderOnboarding();
+} else if (!localStorage.getItem("lokalAccountCreated")) {
+  state.route = "home";
   if (localStorage.getItem("lokalHasAccount")) renderLogin();
   else renderOnboarding();
+} else {
+  setRoute("home");
 }
+updateProfileShortcut();
 syncSupabaseEvents();
 syncSupabaseProfiles();
 syncSupabaseGroups();

@@ -44,8 +44,8 @@ function welcomeLetterMarkup() {
         <div class="letter-body">${bodyHtml}</div>
         <div class="letter-foot">
           ${footHtml}
-          <button class="letter-btn letter-cta" data-onboard-start data-account-type="person">get started</button>
-          <button class="letter-venue-link letter-cta" data-onboard-start data-account-type="venue">have a venue? join here</button>
+          <button class="letter-btn letter-cta show" data-onboard-start data-account-type="person">get started</button>
+          <button class="letter-venue-link letter-cta show" data-onboard-start data-account-type="venue">have a venue? join here</button>
         </div>
       </div>`;
 }
@@ -157,6 +157,13 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
+function startOnboardingFlow(accountType = "person") {
+  state.signupDraft = { accountType: accountType || "person" };
+  state.onboardStep = 1;
+  document.querySelector(".onboarding")?.remove();
+  requestAnimationFrame(() => renderOnboarding());
+}
+
 // Streamlined signup: an immersive, animated welcome, then three quick steps
 // (name -> contact -> interests & neighborhoods). Interests + neighborhoods feed
 // feed curation. Answers accumulate in state.signupDraft across steps.
@@ -167,6 +174,11 @@ function renderOnboarding() {
 
   if (step === 0) {
     document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
+    document.querySelectorAll("[data-onboard-start]").forEach(button => button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      startOnboardingFlow(button.dataset.accountType || "person");
+    }, { once: true }));
     playWelcomeLetter();
     return;
   }

@@ -334,7 +334,7 @@ document.addEventListener("click", async event => {
       draft[key] = [...chosen];
     }
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardStart !== undefined) { mark(); startOnboardingFlow(t.dataset.accountType || "person"); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
   if (t.dataset.onboardVenue !== undefined) {
     mark();
@@ -395,6 +395,7 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.onboardFinish !== undefined) {
     mark();
+    if (t.disabled) return;
     const card = t.closest(".onboard-card");
     const error = card.querySelector("[data-account-error]");
     const draft = state.signupDraft || {};
@@ -422,6 +423,7 @@ document.addEventListener("click", async event => {
       venueImageUrl: isVenue ? draft.venueImageUrl : "",
       venueDescription: isVenue ? draft.venueDescription : ""
     };
+    t.disabled = true;
     finalizeLokalProfile(onboardingProfile);
     if (isVenue) registerLocalVenueProfile();
     let supabaseSynced = true;
@@ -437,7 +439,14 @@ document.addEventListener("click", async event => {
           birthdate: onboardingProfile.birthdate,
           password: draft.password,
           eventInterests,
-          areaInterests
+          areaInterests,
+          accountType: onboardingProfile.accountType,
+          ownerName: onboardingProfile.ownerName,
+          venueName: onboardingProfile.venueName,
+          venueAddress: onboardingProfile.venueAddress,
+          venueWebsite: onboardingProfile.venueWebsite,
+          venueImageUrl: onboardingProfile.venueImageUrl,
+          venueDescription: onboardingProfile.venueDescription
         });
       } catch (accountError) { supabaseSynced = false; console.warn("[supabase] account creation failed", accountError); }
     }
@@ -467,6 +476,7 @@ document.addEventListener("click", async event => {
     localStorage.setItem("lokalLastIdentifier", draft.email || username);
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
+    state.signupDraft = {};
     isVenue ? renderProfile() : renderHome();
     toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
     if (!isVenue) showDiscoverHint();
@@ -732,10 +742,12 @@ document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.d
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
 const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
-if (forceOnboarding || startupAccountType === "person" || startupAccountType === "local") {
+const startupAccountReset = ["person", "local", "venue"].includes(startupAccountType);
+if (forceOnboarding || startupAccountReset) {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
-  state.signupDraft = {};
+  state.signupDraft = startupAccountType === "venue" && !forceOnboarding ? { accountType: "venue" } : {};
+  state.onboardStep = startupAccountType === "venue" && !forceOnboarding ? 1 : 0;
   state.verifiedVenues = new Set();
   state.verifiedVenueNames = [];
   state.pendingVenueRequests = [];
@@ -743,18 +755,23 @@ if (forceOnboarding || startupAccountType === "person" || startupAccountType ===
   state.privateAccount = false;
   if (!forceOnboarding) history.replaceState(null, "", location.pathname);
 }
-if (startupParams.has("bypassSignup")) {
+if (startupParams.has("bypassSignup") && !forceOnboarding) {
   localStorage.setItem("lokalAccountCreated", "true");
   history.replaceState(null, "", location.pathname);
 }
-setRoute("home");
-updateProfileShortcut();
 // Boot routing: an active local session enters the app (auto sign-in); a returning
 // user who logged out sees the login screen; a brand-new device sees the welcome letter.
-if (!localStorage.getItem("lokalAccountCreated")) {
+if (forceOnboarding) {
+  state.route = "home";
+  renderOnboarding();
+} else if (!localStorage.getItem("lokalAccountCreated")) {
+  state.route = "home";
   if (localStorage.getItem("lokalHasAccount")) renderLogin();
   else renderOnboarding();
+} else {
+  setRoute("home");
 }
+updateProfileShortcut();
 syncSupabaseEvents();
 syncSupabaseProfiles();
 syncSupabaseGroups();
