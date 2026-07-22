@@ -15,7 +15,7 @@ const LOKAL_MARK_SVG = `<svg width="40" height="40" viewBox="0 0 36 36" fill="no
 // this array, so adding or removing a block never desyncs the layout.
 const WELCOME_LETTER_BLOCKS = [
   { role: "greeting", speed: 46, segs: [{ t: "hey, friend" }] },
-  { role: "body", speed: 30, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never know." }] },
+  { role: "body", speed: 30, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never find it." }] },
   { role: "body", speed: 32, segs: [{ t: "So...we built Lokal because we want to get the most out of our " }, { t: "lives;", g: true }, { t: " to experience more with more " }, { t: "people", g: true }, { t: "." }] },
   { role: "body", speed: 34, segs: [{ t: "And we bet you are here because you feel the same way." }] },
   { role: "body", speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
