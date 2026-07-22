@@ -11,6 +11,11 @@
   --urgent: #FF4757;
   --warm: #FF7B54;
   --display: "Barlow Condensed", "Aptos Display", Aptos, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "Courier New", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* Warm onboarding palette (the founders' welcome letter) */
+  --onboard-cream: #F7F5EF;
+  --onboard-green: #2D5A2D;
+  --onboard-ink: #1a1a1a;
 }
 
 /* ---- Typography ---- */
@@ -1544,3 +1549,213 @@ h3 { font-weight: 800; }
   line-height: 1.4;
 }
 .blended-fallback-note { border-color: rgba(23, 28, 26, .12); background: rgba(23, 28, 26, .04); color: var(--muted); }
+
+/* ============================================================
+   Warm onboarding — founders' welcome letter, plus the login
+   and password-reset screens. Loaded last so it overrides the
+   earlier teal onboarding rules with a cream + green feel.
+   ============================================================ */
+
+/* Every onboarding/auth overlay gets the warm cream ground + green accents. */
+.onboarding.onboard-letter-screen,
+.onboarding.onboard-steps,
+.onboarding.auth-screen { background: var(--onboard-cream); }
+
+/* Green replaces teal on the step buttons, tiles, back arrow and progress. */
+.onboarding .wide-button { background: var(--onboard-green); }
+.onboarding .wide-button:hover { background: #24491f; }
+.onboard-steps .select-tile.selected { border-color: var(--onboard-green); background: var(--onboard-green); color: #fff; }
+.onboard-progress span.on { background: var(--onboard-green); }
+.onboard-back { color: var(--onboard-green); }
+.onboard-back:hover { background: rgba(45, 90, 45, .1); }
+.onboard-title { color: var(--onboard-ink); }
+.onboard-steps .float-field input:focus {
+  border-color: var(--onboard-green);
+  box-shadow: 0 0 0 3px rgba(45, 90, 45, .16);
+}
+
+/* ---- The welcome letter (step 0) ---- */
+.onboard-letter-screen {
+  padding: 0;
+  align-items: stretch;
+  justify-items: stretch;
+  color: var(--onboard-ink);
+  font-family: var(--mono);
+}
+.letter-screen {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: max(64px, env(safe-area-inset-top)) 34px max(44px, env(safe-area-inset-bottom));
+}
+.letter-logo { margin-bottom: 34px; }
+.letter-line {
+  margin: 0;
+  min-height: 1px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--onboard-ink);
+}
+.letter-mono {
+  margin: 0;
+  min-height: 1px;
+  font-size: 13px;
+  line-height: 1.9;
+  color: #444;
+  word-break: break-word;
+}
+.letter-sp { height: 18px; }
+.letter-g { color: var(--onboard-green); font-weight: 700; }
+.letter-cur {
+  display: inline-block;
+  width: 1.5px;
+  height: 12px;
+  margin-left: 1px;
+  vertical-align: middle;
+  background: #444;
+  animation: letterBlink .65s step-end infinite;
+}
+@keyframes letterBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.letter-foot { margin-top: auto; width: 100%; padding-top: 30px; }
+.letter-from { margin: 0 0 8px; min-height: 1px; font-size: 12px; color: #888; }
+.letter-sign {
+  margin: 0 0 30px;
+  min-height: 1px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-style: italic;
+  letter-spacing: -.5px;
+  color: var(--onboard-ink);
+}
+.letter-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--onboard-green);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .3px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .5s ease, transform .1s ease, background .15s ease;
+}
+/* Keep the CTAs untappable until the letter finishes typing (they sit at opacity 0). */
+.letter-cta { pointer-events: none; }
+.letter-cta.show { pointer-events: auto; }
+.letter-btn.show { opacity: 1; }
+.letter-btn:hover { background: #24491f; }
+.letter-btn:active { transform: scale(.98); }
+.letter-venue-link {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  color: #8a8a7e;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .5s ease .1s, color .15s ease;
+}
+.letter-venue-link.show { opacity: 1; }
+.letter-venue-link:hover { color: var(--onboard-green); }
+
+/* ---- Login + password reset (shared card) ---- */
+.auth-screen { align-items: center; }
+.auth-card { justify-content: flex-start; }
+.auth-card .letter-logo { margin-top: 6vh; }
+.auth-title {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--onboard-ink);
+}
+.auth-sub {
+  margin: 0 0 26px;
+  max-width: 20em;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #6b6b60;
+}
+.auth-fields { width: 100%; display: grid; gap: 14px; margin-bottom: 8px; text-align: left; }
+.letter-field { display: grid; gap: 7px; }
+.letter-field > span {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #8a8a7e;
+}
+.letter-field input {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid #ddd8cc;
+  border-radius: 14px;
+  background: #fff;
+  font-family: var(--mono);
+  font-size: 16px;
+}
+.letter-field input:focus {
+  outline: none;
+  border-color: var(--onboard-green);
+  box-shadow: 0 0 0 3px rgba(45, 90, 45, .16);
+}
+.letter-link-right {
+  align-self: flex-end;
+  margin: 12px 0 4px auto;
+  padding: 2px;
+  background: transparent;
+  border: none;
+  color: var(--onboard-green);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+}
+.auth-card .letter-btn { margin-top: 16px; }
+.auth-card .account-error { margin: 8px 0 0; width: 100%; text-align: left; }
+.auth-swap {
+  margin-top: 22px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: #6b6b60;
+}
+.letter-inline-link {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--onboard-green);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.auth-confirm {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(45, 90, 45, .3);
+  border-radius: 14px;
+  background: rgba(45, 90, 45, .07);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #3a4a3a;
+  text-align: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-btn, .letter-venue-link, .letter-cur { animation: none; transition: none; }
+}
