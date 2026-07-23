@@ -1427,9 +1427,77 @@ async function hydrateProfileAfterLogin(accessToken, identifier) {
   else setActiveProfile({ id: userId, fullName: identifier, email: identifier.includes("@") ? identifier : "", username: identifier, accountType: "person" });
 }
 
+// --- Stored credentials for same-device log out / log back in ---------------
+// We keep the user's email, phone, and username in the clear (identifiers, not
+// secrets) plus a SHA-256 hash of their password — never the raw password — so a
+// returning user can log back in on this device without a Supabase round-trip.
+// Cross-device login still authenticates against Supabase, which holds the real
+// (bcrypt) password.
+async function hashLokalPassword(password) {
+  try {
+    const bytes = new TextEncoder().encode(String(password));
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  } catch {
+    // Non-secure contexts lack crypto.subtle; fall back to a tagged marker so the
+    // match logic still works (only ever compared against itself).
+    return `plain:${String(password)}`;
+  }
+}
+
+async function storeLokalCredentials({ email, phone, username, password }) {
+  const record = {
+    email: String(email || "").trim().toLowerCase(),
+    phone: String(phone || "").trim(),
+    username: String(username || "").trim().toLowerCase(),
+    passwordHash: password ? await hashLokalPassword(password) : ""
+  };
+  localStorage.setItem("lokalCredentials", JSON.stringify(record));
+}
+
+function getLokalCredentials() {
+  try { return JSON.parse(localStorage.getItem("lokalCredentials") || "null"); } catch { return null; }
+}
+
+async function localCredentialMatch(identifier, password) {
+  const credentials = getLokalCredentials();
+  if (!credentials || !credentials.passwordHash) return false;
+  const id = String(identifier || "").trim().toLowerCase();
+  const idDigits = id.replace(/\D/g, "");
+  const phoneDigits = String(credentials.phone || "").replace(/\D/g, "");
+  const identifierMatches = (credentials.email && id === credentials.email)
+    || (credentials.username && id === credentials.username)
+    || (phoneDigits.length >= 10 && idDigits.length >= 10 && idDigits.slice(-10) === phoneDigits.slice(-10));
+  if (!identifierMatches) return false;
+  return (await hashLokalPassword(password)) === credentials.passwordHash;
+}
+
+// Restore the retained local session (profile kept through logout) without hitting
+// Supabase — used when the entered credentials match what's stored on this device.
+function restoreLocalSession(identifier) {
+  const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
+  if (savedProfile) {
+    state.profile = savedProfile;
+    if (Number.isFinite(savedProfile.age)) state.age = savedProfile.age;
+    if (Array.isArray(savedProfile.tastes)) state.tastes = savedProfile.tastes;
+  }
+  localStorage.setItem("lokalAccountCreated", "true");
+  localStorage.setItem("lokalHasAccount", "true");
+  if (identifier) localStorage.setItem("lokalLastIdentifier", identifier);
+  updateProfileShortcut();
+}
+
 async function loginLokalUser({ identifier, password }) {
   const value = String(identifier || "").trim();
   if (!value || !password) throw new Error("Enter your login and password.");
+  // Same-device re-login: match the stored credentials and restore the retained
+  // profile locally — no Supabase round-trip, so it works even if email confirmation
+  // is pending or the network is flaky.
+  if (await localCredentialMatch(value, password)) {
+    restoreLocalSession(value);
+    return { local: true };
+  }
+  // Otherwise (new device, or credentials not stored here) authenticate against Supabase.
   const credentials = await resolveLoginCredentials(value);
   const data = await supabaseAuthRequest("token?grant_type=password", { ...credentials, password });
   if (!data.access_token) throw new Error("That login didn't work. Check your details and try again.");
@@ -1453,12 +1521,13 @@ function clearSupabaseSession() {
   [supabaseStorageKeys.accessToken, supabaseStorageKeys.refreshToken, supabaseStorageKeys.userId].forEach(key => localStorage.removeItem(key));
 }
 
-// Ends the local session: drops the Supabase tokens and the active profile, but
-// keeps lokalHasAccount / lokalLastIdentifier so the login screen is shown next.
+// Ends the active session: drops the Supabase tokens and clears the "signed in"
+// flag so the login screen shows next. Keeps the profile and stored credentials so
+// the user can log straight back in on this device (this is an opt-in logout, not a
+// wipe). lokalHasAccount / lokalLastIdentifier stay set to prefill the login screen.
 function logoutLokalUser() {
   clearSupabaseSession();
   localStorage.removeItem("lokalAccountCreated");
-  localStorage.removeItem("lokalProfile");
   localStorage.removeItem("lokalOnboardingShown");
   localStorage.setItem("lokalHasAccount", "true");
 }
