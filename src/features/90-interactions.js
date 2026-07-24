@@ -492,6 +492,10 @@ document.addEventListener("click", async event => {
     // user to the login screen (not the first-run welcome letter).
     localStorage.setItem("lokalHasAccount", "true");
     localStorage.setItem("lokalLastIdentifier", draft.email || username);
+    // Store their credentials (password hashed, not raw) so a logout/login round-trip
+    // works on this device. They are NOT forced to log in — boot auto-enters while
+    // lokalAccountCreated is set; this only matters if they choose to log out.
+    if (draft.password) { try { await storeLokalCredentials({ email: draft.email, phone: draft.phone, username, password: draft.password }); } catch (credError) { console.warn("[auth] could not store local credentials", credError); } }
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     state.signupDraft = {};
@@ -759,10 +763,8 @@ document.addEventListener("wheel", event => {
 document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.dataset.icon]);
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
-const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
-const startupAccountReset = ["person", "local", "venue"].includes(startupAccountType);
-if (forceOnboarding || startupAccountReset) {
-  ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
+  ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalCredentials", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
   state.signupDraft = startupAccountType === "venue" && !forceOnboarding ? { accountType: "venue" } : {};
   state.onboardStep = startupAccountType === "venue" && !forceOnboarding ? 1 : 0;

@@ -543,29 +543,41 @@ function cleanEventThumbStyle(image) {
   return `background-image: ${image}; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #f7fafc;`;
 }
 
+// Event card, Too Good To Go-inspired: framed rounded photo with a category pill
+// (and optional social-proof pill), then a clean info block — bold title + heart,
+// venue, time / neighborhood, a dashed "receipt" divider, and a price row.
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const area = eventCardArea(event);
-  const accent = categoryColor(event);
   const tags = eventTags(event);
-  const urgency = eventUrgency(event);
-  const urgencyHtml = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
-  return `<article class="event-card${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-card-media cat-${eventVisualCategory(event)}">
+  const catLabel = eventArtLabel(event);
+  const rawVenue = cleanLocationPart(event.venue);
+  const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
+  const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  ·  ");
+  const isFree = eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""));
+  const priceLabel = eventPriceLabel(event);
+  const priceHtml = isFree ? `<span class="event-card-price is-free">Free</span>` : (priceLabel ? `<span class="event-card-price">${escapeHtml(priceLabel)}</span>` : "");
+  const leftTag = eventTagChips(event, 1);
+  const bottomHtml = priceHtml || leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span>${priceHtml}</span>` : "";
+  return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    <div class="event-card-media cat-${eventVisualCategory(event)}">
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
-      <span class="event-card-actions">
-        <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
-        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
-      </span>
-    </span>
-    <button class="event-card-body" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+      ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
+      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></span>
+    </div>
+    <div class="event-card-info">
       ${opts.reason ? `<span class="event-card-reason">${escapeHtml(opts.reason)}</span>` : ""}
-      <span class="event-card-toprow">${showBadge ? `<span class="event-card-cat" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>` : ""}<span class="event-card-meta">${eventMetaLine(event)}</span></span>
-      <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
-      ${area ? `<span class="event-card-loc">${escapeHtml(area)}</span>` : ""}
-      <span class="event-card-tagrow">${cardFriendAvatars(event)}<span class="event-card-tags">${eventTagChips(event, 2)}</span>${urgencyHtml}</span>
-    </button>
+      <div class="event-card-titlerow">
+        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><h3 class="event-card-title">${escapeHtml(event.title)}</h3></button>
+        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+      </div>
+      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+        ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
+        ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
+      </button>
+      ${bottomHtml}
+    </div>
   </article>`;
 }
 
