@@ -1281,13 +1281,13 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
   }
 }
 
-async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [] }) {
+async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [], accountType = "person", ownerName = "", venueName = "", venueAddress = "", venueWebsite = "", venueImageUrl = "", venueDescription = "" }) {
   if (!fullName || !email || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
   if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
   validateSignupEmail(email);
   validateBirthday(birthdate);
   const formattedPhone = formatSignupPhone(phone);
-  state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests };
+  state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests, accountType, ownerName, venueName, venueAddress, venueWebsite, venueImageUrl, venueDescription };
   state.pendingSignupPhone = formattedPhone;
   if (demoAuthConfig.useMockOtp) return { demoOtp: true };
   const data = await supabaseAuthRequest("signup", {
@@ -1301,6 +1301,13 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
       email,
       event_interests: eventInterests,
       area_interests: areaInterests,
+      account_type: accountType,
+      owner_name: ownerName || fullName,
+      venue_name: venueName,
+      venue_address: venueAddress,
+      venue_website: venueWebsite,
+      venue_image_url: venueImageUrl,
+      venue_description: venueDescription,
       lokal_score: 100
     }
   });

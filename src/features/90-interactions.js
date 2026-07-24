@@ -285,6 +285,24 @@ document.addEventListener("click", async event => {
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
   if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
   if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
+  if (t.dataset.feedback !== undefined) { mark(); openFeedbackSheet(); }
+  if (t.dataset.submitFeedback !== undefined) {
+    mark();
+    const message = document.querySelector("[data-feedback-message]")?.value.trim() || "";
+    const error = document.querySelector("[data-feedback-error]");
+    if (!message) { if (error) error.textContent = "Type your feedback before submitting."; return; }
+    t.disabled = true;
+    if (error) error.textContent = "";
+    try {
+      await submitFeedbackSubmission(message);
+      modalRoot.innerHTML = "";
+      toast("Feedback sent");
+    } catch (feedbackError) {
+      if (error) error.textContent = "Could not send feedback. Try again in a moment.";
+      t.disabled = false;
+      console.warn("[supabase] feedback submission failed", feedbackError);
+    }
+  }
   if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
@@ -334,7 +352,7 @@ document.addEventListener("click", async event => {
       draft[key] = [...chosen];
     }
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); state.signupDraft = { accountType: t.dataset.accountType || "person" }; document.querySelector(".onboarding")?.remove(); state.onboardStep = 1; renderOnboarding(); }
+  if (t.dataset.onboardStart !== undefined) { mark(); startOnboardingFlow(t.dataset.accountType || "person"); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
   if (t.dataset.onboardVenue !== undefined) {
     mark();
@@ -395,6 +413,7 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.onboardFinish !== undefined) {
     mark();
+    if (t.disabled) return;
     const card = t.closest(".onboard-card");
     const error = card.querySelector("[data-account-error]");
     const draft = state.signupDraft || {};
@@ -422,6 +441,7 @@ document.addEventListener("click", async event => {
       venueImageUrl: isVenue ? draft.venueImageUrl : "",
       venueDescription: isVenue ? draft.venueDescription : ""
     };
+    t.disabled = true;
     finalizeLokalProfile(onboardingProfile);
     if (isVenue) registerLocalVenueProfile();
     let supabaseSynced = true;
@@ -437,7 +457,14 @@ document.addEventListener("click", async event => {
           birthdate: onboardingProfile.birthdate,
           password: draft.password,
           eventInterests,
-          areaInterests
+          areaInterests,
+          accountType: onboardingProfile.accountType,
+          ownerName: onboardingProfile.ownerName,
+          venueName: onboardingProfile.venueName,
+          venueAddress: onboardingProfile.venueAddress,
+          venueWebsite: onboardingProfile.venueWebsite,
+          venueImageUrl: onboardingProfile.venueImageUrl,
+          venueDescription: onboardingProfile.venueDescription
         });
       } catch (accountError) { supabaseSynced = false; console.warn("[supabase] account creation failed", accountError); }
     }
@@ -471,6 +498,7 @@ document.addEventListener("click", async event => {
     if (draft.password) { try { await storeLokalCredentials({ email: draft.email, phone: draft.phone, username, password: draft.password }); } catch (credError) { console.warn("[auth] could not store local credentials", credError); } }
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
+    state.signupDraft = {};
     isVenue ? renderProfile() : renderHome();
     toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
     if (!isVenue) showDiscoverHint();
@@ -738,26 +766,32 @@ const startupAccountType = String(startupParams.get("account") || "").toLowerCas
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalCredentials", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
-  state.signupDraft = {};
+  state.signupDraft = startupAccountType === "venue" && !forceOnboarding ? { accountType: "venue" } : {};
+  state.onboardStep = startupAccountType === "venue" && !forceOnboarding ? 1 : 0;
   state.verifiedVenues = new Set();
   state.verifiedVenueNames = [];
   state.pendingVenueRequests = [];
   state.venueVerificationDismissed = false;
   state.privateAccount = false;
-  history.replaceState(null, "", location.pathname);
+  if (!forceOnboarding) history.replaceState(null, "", location.pathname);
 }
-if (startupParams.has("bypassSignup")) {
+if (startupParams.has("bypassSignup") && !forceOnboarding) {
   localStorage.setItem("lokalAccountCreated", "true");
   history.replaceState(null, "", location.pathname);
 }
-setRoute("home");
-updateProfileShortcut();
 // Boot routing: an active local session enters the app (auto sign-in); a returning
 // user who logged out sees the login screen; a brand-new device sees the welcome letter.
-if (!localStorage.getItem("lokalAccountCreated")) {
+if (forceOnboarding) {
+  state.route = "home";
+  renderOnboarding();
+} else if (!localStorage.getItem("lokalAccountCreated")) {
+  state.route = "home";
   if (localStorage.getItem("lokalHasAccount")) renderLogin();
   else renderOnboarding();
+} else {
+  setRoute("home");
 }
+updateProfileShortcut();
 syncSupabaseEvents();
 syncSupabaseProfiles();
 syncSupabaseGroups();

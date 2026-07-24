@@ -15,7 +15,7 @@ const LOKAL_MARK_SVG = `<svg width="40" height="40" viewBox="0 0 36 36" fill="no
 // this array, so adding or removing a block never desyncs the layout.
 const WELCOME_LETTER_BLOCKS = [
   { role: "greeting", speed: 46, segs: [{ t: "hey, friend" }] },
-  { role: "body", speed: 30, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never know." }] },
+  { role: "body", speed: 30, segs: [{ t: "As " }, { t: "DC locals", g: true }, { t: ", we know this city has so much more than meets the eye, but most people just never find it." }] },
   { role: "body", speed: 32, segs: [{ t: "So...we built Lokal because we want to get the most out of our " }, { t: "lives;", g: true }, { t: " to experience more with more " }, { t: "people", g: true }, { t: "." }] },
   { role: "body", speed: 34, segs: [{ t: "And we bet you are here because you feel the same way." }] },
   { role: "body", speed: 34, segs: [{ t: "come " }, { t: "join the community", g: true }, { t: " :)" }] },
@@ -44,8 +44,8 @@ function welcomeLetterMarkup() {
         <div class="letter-body">${bodyHtml}</div>
         <div class="letter-foot">
           ${footHtml}
-          <button class="letter-btn letter-cta" data-onboard-start data-account-type="person">get started</button>
-          <button class="letter-venue-link letter-cta" data-onboard-start data-account-type="venue">have a venue? join here</button>
+          <button class="letter-btn letter-cta show" data-onboard-start data-account-type="person">get started</button>
+          <button class="letter-venue-link letter-cta show" data-onboard-start data-account-type="venue">have a venue? join here</button>
         </div>
       </div>`;
 }
@@ -157,6 +157,13 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
+function startOnboardingFlow(accountType = "person") {
+  state.signupDraft = { accountType: accountType || "person" };
+  state.onboardStep = 1;
+  document.querySelector(".onboarding")?.remove();
+  requestAnimationFrame(() => renderOnboarding());
+}
+
 // Streamlined signup: an immersive, animated welcome, then three quick steps
 // (name -> contact -> interests & neighborhoods). Interests + neighborhoods feed
 // feed curation. Answers accumulate in state.signupDraft across steps.
@@ -167,6 +174,11 @@ function renderOnboarding() {
 
   if (step === 0) {
     document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
+    document.querySelectorAll("[data-onboard-start]").forEach(button => button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      startOnboardingFlow(button.dataset.accountType || "person");
+    }, { once: true }));
     playWelcomeLetter();
     return;
   }

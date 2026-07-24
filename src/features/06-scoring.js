@@ -30,9 +30,32 @@ const SCORE_MIN_INTERVAL_MS = 6 * 60 * 60 * 1000; // mirror the server's 6h cach
 // Server-side it only re-scores stale (>6h) or missing scores, so it's cheap.
 async function refreshScores(opts) {
   opts = opts || {};
+  const accessToken = typeof supabaseStorageKeys !== "undefined" ? localStorage.getItem(supabaseStorageKeys.accessToken) : "";
+  if (!accessToken && !lokalSb) return { skipped: "no-signed-in-user" };
   if (!lokalSb) {
-    console.error("[scoring] No Supabase client found — check the lokalSb line in 06-scoring.js");
-    return { error: "no-client" };
+    const now = Date.now();
+    if (!opts.force && now - _lastScoreRun < SCORE_MIN_INTERVAL_MS) return { skipped: "throttled" };
+    if (_scoreInFlight) return _scoreInFlight;
+    _scoreInFlight = (async () => {
+      try {
+        const response = await fetch(`${supabaseConfig.url}/functions/v1/score-events`, {
+          method: "POST",
+          headers: {
+            apikey: supabaseConfig.anonKey || supabaseConfig.publishableKey,
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({})
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) return { error: data.message || `score-events returned ${response.status}` };
+        _lastScoreRun = Date.now();
+        return data || { success: true };
+      } finally {
+        _scoreInFlight = null;
+      }
+    })();
+    return _scoreInFlight;
   }
 
   const userRes = await lokalSb.auth.getUser();
@@ -69,7 +92,21 @@ async function refreshScores(opts) {
 // Read the signed-in user's personalized feed (the personalized_feed view,
 // already filtered to auth.uid() and ordered by boosted relevance score).
 async function getPersonalizedFeed() {
-  if (!lokalSb) return [];
+  if (!lokalSb) {
+    const accessToken = typeof supabaseStorageKeys !== "undefined" ? localStorage.getItem(supabaseStorageKeys.accessToken) : "";
+    if (!accessToken) return [];
+    try {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/personalized_feed?select=*`, {
+        headers: {
+          apikey: supabaseConfig.anonKey || supabaseConfig.publishableKey,
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      return response.ok ? await response.json() : [];
+    } catch {
+      return [];
+    }
+  }
   const { data, error } = await lokalSb.from("personalized_feed").select("*");
   if (error) {
     console.error("[scoring] getPersonalizedFeed error:", error.message);
