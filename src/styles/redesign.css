@@ -16,6 +16,8 @@
   --onboard-cream: #F7F5EF;
   --onboard-green: #2D5A2D;
   --onboard-ink: #1a1a1a;
+  /* Rounded, friendly card font (Too Good To Go-style) */
+  --card-font: "Poppins", "Barlow Condensed", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ---- Typography ---- */
@@ -1762,3 +1764,141 @@ h3 { font-weight: 800; }
 @media (prefers-reduced-motion: reduce) {
   .letter-btn, .letter-venue-link, .letter-cur { animation: none; transition: none; }
 }
+
+/* ============================================================
+   Event card v4 — Too Good To Go-inspired: framed rounded photo,
+   glassy pills, rounded font, dashed "receipt" divider, price row.
+   Loaded last so it overrides the v3 card rules above.
+   ============================================================ */
+.event-card {
+  display: block;
+  padding: 6px;
+  border: 1px solid rgba(23, 28, 26, .05);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(23, 28, 26, .08);
+  overflow: hidden;
+}
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(23, 28, 26, .13); }
+
+.event-card-media {
+  position: relative;
+  height: auto;
+  min-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #eef1ef;
+}
+.event-card-media .event-card-img { display: block; width: 100%; height: auto; }
+.event-card-media .event-card-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
+
+/* Glassy overlay pills (category top-left, social proof top-right) */
+.event-card-pill {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: calc(100% - 22px);
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .94);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: #1a1a1a;
+  font-family: var(--card-font);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 3px 10px rgba(23, 28, 26, .14);
+}
+.event-card-pill-cat { top: 10px; left: 10px; }
+
+/* Share stays on the photo as a glassy white button (top-right) */
+.event-card-media .event-card-actions { position: absolute; top: 10px; right: 10px; bottom: auto; left: auto; z-index: 2; display: flex; gap: 6px; pointer-events: none; }
+.event-card-media .card-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #33403a;
+  background: rgba(255, 255, 255, .94);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 3px 10px rgba(23, 28, 26, .14);
+  pointer-events: auto;
+}
+.event-card-media .card-icon-btn:hover { background: #fff; transform: scale(1.06); }
+.event-card-media .card-icon-btn svg { width: 16px; height: 16px; }
+
+/* Info block below the photo */
+.event-card-info { display: grid; gap: 3px; padding: 11px 10px 7px; text-align: left; }
+.event-card-titlerow { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 6px; }
+.event-card-title-btn { padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.event-card-title {
+  margin: 0;
+  color: #1a1a1a;
+  font-family: var(--card-font);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -.01em;
+  text-shadow: none;
+}
+.event-card-hero .event-card-title { font-size: 22px; }
+
+/* The heart sits in the title row as a quiet, tappable icon */
+.event-card-titlerow .card-save {
+  width: 32px;
+  height: 32px;
+  margin: -3px -4px 0 0;
+  border-radius: 50%;
+  color: #b1b7b0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  pointer-events: auto;
+}
+.event-card-titlerow .card-save:hover { background: rgba(23, 28, 26, .06); color: #5c6b64; transform: none; }
+.event-card-titlerow .card-save svg { width: 20px; height: 20px; }
+.event-card-titlerow .card-save.is-saved { color: var(--onboard-green); }
+.event-card-titlerow .card-save.is-saved svg { fill: var(--onboard-green); stroke: var(--onboard-green); }
+
+.event-card-subinfo { display: grid; gap: 2px; padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.event-card-venue {
+  overflow: hidden;
+  color: #46504a;
+  font-family: var(--card-font);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.event-card-info .event-card-meta {
+  color: #8b918b;
+  font-family: var(--card-font);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Dashed "receipt" perforation + price row */
+.event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
+.event-card-bottom2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.event-card-price {
+  margin-left: auto;
+  color: #1a1a1a;
+  font-family: var(--card-font);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+}
+.event-card-price.is-free { color: var(--onboard-green); }
+
+.event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
