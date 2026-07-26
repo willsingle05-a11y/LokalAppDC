@@ -718,7 +718,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "live-music", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
+  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -754,8 +754,9 @@ function normalizeImportedCategory(row) {
     religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
   };
   if (row.source === "thingstododc" && /\b(scavenger|hunt|game of clue|interactive)\b/.test(text)) return "community";
+  if (/\b(embassy|ambassador|international|cultural|culture|heritage|foreign soil|ukraine house|egyptian cultural|venetian ball)\b/.test(text)) return "culture";
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
-  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "food"].includes(directCategory)) return directCategory;
+  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "food", "culture"].includes(directCategory)) return directCategory;
   if (/comedy|comedian|stand[- ]?up|improv/.test(classificationText)) return "performing-arts";
   if (/sports|baseball|basketball|football|hockey|soccer/.test(classificationText)) return "sports";
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
@@ -772,6 +773,7 @@ function normalizeImportedCategory(row) {
   if (/concert/.test(text)) return "concerts";
   if (/music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "live-music";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
+  if (/embassy|ambassador|international|cultural|culture|heritage|foreign soil/.test(text)) return "culture";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "expos";
   if (/showcase/.test(text)) return "performing-arts";
@@ -907,6 +909,7 @@ function normalizeSupabaseTags(row, category) {
     "performing-arts": ["arts", "art", "performing arts", "performance"],
     museums: ["museums", "museum"],
     festivals: ["festivals", "festival"],
+    culture: ["culture", "cultural"],
     sports: ["sports", "sport"],
     community: ["community"],
     expos: ["expos", "expo"],
@@ -930,7 +933,7 @@ function normalizeSupabaseTags(row, category) {
     "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
     "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
     "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
-    "festival", "festivals", "free"
+    "festival", "festivals", "culture", "cultural", "free"
   ];
   return [...inferredTags, ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)

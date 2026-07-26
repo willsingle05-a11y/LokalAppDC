@@ -207,9 +207,9 @@ function categoryFor(row) {
   const text = `${row.title} ${row.description} ${row.venue_name}`.toLowerCase();
   if (/scavenger|game of clue|hunt/.test(text)) return { category: "community", tag: "Interactive" };
   if (/hike|kayak|bike|outdoor|zoo|sports/.test(text)) return { category: "sports", tag: "Outdoor" };
-  if (/evening at .*embassy|embassy of|ambassador|ukraine house|egyptian cultural|venetian ball|garden party|foreign soil/.test(text)) return { category: "festivals", tag: "Embassy" };
+  if (/evening at .*embassy|embassy of|ambassador|ukraine house|egyptian cultural|venetian ball|garden party|foreign soil/.test(text)) return { category: "culture", tag: "Embassy" };
   if (/tasting|chocolate|wine|food|cuisine|dinner|brunch/.test(text)) return { category: "food", tag: "Food" };
-  if (/embassy|ambassador|culture|cultural|foreign soil|france|italy|ethiopia|uganda|tanzania|china|saudi|vietnam|ukraine|egypt/.test(text)) return { category: "festivals", tag: "Embassy" };
+  if (/embassy|ambassador|culture|cultural|foreign soil|france|italy|ethiopia|uganda|tanzania|china|saudi|vietnam|ukraine|egypt/.test(text)) return { category: "culture", tag: "Embassy" };
   if (/nightclub|club|rooftop|party|bar crawl|speakeasy|margarita cruise|cruise|happy hour|speed dating/.test(text)) return { category: "nightlife", tag: "Nightlife" };
   if (/seminar|class|lesson|workshop|lecture/.test(text)) return { category: "arts", tag: "Class" };
   return { category: "community", tag: "Local" };

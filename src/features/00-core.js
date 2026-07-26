@@ -143,7 +143,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -165,6 +165,7 @@ function eventArtKind(event) {
   if (/yoga|fitness|wellness|pickleball/.test(titleText)) key = "fitness";
   if (/nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night|dj set/.test(titleText)) key = "nightlife";
   if (/food|market|chef|brunch|wine|beer|cocktail|restaurant/.test(titleText)) key = "food";
+  if (/embassy|ambassador|international|cultural|culture|heritage|global|foreign soil/.test(titleText)) key = "culture";
   return key;
 }
 
@@ -175,6 +176,7 @@ function genericEventArt(event) {
     "performing-arts": { a: "#3fd47b", b: "#0bbf73", c: "#cdf9db", shapes: "<path d='M18 24 Q50 11 82 24 V82 Q50 67 18 82 Z' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M33 43 Q50 54 67 43' fill='none' stroke='white' stroke-width='5'/><circle cx='37' cy='34' r='4' fill='white'/><circle cx='63' cy='34' r='4' fill='white'/>" },
     sports: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<rect x='16' y='22' width='68' height='56' rx='12' fill='rgba(255,255,255,.15)' stroke='white' stroke-width='4'/><path d='M16 50 H84 M50 22 V78' stroke='white' stroke-width='4'/><circle cx='50' cy='50' r='13' fill='none' stroke='white' stroke-width='4'/>" },
     festivals: { a: "#36d676", b: "#00c897", c: "#d8ffe9", shapes: "<path d='M18 42 C33 23 67 23 82 42' fill='none' stroke='white' stroke-width='5'/><path d='M26 46 H74 L68 78 H32 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M36 46 V78 M50 35 V78 M64 46 V78' stroke='white' stroke-width='4'/>" },
+    culture: { a: "#40c4ff", b: "#2f80ed", c: "#e3f3ff", shapes: "<path d='M23 76 H77 M29 68 V34 H71 V68' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' stroke='white' stroke-width='4' fill='none'/><circle cx='72' cy='25' r='8' fill='rgba(255,255,255,.65)'/>" },
     community: { a: "#5fe18d", b: "#28cf79", c: "#e7fff0", shapes: "<path d='M22 80 V38 H47 V80 M53 80 V24 H78 V80' fill='rgba(255,255,255,.55)' stroke='white' stroke-width='4'/><path d='M30 48 H39 M61 36 H70 M61 50 H70' stroke='white' stroke-width='4'/><circle cx='28' cy='23' r='8' fill='rgba(255,255,255,.75)'/>" },
     expos: { a: "#46dc82", b: "#10c578", c: "#dfffea", shapes: "<rect x='19' y='25' width='62' height='52' rx='7' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><path d='M29 39 H71 M29 52 H71 M29 65 H56' stroke='white' stroke-width='4'/><circle cx='74' cy='22' r='8' fill='rgba(255,255,255,.65)'/>" },
     food: { a: "#50dc82", b: "#18c973", c: "#eafff1", shapes: "<path d='M30 22 V57 M40 22 V57 M30 40 H40 M60 22 V78' stroke='white' stroke-width='5' stroke-linecap='round'/><path d='M22 70 C34 54 66 54 78 70' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><circle cx='50' cy='48' r='10' fill='rgba(255,255,255,.45)'/>" },
@@ -203,6 +205,7 @@ function eventArtScene(event) {
     "performing-arts": "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M20 26 Q50 14 80 26 L72 76 Q50 64 28 76 Z'/><circle cx='39' cy='41' r='4'/><circle cx='61' cy='41' r='4'/><path d='M38 58 Q50 68 62 58' fill='none'/></svg>",
     sports: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31' fill='none'/><path d='M20 50 H80 M50 19 C37 36 37 64 50 81 M50 19 C63 36 63 64 50 81' fill='none'/></svg>",
     festivals: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M18 40 C34 23 66 23 82 40' fill='none'/><path d='M26 47 H74 L68 78 H32 Z'/><path d='M38 47 V78 M50 36 V78 M62 47 V78' fill='none'/></svg>",
+    culture: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 76 H77 M29 68 V34 H71 V68'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' fill='none'/><circle cx='72' cy='25' r='8'/></svg>",
     community: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 80 V38 H47 V80 M53 80 V25 H77 V80'/><path d='M31 49 H40 M61 37 H70 M61 51 H70' fill='none'/></svg>",
     expos: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='20' y='25' width='60' height='52' rx='7'/><path d='M31 40 H69 M31 53 H69 M31 66 H56' fill='none'/></svg>",
     food: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M30 23 V58 M40 23 V58 M30 41 H40 M61 23 V78' fill='none'/><path d='M22 71 C34 55 66 55 78 71'/><circle cx='50' cy='49' r='10'/></svg>",
@@ -265,6 +268,7 @@ function categoryTagAliases(category) {
     "performing-arts": ["arts", "art", "performing arts", "performance"],
     museums: ["museums", "museum"],
     festivals: ["festivals", "festival"],
+    culture: ["culture", "cultural"],
     sports: ["sports", "sport"],
     community: ["community"],
     expos: ["expos", "expo"],
@@ -291,7 +295,7 @@ function isBroadCategoryTag(tag) {
     "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
     "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
     "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
-    "festival", "festivals", "free"
+    "festival", "festivals", "culture", "cultural", "free"
   ].includes(String(tag || "").trim().toLowerCase());
 }
 function isLocationTag(event, tag) {
@@ -312,7 +316,8 @@ function keywordTagsForEvent(event) {
   add("Country", /\b(wild west|country|western|boots)\b/);
   add("Food tasting", /\b(tasting|cuisine|dinner|brunch|chef|restaurant|food)\b/);
   add("Interactive", /\b(scavenger|hunt|trivia|game|clue|interactive)\b/);
-  add("Cultural", /\b(embassy|culture|cultural|international|ambassador)\b/);
+  add("International", /\b(embassy|international|ambassador|global|foreign soil)\b/);
+  add("Heritage", /\b(heritage|cultural heritage|tradition|traditional)\b/);
   add("Outdoor", /\b(outdoor|patio|garden|park|plaza|cruise|potomac)\b/);
   add("Tour", /\b(tour|guided|walk|crawl)\b/);
   add("Comedy", /\b(comedy|stand[- ]?up|improv|comic)\b/);
@@ -322,7 +327,7 @@ function keywordTagsForEvent(event) {
   return tags;
 }
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -447,6 +452,7 @@ function eventArtLabel(event) {
     fitness: "Fitness",
     food: "Food",
     festivals: "Festival",
+    culture: "Culture",
     community: "Community",
     expos: "Expo",
     nightlife: "Night out",
@@ -458,6 +464,7 @@ function eventArtLabel(event) {
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
   if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Night out";
   if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concert";
+  if (/\b(embassy|ambassador|international|cultural|culture|heritage|global|foreign soil)\b/.test(text)) return "Culture";
   if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
   if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
   if (/\b(baseball|mlb|nba|nfl|nhl|soccer|sports?|game)\b/.test(text)) return "Sports";
@@ -573,6 +580,7 @@ const CATEGORY_COLORS = {
   sports: "#F59E0B",
   fitness: "#27AE60",
   festivals: "#FF6B9D",
+  culture: "#2F80ED",
   food: "#FF7B54",
   community: "#7BC67E",
   expos: "#64748B"
@@ -923,12 +931,12 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
