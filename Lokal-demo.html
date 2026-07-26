@@ -3225,7 +3225,7 @@ h3 { font-weight: 800; }
 .detail-description-wrap {
   position: relative;
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 .things-to-do-description.collapsed .detail-description {
   display: -webkit-box;
@@ -3243,17 +3243,13 @@ h3 { font-weight: 800; }
   pointer-events: none;
   background: linear-gradient(180deg, rgba(255,255,255,0), var(--card));
 }
-.description-expand-button {
-  position: relative;
-  z-index: 1;
-  justify-self: start;
-  padding: 7px 12px;
-  border-radius: 999px;
-  color: #326f91;
-  background: rgba(95, 159, 195, .14);
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1.1;
+.expandable-description {
+  cursor: pointer;
+}
+.expandable-description:focus-visible {
+  outline: 3px solid rgba(23, 179, 132, .38);
+  outline-offset: 4px;
+  border-radius: 10px;
 }
 
 /* ===== Onboarding: immersive welcome + animated steps ===== */
@@ -9218,7 +9214,7 @@ function openDetail(id, opts = {}) {
   const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
   const descriptionBlock = isThingsToDoEvent
-    ? `<div class="detail-description-wrap things-to-do-description collapsed"><p class="detail-description">${detailDescription}</p><button class="description-expand-button" data-expand-description aria-expanded="false" aria-label="Show full description">... more</button></div>`
+    ? `<div class="detail-description-wrap things-to-do-description collapsed"><p class="detail-description expandable-description" data-expand-description role="button" tabindex="0" aria-expanded="false" aria-label="Show full description">${detailDescription}</p></div>`
     : `<p class="detail-description">${detailDescription}</p>`;
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
@@ -9785,6 +9781,17 @@ function resetAppScroll() {
 
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
+  const descriptionExpander = event.target.closest("[data-expand-description]");
+  if (descriptionExpander) {
+    const wrap = descriptionExpander.closest(".detail-description-wrap");
+    if (wrap) {
+      const expanded = wrap.classList.toggle("expanded");
+      wrap.classList.toggle("collapsed", !expanded);
+      descriptionExpander.setAttribute("aria-expanded", String(expanded));
+      descriptionExpander.setAttribute("aria-label", expanded ? "Collapse description" : "Show full description");
+    }
+    return;
+  }
   const t = event.target.closest("button");
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
@@ -9883,16 +9890,6 @@ document.addEventListener("click", async event => {
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.calendarOptions) { mark(); openCalendarOptions(t.dataset.calendarOptions); }
   if (t.dataset.addCalendar) { mark(); addEventToCalendar(t.dataset.calendarEvent, t.dataset.addCalendar); }
-  if (t.dataset.expandDescription !== undefined) {
-    mark();
-    const wrap = t.closest(".detail-description-wrap");
-    if (!wrap) return;
-    const expanded = wrap.classList.toggle("expanded");
-    wrap.classList.toggle("collapsed", !expanded);
-    t.setAttribute("aria-expanded", String(expanded));
-    t.textContent = expanded ? "Show less" : "... more";
-    t.setAttribute("aria-label", expanded ? "Collapse description" : "Show full description");
-  }
   if (t.dataset.attended) { mark(); const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week"; const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended, { backToTopWeek }); toast(result.message); }
   if (t.dataset.planAttended) { mark(); const result = markEventAttended(Number(t.dataset.planAttended)); if (state.route === "social") renderSocial(); else if (state.route === "profile") renderProfile(); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
@@ -10369,6 +10366,14 @@ document.addEventListener("click", async event => {
     } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
   }
   if (!handled && !t.disabled) toast("Action opened");
+});
+
+document.addEventListener("keydown", event => {
+  if (!["Enter", " "].includes(event.key)) return;
+  const descriptionExpander = event.target.closest?.("[data-expand-description]");
+  if (!descriptionExpander) return;
+  event.preventDefault();
+  descriptionExpander.click();
 });
 
 let storyTouchStart = null;

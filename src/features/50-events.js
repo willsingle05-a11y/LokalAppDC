@@ -20,7 +20,7 @@ function openDetail(id, opts = {}) {
   const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
   const descriptionBlock = isThingsToDoEvent
-    ? `<div class="detail-description-wrap things-to-do-description collapsed"><p class="detail-description">${detailDescription}</p><button class="description-expand-button" data-expand-description aria-expanded="false" aria-label="Show full description">... more</button></div>`
+    ? `<div class="detail-description-wrap things-to-do-description collapsed"><p class="detail-description expandable-description" data-expand-description role="button" tabindex="0" aria-expanded="false" aria-label="Show full description">${detailDescription}</p></div>`
     : `<p class="detail-description">${detailDescription}</p>`;
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
