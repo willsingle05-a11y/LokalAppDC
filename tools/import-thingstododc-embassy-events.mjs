@@ -1,11 +1,15 @@
 import { writeFile } from "node:fs/promises";
 
-const CATEGORY_URL = "https://thingstododc.com/events/embassy-culture/";
+const args = new Map(process.argv.slice(2).map((arg, index, all) => arg.startsWith("--") ? [arg, all[index + 1]] : null).filter(Boolean));
+const CATEGORY_URL = args.get("--url") || "https://thingstododc.com/events/embassy-culture/";
 const LOAD_MORE_URL = "https://thingstododc.com/wp-content/themes/thingstodo/load-more.php";
 const SOURCE = "thingstododc";
 const TIMEZONE = "America/New_York";
-const OUTPUT_INDEX = process.argv.indexOf("--sql");
-const outputFile = OUTPUT_INDEX >= 0 ? process.argv[OUTPUT_INDEX + 1] : "supabase/sql/import-thingstododc-embassy-events.sql";
+const termId = args.get("--term") || "44";
+const firstLoadCount = Number(args.get("--count") || 11);
+const totalRowsHint = Number(args.get("--total") || 0);
+const importLabel = args.get("--label") || "Embassy & Culture";
+const outputFile = args.get("--sql") || "supabase/sql/import-thingstododc-embassy-events.sql";
 
 function decodeHtml(value = "") {
   return String(value)
@@ -71,16 +75,21 @@ function listingEvents(html) {
 async function loadListingRows() {
   const html = await fetchText(CATEGORY_URL);
   const initial = listingEvents(html);
-  const moreText = await fetchText(LOAD_MORE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "count=11&termID=44&action=moreCat"
-  }).catch(() => "");
-  let more = [];
-  if (moreText) {
+  const more = [];
+  const inferredTotal = Number(html.match(/var total = (\d+);/)?.[1] || 0);
+  const total = totalRowsHint || inferredTotal || firstLoadCount;
+  for (let count = firstLoadCount; count <= total + firstLoadCount; count += firstLoadCount) {
+    const moreText = await fetchText(LOAD_MORE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `count=${count}&termID=${encodeURIComponent(termId)}&action=moreCat`
+    }).catch(() => "");
+    if (!moreText) continue;
     try {
       const payload = JSON.parse(moreText);
-      more = listingEvents(payload.message || "");
+      const pageRows = listingEvents(payload.message || "");
+      if (!pageRows.length) break;
+      more.push(...pageRows);
     } catch {}
   }
   return [...new Map([...initial, ...more].map(row => [row.url, row])).values()];
@@ -190,20 +199,37 @@ function neighborhoodFor(address, venue) {
 
 function dcProperAddress(address) {
   const text = String(address || "").toLowerCase();
-  if (/online|virtual|zoom|rockville|maryland|md\s+\d{5}/.test(text)) return false;
+  if (/online|virtual|zoom|rockville|maryland|md\s+\d{5}|virginia|va\s+\d{5}|dewey|delaware|bethesda|annapolis|baltimore|alexandria|arlington/.test(text)) return false;
   return /washington,\s*(dc|district of columbia)|\bdc\s+\d{5}\b|\b(nw|ne|sw|se)\b|\b(northwest|northeast|southwest|southeast)\b|embassy row|connecticut ave/.test(text);
+}
+
+function categoryFor(row) {
+  const text = `${row.title} ${row.description} ${row.venue_name}`.toLowerCase();
+  if (/scavenger|hike|kayak|bike|outdoor|zoo|sports|game of clue|hunt/.test(text)) return { category: "sports", tag: "Outdoor" };
+  if (/evening at .*embassy|embassy of|ambassador|ukraine house|egyptian cultural|venetian ball|garden party|foreign soil/.test(text)) return { category: "festivals", tag: "Embassy" };
+  if (/tasting|chocolate|wine|food|cuisine|dinner|brunch/.test(text)) return { category: "food", tag: "Food" };
+  if (/embassy|ambassador|culture|cultural|foreign soil|france|italy|ethiopia|uganda|tanzania|china|saudi|vietnam|ukraine|egypt/.test(text)) return { category: "festivals", tag: "Embassy" };
+  if (/nightclub|club|rooftop|party|bar crawl|speakeasy|margarita cruise|cruise|happy hour|speed dating/.test(text)) return { category: "nightlife", tag: "Nightlife" };
+  if (/seminar|class|lesson|workshop|lecture/.test(text)) return { category: "arts", tag: "Class" };
+  return { category: "community", tag: "Local" };
 }
 
 function tagsFor(row) {
   const text = `${row.title} ${row.description}`.toLowerCase();
-  const tags = ["Embassy", "Cultural", "International"];
+  const tags = [];
+  if (/embassy|ambassador/.test(text)) tags.push("Embassy", "Cultural", "International");
+  if (/culture|cultural|international|global|foreign soil/.test(text)) tags.push("Cultural", "International");
+  if (/nightclub|party|rooftop|bar crawl|speakeasy/.test(text)) tags.push("Party", "Rooftop");
+  if (/cruise|boat|potomac|sailing/.test(text)) tags.push("Cruise", "Waterfront");
+  if (/scavenger|hunt|clue/.test(text)) tags.push("Scavenger hunt", "Interactive");
+  if (/zoo|animal|national zoo/.test(text)) tags.push("Zoo", "Outdoor");
   if (/food|dinner|cuisine|wine|drink|tasting|refreshment/.test(text)) tags.push("Food tasting");
   if (/dance|music|concert|performance|entertainment/.test(text)) tags.push("Live entertainment");
   if (/ball|masquerade|gala/.test(text)) tags.push("Formal");
   if (/garden|outdoor|patio/.test(text)) tags.push("Outdoor");
   if (/tour|architecture|history|guided/.test(text)) tags.push("Tour");
   if (/new year|celebration|party|festival/.test(text)) tags.push("Celebration");
-  return [...new Set(tags)].slice(0, 6);
+  return [...new Set(tags.length ? tags : ["Local", "Social"])].slice(0, 6);
 }
 
 function titleVenueGuess(title) {
@@ -226,10 +252,10 @@ async function scrapeDetail(listing) {
     /<h4 class="event-listing-date">\s*([\s\S]*?)\s*<\/h4>/i,
     /<strong class="event-listing-date">\s*([\s\S]*?)\s*<\/strong>/i
   ]) || listing.dateLabel;
-  const venue = calendarLocation.venue || extractFirst(html, [
+  const venue = (calendarLocation.venue || extractFirst(html, [
     /<h4 class="event-location">\s*([\s\S]*?)<\/h4>/i,
     /<div class="event-location[^"]*">\s*([\s\S]*?)<\/div>/i
-  ]) || titleVenueGuess(title);
+  ]) || titleVenueGuess(title)).replace(/^Deacdes$/i, "Decades");
   const address = normalizeAddress(calendarLocation.address || extractFirst(html, [
     /<h4 class="event-location">[\s\S]*?<\/h4>\s*<h4 class="event-location">\s*([\s\S]*?)<\/h4>/i,
     /<div class="event-address[^"]*">\s*([\s\S]*?)<\/div>/i
@@ -253,8 +279,7 @@ async function scrapeDetail(listing) {
     starts_at: parsed.starts_at || "",
     timezone: TIMEZONE,
     description: description || listing.summary,
-    category: "festivals",
-    tag: "Embassy",
+    ...categoryFor({ title, description, venue_name: venue }),
     tags: [],
     image_url: extractImage(html, listing.image_url),
     source: SOURCE,
@@ -274,24 +299,32 @@ function sqlString(value) {
 
 function buildSql(rows) {
   const json = JSON.stringify(rows).replace(/'/g, "''");
-  return `-- ThingsToDoDC Embassy & Culture import. Generated by tools/import-thingstododc-embassy-events.mjs.
+  return `-- ThingsToDoDC ${importLabel} import. Generated by tools/import-thingstododc-embassy-events.mjs.
 -- Safe to re-run: upserts by source + external_id.
 
 insert into public.venues (
   name, address, venue_type, neighborhood, source_name, source_key, raw_data, imported_at, created_at, updated_at
 )
-select distinct
-  item->>'venue_name',
-  item->>'venue_address',
-  'Embassy / Cultural Venue',
-  item->>'neighborhood',
-  'ThingsToDoDC Embassy & Culture',
-  'thingstododc:' || (item->>'external_id'),
-  jsonb_build_object('thingstododc_embassy_import', true, 'source_url', item->>'external_url'),
+select
+  venue_name,
+  venue_address,
+  'ThingsToDoDC Venue',
+  neighborhood,
+  'ThingsToDoDC ${importLabel}',
+  'thingstododc:venue:' || lower(regexp_replace(concat_ws('|', venue_name, venue_address), '[^a-z0-9]+', '-', 'g')),
+  jsonb_build_object('thingstododc_import', true, 'source_url', min_source_url, 'source_category', '${importLabel.replace(/'/g, "''")}'),
   now(), now(), now()
-from jsonb_array_elements('${json}'::jsonb) item
-where nullif(item->>'venue_name', '') is not null
-  and nullif(item->>'venue_address', '') is not null
+from (
+  select
+    item->>'venue_name' as venue_name,
+    item->>'venue_address' as venue_address,
+    max(item->>'neighborhood') as neighborhood,
+    min(item->>'external_url') as min_source_url
+  from jsonb_array_elements('${json}'::jsonb) item
+  where nullif(item->>'venue_name', '') is not null
+    and nullif(item->>'venue_address', '') is not null
+  group by item->>'venue_name', item->>'venue_address'
+) venue_item
 on conflict (name, address) do update
 set source_name = coalesce(public.venues.source_name, excluded.source_name),
     source_key = coalesce(public.venues.source_key, excluded.source_key),
@@ -366,6 +399,7 @@ on conflict (source, external_id) do update set
 const listings = await loadListingRows();
 const scraped = [];
 const excluded = [];
+const now = new Date();
 for (const listing of listings) {
   const row = await scrapeDetail(listing);
   row.tags = tagsFor(row);
@@ -375,6 +409,10 @@ for (const listing of listings) {
   }
   if (!dcProperAddress(row.venue_address)) {
     excluded.push({ title: row.title, reason: `not DC physical venue: ${row.venue_address || row.venue_name}`, url: row.external_url });
+    continue;
+  }
+  if (new Date(row.starts_at) < now) {
+    excluded.push({ title: row.title, reason: "past event", url: row.external_url });
     continue;
   }
   scraped.push(row);

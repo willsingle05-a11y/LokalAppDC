@@ -4475,7 +4475,8 @@ function eventCardArea(event) {
 
 function eventSourceCredit(event) {
   if (String(event?.source || "").toLowerCase() !== "thingstododc") return "";
-  return `<p class="event-source-credit">Courtesy of <a href="https://thingstododc.com/events/embassy-culture/" target="_blank" rel="noreferrer">Thing to do</a></p>`;
+  const sourceUrl = event.detailsUrl || event.externalUrl || "https://thingstododc.com/events/all/";
+  return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Thing to do</a></p>`;
 }
 
 function cleanEventImageStyle(image) {
