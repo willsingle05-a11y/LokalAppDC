@@ -5,6 +5,7 @@ function openDetail(id, opts = {}) {
     ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
     : "";
   const recurrence = eventRecurrence(e);
+  const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
     ? `<button class="primary" data-share="${e.id}">Share event</button>`
@@ -27,9 +28,9 @@ function openDetail(id, opts = {}) {
   const detailContext = opts.backToTopWeek ? "top-week" : "";
   const backButton = opts.backToTopWeek ? `<button class="detail-back-button" data-top-week-events aria-label="Back to Top 10 events">&larr;</button>` : "";
   const ticketButton = e.detailsUrl ? `<button class="wide-button" data-ticket="${e.id}">Get tickets / details</button>` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(displayTitle)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2><button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2><button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     ${descriptionBlock}
@@ -45,9 +46,10 @@ function openDetail(id, opts = {}) {
 function openCalendarOptions(id) {
   const e = events.find(event => event.id === Number(id));
   if (!e) return;
+  const displayTitle = eventDisplayTitle(e);
   const recurrence = eventRecurrence(e);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet calendar-options-sheet" role="dialog" aria-modal="true" aria-label="Add ${escapeHtml(e.title)} to calendar"><button class="modal-close" aria-label="Close calendar options">&times;</button>
-    <p class="eyebrow">Add to calendar</p><h2>${escapeHtml(e.title)}</h2>
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet calendar-options-sheet" role="dialog" aria-modal="true" aria-label="Add ${escapeHtml(displayTitle)} to calendar"><button class="modal-close" aria-label="Close calendar options">&times;</button>
+    <p class="eyebrow">Add to calendar</p><h2>${escapeHtml(displayTitle)}</h2>
     <p class="lede">Choose where you want to add this event.${recurrence ? ` This includes the recurring schedule: ${escapeHtml(recurrence.label)}.` : ""}</p>
     <div class="calendar-options-list">
       <button class="calendar-option-row" data-add-calendar="apple" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Apple Calendar</b><small>Download an .ics calendar file</small></span></button>
@@ -70,13 +72,14 @@ function shareGroupResultsHtml(eventId, query = "") {
 
 function openShareSheet(id) {
   const e = events.find(event => event.id === Number(id));
+  const displayTitle = eventDisplayTitle(e);
   const shareText = shareMessageForEvent(e);
   const shareUrl = lokalEventShareUrl(e);
   const smsBody = encodeURIComponent(shareText);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${escapeHtml(displayTitle)}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Send a Lokal event</p><h2>Share ${e.title}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
-    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" · ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
+    <p class="eyebrow">Send a Lokal event</p><h2>Share ${escapeHtml(displayTitle)}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
+    <div class="share-preview"><b>${escapeHtml(displayTitle)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" · ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
     <div class="share-channel-grid">
       <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
       <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
@@ -90,7 +93,7 @@ function openShareSheet(id) {
 
 function shareMessageForEvent(event) {
   const price = eventPriceLabel(event);
-  return `Want to go to ${event.title}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
+  return `Want to go to ${eventDisplayTitle(event)}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
 }
 
 function lokalEventShareUrl(event) {
@@ -105,7 +108,7 @@ function lokalEventShareUrl(event) {
 function lokalEventSharePayload(event) {
   return [
     "Lokal event",
-    event.title,
+    eventDisplayTitle(event),
     eventMetaLine(event),
     eventLocationLine(event),
     eventTags(event).slice(0, 5).join(", "),

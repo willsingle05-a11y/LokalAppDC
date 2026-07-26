@@ -613,6 +613,31 @@ function eventCardArea(event) {
   return line && !isGenericLocationName(line) ? line : "";
 }
 
+function normalizedTitlePart(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function eventDisplayTitle(event) {
+  const title = String(event?.title || "").trim();
+  if (!title) return "";
+  const venue = cleanLocationPart(event?.venue || event?.venueName || eventLocationLine(event));
+  const normalizedTitle = normalizedTitlePart(title);
+  const normalizedVenue = normalizedTitlePart(venue);
+  const venueLedTitle = normalizedVenue && (
+    normalizedTitle === `${normalizedVenue} trivia night`
+    || normalizedTitle === `${normalizedVenue} trivia nights`
+    || normalizedTitle === `${normalizedVenue} happy hour`
+    || normalizedTitle === `${normalizedVenue} happy hours`
+  );
+  if (venueLedTitle && String(event?.cat || "").toLowerCase() === "trivia-nights") return "Trivia Night";
+  if (venueLedTitle && String(event?.cat || "").toLowerCase() === "happy-hours") return "Happy Hour";
+  return title;
+}
+
 function eventSourceCredit(event) {
   if (String(event?.source || "").toLowerCase() !== "thingstododc") return "";
   const sourceUrl = event.detailsUrl || event.externalUrl || "https://thingstododc.com/events/all/";
@@ -632,6 +657,7 @@ function cleanEventThumbStyle(image) {
 // venue, time / neighborhood, a dashed "receipt" divider, and a price row.
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
+  const displayTitle = eventDisplayTitle(event);
   const area = eventCardArea(event);
   const tags = eventTags(event);
   const catLabel = eventArtLabel(event);
@@ -643,17 +669,17 @@ function eventRow(event, variant = "", opts = {}) {
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
-      <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+      <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
-      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></span>
+      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>
     </div>
     <div class="event-card-info">
       ${opts.reason ? `<span class="event-card-reason">${escapeHtml(opts.reason)}</span>` : ""}
       <div class="event-card-titlerow">
-        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><h3 class="event-card-title">${escapeHtml(event.title)}</h3></button>
-        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"><h3 class="event-card-title">${escapeHtml(displayTitle)}</h3></button>
+        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
       </div>
-      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}">
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
         ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
       </button>
@@ -680,17 +706,18 @@ function eventListSideBadge(event) {
 
 function eventListRow(event, opts = {}) {
   const tags = eventTags(event);
+  const displayTitle = eventDisplayTitle(event);
   const meta = [event.time, eventLocationLine(event)].filter(Boolean).join(" · ");
   return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
     <span class="elr-thumb" style="${eventThumbStyle(event)}"></span>
     <span class="elr-copy">
-      <b class="elr-venue">${escapeHtml(event.title)}</b>
+      <b class="elr-venue">${escapeHtml(displayTitle)}</b>
       <span class="elr-meta">${escapeHtml(meta)}</span>
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
-      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
       ${eventListSideBadge(event)}
     </span>
   </article>`;

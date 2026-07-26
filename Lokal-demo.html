@@ -4764,6 +4764,31 @@ function eventCardArea(event) {
   return line && !isGenericLocationName(line) ? line : "";
 }
 
+function normalizedTitlePart(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function eventDisplayTitle(event) {
+  const title = String(event?.title || "").trim();
+  if (!title) return "";
+  const venue = cleanLocationPart(event?.venue || event?.venueName || eventLocationLine(event));
+  const normalizedTitle = normalizedTitlePart(title);
+  const normalizedVenue = normalizedTitlePart(venue);
+  const venueLedTitle = normalizedVenue && (
+    normalizedTitle === `${normalizedVenue} trivia night`
+    || normalizedTitle === `${normalizedVenue} trivia nights`
+    || normalizedTitle === `${normalizedVenue} happy hour`
+    || normalizedTitle === `${normalizedVenue} happy hours`
+  );
+  if (venueLedTitle && String(event?.cat || "").toLowerCase() === "trivia-nights") return "Trivia Night";
+  if (venueLedTitle && String(event?.cat || "").toLowerCase() === "happy-hours") return "Happy Hour";
+  return title;
+}
+
 function eventSourceCredit(event) {
   if (String(event?.source || "").toLowerCase() !== "thingstododc") return "";
   const sourceUrl = event.detailsUrl || event.externalUrl || "https://thingstododc.com/events/all/";
@@ -4783,6 +4808,7 @@ function cleanEventThumbStyle(image) {
 // venue, time / neighborhood, a dashed "receipt" divider, and a price row.
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
+  const displayTitle = eventDisplayTitle(event);
   const area = eventCardArea(event);
   const tags = eventTags(event);
   const catLabel = eventArtLabel(event);
@@ -4794,17 +4820,17 @@ function eventRow(event, variant = "", opts = {}) {
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
-      <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+      <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
-      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></span>
+      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>
     </div>
     <div class="event-card-info">
       ${opts.reason ? `<span class="event-card-reason">${escapeHtml(opts.reason)}</span>` : ""}
       <div class="event-card-titlerow">
-        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><h3 class="event-card-title">${escapeHtml(event.title)}</h3></button>
-        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"><h3 class="event-card-title">${escapeHtml(displayTitle)}</h3></button>
+        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
       </div>
-      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}">
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
         ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
       </button>
@@ -4831,17 +4857,18 @@ function eventListSideBadge(event) {
 
 function eventListRow(event, opts = {}) {
   const tags = eventTags(event);
+  const displayTitle = eventDisplayTitle(event);
   const meta = [event.time, eventLocationLine(event)].filter(Boolean).join(" Â· ");
   return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
     <span class="elr-thumb" style="${eventThumbStyle(event)}"></span>
     <span class="elr-copy">
-      <b class="elr-venue">${escapeHtml(event.title)}</b>
+      <b class="elr-venue">${escapeHtml(displayTitle)}</b>
       <span class="elr-meta">${escapeHtml(meta)}</span>
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
-      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
       ${eventListSideBadge(event)}
     </span>
   </article>`;
@@ -7428,7 +7455,7 @@ function openTopWeekEvents() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet top-week-sheet" role="dialog" aria-modal="true" aria-label="Top 10 events this week"><button class="modal-close" aria-label="Close top 10">&times;</button>
     <p class="eyebrow">Discovered by Lokal</p><h2>Top 10 events this week</h2>
     <p class="lede">A ranked mix of the week across DC, balancing category variety with saves, RSVPs, shares, venue quality, and timing.</p>
-    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-top-week-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-thumb"><img src="${escapeHtml(topWeekThumbSrc(event))}" alt="" loading="lazy"></span><span class="top-week-row-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
+    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-top-week-event="${event.id}" aria-label="Open ${escapeHtml(eventDisplayTitle(event))}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-thumb"><img src="${escapeHtml(topWeekThumbSrc(event))}" alt="" loading="lazy"></span><span class="top-week-row-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
   </section></div>`;
 }
 
@@ -9147,6 +9174,7 @@ function openDetail(id, opts = {}) {
     ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
     : "";
   const recurrence = eventRecurrence(e);
+  const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
     ? `<button class="primary" data-share="${e.id}">Share event</button>`
@@ -9169,9 +9197,9 @@ function openDetail(id, opts = {}) {
   const detailContext = opts.backToTopWeek ? "top-week" : "";
   const backButton = opts.backToTopWeek ? `<button class="detail-back-button" data-top-week-events aria-label="Back to Top 10 events">&larr;</button>` : "";
   const ticketButton = e.detailsUrl ? `<button class="wide-button" data-ticket="${e.id}">Get tickets / details</button>` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(displayTitle)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2><button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2><button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
     ${descriptionBlock}
@@ -9187,9 +9215,10 @@ function openDetail(id, opts = {}) {
 function openCalendarOptions(id) {
   const e = events.find(event => event.id === Number(id));
   if (!e) return;
+  const displayTitle = eventDisplayTitle(e);
   const recurrence = eventRecurrence(e);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet calendar-options-sheet" role="dialog" aria-modal="true" aria-label="Add ${escapeHtml(e.title)} to calendar"><button class="modal-close" aria-label="Close calendar options">&times;</button>
-    <p class="eyebrow">Add to calendar</p><h2>${escapeHtml(e.title)}</h2>
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet calendar-options-sheet" role="dialog" aria-modal="true" aria-label="Add ${escapeHtml(displayTitle)} to calendar"><button class="modal-close" aria-label="Close calendar options">&times;</button>
+    <p class="eyebrow">Add to calendar</p><h2>${escapeHtml(displayTitle)}</h2>
     <p class="lede">Choose where you want to add this event.${recurrence ? ` This includes the recurring schedule: ${escapeHtml(recurrence.label)}.` : ""}</p>
     <div class="calendar-options-list">
       <button class="calendar-option-row" data-add-calendar="apple" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Apple Calendar</b><small>Download an .ics calendar file</small></span></button>
@@ -9212,13 +9241,14 @@ function shareGroupResultsHtml(eventId, query = "") {
 
 function openShareSheet(id) {
   const e = events.find(event => event.id === Number(id));
+  const displayTitle = eventDisplayTitle(e);
   const shareText = shareMessageForEvent(e);
   const shareUrl = lokalEventShareUrl(e);
   const smsBody = encodeURIComponent(shareText);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${escapeHtml(displayTitle)}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Send a Lokal event</p><h2>Share ${e.title}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
-    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" Â· ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
+    <p class="eyebrow">Send a Lokal event</p><h2>Share ${escapeHtml(displayTitle)}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
+    <div class="share-preview"><b>${escapeHtml(displayTitle)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" Â· ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
     <div class="share-channel-grid">
       <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
       <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
@@ -9232,7 +9262,7 @@ function openShareSheet(id) {
 
 function shareMessageForEvent(event) {
   const price = eventPriceLabel(event);
-  return `Want to go to ${event.title}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
+  return `Want to go to ${eventDisplayTitle(event)}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
 }
 
 function lokalEventShareUrl(event) {
@@ -9247,7 +9277,7 @@ function lokalEventShareUrl(event) {
 function lokalEventSharePayload(event) {
   return [
     "Lokal event",
-    event.title,
+    eventDisplayTitle(event),
     eventMetaLine(event),
     eventLocationLine(event),
     eventTags(event).slice(0, 5).join(", "),
