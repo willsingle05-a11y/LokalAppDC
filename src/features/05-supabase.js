@@ -464,6 +464,9 @@ async function syncVenueVerificationStatus() {
 }
 
 async function submitVenueEventPost(payload) {
+  if (typeof isVerifiedVenueName === "function" && !isVerifiedVenueName(payload.venueName)) {
+    throw new Error("Venue must be approved before posting events.");
+  }
   const record = {
     requester_user_id: currentInteractionUserId(),
     venue_name: payload.venueName,

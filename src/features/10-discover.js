@@ -134,6 +134,16 @@ function isVerifiedVenueName(name) {
   return state.verifiedVenues?.has(venueImageKeyName(name));
 }
 
+function openVenueApprovalRequiredSheet(name) {
+  const displayName = cleanLocationPart(name) || accountVenueName() || "your venue";
+  const pending = (state.pendingVenueRequests || []).some(request => venueImageKeyName(request.venue_name || request.venueName) === venueImageKeyName(displayName));
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-approval-sheet" role="dialog" aria-modal="true" aria-label="Venue approval required"><button class="modal-close" aria-label="Close venue approval">&times;</button>
+    <p class="eyebrow">Venue approval</p><h2>Approval required before posting.</h2>
+    <p class="lede">${escapeHtml(displayName)} needs Lokal approval before event posts can be uploaded. ${pending ? "Your request is already pending review." : "Submit a verification request from Profile and we will review it."}</p>
+    ${pending ? `<button class="wide-button" data-route="profile">View profile status</button>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
+  </section></div>`;
+}
+
 function openVenueEvents(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
@@ -147,7 +157,7 @@ function openVenueEvents(name) {
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
     <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
-    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${verified ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="Post event for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${isVenueAccount() ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="${verified ? "Post event" : "Request approval"} for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
     <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
@@ -156,6 +166,10 @@ function openVenueEvents(name) {
 function openVenueEventPostSheet(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
+  if (!isVerifiedVenueName(displayName)) {
+    openVenueApprovalRequiredSheet(displayName);
+    return;
+  }
   const address = directoryVenue.address || "";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Post an event for ${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close post event">&times;</button>
     <p class="eyebrow">Verified venue</p><h2>Post an event</h2>

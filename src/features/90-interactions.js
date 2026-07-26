@@ -213,6 +213,7 @@ document.addEventListener("click", async event => {
     const isRecurring = Boolean(sheet.querySelector("[data-post-recurring]")?.checked);
     const recurrenceFrequency = sheet.querySelector("[data-post-recurrence-frequency]")?.value || "";
     if (!venueName || !title || !startsAt) { error.textContent = "Add an event name and start date/time."; return; }
+    if (!isVerifiedVenueName(venueName)) { error.textContent = "This venue must be approved by Lokal before you can upload events."; return; }
     if (isRecurring && !recurrenceFrequency) { error.textContent = "Choose how often this recurring event repeats."; return; }
     const tags = String(sheet.querySelector("[data-post-tags]")?.value || "").split(",").map(tag => tag.trim()).filter(Boolean);
     t.disabled = true;
