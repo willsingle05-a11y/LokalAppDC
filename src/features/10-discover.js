@@ -385,7 +385,7 @@ function renderTopWeekEvents() {
   if (!picks.length) return "";
   return `<section class="top-week-section" aria-label="Top 10 events this week discovered by Lokal">
     <button class="top-week-heading" data-top-week-events>
-      <div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div>
+      <span class="top-week-badge">10</span><div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><i aria-hidden="true">&rarr;</i>
     </button>
   </section>`;
 }

@@ -3920,20 +3920,37 @@ h3 { font-weight: 800; }
 .event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
 
 .top-week-section {
+  position: relative;
   display: grid;
   margin: 0 0 14px;
-  padding: 10px 14px;
-  border: 1px solid rgba(23, 28, 26, .09);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, .62);
+  overflow: hidden;
+  border: 1px solid rgba(23, 28, 26, .11);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(0, 201, 167, .24), transparent 34%),
+    linear-gradient(135deg, #ffffff 0%, #f4fbf8 52%, #eef7ff 100%);
+  box-shadow: 0 12px 26px rgba(17, 24, 39, .08);
+}
+.top-week-section::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  bottom: -28px;
+  width: 120px;
+  height: 120px;
+  border: 1px solid rgba(22, 160, 133, .18);
+  border-radius: 50%;
+  pointer-events: none;
 }
 .top-week-heading {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: start;
+  gap: 11px;
   width: 100%;
-  padding: 0;
+  padding: 13px 14px;
   background: transparent;
   text-align: left;
 }
@@ -3942,9 +3959,36 @@ h3 { font-weight: 800; }
   margin: 1px 0 0;
   color: var(--onboard-ink);
   font-family: var(--card-font);
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 900;
   letter-spacing: 0;
+}
+.top-week-badge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border: 2px solid #fff;
+  border-radius: 14px;
+  color: #fff;
+  background: #111827;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, .18);
+  font-size: 17px;
+  font-weight: 1000;
+}
+.top-week-heading i {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border-radius: 50%;
+  color: #fff;
+  background: #16A085;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 900;
 }
 .top-week-list {
   display: grid;
@@ -7310,7 +7354,7 @@ function renderTopWeekEvents() {
   if (!picks.length) return "";
   return `<section class="top-week-section" aria-label="Top 10 events this week discovered by Lokal">
     <button class="top-week-heading" data-top-week-events>
-      <div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div>
+      <span class="top-week-badge">10</span><div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><i aria-hidden="true">&rarr;</i>
     </button>
   </section>`;
 }
