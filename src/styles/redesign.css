@@ -1235,6 +1235,12 @@ h3 { font-weight: 800; }
 .venue-event-row:hover {
   background: rgba(22, 160, 133, .12);
 }
+.detail-description-price {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-weight: 900;
+}
 
 /* ===== Onboarding: immersive welcome + animated steps ===== */
 /* Step 0 — full-bleed Capitol photo, animated rotating message, single CTA. */
@@ -1956,21 +1962,6 @@ h3 { font-weight: 800; }
 .event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
 .event-card-bottom2 { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; min-width: 0; }
 .event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; overflow: hidden; }
-.event-card-price {
-  max-width: 100%;
-  margin-left: auto;
-  overflow: hidden;
-  color: #1a1a1a;
-  font-family: var(--card-font);
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -.01em;
-  line-height: 1.12;
-  text-align: right;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-.event-card-price.is-free { color: var(--onboard-green); }
 
 .event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
 

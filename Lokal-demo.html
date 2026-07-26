@@ -3216,6 +3216,12 @@ h3 { font-weight: 800; }
 .venue-event-row:hover {
   background: rgba(22, 160, 133, .12);
 }
+.detail-description-price {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-weight: 900;
+}
 
 /* ===== Onboarding: immersive welcome + animated steps ===== */
 /* Step 0 â€” full-bleed Capitol photo, animated rotating message, single CTA. */
@@ -3937,21 +3943,6 @@ h3 { font-weight: 800; }
 .event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
 .event-card-bottom2 { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; min-width: 0; }
 .event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; overflow: hidden; }
-.event-card-price {
-  max-width: 100%;
-  margin-left: auto;
-  overflow: hidden;
-  color: #1a1a1a;
-  font-family: var(--card-font);
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -.01em;
-  line-height: 1.12;
-  text-align: right;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-.event-card-price.is-free { color: var(--onboard-green); }
 
 .event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
 
@@ -4778,11 +4769,8 @@ function eventRow(event, variant = "", opts = {}) {
   const rawVenue = cleanLocationPart(event.venue);
   const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
   const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  Â·  ");
-  const isFree = eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""));
-  const priceLabel = eventPriceLabel(event);
-  const priceHtml = isFree ? `<span class="event-card-price is-free">Free</span>` : (priceLabel ? `<span class="event-card-price">${escapeHtml(priceLabel)}</span>` : "");
   const leftTag = eventTagChips(event, 3);
-  const bottomHtml = priceHtml || leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span>${priceHtml}</span>` : "";
+  const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
@@ -9150,6 +9138,7 @@ function openDetail(id, opts = {}) {
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
+  const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const sourceCredit = eventSourceCredit(e);
@@ -9158,10 +9147,10 @@ function openDetail(id, opts = {}) {
   const ticketButton = e.detailsUrl ? `<button class="wide-button" data-ticket="${e.id}">Get tickets / details</button>` : "";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}<button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2><button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
-    <p class="detail-description">${e.desc}</p>
+    <p class="detail-description">${detailDescription}</p>
     ${occurrencesBlock}
     <button class="wide-button calendar-recur-button detail-calendar-button" data-calendar-options="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</button>
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved âœ“" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going âœ“" : "RSVP"}</button>${shareButton}</div>
