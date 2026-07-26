@@ -636,8 +636,24 @@ function isSupabaseEventInDc(row) {
   return dcText;
 }
 
+function bestSupabaseDescription(row) {
+  const values = [
+    row.raw_json?.full_description,
+    row.raw_json?.detail_description,
+    row.raw_json?.description,
+    row.description,
+    row.desc,
+    row.raw_json?.listing?.summary
+  ].map(value => String(value || "").trim()).filter(Boolean);
+  if (String(row.source || "").toLowerCase() !== "thingstododc") return values[0] || "";
+  const complete = values
+    .filter(value => !/\[\s*\.\.\.\s*\]|\.\.\.$/.test(value))
+    .sort((a, b) => b.length - a.length)[0];
+  return complete || values.sort((a, b) => b.length - a.length)[0] || "";
+}
+
 function normalizeSupabaseDescription(row) {
-  const extracted = extractLocationFromDescription(row.description || row.desc);
+  const extracted = extractLocationFromDescription(bestSupabaseDescription(row));
   return cleanSupabaseDescription(extracted.description);
 }
 

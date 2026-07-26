@@ -145,6 +145,38 @@ function extractFirst(html, patterns) {
   return "";
 }
 
+function extractDescriptionCandidate(html, pattern) {
+  const match = html.match(pattern);
+  return match?.[1] ? stripTags(match[1]) : "";
+}
+
+function extractDetailDescription(html, fallback = "") {
+  const pageText = stripTags(html);
+  const detailsIndex = pageText.indexOf("Details");
+  let visibleDetails = "";
+  if (detailsIndex >= 0) {
+    const afterDetails = pageText.slice(detailsIndex + "Details".length);
+    const markerIndexes = ["Suggested Attire", "Map", "Related Events", "Purchase", "BUY NOW"]
+      .map(marker => afterDetails.indexOf(marker))
+      .filter(index => index > 40);
+    const endIndex = markerIndexes.length ? Math.min(...markerIndexes) : afterDetails.length;
+    visibleDetails = afterDetails.slice(0, endIndex).trim();
+  }
+  const candidates = [
+    visibleDetails,
+    extractDescriptionCandidate(html, /<div class="event-description[^"]*"[^>]*>([\s\S]*?)<div class="w-col w-col-4">/i),
+    extractDescriptionCandidate(html, /<div class="inner-event-description[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i),
+    extractDescriptionCandidate(html, /<div class="w-richtext"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i),
+    extractDescriptionCandidate(html, /<meta property="og:description"\s+content="([^"]+)"/i),
+    extractDescriptionCandidate(html, /<meta name="description"\s+content="([^"]+)"/i),
+    fallback
+  ].map(value => String(value || "").trim()).filter(Boolean);
+  const complete = candidates
+    .filter(value => !/\[\s*\.\.\.\s*\]|\.\.\.$/.test(value))
+    .sort((a, b) => b.length - a.length)[0];
+  return complete || candidates.sort((a, b) => b.length - a.length)[0] || "";
+}
+
 function extractImage(html, fallback = "") {
   const slide = html.match(/inner-event-slider[\s\S]*?<img src="([^"]+)"/i)?.[1];
   const og = html.match(/property="og:image"\s+content="([^"]+)"/i)?.[1] || html.match(/content="([^"]+)"\s+property="og:image"/i)?.[1];
@@ -261,11 +293,7 @@ async function scrapeDetail(listing) {
     /<h4 class="event-location">[\s\S]*?<\/h4>\s*<h4 class="event-location">\s*([\s\S]*?)<\/h4>/i,
     /<div class="event-address[^"]*">\s*([\s\S]*?)<\/div>/i
   ]));
-  const description = extractFirst(html, [
-    /<div class="event-description[^"]*">([\s\S]*?)<\/div>\s*<\/div>\s*<div class="w-col w-col-4">/i,
-    /<div class="inner-event-description[^"]*">([\s\S]*?)<\/div>/i,
-    /<div class="w-richtext">([\s\S]*?)<\/div>/i
-  ]) || listing.summary;
+  const description = extractDetailDescription(html, listing.summary);
   const price = extractPrice(html);
   const parsedDetail = parseDetailDate(detailHeader.detailDate);
   const parsed = parsedDetail.date ? parsedDetail : parseListingDate(dateLabel || listing.dateLabel);
@@ -287,7 +315,7 @@ async function scrapeDetail(listing) {
     external_id: externalId,
     ticket_url: listing.url,
     external_url: listing.url,
-    raw_json: { listing },
+    raw_json: { listing, full_description: description },
     status: "published",
     ...price
   };
