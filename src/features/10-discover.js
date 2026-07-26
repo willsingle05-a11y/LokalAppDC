@@ -383,12 +383,10 @@ function topWeekEvents(limit = 10) {
 function renderTopWeekEvents() {
   const picks = topWeekEvents(10);
   if (!picks.length) return "";
-  const preview = picks.slice(0, 3).map((event, index) => `<span><b>${index + 1}</b>${escapeHtml(event.title)}</span>`).join("");
   return `<section class="top-week-section" aria-label="Top 10 events this week discovered by Lokal">
     <button class="top-week-heading" data-top-week-events>
-      <div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><span>Open list</span>
+      <div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div>
     </button>
-    <button class="top-week-preview" data-top-week-events aria-label="Open Top 10 events this week">${preview}</button>
   </section>`;
 }
 

@@ -3921,9 +3921,8 @@ h3 { font-weight: 800; }
 
 .top-week-section {
   display: grid;
-  gap: 8px;
   margin: 0 0 14px;
-  padding: 10px 11px;
+  padding: 10px 14px;
   border: 1px solid rgba(23, 28, 26, .09);
   border-radius: 14px;
   background: rgba(255, 255, 255, .62);
@@ -3938,6 +3937,7 @@ h3 { font-weight: 800; }
   background: transparent;
   text-align: left;
 }
+.top-week-heading .eyebrow { margin: 0 0 5px; }
 .top-week-heading h3 {
   margin: 1px 0 0;
   color: var(--onboard-ink);
@@ -3945,44 +3945,6 @@ h3 { font-weight: 800; }
   font-size: 19px;
   font-weight: 900;
   letter-spacing: 0;
-}
-.top-week-heading span {
-  flex: 0 0 auto;
-  padding: 6px 9px;
-  border-radius: 999px;
-  color: #245a4f;
-  background: rgba(22, 160, 133, .12);
-  font-size: 10px;
-  font-weight: 900;
-}
-.top-week-preview {
-  display: grid;
-  gap: 5px;
-  width: 100%;
-  padding: 0;
-  color: var(--muted);
-  background: transparent;
-  text-align: left;
-}
-.top-week-preview span {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  align-items: center;
-  gap: 7px;
-  min-width: 0;
-  font-size: 12px;
-  font-weight: 750;
-}
-.top-week-preview b {
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  color: #fff;
-  background: #111827;
-  font-size: 9px;
-  font-weight: 950;
 }
 .top-week-list {
   display: grid;
@@ -7346,12 +7308,10 @@ function topWeekEvents(limit = 10) {
 function renderTopWeekEvents() {
   const picks = topWeekEvents(10);
   if (!picks.length) return "";
-  const preview = picks.slice(0, 3).map((event, index) => `<span><b>${index + 1}</b>${escapeHtml(event.title)}</span>`).join("");
   return `<section class="top-week-section" aria-label="Top 10 events this week discovered by Lokal">
     <button class="top-week-heading" data-top-week-events>
-      <div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><span>Open list</span>
+      <div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div>
     </button>
-    <button class="top-week-preview" data-top-week-events aria-label="Open Top 10 events this week">${preview}</button>
   </section>`;
 }
 
