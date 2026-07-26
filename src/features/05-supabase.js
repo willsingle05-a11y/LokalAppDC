@@ -915,11 +915,30 @@ function normalizeSupabaseTags(row, category) {
     "trivia-nights": ["trivia", "trivia night", "trivia nights"],
     food: ["food", "food & drink", "food and drink"]
   }[category] || [];
+  const locationAliases = [
+    "adams morgan", "u street", "shaw", "navy yard", "penn quarter", "h street", "logan circle",
+    "dupont", "dupont circle", "georgetown", "noma", "no ma", "union market", "noma / union market area",
+    "capitol hill", "anacostia", "columbia heights", "petworth", "the wharf", "wharf", "downtown",
+    "mount vernon", "mount vernon triangle", "foggy bottom", "west end", "cleveland park", "woodley park",
+    "brookland", "ivy city", "barracks row", "southwest", "national mall", "kalorama", "van ness",
+    "cathedral heights", "park view", "takoma", "takoma dc", "washington dc", "washington, dc"
+  ];
+  const rowLocations = [row.neighborhood, row.area, row.venue_address, row.address]
+    .map(value => String(value || "").trim().toLowerCase())
+    .filter(Boolean);
+  const broadCategoryAliases = [
+    "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
+    "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
+    "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
+    "festival", "festivals", "free"
+  ];
   return [...inferredTags, ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
     .filter(tag => !categoryAliases.includes(tag.toLowerCase()))
+    .filter(tag => !broadCategoryAliases.includes(tag.toLowerCase()))
+    .filter(tag => !locationAliases.includes(tag.toLowerCase()) && !rowLocations.includes(tag.toLowerCase()))
     .filter(tag => !["concerts", "live-music"].includes(category) || !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()))
     .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)

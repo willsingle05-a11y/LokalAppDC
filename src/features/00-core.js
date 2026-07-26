@@ -275,8 +275,51 @@ function categoryTagAliases(category) {
   };
   return aliases[String(category || "").toLowerCase()] || [];
 }
+const LOCATION_TAG_ALIASES = [
+  "adams morgan", "u street", "shaw", "navy yard", "penn quarter", "h street", "logan circle",
+  "dupont", "dupont circle", "georgetown", "noma", "no ma", "union market", "noma / union market area",
+  "capitol hill", "anacostia", "columbia heights", "petworth", "the wharf", "wharf", "downtown",
+  "mount vernon", "mount vernon triangle", "foggy bottom", "west end", "cleveland park", "woodley park",
+  "brookland", "ivy city", "barracks row", "southwest", "national mall", "kalorama", "van ness",
+  "cathedral heights", "park view", "takoma", "takoma dc", "washington dc", "washington, dc"
+];
 function isCategoryTag(event, tag) {
   return categoryTagAliases(event.cat || event.category).includes(String(tag || "").trim().toLowerCase());
+}
+function isBroadCategoryTag(tag) {
+  return [
+    "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
+    "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
+    "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
+    "festival", "festivals", "free"
+  ].includes(String(tag || "").trim().toLowerCase());
+}
+function isLocationTag(event, tag) {
+  const normalized = String(tag || "").trim().toLowerCase();
+  if (!normalized) return false;
+  const eventLocations = [event.area, event.neighborhood, event.venue_address, event.address]
+    .map(value => String(value || "").trim().toLowerCase())
+    .filter(Boolean);
+  return LOCATION_TAG_ALIASES.includes(normalized) || eventLocations.some(location => location === normalized);
+}
+function keywordTagsForEvent(event) {
+  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""}`.toLowerCase();
+  const tags = [];
+  const add = (label, pattern) => { if (pattern.test(text) && !tags.includes(label)) tags.push(label); };
+  add("Drink Specials", /\b(beer|shot|cocktail|margarita|wine|bar|happy hour|drink special|cash bar)\b/);
+  add("DJ Set", /\b(dj|vinyl|dance floor|club night|nightclub)\b/);
+  add("Rooftop", /\b(rooftop|roof deck|skyline)\b/);
+  add("Country", /\b(wild west|country|western|boots)\b/);
+  add("Food tasting", /\b(tasting|cuisine|dinner|brunch|chef|restaurant|food)\b/);
+  add("Interactive", /\b(scavenger|hunt|trivia|game|clue|interactive)\b/);
+  add("Cultural", /\b(embassy|culture|cultural|international|ambassador)\b/);
+  add("Outdoor", /\b(outdoor|patio|garden|park|plaza|cruise|potomac)\b/);
+  add("Tour", /\b(tour|guided|walk|crawl)\b/);
+  add("Comedy", /\b(comedy|stand[- ]?up|improv|comic)\b/);
+  add("Museum", /\b(museum|gallery|smithsonian|exhibit|exhibition)\b/);
+  add("Networking", /\b(networking|young professionals|mixer|social)\b/);
+  add("Family Friendly", /\b(family|kids|children)\b/);
+  return tags;
 }
 function eventTags(event) {
   const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
@@ -287,6 +330,8 @@ function eventTags(event) {
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
     .filter(tag => !isCategoryTag(event, tag))
+    .filter(tag => !isBroadCategoryTag(tag))
+    .filter(tag => !isLocationTag(event, tag))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
   if (["concerts", "live-music"].includes(String(event.cat || "").toLowerCase())) {
     const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
@@ -328,7 +373,11 @@ function eventTags(event) {
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
       .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1));
   }
-  if (String(event.cat || "").toLowerCase() !== "performing-arts") return tags;
+  if (String(event.cat || "").toLowerCase() !== "performing-arts") {
+    return [...tags, ...keywordTagsForEvent(event)]
+      .filter(tag => !isCategoryTag(event, tag) && !isBroadCategoryTag(tag) && !isLocationTag(event, tag))
+      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  }
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
   const inferred = [];
   const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
