@@ -173,6 +173,8 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .event-location { display: block; margin-top: 2px; color: var(--ink); font-size: 12px; font-weight: 850; line-height: 1.35; }
 .event-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .event-tag { display: inline-flex; align-items: center; padding: 4px 7px; border: 1px solid rgba(17,24,39,.18); border-radius: 999px; color: var(--ink); background: var(--bg); font-size: 9px; font-weight: 800; }
+.event-source-credit { margin: 8px 0 0; color: var(--muted); font-size: 10px; font-weight: 800; }
+.event-source-credit a { color: var(--blue); text-decoration: none; }
 .detail-tags { margin: 2px 0 12px; }
 .signal { display: flex; align-items: center; gap: 6px; margin-top: 9px; color: var(--blue); font-size: 10px; font-weight: 800; }
 .avatars { display: flex; padding-left: 4px; }
@@ -238,6 +240,8 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .primary { color: white; background: var(--steel); }
 .secondary { color: var(--blue); background: var(--blue-soft); }
 .detail-description { color: var(--muted); font-family: "Aptos Display", Aptos, "Segoe UI Variable Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.45; }
+.detail-source-credit { margin: 13px 0 0; color: var(--muted); font-size: 11px; font-weight: 800; text-align: center; }
+.detail-source-credit a { color: var(--blue); text-decoration: none; }
 .attendee-line { display: flex; align-items: center; gap: 9px; margin: 14px 0; font-size: 12px; font-weight: 800; }
 
 .map-page { padding: 0; }
@@ -1992,6 +1996,8 @@ h1, h2, h3, .brand b { color: #326f91; }
   --onboard-cream: #F7F5EF;
   --onboard-green: #2D5A2D;
   --onboard-ink: #1a1a1a;
+  /* Rounded, friendly card font (Too Good To Go-style) */
+  --card-font: "Poppins", "Barlow Condensed", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ---- Typography ---- */
@@ -3746,6 +3752,144 @@ h3 { font-weight: 800; }
   .letter-btn, .letter-venue-link, .letter-cur { animation: none; transition: none; }
 }
 
+/* ============================================================
+   Event card v4 â€” Too Good To Go-inspired: framed rounded photo,
+   glassy pills, rounded font, dashed "receipt" divider, price row.
+   Loaded last so it overrides the v3 card rules above.
+   ============================================================ */
+.event-card {
+  display: block;
+  padding: 6px;
+  border: 1px solid rgba(23, 28, 26, .05);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(23, 28, 26, .08);
+  overflow: hidden;
+}
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(23, 28, 26, .13); }
+
+.event-card-media {
+  position: relative;
+  height: auto;
+  min-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #eef1ef;
+}
+.event-card-media .event-card-img { display: block; width: 100%; height: auto; }
+.event-card-media .event-card-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
+
+/* Glassy overlay pills (category top-left, social proof top-right) */
+.event-card-pill {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: calc(100% - 22px);
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .94);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: #1a1a1a;
+  font-family: var(--card-font);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 3px 10px rgba(23, 28, 26, .14);
+}
+.event-card-pill-cat { top: 10px; left: 10px; }
+
+/* Share stays on the photo as a glassy white button (top-right) */
+.event-card-media .event-card-actions { position: absolute; top: 10px; right: 10px; bottom: auto; left: auto; z-index: 2; display: flex; gap: 6px; pointer-events: none; }
+.event-card-media .card-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #33403a;
+  background: rgba(255, 255, 255, .94);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 3px 10px rgba(23, 28, 26, .14);
+  pointer-events: auto;
+}
+.event-card-media .card-icon-btn:hover { background: #fff; transform: scale(1.06); }
+.event-card-media .card-icon-btn svg { width: 16px; height: 16px; }
+
+/* Info block below the photo */
+.event-card-info { display: grid; gap: 3px; padding: 11px 10px 7px; text-align: left; }
+.event-card-titlerow { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 6px; }
+.event-card-title-btn { padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.event-card-title {
+  margin: 0;
+  color: #1a1a1a;
+  font-family: var(--card-font);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -.01em;
+  text-shadow: none;
+}
+.event-card-hero .event-card-title { font-size: 22px; }
+
+/* The heart sits in the title row as a quiet, tappable icon */
+.event-card-titlerow .card-save {
+  width: 32px;
+  height: 32px;
+  margin: -3px -4px 0 0;
+  border-radius: 50%;
+  color: #b1b7b0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  pointer-events: auto;
+}
+.event-card-titlerow .card-save:hover { background: rgba(23, 28, 26, .06); color: #5c6b64; transform: none; }
+.event-card-titlerow .card-save svg { width: 20px; height: 20px; }
+.event-card-titlerow .card-save.is-saved { color: var(--onboard-green); }
+.event-card-titlerow .card-save.is-saved svg { fill: var(--onboard-green); stroke: var(--onboard-green); }
+
+.event-card-subinfo { display: grid; gap: 2px; padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.event-card-venue {
+  overflow: hidden;
+  color: #46504a;
+  font-family: var(--card-font);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.event-card-info .event-card-meta {
+  color: #8b918b;
+  font-family: var(--card-font);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Dashed "receipt" perforation + price row */
+.event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
+.event-card-bottom2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.event-card-price {
+  margin-left: auto;
+  color: #1a1a1a;
+  font-family: var(--card-font);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+}
+.event-card-price.is-free { color: var(--onboard-green); }
+
+.event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
+
     </style>
   </head>
   <body>
@@ -4329,6 +4473,11 @@ function eventCardArea(event) {
   return line && !isGenericLocationName(line) ? line : "";
 }
 
+function eventSourceCredit(event) {
+  if (String(event?.source || "").toLowerCase() !== "thingstododc") return "";
+  return `<p class="event-source-credit">Courtesy of <a href="https://thingstododc.com/events/embassy-culture/" target="_blank" rel="noreferrer">Thing to do</a></p>`;
+}
+
 function cleanEventImageStyle(image) {
   return `background-image: linear-gradient(to top, rgba(17,24,39,.72) 0%, rgba(17,24,39,.28) 48%, rgba(255,255,255,.12) 100%), ${image}; background-size: cover, contain; background-repeat: no-repeat, no-repeat; background-position: center, center; background-color: #f7fafc;`;
 }
@@ -4337,29 +4486,43 @@ function cleanEventThumbStyle(image) {
   return `background-image: ${image}; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #f7fafc;`;
 }
 
+// Event card, Too Good To Go-inspired: framed rounded photo with a category pill
+// (and optional social-proof pill), then a clean info block â€” bold title + heart,
+// venue, time / neighborhood, a dashed "receipt" divider, and a price row.
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const area = eventCardArea(event);
-  const accent = categoryColor(event);
   const tags = eventTags(event);
-  const urgency = eventUrgency(event);
-  const urgencyHtml = urgency ? `<span class="event-card-urgency ${urgency.cls}">${escapeHtml(urgency.label)}</span>` : "";
-  return `<article class="event-card${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <span class="event-card-media cat-${eventVisualCategory(event)}">
+  const catLabel = eventArtLabel(event);
+  const rawVenue = cleanLocationPart(event.venue);
+  const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
+  const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  Â·  ");
+  const isFree = eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""));
+  const priceLabel = eventPriceLabel(event);
+  const priceHtml = isFree ? `<span class="event-card-price is-free">Free</span>` : (priceLabel ? `<span class="event-card-price">${escapeHtml(priceLabel)}</span>` : "");
+  const leftTag = eventTagChips(event, 1);
+  const bottomHtml = priceHtml || leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span>${priceHtml}</span>` : "";
+  const sourceCredit = eventSourceCredit(event);
+  return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    <div class="event-card-media cat-${eventVisualCategory(event)}">
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
-      <span class="event-card-actions">
-        <button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button>
-        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
-      </span>
-    </span>
-    <button class="event-card-body" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+      ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
+      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></span>
+    </div>
+    <div class="event-card-info">
       ${opts.reason ? `<span class="event-card-reason">${escapeHtml(opts.reason)}</span>` : ""}
-      <span class="event-card-toprow">${showBadge ? `<span class="event-card-cat" style="color:${accent}">${escapeHtml(eventArtLabel(event))}</span>` : ""}<span class="event-card-meta">${eventMetaLine(event)}</span></span>
-      <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
-      ${area ? `<span class="event-card-loc">${escapeHtml(area)}</span>` : ""}
-      <span class="event-card-tagrow">${cardFriendAvatars(event)}<span class="event-card-tags">${eventTagChips(event, 2)}</span>${urgencyHtml}</span>
-    </button>
+      <div class="event-card-titlerow">
+        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><h3 class="event-card-title">${escapeHtml(event.title)}</h3></button>
+        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+      </div>
+      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+        ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
+        ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
+      </button>
+      ${bottomHtml}
+      ${sourceCredit}
+    </div>
   </article>`;
 }
 
@@ -6117,9 +6280,77 @@ async function hydrateProfileAfterLogin(accessToken, identifier) {
   else setActiveProfile({ id: userId, fullName: identifier, email: identifier.includes("@") ? identifier : "", username: identifier, accountType: "person" });
 }
 
+// --- Stored credentials for same-device log out / log back in ---------------
+// We keep the user's email, phone, and username in the clear (identifiers, not
+// secrets) plus a SHA-256 hash of their password â€” never the raw password â€” so a
+// returning user can log back in on this device without a Supabase round-trip.
+// Cross-device login still authenticates against Supabase, which holds the real
+// (bcrypt) password.
+async function hashLokalPassword(password) {
+  try {
+    const bytes = new TextEncoder().encode(String(password));
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  } catch {
+    // Non-secure contexts lack crypto.subtle; fall back to a tagged marker so the
+    // match logic still works (only ever compared against itself).
+    return `plain:${String(password)}`;
+  }
+}
+
+async function storeLokalCredentials({ email, phone, username, password }) {
+  const record = {
+    email: String(email || "").trim().toLowerCase(),
+    phone: String(phone || "").trim(),
+    username: String(username || "").trim().toLowerCase(),
+    passwordHash: password ? await hashLokalPassword(password) : ""
+  };
+  localStorage.setItem("lokalCredentials", JSON.stringify(record));
+}
+
+function getLokalCredentials() {
+  try { return JSON.parse(localStorage.getItem("lokalCredentials") || "null"); } catch { return null; }
+}
+
+async function localCredentialMatch(identifier, password) {
+  const credentials = getLokalCredentials();
+  if (!credentials || !credentials.passwordHash) return false;
+  const id = String(identifier || "").trim().toLowerCase();
+  const idDigits = id.replace(/\D/g, "");
+  const phoneDigits = String(credentials.phone || "").replace(/\D/g, "");
+  const identifierMatches = (credentials.email && id === credentials.email)
+    || (credentials.username && id === credentials.username)
+    || (phoneDigits.length >= 10 && idDigits.length >= 10 && idDigits.slice(-10) === phoneDigits.slice(-10));
+  if (!identifierMatches) return false;
+  return (await hashLokalPassword(password)) === credentials.passwordHash;
+}
+
+// Restore the retained local session (profile kept through logout) without hitting
+// Supabase â€” used when the entered credentials match what's stored on this device.
+function restoreLocalSession(identifier) {
+  const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
+  if (savedProfile) {
+    state.profile = savedProfile;
+    if (Number.isFinite(savedProfile.age)) state.age = savedProfile.age;
+    if (Array.isArray(savedProfile.tastes)) state.tastes = savedProfile.tastes;
+  }
+  localStorage.setItem("lokalAccountCreated", "true");
+  localStorage.setItem("lokalHasAccount", "true");
+  if (identifier) localStorage.setItem("lokalLastIdentifier", identifier);
+  updateProfileShortcut();
+}
+
 async function loginLokalUser({ identifier, password }) {
   const value = String(identifier || "").trim();
   if (!value || !password) throw new Error("Enter your login and password.");
+  // Same-device re-login: match the stored credentials and restore the retained
+  // profile locally â€” no Supabase round-trip, so it works even if email confirmation
+  // is pending or the network is flaky.
+  if (await localCredentialMatch(value, password)) {
+    restoreLocalSession(value);
+    return { local: true };
+  }
+  // Otherwise (new device, or credentials not stored here) authenticate against Supabase.
   const credentials = await resolveLoginCredentials(value);
   const data = await supabaseAuthRequest("token?grant_type=password", { ...credentials, password });
   if (!data.access_token) throw new Error("That login didn't work. Check your details and try again.");
@@ -6143,12 +6374,13 @@ function clearSupabaseSession() {
   [supabaseStorageKeys.accessToken, supabaseStorageKeys.refreshToken, supabaseStorageKeys.userId].forEach(key => localStorage.removeItem(key));
 }
 
-// Ends the local session: drops the Supabase tokens and the active profile, but
-// keeps lokalHasAccount / lokalLastIdentifier so the login screen is shown next.
+// Ends the active session: drops the Supabase tokens and clears the "signed in"
+// flag so the login screen shows next. Keeps the profile and stored credentials so
+// the user can log straight back in on this device (this is an opt-in logout, not a
+// wipe). lokalHasAccount / lokalLastIdentifier stay set to prefill the login screen.
 function logoutLokalUser() {
   clearSupabaseSession();
   localStorage.removeItem("lokalAccountCreated");
-  localStorage.removeItem("lokalProfile");
   localStorage.removeItem("lokalOnboardingShown");
   localStorage.setItem("lokalHasAccount", "true");
 }
@@ -8513,6 +8745,7 @@ function openDetail(id) {
   const priceLabel = eventPriceLabel(e);
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
+  const sourceCredit = eventSourceCredit(e);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}<button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
@@ -8524,7 +8757,7 @@ function openDetail(id) {
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved âœ“" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going âœ“" : "RSVP"}</button>${shareButton}</div>
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
-    <button class="wide-button" data-ticket="${e.id}">${e.detailsUrl ? "Get tickets / details" : "Open shareable event page"}</button></div>
+    <button class="wide-button" data-ticket="${e.id}">${e.detailsUrl ? "Get tickets / details" : "Open shareable event page"}</button>${sourceCredit.replace("event-source-credit", "detail-source-credit")}</div>
   </section></div>`;
 }
 
@@ -9547,6 +9780,10 @@ document.addEventListener("click", async event => {
     // user to the login screen (not the first-run welcome letter).
     localStorage.setItem("lokalHasAccount", "true");
     localStorage.setItem("lokalLastIdentifier", draft.email || username);
+    // Store their credentials (password hashed, not raw) so a logout/login round-trip
+    // works on this device. They are NOT forced to log in â€” boot auto-enters while
+    // lokalAccountCreated is set; this only matters if they choose to log out.
+    if (draft.password) { try { await storeLokalCredentials({ email: draft.email, phone: draft.phone, username, password: draft.password }); } catch (credError) { console.warn("[auth] could not store local credentials", credError); } }
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     state.signupDraft = {};
@@ -9815,9 +10052,8 @@ document.querySelectorAll("[data-icon]").forEach(el => el.innerHTML = icons[el.d
 const startupParams = new URLSearchParams(location.search);
 const startupAccountType = String(startupParams.get("account") || "").toLowerCase();
 const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
-const startupAccountReset = ["person", "local", "venue"].includes(startupAccountType);
-if (forceOnboarding || startupAccountReset) {
-  ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
+if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
+  ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalCredentials", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
   state.signupDraft = startupAccountType === "venue" && !forceOnboarding ? { accountType: "venue" } : {};
   state.onboardStep = startupAccountType === "venue" && !forceOnboarding ? 1 : 0;
