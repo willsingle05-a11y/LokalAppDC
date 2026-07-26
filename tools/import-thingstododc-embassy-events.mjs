@@ -205,7 +205,8 @@ function dcProperAddress(address) {
 
 function categoryFor(row) {
   const text = `${row.title} ${row.description} ${row.venue_name}`.toLowerCase();
-  if (/scavenger|hike|kayak|bike|outdoor|zoo|sports|game of clue|hunt/.test(text)) return { category: "sports", tag: "Outdoor" };
+  if (/scavenger|game of clue|hunt/.test(text)) return { category: "community", tag: "Interactive" };
+  if (/hike|kayak|bike|outdoor|zoo|sports/.test(text)) return { category: "sports", tag: "Outdoor" };
   if (/evening at .*embassy|embassy of|ambassador|ukraine house|egyptian cultural|venetian ball|garden party|foreign soil/.test(text)) return { category: "festivals", tag: "Embassy" };
   if (/tasting|chocolate|wine|food|cuisine|dinner|brunch/.test(text)) return { category: "food", tag: "Food" };
   if (/embassy|ambassador|culture|cultural|foreign soil|france|italy|ethiopia|uganda|tanzania|china|saudi|vietnam|ukraine|egypt/.test(text)) return { category: "festivals", tag: "Embassy" };

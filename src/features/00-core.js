@@ -565,7 +565,6 @@ function eventRow(event, variant = "", opts = {}) {
   const priceHtml = isFree ? `<span class="event-card-price is-free">Free</span>` : (priceLabel ? `<span class="event-card-price">${escapeHtml(priceLabel)}</span>` : "");
   const leftTag = eventTagChips(event, 1);
   const bottomHtml = priceHtml || leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span>${priceHtml}</span>` : "";
-  const sourceCredit = eventSourceCredit(event);
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
@@ -584,7 +583,6 @@ function eventRow(event, variant = "", opts = {}) {
         ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
       </button>
       ${bottomHtml}
-      ${sourceCredit}
     </div>
   </article>`;
 }

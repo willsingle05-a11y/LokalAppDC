@@ -1842,10 +1842,12 @@ h3 { font-weight: 800; }
 
 /* Info block below the photo */
 .event-card-info { display: grid; gap: 3px; padding: 11px 10px 7px; text-align: left; }
-.event-card-titlerow { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 6px; }
-.event-card-title-btn { padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.event-card-titlerow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 6px; min-width: 0; overflow: hidden; }
+.event-card-title-btn { min-width: 0; padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
 .event-card-title {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
   color: #1a1a1a;
   font-family: var(--card-font);
   font-size: 17px;
@@ -1853,14 +1855,17 @@ h3 { font-weight: 800; }
   line-height: 1.14;
   letter-spacing: -.01em;
   text-shadow: none;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .event-card-hero .event-card-title { font-size: 22px; }
 
 /* The heart sits in the title row as a quiet, tappable icon */
 .event-card-titlerow .card-save {
-  width: 32px;
-  height: 32px;
-  margin: -3px -4px 0 0;
+  width: 28px;
+  height: 28px;
+  margin: -2px 0 0 0;
   border-radius: 50%;
   color: #b1b7b0;
   background: transparent;
@@ -1889,22 +1894,29 @@ h3 { font-weight: 800; }
   font-family: var(--card-font);
   font-size: 12px;
   font-weight: 500;
+  line-height: 1.32;
   letter-spacing: 0;
   text-transform: none;
+  overflow-wrap: anywhere;
 }
 
 /* Dashed "receipt" perforation + price row */
 .event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
-.event-card-bottom2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.event-card-bottom2 { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; min-width: 0; }
+.event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; overflow: hidden; }
 .event-card-price {
+  max-width: 100%;
   margin-left: auto;
+  overflow: hidden;
   color: #1a1a1a;
   font-family: var(--card-font);
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -.01em;
-  white-space: nowrap;
+  line-height: 1.12;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .event-card-price.is-free { color: var(--onboard-green); }
 

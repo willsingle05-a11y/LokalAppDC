@@ -496,6 +496,7 @@ function cleanSupabaseDescription(value) {
     .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
     .replace(/^Sourced from [\w.-]+(?:\.com)?\.?\s*/i, "")
     .replace(/\s*Sourced from [\w.-]+(?:\.com)?\.?\s*/ig, " ")
+    .replace(/\s*\[\.\.\.\]\s*$/g, "...")
     .trim();
   return cleaned || "More details are coming soon.";
 }

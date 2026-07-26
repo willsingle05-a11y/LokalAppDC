@@ -430,7 +430,8 @@ function checkRow(kind, value, label, checked) {
 function filterDropdownContent(kind) {
   if (kind === "what") {
     const what = state.whatFilter || new Set();
-    return `<div class="check-list check-list-scroll">${whatFilterOptions().map(([value, label]) => checkRow("what", value, label, what.has(value))).join("")}</div>${what.size ? `<button class="dropdown-clear" data-clear-what>Clear all</button>` : ""}`;
+    const allRow = `<button class="check-row${what.size ? "" : " checked"}" data-clear-what><span class="check-box">${what.size ? "" : icons.check}</span><span>All</span></button>`;
+    return `<div class="check-list check-list-scroll">${allRow}${whatFilterOptions().map(([value, label]) => checkRow("what", value, label, what.has(value))).join("")}</div>${what.size ? `<button class="dropdown-clear" data-clear-what>Clear all</button>` : ""}`;
   }
   if (kind === "where") {
     const where = state.whereFilter || new Set();
