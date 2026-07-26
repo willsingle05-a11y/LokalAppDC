@@ -889,7 +889,6 @@ function normalizeSupabaseTags(row, category) {
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "", "live-music": "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", food: "Food & Drink", "happy-hours": "", "trivia-nights": "" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
   if (["concerts", "live-music"].includes(category)) inferredTags.push(...concertDetailTags(row));
@@ -902,10 +901,25 @@ function normalizeSupabaseTags(row, category) {
   if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
   if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
   if (category === "performing-arts") inferredTags.push(...performingArtsDetailTags(row));
-  return [...inferredTags, categoryLabels[category] || "", ...rawTags, row.tag, ...labels]
+  const categoryAliases = {
+    concerts: ["concert", "concerts"],
+    "live-music": ["live music", "music"],
+    "performing-arts": ["arts", "art", "performing arts", "performance"],
+    museums: ["museums", "museum"],
+    festivals: ["festivals", "festival"],
+    sports: ["sports", "sport"],
+    community: ["community"],
+    expos: ["expos", "expo"],
+    nightlife: ["nightlife", "night out"],
+    "happy-hours": ["happy hour", "happy hours"],
+    "trivia-nights": ["trivia", "trivia night", "trivia nights"],
+    food: ["food", "food & drink", "food and drink"]
+  }[category] || [];
+  return [...inferredTags, ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => !categoryAliases.includes(tag.toLowerCase()))
     .filter(tag => !["concerts", "live-music"].includes(category) || !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()))
     .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)

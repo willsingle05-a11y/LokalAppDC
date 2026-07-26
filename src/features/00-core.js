@@ -258,14 +258,35 @@ function seededMusicGenreTag(seedText) {
   const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
   return pool[seed % pool.length];
 }
+function categoryTagAliases(category) {
+  const aliases = {
+    concerts: ["concert", "concerts"],
+    "live-music": ["live music", "music"],
+    "performing-arts": ["arts", "art", "performing arts", "performance"],
+    museums: ["museums", "museum"],
+    festivals: ["festivals", "festival"],
+    sports: ["sports", "sport"],
+    community: ["community"],
+    expos: ["expos", "expo"],
+    nightlife: ["nightlife", "night out"],
+    "happy-hours": ["happy hour", "happy hours"],
+    "trivia-nights": ["trivia", "trivia night", "trivia nights"],
+    food: ["food", "food & drink", "food and drink"]
+  };
+  return aliases[String(category || "").toLowerCase()] || [];
+}
+function isCategoryTag(event, tag) {
+  return categoryTagAliases(event.cat || event.category).includes(String(tag || "").trim().toLowerCase());
+}
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
     .map(tag => String(tag || "").trim())
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => !isCategoryTag(event, tag))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
   if (["concerts", "live-music"].includes(String(event.cat || "").toLowerCase())) {
     const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
