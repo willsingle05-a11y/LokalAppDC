@@ -346,6 +346,49 @@ function renderEventFeed(list, opts = {}) {
   return `<div class="feed-masonry">${cards}</div>${more}`;
 }
 
+function topWeekEventScore(event) {
+  const interactionScore =
+    (state.saved?.has(event.id) ? 8 : 0)
+    + (state.rsvps?.has(event.id) ? 10 : 0)
+    + (event.friends?.length || 0) * 3;
+  const imageScore = String(event.image || "").trim() ? 4 : 0;
+  return eventPopularityScore(event) + interactionScore + imageScore;
+}
+
+function topWeekEvents(limit = 10) {
+  const now = Date.now();
+  const weekEnd = now + 7 * 24 * 60 * 60 * 1000;
+  const weekEvents = dedupeFeedEvents(displayableDcEvents()
+    .filter(event => Number.isFinite(event.startSort) && event.startSort >= now && event.startSort <= weekEnd)
+    .sort((a, b) => topWeekEventScore(b) - topWeekEventScore(a) || sortEventsByStart(a, b)));
+  const fallbackEvents = dedupeFeedEvents(displayableDcEvents()
+    .filter(event => Number.isFinite(event.startSort) && event.startSort >= now)
+    .sort((a, b) => topWeekEventScore(b) - topWeekEventScore(a) || sortEventsByStart(a, b)));
+  const pool = weekEvents.length >= limit ? weekEvents : [...weekEvents, ...fallbackEvents.filter(event => !weekEvents.some(item => item.id === event.id))];
+  const picks = [];
+  const usedCategories = new Set();
+  pool.forEach(event => {
+    const category = String(event.cat || "").toLowerCase();
+    if (picks.length < limit && category && !usedCategories.has(category)) {
+      picks.push(event);
+      usedCategories.add(category);
+    }
+  });
+  pool.forEach(event => {
+    if (picks.length < limit && !picks.some(item => item.id === event.id)) picks.push(event);
+  });
+  return picks.slice(0, limit);
+}
+
+function renderTopWeekEvents() {
+  const picks = topWeekEvents(10);
+  if (!picks.length) return "";
+  return `<section class="top-week-section" aria-label="Top 10 events this week discovered by Lokal">
+    <div class="top-week-heading"><div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><span>This week</span></div>
+    <div class="top-week-rail">${picks.map((event, index) => `<div class="top-week-item"><span class="top-week-rank">#${index + 1}</span>${eventRow(event, "", { showBadge: true })}</div>`).join("")}</div>
+  </section>`;
+}
+
 function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const withPictures = dc.filter(event => String(event.image || "").trim());
@@ -549,6 +592,7 @@ function renderHome() {
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or neighborhoods" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    ${renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
   if (state.resetDiscoverScrollAfterRender && typeof resetAppScroll === "function") resetAppScroll();
