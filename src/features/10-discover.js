@@ -397,7 +397,7 @@ function openTopWeekEvents() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet top-week-sheet" role="dialog" aria-modal="true" aria-label="Top 10 events this week"><button class="modal-close" aria-label="Close top 10">&times;</button>
     <p class="eyebrow">Discovered by Lokal</p><h2>Top 10 events this week</h2>
     <p class="lede">A ranked mix of the week across DC, balancing category variety with saves, RSVPs, shares, venue quality, and timing.</p>
-    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
+    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-top-week-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
   </section></div>`;
 }
 

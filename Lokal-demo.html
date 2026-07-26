@@ -3180,7 +3180,7 @@ h3 { font-weight: 800; }
   object-position: center;
   background: #f7fafc;
 }
-.detail-hero.has-image > :not(.detail-hero-img):not(.modal-close),
+.detail-hero.has-image > :not(.detail-hero-img):not(.modal-close):not(.detail-back-button),
 .venue-page-hero.has-image > :not(.venue-page-img) {
   position: relative;
   z-index: 2;
@@ -3188,6 +3188,22 @@ h3 { font-weight: 800; }
 .detail-hero.has-image > .modal-close {
   position: absolute;
   z-index: 3;
+}
+.detail-back-button {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  background: rgba(23, 58, 53, .58);
+  font-size: 21px;
+  font-weight: 900;
+  backdrop-filter: blur(5px);
 }
 .venue-page-hero.has-image {
   min-height: 210px;
@@ -7344,7 +7360,7 @@ function openTopWeekEvents() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet top-week-sheet" role="dialog" aria-modal="true" aria-label="Top 10 events this week"><button class="modal-close" aria-label="Close top 10">&times;</button>
     <p class="eyebrow">Discovered by Lokal</p><h2>Top 10 events this week</h2>
     <p class="lede">A ranked mix of the week across DC, balancing category variety with saves, RSVPs, shares, venue quality, and timing.</p>
-    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
+    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-top-week-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
   </section></div>`;
 }
 
@@ -9056,7 +9072,7 @@ function openFollowedVenuesList(query = "") {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet followed-venues-sheet" role="dialog" aria-modal="true" aria-label="Venues following"><button class="modal-close" aria-label="Close venues following">&times;</button><p class="eyebrow">Your profile</p><h2>Venues following</h2><label class="search-box social-search"><span>&#8981;</span><input data-followed-venue-search value="${escapeHtml(query)}" placeholder="Search venues you follow" aria-label="Search venues you follow"></label><div class="managed-list" data-followed-venue-list>${rows || `<p class="section-helper">You are not following any matching venues yet.</p>`}</div></section></div>`;
 }
 
-function openDetail(id) {
+function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const occurrencesBlock = otherOccurrences.length
@@ -9077,8 +9093,10 @@ function openDetail(id) {
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const sourceCredit = eventSourceCredit(e);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+  const detailContext = opts.backToTopWeek ? "top-week" : "";
+  const backButton = opts.backToTopWeek ? `<button class="detail-back-button" data-top-week-events aria-label="Back to Top 10 events">&larr;</button>` : "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}<button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
@@ -9674,6 +9692,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.applyTime !== undefined) { mark(); const from = document.querySelector("[data-time-from]")?.value; const to = document.querySelector("[data-time-to]")?.value; state.filter.time = from ? `custom:${from}-${to || from}` : "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast(from ? "Time filter applied" : "Time cleared"); }
   if (t.dataset.clearTime !== undefined) { mark(); state.filter.time = "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Time cleared"); }
   if (t.dataset.dayExplore) { mark(); state.filter.date = t.dataset.dayExplore; state.homeFilter = "all"; state.discoverCategoryView = ""; state.feedShown = 10; setRoute("home"); toast("Showing events for that day"); }
+  if (t.dataset.topWeekEvent) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.topWeekEvent, { backToTopWeek: true }); }
   if (t.dataset.event) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.quickSave) {
@@ -9694,7 +9713,8 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     const flashSaved = button => { if (!button) return; button.classList.add("just-saved"); setTimeout(() => button.classList.remove("just-saved"), 1500); };
-    if (inDetail) { openDetail(id); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
+    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
+    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
     else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) flashSaved(button); });
     saveEventInteraction(id, "save", isSaved);
     // Saving confirms inline (the "Saved âœ“" chip); only the removal needs a toast.
@@ -9705,7 +9725,8 @@ document.addEventListener("click", async event => {
     state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id);
     const isRsvp = state.rsvps.has(id);
     setPlanSource("rsvp", id, isRsvp);
-    openDetail(id);
+    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
+    openDetail(id, { backToTopWeek });
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
@@ -9713,7 +9734,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await copyText(lokalEventShareUrl(shareEvent)); } catch { toast("Could not copy the link"); return; } const original = t.textContent; t.textContent = "Link copied âœ“"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.addCalendar) { mark(); addEventToCalendar(t.dataset.calendarEvent, t.dataset.addCalendar); }
-  if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
+  if (t.dataset.attended) { mark(); const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week"; const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended, { backToTopWeek }); toast(result.message); }
   if (t.dataset.planAttended) { mark(); const result = markEventAttended(Number(t.dataset.planAttended)); if (state.route === "social") renderSocial(); else if (state.route === "profile") renderProfile(); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);

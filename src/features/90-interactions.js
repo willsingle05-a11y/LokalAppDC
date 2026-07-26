@@ -55,6 +55,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.applyTime !== undefined) { mark(); const from = document.querySelector("[data-time-from]")?.value; const to = document.querySelector("[data-time-to]")?.value; state.filter.time = from ? `custom:${from}-${to || from}` : "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast(from ? "Time filter applied" : "Time cleared"); }
   if (t.dataset.clearTime !== undefined) { mark(); state.filter.time = "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Time cleared"); }
   if (t.dataset.dayExplore) { mark(); state.filter.date = t.dataset.dayExplore; state.homeFilter = "all"; state.discoverCategoryView = ""; state.feedShown = 10; setRoute("home"); toast("Showing events for that day"); }
+  if (t.dataset.topWeekEvent) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.topWeekEvent, { backToTopWeek: true }); }
   if (t.dataset.event) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.quickSave) {
@@ -75,7 +76,8 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     const flashSaved = button => { if (!button) return; button.classList.add("just-saved"); setTimeout(() => button.classList.remove("just-saved"), 1500); };
-    if (inDetail) { openDetail(id); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
+    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
+    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
     else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) flashSaved(button); });
     saveEventInteraction(id, "save", isSaved);
     // Saving confirms inline (the "Saved ✓" chip); only the removal needs a toast.
@@ -86,7 +88,8 @@ document.addEventListener("click", async event => {
     state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id);
     const isRsvp = state.rsvps.has(id);
     setPlanSource("rsvp", id, isRsvp);
-    openDetail(id);
+    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
+    openDetail(id, { backToTopWeek });
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
@@ -94,7 +97,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await copyText(lokalEventShareUrl(shareEvent)); } catch { toast("Could not copy the link"); return; } const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
   if (t.dataset.addCalendar) { mark(); addEventToCalendar(t.dataset.calendarEvent, t.dataset.addCalendar); }
-  if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
+  if (t.dataset.attended) { mark(); const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week"; const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended, { backToTopWeek }); toast(result.message); }
   if (t.dataset.planAttended) { mark(); const result = markEventAttended(Number(t.dataset.planAttended)); if (state.route === "social") renderSocial(); else if (state.route === "profile") renderProfile(); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);

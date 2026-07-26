@@ -1,4 +1,4 @@
-function openDetail(id) {
+function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const occurrencesBlock = otherOccurrences.length
@@ -19,8 +19,10 @@ function openDetail(id) {
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const sourceCredit = eventSourceCredit(e);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+  const detailContext = opts.backToTopWeek ? "top-week" : "";
+  const backButton = opts.backToTopWeek ? `<button class="detail-back-button" data-top-week-events aria-label="Back to Top 10 events">&larr;</button>` : "";
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}<button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     ${eventInterestSignal(e, true)}
