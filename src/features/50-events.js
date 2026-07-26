@@ -21,6 +21,7 @@ function openDetail(id, opts = {}) {
   const sourceCredit = eventSourceCredit(e);
   const detailContext = opts.backToTopWeek ? "top-week" : "";
   const backButton = opts.backToTopWeek ? `<button class="detail-back-button" data-top-week-events aria-label="Back to Top 10 events">&larr;</button>` : "";
+  const ticketButton = e.detailsUrl ? `<button class="wide-button" data-ticket="${e.id}">Get tickets / details</button>` : "";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}<button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
@@ -28,11 +29,26 @@ function openDetail(id, opts = {}) {
     ${eventInterestSignal(e, true)}
     <p class="detail-description">${e.desc}</p>
     ${occurrencesBlock}
-    <div class="calendar-action-row"><button class="wide-button calendar-recur-button" data-add-calendar="apple" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Apple Calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</button><button class="wide-button calendar-recur-button secondary-calendar" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button></div>
+    <button class="wide-button calendar-recur-button detail-calendar-button" data-calendar-options="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</button>
     <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved ✓" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going ✓" : "RSVP"}</button>${shareButton}</div>
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
-    <button class="wide-button" data-ticket="${e.id}">${e.detailsUrl ? "Get tickets / details" : "Open shareable event page"}</button>${sourceCredit.replace("event-source-credit", "detail-source-credit")}</div>
+    ${ticketButton}${sourceCredit.replace("event-source-credit", "detail-source-credit")}</div>
+  </section></div>`;
+}
+
+function openCalendarOptions(id) {
+  const e = events.find(event => event.id === Number(id));
+  if (!e) return;
+  const recurrence = eventRecurrence(e);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet calendar-options-sheet" role="dialog" aria-modal="true" aria-label="Add ${escapeHtml(e.title)} to calendar"><button class="modal-close" aria-label="Close calendar options">&times;</button>
+    <p class="eyebrow">Add to calendar</p><h2>${escapeHtml(e.title)}</h2>
+    <p class="lede">Choose where you want to add this event.${recurrence ? ` This includes the recurring schedule: ${escapeHtml(recurrence.label)}.` : ""}</p>
+    <div class="calendar-options-list">
+      <button class="calendar-option-row" data-add-calendar="apple" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Apple Calendar</b><small>Download an .ics calendar file</small></span></button>
+      <button class="calendar-option-row" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Google Calendar</b><small>Open Google Calendar with this event filled in</small></span></button>
+      <button class="calendar-option-row" data-copy-event-share="${e.id}"><span class="cal-ic">${cardShareIcon}</span><span><b>Copy event details</b><small>Copy the Lokal event text and link</small></span></button>
+    </div>
   </section></div>`;
 }
 
