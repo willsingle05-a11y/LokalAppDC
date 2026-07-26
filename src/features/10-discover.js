@@ -383,10 +383,22 @@ function topWeekEvents(limit = 10) {
 function renderTopWeekEvents() {
   const picks = topWeekEvents(10);
   if (!picks.length) return "";
+  const preview = picks.slice(0, 3).map((event, index) => `<span><b>${index + 1}</b>${escapeHtml(event.title)}</span>`).join("");
   return `<section class="top-week-section" aria-label="Top 10 events this week discovered by Lokal">
-    <div class="top-week-heading"><div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><span>This week</span></div>
-    <div class="top-week-rail">${picks.map((event, index) => `<div class="top-week-item"><span class="top-week-rank">#${index + 1}</span>${eventRow(event, "", { showBadge: true })}</div>`).join("")}</div>
+    <button class="top-week-heading" data-top-week-events>
+      <div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><span>Open list</span>
+    </button>
+    <button class="top-week-preview" data-top-week-events aria-label="Open Top 10 events this week">${preview}</button>
   </section>`;
+}
+
+function openTopWeekEvents() {
+  const picks = topWeekEvents(10);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet top-week-sheet" role="dialog" aria-modal="true" aria-label="Top 10 events this week"><button class="modal-close" aria-label="Close top 10">&times;</button>
+    <p class="eyebrow">Discovered by Lokal</p><h2>Top 10 events this week</h2>
+    <p class="lede">A ranked mix of the week across DC, balancing category variety with saves, RSVPs, shares, venue quality, and timing.</p>
+    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
+  </section></div>`;
 }
 
 function tonightMapEvents(limit = 5) {

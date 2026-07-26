@@ -1924,19 +1924,22 @@ h3 { font-weight: 800; }
 
 .top-week-section {
   display: grid;
-  gap: 10px;
-  margin: 0 -18px 18px;
-  padding: 14px 0 4px 18px;
-  border-top: 1px solid rgba(23, 28, 26, .08);
-  border-bottom: 1px solid rgba(23, 28, 26, .08);
-  background: rgba(255, 255, 255, .34);
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 10px 11px;
+  border: 1px solid rgba(23, 28, 26, .09);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .62);
 }
 .top-week-heading {
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-right: 18px;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  text-align: left;
 }
 .top-week-heading h3 {
   margin: 1px 0 0;
@@ -1955,42 +1958,81 @@ h3 { font-weight: 800; }
   font-size: 10px;
   font-weight: 900;
 }
-.top-week-rail {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0 18px 13px 0;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+.top-week-preview {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  text-align: left;
 }
-.top-week-rail::-webkit-scrollbar { display: none; }
-.top-week-item {
-  position: relative;
-  flex: 0 0 min(76vw, 292px);
-  scroll-snap-align: start;
+.top-week-preview span {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 750;
 }
-.top-week-rank {
-  position: absolute;
-  top: 9px;
-  left: 9px;
-  z-index: 4;
-  display: inline-grid;
+.top-week-preview b {
+  display: grid;
   place-items: center;
-  min-width: 38px;
-  height: 30px;
-  padding: 0 8px;
-  border: 2px solid #fff;
-  border-radius: 999px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
   color: #fff;
   background: #111827;
-  box-shadow: 0 7px 16px rgba(17, 24, 39, .16);
-  font-size: 12px;
+  font-size: 9px;
+  font-weight: 950;
+}
+.top-week-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.top-week-row {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(23, 28, 26, .08);
+  border-radius: 13px;
+  background: #fff;
+  text-align: left;
+}
+.top-week-row-rank {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  background: #111827;
+  font-size: 13px;
   font-weight: 1000;
 }
-.top-week-item .event-card-pill-cat { left: 55px; }
-.top-week-item .event-card {
-  height: 100%;
-  min-height: 0;
+.top-week-row-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
-.top-week-item .event-card-title { font-size: 17px; }
+.top-week-row-copy b {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-week-row-copy small,
+.top-week-row-copy em {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
