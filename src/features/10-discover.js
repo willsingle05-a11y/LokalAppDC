@@ -580,15 +580,18 @@ function openTimePickerSheet() {
 // Live count under the feed heading. Reflects the active What/Where/When filters
 // so the number tracks what's actually shown, not the full loaded catalog.
 function feedFilterCountLabel(count) {
+  const plural = count === 1 ? "" : "s";
+  if (discoverFiltersActive()) return `${count} event${plural} match${count === 1 ? "es" : ""} your filters`;
+  return `${count} upcoming DC event${plural}`;
+}
+
+function discoverFiltersActive() {
   const whenActive = (state.whenFilter && state.whenFilter.size)
     || (state.filter.date && state.filter.date !== "Any date")
     || (state.filter.time && state.filter.time !== "Any time");
-  const filtersActive = (state.whatFilter && state.whatFilter.size)
+  return Boolean((state.whatFilter && state.whatFilter.size)
     || (state.whereFilter && state.whereFilter.size)
-    || whenActive;
-  const plural = count === 1 ? "" : "s";
-  if (filtersActive) return `${count} event${plural} match${count === 1 ? "es" : ""} your filters`;
-  return `${count} upcoming DC event${plural}`;
+    || whenActive);
 }
 
 function renderHome() {
@@ -606,7 +609,7 @@ function renderHome() {
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or neighborhoods" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
-    ${renderTopWeekEvents()}
+    ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
   if (state.resetDiscoverScrollAfterRender && typeof resetAppScroll === "function") resetAppScroll();
@@ -811,6 +814,8 @@ function renderDiscoverEventSearch(query) {
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
+  const topWeek = document.querySelector(".top-week-section");
+  if (topWeek) topWeek.hidden = true;
   const dcEvents = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
