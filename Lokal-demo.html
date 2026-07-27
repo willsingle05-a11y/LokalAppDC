@@ -4893,13 +4893,31 @@ function eventDedupeKey(event) {
   return `${String(event.title || "").trim().toLowerCase().replace(/\s+/g, " ")}|${venueImageKeyName(event.venue || eventLocationLine(event))}`;
 }
 
+function normalizedFeedDedupeTitle(event) {
+  return String(event.title || "")
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/:.+$/g, " ")
+    .replace(/\bwashington\s+mystics\b/g, "mystics")
+    .replace(/\bvs\.?\b/g, "vs")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function feedDedupeKey(event) {
+  const day = event.startDate || (Number.isFinite(event.startSort) ? localDateKey(new Date(event.startSort)) : "");
+  const hour = Number.isFinite(event.startSort) ? Math.floor(event.startSort / 60000) : eventDisplayTime(event);
+  return `${day}|${hour}|${normalizedFeedDedupeTitle(event)}|${venueImageKeyName(event.venue || eventLocationLine(event))}`;
+}
+
 // Feed-only dedupe: collapse repeated title+venue occurrences to a single card.
 // Assumes `list` is already sorted ascending by start, so the first match kept
 // is the next upcoming occurrence.
 function dedupeFeedEvents(list) {
   const seen = new Set();
   return list.filter(event => {
-    const key = eventDedupeKey(event);
+    const key = feedDedupeKey(event);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
