@@ -639,9 +639,15 @@ function eventDisplayTitle(event) {
 }
 
 function eventSourceCredit(event) {
-  if (String(event?.source || "").toLowerCase() !== "thingstododc") return "";
-  const sourceUrl = event.detailsUrl || event.externalUrl || "https://thingstododc.com/events/all/";
-  return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Thing to do</a></p>`;
+  const source = String(event?.source || "").toLowerCase();
+  const sourceUrl = event.detailsUrl || event.externalUrl || "";
+  if (source === "thingstododc") {
+    return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://thingstododc.com/events/all/")}" target="_blank" rel="noreferrer">Thing to do</a></p>`;
+  }
+  if (source === "eventsdc") {
+    return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://eventsdc.com/events")}" target="_blank" rel="noreferrer">Events DC</a></p>`;
+  }
+  return "";
 }
 
 function cleanEventImageStyle(image) {
