@@ -3987,6 +3987,7 @@ h3 { font-weight: 800; }
     linear-gradient(135deg, #ffffff 0%, #f4fbf8 52%, #eef7ff 100%);
   box-shadow: 0 12px 26px rgba(17, 24, 39, .08);
 }
+.top-week-section[hidden] { display: none !important; }
 .top-week-section::after {
   content: "";
   position: absolute;
@@ -7933,8 +7934,7 @@ function renderDiscoverEventSearch(query) {
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
-  const topWeek = document.querySelector(".top-week-section");
-  if (topWeek) topWeek.hidden = true;
+  document.querySelector(".top-week-section")?.remove();
   const dcEvents = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));

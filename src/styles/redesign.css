@@ -2006,6 +2006,7 @@ h3 { font-weight: 800; }
     linear-gradient(135deg, #ffffff 0%, #f4fbf8 52%, #eef7ff 100%);
   box-shadow: 0 12px 26px rgba(17, 24, 39, .08);
 }
+.top-week-section[hidden] { display: none !important; }
 .top-week-section::after {
   content: "";
   position: absolute;
