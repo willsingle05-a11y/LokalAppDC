@@ -1111,11 +1111,25 @@ async function syncSupabaseEvents(showToast = false) {
 
 function openSharedEventFromUrl() {
   if (state.sharedEventOpened) return;
-  const eventParam = new URLSearchParams(location.search).get("event");
+  const params = new URLSearchParams(location.search);
+  const eventParam = params.get("event");
   if (!eventParam) return;
+  const shouldOpen = params.get("openEvent") === "1" || params.get("shared") === "1";
+  if (!shouldOpen) {
+    params.delete("event");
+    const nextSearch = params.toString();
+    history.replaceState(null, "", `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`);
+    state.sharedEventOpened = true;
+    return;
+  }
   const sharedEvent = events.find(event => String(event.sourceId || event.id) === String(eventParam) || String(event.id) === String(eventParam));
   if (!sharedEvent) return;
   state.sharedEventOpened = true;
+  params.delete("event");
+  params.delete("openEvent");
+  params.delete("shared");
+  const nextSearch = params.toString();
+  history.replaceState(null, "", `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`);
   openDetail(sharedEvent.id);
 }
 

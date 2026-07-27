@@ -102,6 +102,7 @@ function lokalEventShareUrl(event) {
   const existing = new URLSearchParams(location.search);
   if (existing.get("bypassSignup")) url.searchParams.set("bypassSignup", existing.get("bypassSignup"));
   url.searchParams.set("event", String(event.sourceId || event.id));
+  url.searchParams.set("openEvent", "1");
   return url.toString();
 }
 
