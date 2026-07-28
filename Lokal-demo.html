@@ -10229,7 +10229,6 @@ function renderProfile() {
       <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
     </div>
     ${profileSummaryStrip(isVenueProfile)}
-    ${isVenueProfile ? "" : profileListRows()}
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? venueVerificationPanel() : ""}
