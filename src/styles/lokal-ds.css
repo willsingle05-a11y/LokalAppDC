@@ -1140,3 +1140,43 @@ body.nav-back .page { animation-name: page-slide-right; }
 }
 @media (prefers-reduced-motion: reduce) { .filter-panel-rows { animation: none; } }
 .filter-panel-rows .search-card-clear { margin-top: 4px; }
+
+/* ============================================================
+   Bo the Bear — mascot lockup at the top of Discover
+   ============================================================ */
+
+.bo-lockup {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 116px;
+  margin: 0 0 6px;
+  padding-left: 4px;
+}
+.bo-lockup-figure { flex: none; width: 124px; height: 124px; margin-bottom: -8px; }
+.bo-lockup-figure svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.bo-lockup-card {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 22px -18px;
+  padding: 14px 22px;
+  border-radius: 18px;
+  background: var(--paper);
+  box-shadow: 0 2px 0 rgba(25, 26, 25, .06);
+}
+.bo-lockup-card b { color: var(--accent-strong); font-size: 26px; font-weight: 900; letter-spacing: -.02em; line-height: 1; }
+.bo-lockup-card small {
+  margin-top: 5px;
+  color: rgba(25, 26, 25, .5);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: .18em;
+}
+
+/* Bo standing in for a missing photo should sit on the card, not fill it */
+.event-card-media .event-card-img[src^="data:image/svg"],
+.tt-thumb img[src^="data:image/svg"],
+.gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #F6F4F0; }
+/* Discover shows the Bo lockup, so the topbar wordmark would be a duplicate */
+body[data-route="home"] .topbar .brand { display: none; }
+body[data-route="home"] .topbar .topbar-actions { margin-left: auto; }
