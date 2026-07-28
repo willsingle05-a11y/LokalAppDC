@@ -590,9 +590,11 @@ function renderFilterBar() {
 function openWhereSheet() {
   const where = state.whereFilter || new Set();
   const options = discoverNeighborhoodOptions(displayableDcEvents());
-  const chips = options
-    .map(name => `<button class="${where.has(name) ? "selected" : ""}" data-toggle-where="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
-    .join("");
+  // "Everywhere" is the explicit default, mirroring "Anytime" in the When sheet.
+  const chips = `<button class="${where.size ? "" : "selected"}" data-clear-where>Everywhere</button>`
+    + options
+      .map(name => `<button class="${where.has(name) ? "selected" : ""}" data-toggle-where="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
+      .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet where-sheet" role="dialog" aria-modal="true" aria-label="Where">
     <button class="modal-close" aria-label="Close">&times;</button>
     <div class="sheet-head"><h3>Where?</h3>${where.size ? `<button class="text-button" data-clear-where>Clear</button>` : ""}</div>
@@ -604,9 +606,10 @@ function openWhereSheet() {
 
 function openWhatSheet() {
   const what = state.whatFilter || new Set();
-  const chips = whatFilterOptions()
-    .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
-    .join("");
+  const chips = `<button class="${what.size ? "" : "selected"}" data-clear-what>Anything</button>`
+    + whatFilterOptions()
+      .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+      .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
     <button class="modal-close" aria-label="Close">&times;</button>
     <div class="sheet-head"><h3>What?</h3>${what.size ? `<button class="text-button" data-clear-what>Clear</button>` : ""}</div>
