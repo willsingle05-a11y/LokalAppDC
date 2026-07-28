@@ -10,7 +10,7 @@
 
 :root {
   /* Canvas + surfaces */
-  --cream: #F6F4F0;
+  --cream: #FFFFFF;
   --paper: #FFFFFF;
   --line: rgba(25, 26, 25, .10);
 
@@ -1176,7 +1176,7 @@ body.nav-back .page { animation-name: page-slide-right; }
 /* Bo standing in for a missing photo should sit on the card, not fill it */
 .event-card-media .event-card-img[src^="data:image/svg"],
 .tt-thumb img[src^="data:image/svg"],
-.gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #F6F4F0; }
+.gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #FFFFFF; }
 
 /* Bo leans on the wordmark in the topbar, on Discover only */
 .topbar-bo { display: none; }
@@ -1195,3 +1195,17 @@ body[data-route="home"] .brand b { font-size: var(--fs-section); }
 body[data-route="home"] .topbar-actions { gap: 8px; }
 /* Bo takes the space the account name used to occupy on Discover */
 body[data-route="home"] .topbar .account-label { display: none; }
+
+/* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
+   warm cream, so those are overridden here alongside the shell. */
+.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream); }
+.topbar, .bottom-nav { background: var(--paper); }
+/* Cards are white on white now, so the hard offset shadow does the separating
+   and gets a hairline to sit on. */
+.event-card, .event-row, .feature-card, .insight-card, .follow-card, .stat-card,
+.activity-card, .group-card, .community-card, .interest-event, .friend-feed-card,
+.share-group, .suggestion-card, .anchor-pick, .managed-list-row, .attend-row,
+.occurrence-row, .top-type, .search-card, .filter-panel-rows, .going-card,
+.profile-goal, .top-ten {
+  border: 1px solid rgba(25, 26, 25, .08);
+}
