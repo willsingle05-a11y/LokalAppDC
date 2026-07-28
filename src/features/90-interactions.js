@@ -117,10 +117,12 @@ document.addEventListener("click", async event => {
     return;
   }
   if (t.dataset.save) {
+    mark();
     const id = Number(t.dataset.save);
     const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
+    document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     setPlanSource("saved", id, isSaved);
     const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
     if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (isSaved) showSavedAnimation(button); }

@@ -129,6 +129,7 @@ h3 { font-weight: 700; }
 }
 .card-icon-btn:hover { background: rgba(0, 0, 0, .62); transform: scale(1.06); }
 .card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+.card-icon-btn svg path { transition: fill .08s ease, stroke .08s ease; }
 .card-save svg { fill: none; }
 .card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
 .event-card-bottom {
