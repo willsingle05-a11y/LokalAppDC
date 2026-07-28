@@ -4351,17 +4351,81 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .lokal-splash.is-hiding { opacity: 0; pointer-events: none; }
 .splash-center { display: flex; flex-direction: column; align-items: center; margin-top: auto; }
-/* .splash-mark must centre both rows itself â€” without it the dot row packs to
-   the left edge of the (narrower) mark and sits off-centre from the pin. */
-.splash-mark { display: flex; flex-direction: column; align-items: center; }
-.splash-dots { display: flex; align-items: flex-end; justify-content: center; gap: 5px; margin-bottom: 8px; }
-.splash-dots i { width: 15px; height: 15px; border-radius: 50%; background: var(--mint-deep); }
-.splash-dots i:nth-child(2) { width: 20px; height: 20px; }
-.splash-pin { display: flex; flex-direction: column; align-items: center; }
+.splash-mark {
+  position: relative;
+  width: 150px;
+  height: 172px;
+  margin-bottom: 2px;
+}
+.splash-dots {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  display: block;
+  width: 74px;
+  height: 24px;
+  margin: 0;
+  transform: translateX(-50%);
+}
+.splash-dots i {
+  position: absolute;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--mint-deep);
+  opacity: 0;
+  transform-origin: center 86px;
+}
+.splash-dots i:nth-child(1) {
+  left: 0;
+  animation: splashDotLeft 1.12s .58s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.splash-dots i:nth-child(2) {
+  left: 27px;
+  width: 20px;
+  height: 20px;
+  animation: splashDotCenter 1.16s .66s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.splash-dots i:nth-child(3) {
+  right: 0;
+  animation: splashDotRight 1.12s .74s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.splash-pin {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%) translateY(-170px) scale(.96);
+  animation: splashPinDrop .72s cubic-bezier(.18, .9, .2, 1.08) forwards;
+}
 .splash-pin-head { box-sizing: border-box; width: 96px; height: 96px; border: 26px solid var(--ink); border-radius: 50%; }
 .splash-pin-stem { width: 11px; height: 52px; border-radius: 0 0 6px 6px; background: var(--ink); }
-.splash-word { margin-top: 26px; color: var(--ink); font-size: 38px; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
-.splash-city { margin-top: 10px; color: var(--ink); font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: .28em; }
+.splash-word {
+  margin-top: 22px;
+  color: var(--ink);
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: splashCopyIn .38s 1.22s ease forwards;
+}
+.splash-city {
+  margin-top: 10px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .28em;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: splashCopyIn .38s 1.34s ease forwards;
+}
 .splash-tagline {
   margin-top: auto;
   padding-bottom: 34px;
@@ -4371,8 +4435,50 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   font-weight: 700;
   letter-spacing: .2em;
   text-align: center;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: splashCopyIn .4s 1.46s ease forwards;
 }
-@media (prefers-reduced-motion: reduce) { .lokal-splash { transition: none; } }
+@keyframes splashPinDrop {
+  0% { transform: translateX(-50%) translateY(-170px) scale(.96); opacity: 0; }
+  62% { transform: translateX(-50%) translateY(8px) scale(1.02); opacity: 1; }
+  82% { transform: translateX(-50%) translateY(-5px) scale(.99); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+@keyframes splashDotLeft {
+  0% { opacity: 0; transform: translate(82px, 92px) rotate(-170deg) scale(.75); }
+  45% { opacity: 1; transform: translate(46px, 42px) rotate(-58deg) scale(1.08); }
+  78% { opacity: 1; transform: translate(-4px, 0) rotate(8deg) scale(1); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
+}
+@keyframes splashDotCenter {
+  0% { opacity: 0; transform: translate(0, 112px) rotate(160deg) scale(.72); }
+  45% { opacity: 1; transform: translate(-35px, 45px) rotate(70deg) scale(1.08); }
+  78% { opacity: 1; transform: translate(0, -4px) rotate(-8deg) scale(1); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
+}
+@keyframes splashDotRight {
+  0% { opacity: 0; transform: translate(-82px, 92px) rotate(170deg) scale(.75); }
+  45% { opacity: 1; transform: translate(-46px, 42px) rotate(58deg) scale(1.08); }
+  78% { opacity: 1; transform: translate(4px, 0) rotate(-8deg) scale(1); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
+}
+@keyframes splashCopyIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lokal-splash { transition: none; }
+  .splash-pin,
+  .splash-dots i,
+  .splash-word,
+  .splash-city,
+  .splash-tagline {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .splash-pin { transform: translateX(-50%); }
+}
 
 /* ============================================================
    Discover â€” search card, top types, Top 10
