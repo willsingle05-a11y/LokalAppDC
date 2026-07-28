@@ -1,6 +1,7 @@
 import "./styles/base.css";
 import "./styles/round2.css";
 import "./styles/redesign.css";
+import "./styles/lokal-ds.css";
 
 import coreSource from "./features/00-core.js?raw";
 import demoProfilesSource from "./features/01-demo-profiles.js?raw";
@@ -35,3 +36,20 @@ const appSource = featureScripts
 const script = document.createElement("script");
 script.textContent = `${appSource}\n//# sourceURL=/src/lokal-vite-app.js`;
 document.body.appendChild(script);
+
+// Hold the splash until the app has actually booted, with a short floor so it
+// reads as a brand moment instead of a flash on a warm cache.
+const splash = document.getElementById("lokal-splash");
+if (splash) {
+  const MIN_VISIBLE = 900;
+  const shownAt = performance.now();
+  const dismiss = () => {
+    const remaining = Math.max(0, MIN_VISIBLE - (performance.now() - shownAt));
+    setTimeout(() => {
+      splash.classList.add("is-hiding");
+      setTimeout(() => splash.remove(), 500);
+    }, remaining);
+  };
+  if (document.readyState === "complete") dismiss();
+  else window.addEventListener("load", dismiss, { once: true });
+}

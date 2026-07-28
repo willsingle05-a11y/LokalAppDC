@@ -315,9 +315,50 @@ function liveTicker() {
 
 // Paginated feed: every event renders as a full image-then-text card, 10 at a
 // time. "View more" reveals the next 10 only (state.feedShown), not everything.
+// Canvas "no results" screen — names the filters that are actually on and
+// offers to drop each one, rather than a dead end.
+function noResultsScreen() {
+  const active = [];
+  if (state.whatFilter && state.whatFilter.size) active.push({ label: "type", clear: "data-clear-what" });
+  if (state.whereFilter && state.whereFilter.size) active.push({ label: "neighborhood", clear: "data-clear-where" });
+  const whenOn = (state.whenFilter && state.whenFilter.size)
+    || (state.filter.date && state.filter.date !== "Any date")
+    || (state.filter.time && state.filter.time !== "Any time");
+  if (whenOn) active.push({ label: "date", clear: "data-clear-when" });
+
+  const headline = active.length > 1
+    ? `Nothing matches all ${active.length} filters`
+    : active.length === 1
+      ? `Nothing matches that ${active[0].label} filter`
+      : "Nothing to show right now";
+  const body = active.length
+    ? `That combination is rare in DC right now. Loosen one thing and we'll try again.`
+    : `We could not find any events for this view. Try refreshing the feed.`;
+  const actions = active
+    .map((item, index) => `<button class="wide-button ${index === 0 ? "" : "secondary"}" ${item.clear}>Drop the ${item.label} filter</button>`)
+    .join("");
+
+  const closest = dedupeFeedEvents(displayableDcEvents().slice().sort(sortEventsByStart))[0];
+  const closestBlock = closest
+    ? `<div class="no-results-closest"><p class="eyebrow">Closest match</p>
+        <button class="top-ten-row" data-event="${closest.id}">
+          <span class="tt-thumb"><img src="${eventCardImageSrc(closest)}" alt="" loading="lazy"></span>
+          <span class="tt-copy"><b>${escapeHtml(closest.title)}</b><small>${escapeHtml(eventMetaLine(closest))}</small></span>
+        </button></div>`
+    : "";
+
+  return `<div class="no-results">
+    <div class="no-results-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 20h18"/><path d="M6 20V9l5-4 5 4v11"/><path d="M9.5 20v-4h3v4"/><path d="M19 5.5l-2.5 2.5M16.5 5.5L19 8"/></svg></div>
+    <h3>${escapeHtml(headline)}</h3>
+    <p>${escapeHtml(body)}</p>
+    ${actions ? `<div class="no-results-actions">${actions}</div>` : ""}
+    ${closestBlock}
+  </div>`;
+}
+
 function renderEventFeed(list, opts = {}) {
   const uniqueList = dedupeFeedEvents(list);
-  if (!uniqueList.length) return `<p class="section-helper">No events match those filters right now.</p>`;
+  if (!uniqueList.length) return noResultsScreen();
   const shown = Math.max(10, state.feedShown || 10);
   const visible = uniqueList.slice(0, shown);
   // Show the "Because you like ..." reason only in explicitly personalized feeds.
@@ -410,17 +451,24 @@ function renderFilterBar() {
   const whenLabels = whenSelectionLabels();
   // Each pill owns its dropdown so the panel opens directly beneath the pill that
   // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
-  const pillWrap = (kind, icon, label, count) => {
-    const btn = `<button class="filter-pill${open === kind ? " open" : ""}${count ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span>${count ? `<b class="pill-count">${count}</b>` : ""}<i class="pill-caret"></i></button>`;
-    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown${kind === "when" ? " align-end" : ""}">${filterDropdownContent(kind)}</div>` : "";
+  // Canvas search card: three stacked rows, one ink search button. Each row still
+  // owns its dropdown so the panel opens directly beneath the row that was tapped.
+  const cardRow = (kind, eyebrow, label, isSet) => {
+    const btn = `<button class="search-card-row${isSet ? "" : " is-empty"}" data-open-filter="${kind}">
+      <span class="sc-dot"></span>
+      <span class="sc-copy"><small>${eyebrow}</small><b>${escapeHtml(label)}</b></span>
+      <span class="sc-caret">&rsaquo;</span>
+    </button>`;
+    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown">${filterDropdownContent(kind)}</div>` : "";
     return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
   };
-  const pills = `<div class="filter-pills">
-    ${pillWrap("what", icons.megaphone, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
-    ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
-    ${pillWrap("when", icons.clock, filterBarSummary(whenLabels, "When"), whenLabels.length)}
-  </div>`;
-  return `<div class="sub-filters">${pills}</div>`;
+  const matchCount = displayableDcEvents().filter(eventMatchesFilters).length;
+  return `<div class="sub-filters"><div class="search-card">
+    ${cardRow("when", "When", filterBarSummary(whenLabels, "Anytime — whenever"), whenLabels.length)}
+    ${cardRow("where", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
+    ${cardRow("what", "What", filterBarSummary([...what].map(whatLabelFor), "Anything — surprise me"), what.size)}
+    <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
+  </div></div>`;
 }
 
 function checkRow(kind, value, label, checked) {
@@ -517,6 +565,48 @@ function feedFilterCountLabel(count) {
   return `${count} upcoming DC event${plural}`;
 }
 
+// Canvas "Your top types" — the three categories with the most on today.
+function topTypesModule() {
+  const today = displayableDcEvents().filter(event => matchesDateFilter(event, "Today"));
+  if (today.length < 3) return "";
+  const ranked = discoverFilterItems()
+    .filter(([value]) => value !== "all" && value !== "free")
+    .map(([value, label]) => {
+      const matches = today.filter(event => matchesFilter(event, value));
+      return { value, label, count: matches.length, art: matches.find(event => event.image) || matches[0] };
+    })
+    .filter(item => item.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+  if (!ranked.length) return "";
+  const tiles = ranked.map(item => `<button class="top-type" data-discover-category="${item.value}">
+    <span class="tt-art">${item.art ? `<img src="${eventCardImageSrc(item.art)}" alt="" loading="lazy">` : ""}</span>
+    <b>${escapeHtml(item.label)}</b>
+    <small>${item.count} today</small>
+  </button>`).join("");
+  return `<div class="top-types-head"><p class="eyebrow">Your top types</p><button class="text-button" data-more-filters>Edit</button></div>
+    <div class="top-types">${tiles}</div>`;
+}
+
+// Canvas "Top 10 things to do in DC" — the same mixed ranking the feed uses.
+function topTenModule() {
+  const picks = dedupeFeedEvents(feedMixedSort(displayableDcEvents())).slice(0, 10);
+  if (picks.length < 3) return "";
+  const expanded = Boolean(state.topTenExpanded);
+  const shown = expanded ? picks : picks.slice(0, 3);
+  const rows = shown.map((event, index) => `<button class="top-ten-row" data-event="${event.id}">
+    <span class="tt-num">${String(index + 1).padStart(2, "0")}</span>
+    <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
+    <span class="tt-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
+  </button>`).join("");
+  return `<section class="top-ten">
+    <div class="top-ten-head"><p class="eyebrow">Presented by Lokal</p><span>Weekly</span></div>
+    <h2>Top ${picks.length} things to do in DC</h2>
+    <div class="top-ten-list">${rows}</div>
+    ${picks.length > 3 ? `<button class="top-ten-more" data-top-ten-toggle>${expanded ? "Show less" : `See all ${picks.length}`}</button>` : ""}
+  </section>`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -530,6 +620,8 @@ function renderHome() {
     ${followingRail()}
     ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or neighborhoods" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
+    ${topTypesModule()}
+    ${topTenModule()}
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>

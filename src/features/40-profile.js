@@ -167,6 +167,17 @@ function profileSummaryStrip(isVenueProfile = false) {
   </section>`;
 }
 
+// Canvas profile list rows. Each one opens the list it counts, so this is a
+// second route into the same sheets the summary strip already opens.
+function profileListRows() {
+  const rows = [
+    ["attended", "Attended", profileReceipts().length, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.6 2.6L16 9.5"/></svg>`],
+    ["plans", "Want to go", profilePlanEvents().length, `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h10a1 1 0 011 1v15l-6-4.4L6 20V5a1 1 0 011-1z"/></svg>`],
+    ["venues", "Venues following", typeof followedVenueNames === "function" ? followedVenueNames().length : 0, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 16.6s-3.6-2.4-3.6-4.8a1.95 1.95 0 013.6-1.1 1.95 1.95 0 013.6 1.1c0 2.4-3.6 4.8-3.6 4.8z" fill="currentColor" stroke="none"/></svg>`]
+  ];
+  return `<div class="profile-list-rows">${rows.map(([kind, label, count, icon]) => `<button class="profile-list-row" data-profile-list="${kind}">${icon}<b>${label}</b><span class="plr-count">${count}</span><span class="plr-caret">&rsaquo;</span></button>`).join("")}</div>`;
+}
+
 function profileScoreSection(score, level, progress, toNext) {
   return `<section class="section compact-profile-section profile-score-section">
     <button class="score-block compact-score-block" data-score-activity>
@@ -220,10 +231,16 @@ function renderProfile() {
   const toNext = level.next ? Math.max(0, level.next - score) : 0;
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
-    <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><div class="profile-top-actions"><button class="filter-button" data-feedback>Feedback</button><button class="filter-button" data-settings>Settings</button></div></div>
-    <div class="profile-card"><div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
-    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
+    <div class="discover-heading"><div><h1>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h1></div><div class="profile-top-actions"><button class="filter-button" data-share-profile="${escapeHtml(state.profile.username)}">Share</button><button class="filter-button" data-settings>Menu</button></div></div>
+    <div class="profile-id">
+      <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
+      <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
+      <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
+      <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
+    </div>
     ${profileSummaryStrip(isVenueProfile)}
+    ${isVenueProfile ? "" : profileListRows()}
+    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? venueVerificationPanel() : ""}
@@ -501,33 +518,109 @@ function openSimpleSheet(title, body, action = "") {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${title}"><button class="modal-close" aria-label="Close ${title}">&times;</button><p class="eyebrow">Lokal</p><h2>${title}</h2><p class="lede">${body}</p>${action}</section></div>`;
 }
 
-function rollingCalendar() {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setMonth(end.getMonth() + 2);
-  const months = [];
-  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-    const key = `${date.getFullYear()}-${date.getMonth()}`;
-    let month = months.find(item => item.key === key);
-    if (!month) {
-      month = { key, label: date.toLocaleDateString("en-US", { month: "long", year: "numeric" }), days: [] };
-      months.push(month);
-    }
-    month.days.push({ iso: date.toISOString().slice(0, 10), label: date.getDate() });
+// --- When? date filter (Lokal Design System, turn 3 / 3a) ---------------
+// state.filter.date holds "Any date", a preset label, "YYYY-MM-DD",
+// or "YYYY-MM-DD..YYYY-MM-DD". matchesDateFilter() reads all four.
+const DATE_PRESETS = ["Any date", "Today", "This weekend", "This week"];
+const CALENDAR_MONTH_SPAN = 12;
+
+function calendarIsoDay(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function filterDateSelection() {
+  const value = String(state.filter.date || "");
+  const range = value.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
+  if (range) return { start: range[1], end: range[2] };
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return { start: value, end: value };
+  return { start: "", end: "" };
+}
+
+function activeDatePreset() {
+  const value = String(state.filter.date || "Any date");
+  return DATE_PRESETS.includes(value) ? value : "";
+}
+
+// Month cursor is an offset from the current month, clamped to the span.
+function calendarMonthOffset() {
+  const offset = Number(state.filterCalMonth);
+  if (!Number.isFinite(offset)) return 0;
+  return Math.min(Math.max(Math.round(offset), 0), CALENDAR_MONTH_SPAN - 1);
+}
+
+function calendarMonthGrid(offset) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const first = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+  const total = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  const days = new Array(first.getDay()).fill(null);
+  for (let number = 1; number <= total; number += 1) {
+    const date = new Date(first.getFullYear(), first.getMonth(), number);
+    days.push({ iso: calendarIsoDay(date), number, past: date < today, isToday: date.getTime() === today.getTime() });
   }
-  const selected = String(state.filter.date || "");
-  const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
-  const selectedStart = range ? range[1] : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : "";
-  const selectedEnd = range ? range[2] : "";
-  const calendarVisible = Boolean(selectedStart) || state.filterDatePickerOpen;
-  const dateClass = iso => {
-    if (iso === selectedStart || iso === selectedEnd) return "selected";
-    if (selectedStart && selectedEnd && iso > selectedStart && iso < selectedEnd) return "in-range";
-    return "";
-  };
-  const label = selectedEnd ? `${selectedStart} to ${selectedEnd}` : selectedStart ? `${selectedStart} selected. Choose another day to make a range, or show events for this day.` : "Choose one day, or choose a start and end date for a range.";
-  return `<div class="calendar" data-calendar ${calendarVisible ? "" : "hidden"}><p class="calendar-helper">${label}</p>${selectedStart ? `<button class="text-button calendar-clear" data-calendar-clear>Clear dates</button>` : ""}${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${dateClass(day.iso)}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
+  while (days.length % 7) days.push(null);
+  return { label: first.toLocaleDateString("en-US", { month: "long", year: "numeric" }), days };
+}
+
+function calendarEventCount(start, end) {
+  if (!start) return 0;
+  const list = typeof displayableDcEvents === "function" ? displayableDcEvents() : events;
+  return list.filter(event => {
+    const date = eventDateValue(event);
+    if (!date) return false;
+    const iso = calendarIsoDay(date);
+    return iso >= start && iso <= (end || start);
+  }).length;
+}
+
+function calendarDayLabel(iso) {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+function calendarDayCell(day, selection) {
+  if (!day) return `<span class="cal-cell"></span>`;
+  const { start, end } = selection;
+  const spans = Boolean(start && end && end > start);
+  const isStart = day.iso === start;
+  const isEnd = day.iso === end;
+  const inside = spans && day.iso > start && day.iso < end;
+  const band = [];
+  if (spans && (inside || isStart || isEnd)) {
+    band.push("cal-band");
+    if (isStart) band.push("cal-band-start");
+    else if (isEnd) band.push("cal-band-end");
+  }
+  const marks = [isStart || isEnd ? "cal-picked" : "", day.isToday ? "cal-today" : ""].filter(Boolean).join(" ");
+  return `<span class="cal-cell ${band.join(" ")}"><button class="cal-day ${marks}" data-calendar-date="${day.iso}" aria-pressed="${isStart || isEnd}" aria-label="${calendarDayLabel(day.iso)}"${day.past ? " disabled" : ""}>${day.number}</button></span>`;
+}
+
+function dateFilterModule() {
+  const offset = calendarMonthOffset();
+  const month = calendarMonthGrid(offset);
+  const selection = filterDateSelection();
+  const preset = activeDatePreset() || (selection.start ? "" : "Any date");
+  const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+  const nights = selection.end ? Math.round((new Date(`${selection.end}T00:00:00`) - new Date(`${selection.start}T00:00:00`)) / 86400000) + 1 : 0;
+  const count = calendarEventCount(selection.start, selection.end);
+  const summary = selection.start
+    ? `<div class="cal-summary"><span>${escapeHtml(calendarDayLabel(selection.start))}${selection.end && selection.end !== selection.start ? ` &rarr; ${escapeHtml(calendarDayLabel(selection.end))}` : ""}</span><small>${nights > 1 ? `${nights} days · ` : ""}${count} ${count === 1 ? "event" : "events"}</small></div>`
+    : `<p class="cal-hint">Tap a day, then tap another to build a range.</p>`;
+  return `<div class="date-module" data-date-module>
+    <div class="date-module-head"><h3>When?</h3>${selection.start ? `<button class="text-button" data-calendar-clear>Clear dates</button>` : ""}</div>
+    <div class="date-presets">${DATE_PRESETS.map(option => `<button class="${option === preset ? "selected" : ""}" data-filter-option data-filter-key="date" data-filter-value="${option}">${option}</button>`).join("")}</div>
+    <div class="cal-head"><b>${month.label}</b><span class="cal-nav"><button data-calendar-nav="-1" aria-label="Previous month"${offset === 0 ? " disabled" : ""}>&lsaquo;</button><button data-calendar-nav="1" aria-label="Next month"${offset >= CALENDAR_MONTH_SPAN - 1 ? " disabled" : ""}>&rsaquo;</button></span></div>
+    <div class="cal-weekdays" aria-hidden="true">${weekdays.map(day => `<span>${day}</span>`).join("")}</div>
+    <div class="cal-grid">${month.days.map(day => calendarDayCell(day, selection)).join("")}</div>
+    ${summary}
+  </div>`;
+}
+
+// Re-render just the date module so tapping a day never rebuilds the sheet
+// and drops the other filter selections the user has already made.
+function refreshDateModule() {
+  const host = document.querySelector("[data-date-module]");
+  if (!host) { openFilters(); return; }
+  host.outerHTML = dateFilterModule();
 }
 
 function activeFilterValue(label) {
@@ -556,10 +649,12 @@ function activeFilterSummary() {
 
 function openFilters() {
   const neighborhoodOptions = ["Any neighborhood", ...discoverNeighborhoodOptions(displayableDcEvents())];
-  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
+  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filters</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
-    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
+    ${dateFilterModule()}
+    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}
+    <div class="filter-footer"><button class="text-button" data-clear-filters>Clear all</button><button class="wide-button" data-apply-filters>Show events</button></div></section></div>`;
 }
 
 function openNotifications() {

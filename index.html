@@ -7,12 +7,25 @@
     <title>Lokal DC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body>
     <script type="module">
       if (import.meta.env.VITE_APP_MODE === "production") document.documentElement.classList.add("production-app");
     </script>
+    <!-- Painted before any JS runs, removed once the app has booted. -->
+    <div class="lokal-splash" id="lokal-splash" role="status" aria-label="Lokal is loading">
+      <div class="splash-center">
+        <div class="splash-mark" aria-hidden="true">
+          <span class="splash-dots"><i></i><i></i><i></i></span>
+          <span class="splash-pin"><span class="splash-pin-head"></span><span class="splash-pin-stem"></span></span>
+        </div>
+        <div class="splash-word">LOKAL</div>
+        <div class="splash-city">WASHINGTON, DC</div>
+      </div>
+      <div class="splash-tagline">EVENTS WORTH LEAVING THE HOUSE FOR</div>
+    </div>
+
     <div class="demo-stage">
       <aside class="demo-sidebar">
         <div class="sidebar-brand"><b>LOKAL</b></div>
