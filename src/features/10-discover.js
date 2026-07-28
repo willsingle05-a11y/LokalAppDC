@@ -299,23 +299,52 @@ function feedPersonalSort(list) {
 
 // General All feed ordering: keep it broadly similar for everyone by using time
 // and category variety instead of personal tastes.
+// The feed leans on the user's tastes, but a handful of categories (happy
+// hours, trivia) have far more listings than anything else, so a purely
+// interest-weighted order buries the rest of the city. Each pick is scored on
+// interest match, then penalised for how recently its category, venue and
+// title-shape have already appeared. Variety wins ties.
+function feedCategoryKey(event) {
+  return String(discoverCategoryLabel(event.cat || "other")).toLowerCase();
+}
+
+// Spread a single round so the same category never lands three deep.
+function spaceFeedCategories(round) {
+  const remaining = round.slice();
+  const out = [];
+  while (remaining.length) {
+    const recent = new Set(out.slice(-2).map(feedCategoryKey));
+    let index = remaining.findIndex(event => !recent.has(feedCategoryKey(event)));
+    if (index === -1) index = 0;
+    out.push(remaining.splice(index, 1)[0]);
+  }
+  return out;
+}
+
 function feedMixedSort(list) {
-  const groups = new Map();
+  const weights = typeof userPreferenceWeights === "function" ? userPreferenceWeights() : null;
+  const interestOf = event => (weights && typeof eventPersonalScore === "function") ? eventPersonalScore(event, weights) : 0;
+
+  // Bucket by category + title shape, so the eight "Happy Hour" listings queue
+  // behind one another instead of competing for the top of the feed.
+  const buckets = new Map();
   list.slice().sort(sortEventsByStart).forEach(event => {
-    const category = String(discoverCategoryLabel(event.cat || "other")).toLowerCase();
-    if (!groups.has(category)) groups.set(category, []);
-    groups.get(category).push(event);
+    const key = `${feedCategoryKey(event)}|${normalizedFeedDedupeTitle(event)}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(event);
   });
+
+  // Round 1 takes one event from every distinct listing, ordered by how well it
+  // matches the user's tastes. Round 2 takes the seconds, and so on — so the
+  // feed leads with breadth and only repeats a listing once everything else
+  // has had a turn.
+  const lists = [...buckets.values()];
+  const depth = Math.max(0, ...lists.map(items => items.length));
   const result = [];
-  while (groups.size) {
-    const candidates = Array.from(groups.entries())
-      .filter(([, items]) => items.length)
-      .sort((a, b) => sortEventsByStart(a[1][0], b[1][0]));
-    const recentCategories = new Set(result.slice(-3).map(event => String(discoverCategoryLabel(event.cat || "other")).toLowerCase()));
-    const pick = candidates.find(([category]) => !recentCategories.has(category)) || candidates[0];
-    const [category, items] = pick;
-    result.push(items.shift());
-    if (!items.length) groups.delete(category);
+  for (let round = 0; round < depth; round += 1) {
+    const picks = lists.map(items => items[round]).filter(Boolean);
+    picks.sort((a, b) => (interestOf(b) - interestOf(a)) || sortEventsByStart(a, b));
+    result.push(...spaceFeedCategories(picks));
   }
   return result;
 }
@@ -535,22 +564,21 @@ function renderFilterBar() {
   // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
   // Three rows, three sheets. Each opens a full-height picker rather than an
   // inline dropdown, so When, Where and What all behave the same way.
-  const cardRow = (attr, eyebrow, label, isSet) => `<button class="search-card-row${isSet ? "" : " is-empty"}" ${attr}>
+  // The rows carry the criterion and nothing else; an active filter reads
+  // through weight and the mint dot rather than a second line of text.
+  const cardRow = (attr, label, isSet) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
     <span class="sc-dot"></span>
-    <span class="sc-copy"><small>${eyebrow}</small><b>${escapeHtml(label)}</b></span>
+    <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
   const matchCount = displayableDcEvents().filter(eventMatchesFilters).length;
   const anyActive = what.size || where.size || whenLabels.length;
   return `<div class="sub-filters">
-    <div class="filter-intro">
-      <h2>What are you in the mood for?</h2>
-      <p>Narrow the feed by when you are free, the part of the city you want to be in, and the kind of night you are after.</p>
-    </div>
+    <div class="filter-intro"><h2>Find events</h2></div>
     <div class="search-card">
-    ${cardRow("data-when-sheet", "When", filterBarSummary(whenLabels, "Anytime — whenever"), whenLabels.length)}
-    ${cardRow("data-where-sheet", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
-    ${cardRow("data-what-sheet", "What", filterBarSummary([...what].map(whatLabelFor), "Anything — surprise me"), what.size)}
+    ${cardRow("data-when-sheet", "When", whenLabels.length)}
+    ${cardRow("data-where-sheet", "Where", where.size)}
+    ${cardRow("data-what-sheet", "What", what.size)}
     <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
     ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
     </div>
@@ -562,9 +590,11 @@ function renderFilterBar() {
 function openWhereSheet() {
   const where = state.whereFilter || new Set();
   const options = discoverNeighborhoodOptions(displayableDcEvents());
-  const chips = options
-    .map(name => `<button class="${where.has(name) ? "selected" : ""}" data-toggle-where="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
-    .join("");
+  // "Everywhere" is the explicit default, mirroring "Anytime" in the When sheet.
+  const chips = `<button class="${where.size ? "" : "selected"}" data-clear-where>Everywhere</button>`
+    + options
+      .map(name => `<button class="${where.has(name) ? "selected" : ""}" data-toggle-where="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
+      .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet where-sheet" role="dialog" aria-modal="true" aria-label="Where">
     <button class="modal-close" aria-label="Close">&times;</button>
     <div class="sheet-head"><h3>Where?</h3>${where.size ? `<button class="text-button" data-clear-where>Clear</button>` : ""}</div>
@@ -576,9 +606,10 @@ function openWhereSheet() {
 
 function openWhatSheet() {
   const what = state.whatFilter || new Set();
-  const chips = whatFilterOptions()
-    .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
-    .join("");
+  const chips = `<button class="${what.size ? "" : "selected"}" data-clear-what>Anything</button>`
+    + whatFilterOptions()
+      .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+      .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
     <button class="modal-close" aria-label="Close">&times;</button>
     <div class="sheet-head"><h3>What?</h3>${what.size ? `<button class="text-button" data-clear-what>Clear</button>` : ""}</div>

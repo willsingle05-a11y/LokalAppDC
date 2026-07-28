@@ -992,3 +992,44 @@ input, textarea, select { font-size: var(--fs-body); }
 }
 .detail-decide-bar .decide-going { font-weight: 700; letter-spacing: 0; text-transform: none; }
 .taste-more-link { display: block; margin: 16px auto 0; }
+
+/* ============================================================
+   Route transition — Discover / Saved / Profile slide in the
+   direction you travelled along the tab bar.
+   ============================================================ */
+
+@keyframes page-slide-left {
+  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes page-slide-right {
+  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.page { animation: page-slide-left .26s cubic-bezier(.22, .61, .36, 1) both; }
+body.nav-back .page { animation-name: page-slide-right; }
+@media (prefers-reduced-motion: reduce) {
+  .page, body.nav-back .page { animation: none; }
+}
+
+/* ---- Filter rows: criterion only ------------------------------------ */
+.search-card-row .sc-copy b { font-size: var(--fs-title); font-weight: 600; color: var(--muted); }
+.search-card-row.is-set .sc-copy b { color: var(--ink); font-weight: 800; }
+.search-card-row.is-set .sc-dot { background: var(--accent); }
+.filter-intro { margin: 2px 0 12px; }
+
+/* ---- Saved calendar, matching the filter calendar -------------------- */
+.planner-cal { margin-top: 6px; }
+.planner-cal .cal-day { position: relative; font-weight: 600; }
+.planner-cal .cal-day.has-plans { color: var(--accent-strong); font-weight: 800; }
+.planner-cal .cal-plan-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.planner-next { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }

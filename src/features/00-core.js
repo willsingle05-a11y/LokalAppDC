@@ -773,9 +773,18 @@ function feedDedupeKey(event) {
 // is the next upcoming occurrence.
 function dedupeFeedEvents(list) {
   const seen = new Set();
+  const seriesWeekday = new Set();
   return list.filter(event => {
     const key = feedDedupeKey(event);
     if (seen.has(key)) return false;
+    // A weekly series would otherwise return a card for every future week.
+    // Keep at most one per weekday, which is the next one on that day.
+    const date = eventDateValue(event);
+    if (date) {
+      const weekdayKey = `${eventDedupeKey(event)}|${date.getDay()}`;
+      if (seriesWeekday.has(weekdayKey)) return false;
+      seriesWeekday.add(weekdayKey);
+    }
     seen.add(key);
     return true;
   });
