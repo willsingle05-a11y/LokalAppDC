@@ -1,5 +1,6 @@
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
+  const clickedDiscoverFilter = Boolean(event.target.closest(".filter-pill-wrap, .filter-dropdown, [data-when-sheet], .when-sheet"));
   const descriptionExpander = event.target.closest("[data-expand-description]");
   if (descriptionExpander) {
     const wrap = descriptionExpander.closest(".detail-description-wrap");
@@ -12,7 +13,13 @@ document.addEventListener("click", async event => {
     return;
   }
   const t = event.target.closest("button");
-  if (!t) return;
+  if (!t) {
+    if (state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
+      state.openFilterSheet = "";
+      renderHome();
+    }
+    return;
+  }
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
   const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
@@ -40,6 +47,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; state.filterCalMonth = 0; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.clearTimeFilter !== undefined) { mark(); WHEN_TIME_TOKENS.forEach(token => state.whenFilter.delete(token)); state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedShown = 10; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
@@ -593,6 +601,11 @@ document.addEventListener("click", async event => {
       t.remove();
       toast("Reset link sent");
     } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
+  }
+  if (!handled && state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
+    state.openFilterSheet = "";
+    renderHome();
+    return;
   }
   if (!handled && !t.disabled) toast("Action opened");
 });

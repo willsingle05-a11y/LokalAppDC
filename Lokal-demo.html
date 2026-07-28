@@ -4113,6 +4113,858 @@ h3 { font-weight: 800; }
   white-space: nowrap;
 }
 
+/* ============================================================
+   Lokal Design System â€” warm paper, ink primary, mint accent.
+   Ported from the "Lokal Design System" canvas (turn 3 / 3a).
+
+   Loaded after base.css, round2.css and redesign.css, so it
+   intentionally overrides all three. The rule from the canvas:
+   mint is ~10% of the surface â€” the wordmark, the active tab,
+   tint chips and the score bar. Never a field behind content.
+   ============================================================ */
+
+:root {
+  /* Canvas + surfaces */
+  --cream: #F6F4F0;
+  --paper: #FFFFFF;
+  --line: rgba(25, 26, 25, .10);
+
+  /* Ink is the primary action colour, not a blue */
+  --ink: #191A19;
+  --navy: #191A19;
+  --blue: #191A19;
+  --muted: #55564F;
+
+  /* Mint accent + its tints */
+  --accent: #00C897;
+  --accent-strong: #008663;
+  --mint-tint: #E9F8F2;
+  --mint-deep: #C7F3E8;
+  --steel: #008663;
+  --blue-soft: #E9F8F2;
+  --steel-soft: #E9F8F2;
+  --yellow: #FFC53D;
+
+  /* The canvas uses a hard offset shadow, not a blur */
+  --shadow: 0 3px 0 rgba(25, 26, 25, .08);
+  --shadow-sm: 0 2px 0 rgba(25, 26, 25, .07);
+  --radius: 18px;
+
+  /* Beli sets everything in the native UI face â€” SF Pro on iOS. One family
+     across the app, including the small uppercase labels. */
+  --ds-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif;
+  --display: var(--ds-font);
+  --card-font: var(--ds-font);
+  --mono: var(--ds-font);
+
+  /* One type scale. Every size below comes from this list â€” nothing else. */
+  --fs-label: 11px;   /* uppercase eyebrows and tab labels */
+  --fs-micro: 12px;   /* counts, timestamps */
+  --fs-small: 13px;   /* secondary copy, chips */
+  --fs-body: 15px;    /* body copy, inputs, row labels */
+  --fs-title: 17px;   /* card and row titles */
+  --fs-section: 21px; /* section headings */
+  --fs-page: 26px;    /* page titles */
+}
+
+html, body { background: #E7E3DB; }
+body { color: var(--ink); font-family: var(--ds-font); }
+.app-shell { background: var(--cream); box-shadow: 0 0 45px rgba(25, 26, 25, .14); }
+
+/* ---- Typography ------------------------------------------------------ */
+h1, h2, h3, .brand b, .event-card-title, .score-big, .score-level-tag,
+.tonight-head h2, .attend-copy b, .onboard-title, .section-heading h2 {
+  font-family: var(--ds-font);
+  color: var(--ink);
+}
+h1 { font-size: var(--fs-page); font-weight: 800; line-height: 1.05; letter-spacing: -.02em; text-transform: uppercase; }
+h2 { font-size: var(--fs-section); font-weight: 800; line-height: 1.15; letter-spacing: -.015em; }
+h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
+.discover-heading h1 { font-size: var(--fs-page); }
+
+.eyebrow, .feed-label, .settings-group-label, .event-meta {
+  color: rgba(25, 26, 25, .45);
+  font-family: var(--ds-font);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.lede, .section-helper, .event-copy p, .bio, .detail-description {
+  color: var(--muted);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+
+/* ---- Brand ----------------------------------------------------------- */
+.topbar { background: var(--cream); border-bottom: 1px solid var(--line); backdrop-filter: none; }
+.brand b { color: var(--accent-strong); font-size: 22px; font-weight: 900; letter-spacing: -.02em; }
+.brand small { color: rgba(25, 26, 25, .5); font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: .18em; }
+.brand-mark { border-radius: 10px; background: var(--accent-strong); font-family: var(--ds-font); font-size: 15px; font-weight: 800; }
+
+/* ---- Actions --------------------------------------------------------- */
+.wide-button, .letter-btn, .explore-cta {
+  padding: 13px 26px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--ink);
+  font-family: var(--ds-font);
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.wide-button:hover, .letter-btn:hover, .explore-cta:hover { background: #000; }
+.wide-button.secondary, .secondary.wide-button {
+  border: 1.5px solid rgba(25, 26, 25, .16);
+  color: var(--ink);
+  background: var(--paper);
+  text-transform: none;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+.wide-button.secondary:hover { border-color: var(--ink); background: var(--paper); }
+.text-button { color: var(--accent-strong); font-size: 12px; font-weight: 800; }
+.filter-button, .share-shortcut {
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--accent-strong);
+  background: var(--mint-tint);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ---- Chips ----------------------------------------------------------- */
+.chip, .filter-chip, .event-tag, .profile-taste-chips span {
+  border: 1.5px solid rgba(25, 26, 25, .14);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.chip:hover, .filter-chip:hover { border-color: var(--ink); }
+.chip.active, .filter-chip.active {
+  border-color: var(--ink);
+  color: #fff;
+  background: var(--ink);
+  box-shadow: none;
+  font-weight: 800;
+}
+/* Mint tint chips read as metadata, never as a control */
+.event-tag {
+  padding: 5px 9px;
+  border: 0;
+  color: var(--accent-strong);
+  background: var(--mint-tint);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* ---- Cards ----------------------------------------------------------- */
+.event-row, .feature-card, .insight-card, .follow-card, .stat-card, .activity-card,
+.group-card, .community-card, .interest-event, .friend-feed-card, .share-group,
+.suggestion-card, .anchor-pick, .managed-list-row, .attend-row, .occurrence-row {
+  border: 0;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+.event-row { grid-template-columns: 88px 1fr; min-height: 104px; border-radius: 14px; }
+.event-row:hover { transform: none; box-shadow: var(--shadow); }
+.event-art { min-height: 104px; border-radius: 0; }
+.event-location { font-size: 13px; font-weight: 800; }
+.feature-card { border-radius: var(--radius); color: var(--ink); background: var(--paper); box-shadow: var(--shadow); }
+.feature-card h3 { font-size: 19px; font-weight: 900; letter-spacing: -.025em; }
+.feature-signal {
+  border-radius: 7px;
+  color: #fff;
+  background: rgba(25, 26, 25, .72);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+/* Dashed hairline separates card meta from its tag chips */
+.event-tags { padding-top: 8px; border-top: 1px dashed rgba(25, 26, 25, .18); }
+
+/* ---- Bottom nav ------------------------------------------------------ */
+.bottom-nav {
+  height: 62px;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  backdrop-filter: none;
+}
+.nav-item { color: rgba(25, 26, 25, .55); font-family: var(--ds-font); font-size: 10px; font-weight: 600; }
+.nav-item.active { color: var(--accent-strong); font-weight: 800; }
+.nav-item svg { width: 22px; height: 22px; stroke-width: 1.7; }
+.nav-item.active svg { filter: none; }
+
+/* ---- Sheets ---------------------------------------------------------- */
+.modal-backdrop { background: rgba(25, 26, 25, .45); }
+.modal { border-radius: 26px 26px 0 0; background: var(--paper); }
+.modal-close {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink);
+  background: #F1F1EE;
+  font-size: 15px;
+}
+.modal-close:hover { background: #E6E4DF; }
+.settings-field input, .settings-field textarea, .float-field input, .search-box {
+  border: 1.5px solid rgba(25, 26, 25, .14);
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: none;
+}
+.search-box:focus-within { border-color: var(--ink); }
+
+/* ---- Score bar ------------------------------------------------------- */
+.lokal-score, .score-big { color: var(--ink); }
+.score-bar, .score-track { background: #EDEAE4; }
+.score-bar > span, .score-fill { background: var(--accent); }
+
+/* ============================================================
+   Splash â€” mint field, ink mark, city line
+   ============================================================ */
+
+.lokal-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: var(--accent);
+  transition: opacity .45s ease;
+}
+.lokal-splash.is-hiding { opacity: 0; pointer-events: none; }
+.splash-center { display: flex; flex-direction: column; align-items: center; margin-top: auto; }
+/* .splash-mark must centre both rows itself â€” without it the dot row packs to
+   the left edge of the (narrower) mark and sits off-centre from the pin. */
+.splash-mark { display: flex; flex-direction: column; align-items: center; }
+.splash-dots { display: flex; align-items: flex-end; justify-content: center; gap: 5px; margin-bottom: 8px; }
+.splash-dots i { width: 15px; height: 15px; border-radius: 50%; background: var(--mint-deep); }
+.splash-dots i:nth-child(2) { width: 20px; height: 20px; }
+.splash-pin { display: flex; flex-direction: column; align-items: center; }
+.splash-pin-head { box-sizing: border-box; width: 96px; height: 96px; border: 26px solid var(--ink); border-radius: 50%; }
+.splash-pin-stem { width: 11px; height: 52px; border-radius: 0 0 6px 6px; background: var(--ink); }
+.splash-word { margin-top: 26px; color: var(--ink); font-size: 38px; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
+.splash-city { margin-top: 10px; color: var(--ink); font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: .28em; }
+.splash-tagline {
+  margin-top: auto;
+  padding-bottom: 34px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) { .lokal-splash { transition: none; } }
+
+/* ============================================================
+   Discover â€” search card, top types, Top 10
+   ============================================================ */
+
+.search-card {
+  margin-bottom: 16px;
+  padding: 4px 14px 12px;
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 0 4px 0 rgba(25, 26, 25, .10);
+}
+.search-card-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(25, 26, 25, .09);
+  background: transparent;
+  text-align: left;
+}
+.search-card-row:last-of-type { border-bottom: 0; padding-bottom: 12px; }
+.search-card-row .sc-dot { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--mint-tint); }
+.search-card-row .sc-copy { flex: 1; min-width: 0; }
+.search-card-row .sc-copy small {
+  display: block;
+  color: rgba(25, 26, 25, .45);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.search-card-row .sc-copy b { display: block; margin-top: 3px; font-size: 14px; font-weight: 800; line-height: 1.2; }
+.search-card-row.is-empty .sc-copy b { color: rgba(25, 26, 25, .45); font-weight: 600; }
+.search-card-row .sc-caret { flex: none; color: rgba(25, 26, 25, .3); font-size: 15px; font-weight: 700; }
+.search-card .wide-button { display: block; width: 100%; margin: 0; text-align: center; }
+
+/* Search sits directly under the card. Shaped after the Substack / Zocdoc /
+   Cleo pattern: one tall pill, leading stroked magnifier, wide gap, muted
+   placeholder. It carries a hairline instead of a shadow so it reads as a
+   field rather than as another card competing with the one above it. */
+.discover-page .discover-search-box.subtle-search {
+  gap: 14px;
+  min-height: 56px;
+  margin: 0 0 18px;
+  padding: 15px 20px;
+  border: 1px solid rgba(25, 26, 25, .18);
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: none;
+  transition: border-color .15s ease;
+}
+.discover-page .discover-search-box.subtle-search:hover { border-color: rgba(25, 26, 25, .34); }
+.discover-page .discover-search-box.subtle-search:focus-within { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.discover-page .discover-search-box.subtle-search .search-ic {
+  display: grid;
+  flex: none;
+  place-items: center;
+  color: rgba(25, 26, 25, .5);
+  font-size: 0;
+}
+.discover-page .discover-search-box.subtle-search .search-ic svg { width: 21px; height: 21px; stroke-width: 2; }
+.discover-page .discover-search-box.subtle-search input { font-size: 16px; font-weight: 500; }
+.discover-page .discover-search-box.subtle-search input::placeholder { color: rgba(25, 26, 25, .5); font-weight: 500; }
+
+.top-types-head { display: flex; align-items: baseline; gap: 8px; margin: 4px 0 8px; }
+.top-types-head .eyebrow { margin: 0; }
+.top-types-head .text-button { margin-left: auto; }
+.top-types { display: flex; gap: 8px; margin-bottom: 18px; }
+.top-type {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 6px;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+/* Following uses the same tiles but scrolls, since the list is open-ended. */
+.top-types-scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.top-types-scroll::-webkit-scrollbar { display: none; }
+.top-types-scroll .top-type { flex: 0 0 108px; }
+.top-type .tt-initial {
+  display: grid;
+  place-items: center;
+  color: var(--accent-strong);
+  font-size: var(--fs-small);
+  font-weight: 800;
+}
+.top-type .tt-initial svg { width: 17px; height: 17px; }
+.search-card-clear {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 2px 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: underline;
+}
+.search-card-clear:hover { color: var(--ink); }
+.top-type .tt-art { width: 30px; height: 30px; overflow: hidden; border-radius: 50%; background: var(--mint-tint); }
+.top-type .tt-art img { width: 100%; height: 100%; object-fit: cover; }
+.top-type b { max-width: 100%; overflow: hidden; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.top-type small {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(25, 26, 25, .5);
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-ten {
+  margin-bottom: 20px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.top-ten-head { display: flex; align-items: center; gap: 8px; }
+.top-ten-head .eyebrow { margin: 0; color: var(--accent-strong); }
+.top-ten-head span { margin-left: auto; color: var(--muted); font-size: 10.5px; font-weight: 700; }
+.top-ten h2 { margin: 6px 0 0; font-size: 19px; font-weight: 900; letter-spacing: -.025em; }
+.top-ten-list { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+.top-ten-row { display: flex; gap: 11px; align-items: center; width: 100%; background: transparent; text-align: left; }
+.top-ten-row .tt-num { flex: none; width: 24px; font-size: 19px; font-weight: 900; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.top-ten-row .tt-thumb { flex: none; width: 42px; height: 42px; overflow: hidden; border-radius: 10px; background: var(--mint-tint); }
+.top-ten-row .tt-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.top-ten-row .tt-copy { flex: 1; min-width: 0; }
+.top-ten-row .tt-copy b { display: block; font-size: 13px; font-weight: 800; line-height: 1.2; }
+.top-ten-row .tt-copy small { display: block; margin-top: 2px; color: rgba(25, 26, 25, .55); font-size: 11px; font-weight: 500; }
+.top-ten-more {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 0;
+  border: 1.5px solid rgba(25, 26, 25, .16);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+}
+.top-ten-more:hover { border-color: var(--ink); }
+
+/* ============================================================
+   No results â€” loosen a filter
+   ============================================================ */
+
+.no-results { display: flex; flex-direction: column; align-items: center; padding: 18px 4px 0; text-align: center; }
+.no-results-art {
+  display: grid;
+  width: 150px;
+  height: 150px;
+  place-items: center;
+  padding: 18px;
+  border-radius: 50%;
+  background: repeating-linear-gradient(135deg, #E4E0D8 0 10px, #F2EFE9 10px 20px);
+}
+.no-results-art svg { width: 62px; height: 62px; color: rgba(25, 26, 25, .45); }
+.no-results h3 { margin: 22px 0 0; font-size: 21px; font-weight: 900; letter-spacing: -.02em; line-height: 1.15; text-wrap: pretty; }
+.no-results p { max-width: 34ch; margin: 8px 0 0; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1.5; text-wrap: pretty; }
+.no-results-actions { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 18px; }
+.no-results-actions .wide-button { width: 100%; margin: 0; }
+.no-results-closest { width: 100%; margin-top: 18px; text-align: left; }
+.no-results-closest .eyebrow { margin-bottom: 8px; }
+
+/* ============================================================
+   Event detail â€” canvas anatomy
+   ============================================================ */
+
+.detail-info-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(25, 26, 25, .09);
+  background: transparent;
+  text-align: left;
+}
+.detail-info-row .dir-art { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--mint-tint); }
+.detail-info-row .dir-copy { flex: 1; min-width: 0; }
+.detail-info-row .dir-copy b { display: block; font-size: 13px; font-weight: 800; line-height: 1.2; }
+.detail-info-row .dir-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; font-weight: 500; line-height: 1.3; }
+.detail-info-row .dir-action { flex: none; color: var(--accent-strong); font-size: 11px; font-weight: 800; white-space: nowrap; }
+
+/* Sticky Save / Going bar replaces the ticket row */
+.detail-decide-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 18px -18px 0;
+  padding: 12px 18px 20px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+.detail-decide-bar button {
+  padding: 14px 0;
+  border: 1.5px solid rgba(25, 26, 25, .16);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 12.5px;
+  font-weight: 800;
+  text-align: center;
+}
+.detail-decide-bar button:hover { border-color: var(--ink); }
+.detail-decide-bar .decide-going { border-color: var(--ink); color: #fff; background: var(--ink); letter-spacing: .06em; text-transform: uppercase; font-weight: 900; }
+.detail-decide-bar .decide-going:hover { background: #000; }
+.detail-decide-bar button.selected { border-color: var(--accent); color: var(--accent-strong); background: var(--mint-tint); }
+.detail-decide-bar .decide-going.selected { color: var(--accent-strong); background: var(--mint-tint); }
+
+/* ============================================================
+   You're going â€” confirmation
+   ============================================================ */
+
+.going-sheet { padding: 26px 20px 24px; text-align: center; }
+.going-check { display: grid; width: 84px; height: 84px; margin: 8px auto 0; place-items: center; border-radius: 50%; background: var(--accent); }
+.going-check svg { width: 42px; height: 42px; color: var(--ink); }
+.going-sheet h2 { margin: 20px 0 0; font-size: 24px; font-weight: 900; letter-spacing: -.025em; }
+.going-sheet .lede { max-width: 34ch; margin: 8px auto 0; }
+.going-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 20px;
+  padding: 11px;
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+.going-card .gc-thumb { flex: none; width: 52px; height: 52px; overflow: hidden; border-radius: 12px; background: var(--mint-tint); }
+.going-card .gc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.going-card b { display: block; font-size: 13.5px; font-weight: 800; line-height: 1.2; }
+.going-card small { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; font-weight: 500; }
+.going-actions { display: flex; flex-direction: column; gap: 9px; margin-top: 20px; }
+.going-actions .wide-button { width: 100%; margin: 0; }
+.going-actions .going-invite { color: var(--accent-strong); background: var(--mint-tint); text-transform: none; letter-spacing: 0; font-weight: 800; }
+.going-actions .going-invite:hover { background: #DCF3EA; }
+
+/* ============================================================
+   Profile â€” identity, lists, goal
+   ============================================================ */
+
+.profile-id { display: flex; flex-direction: column; align-items: center; padding: 4px 0 0; }
+.profile-id .pid-avatar {
+  display: grid;
+  width: 84px;
+  height: 84px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--accent-strong);
+  font-size: 27px;
+  font-weight: 900;
+}
+.profile-id .pid-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-id .pid-handle { margin-top: 11px; font-size: 15px; font-weight: 800; }
+.profile-id .pid-since { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.profile-id-actions { display: flex; gap: 9px; width: 100%; margin-top: 12px; }
+.profile-id-actions button {
+  flex: 1;
+  padding: 10px 0;
+  border: 1px solid rgba(25, 26, 25, .18);
+  border-radius: 10px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.profile-id-actions button:hover { border-color: var(--ink); }
+.profile-counts { display: flex; width: 100%; margin: 12px 0; }
+.profile-counts button, .profile-counts div { flex: 1; background: transparent; text-align: center; }
+.profile-counts b { display: block; font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.profile-counts small { display: block; margin-top: 5px; color: var(--muted); font-size: 11.5px; font-weight: 500; }
+
+.profile-list-rows { margin: 0 -18px; border-top: 1px solid rgba(25, 26, 25, .09); }
+.profile-list-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 11px 18px;
+  border-bottom: 1px solid rgba(25, 26, 25, .09);
+  background: transparent;
+  text-align: left;
+}
+.profile-list-row:hover { background: #FAF9F6; }
+.profile-list-row svg { flex: none; width: 24px; height: 24px; }
+.profile-list-row b { flex: 1; min-width: 0; font-size: 14px; font-weight: 800; }
+.profile-list-row .plr-count { font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.profile-list-row .plr-caret { color: rgba(25, 26, 25, .3); font-size: 15px; font-weight: 700; }
+
+.profile-stat-pair { display: flex; gap: 9px; margin-top: 14px; }
+.profile-stat-pair .psp {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid rgba(25, 26, 25, .1);
+  border-radius: 14px;
+  background: var(--paper);
+  text-align: left;
+}
+.profile-stat-pair svg { flex: none; width: 22px; height: 22px; color: var(--accent-strong); }
+.profile-stat-pair small { display: block; color: var(--muted); font-size: 10.5px; font-weight: 500; white-space: nowrap; }
+.profile-stat-pair b { display: block; margin-top: 3px; color: var(--accent-strong); font-size: 13.5px; font-weight: 900; white-space: nowrap; }
+
+.profile-goal {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid rgba(25, 26, 25, .1);
+  border-radius: 14px;
+  background: var(--paper);
+}
+.profile-goal b { display: block; font-size: 13.5px; font-weight: 800; line-height: 1.3; }
+.profile-goal .goal-track { height: 8px; margin-top: 11px; overflow: hidden; border-radius: 999px; background: #EDEAE4; }
+.profile-goal .goal-track i { display: block; height: 100%; background: var(--accent); }
+.profile-goal .goal-foot { display: flex; align-items: center; margin-top: 10px; }
+.profile-goal .goal-foot small { color: var(--muted); font-size: 12px; font-weight: 500; }
+.profile-goal .goal-foot .text-button { margin-left: auto; font-size: 12px; }
+
+/* Canvas calls for mint-tint taste chips, not the legacy per-taste hues.
+   Scoped to beat .profile-taste-chips .taste-pill in redesign.css. */
+.taste-pill,
+.profile-taste-chips .taste-pill,
+.profile-taste-chips span {
+  border: 0;
+  color: var(--accent-strong);
+  background: var(--mint-tint);
+  font-weight: 800;
+}
+.profile-taste-chips .taste-edit-chip {
+  border: 1.5px solid rgba(25, 26, 25, .16);
+  color: var(--ink);
+  background: var(--paper);
+}
+.score-mini-progress i, .profile-goal .goal-track i { background: var(--accent); }
+
+/* ---- Filter sheet ---------------------------------------------------- */
+.filter-sheet { padding: 18px 16px 0; }
+.filter-sheet h2 { margin-bottom: 6px; font-size: 24px; font-weight: 900; letter-spacing: -.03em; }
+.filter-block { margin-top: 18px; }
+.filter-block .eyebrow { margin-bottom: 8px; }
+.filter-options button {
+  padding: 9px 12px;
+  border: 1.5px solid rgba(25, 26, 25, .14);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.filter-options button:hover { border-color: var(--ink); }
+.filter-options button.selected { border-color: var(--ink); color: #fff; background: var(--ink); font-weight: 800; }
+.active-filter-summary {
+  margin: 2px 0 4px;
+  padding: 11px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--mint-tint);
+}
+.active-filter-summary span {
+  border: 0;
+  border-radius: 999px;
+  color: var(--accent-strong);
+  background: var(--paper);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+/* ============================================================
+   When? â€” date filter
+   Canvas theme f: ink endpoints with mint numerals, mint-tint
+   range band, 34px circles inside 36px cells.
+   ============================================================ */
+
+.date-module { margin: 4px 0 18px; }
+
+.date-module-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.date-module-head h3 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -.03em; }
+
+.date-presets { display: flex; gap: 7px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 2px; scrollbar-width: none; }
+.date-presets::-webkit-scrollbar { display: none; }
+.date-presets button {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+  border: 1.5px solid rgba(25, 26, 25, .14);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.date-presets button:hover { border-color: var(--ink); }
+.date-presets button.selected { border-color: var(--ink); color: #fff; background: var(--ink); font-weight: 800; }
+
+.cal-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.cal-head b { font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
+.cal-nav { display: flex; gap: 6px; margin-left: auto; }
+.cal-nav button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink);
+  background: #F1F1EE;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+.cal-nav button:hover:not(:disabled) { background: #E6E4DF; }
+.cal-nav button:disabled { opacity: .3; cursor: default; }
+
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 2px; }
+.cal-weekdays span {
+  color: rgba(25, 26, 25, .45);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+/* Cells carry the range band so it runs unbroken across the row */
+.cal-cell { display: flex; align-items: center; justify-content: center; height: 36px; }
+.cal-cell.cal-band { background: var(--mint-tint); }
+.cal-cell.cal-band-start { border-radius: 18px 0 0 18px; }
+.cal-cell.cal-band-end { border-radius: 0 18px 18px 0; }
+.cal-day {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--ds-font);
+  font-size: 13.5px;
+  font-weight: 800;
+}
+.cal-day:hover:not(:disabled):not(.cal-picked) { background: #F1F1EE; }
+.cal-day.cal-picked { color: var(--accent); background: var(--ink); }
+.cal-day.cal-today:not(.cal-picked) { box-shadow: inset 0 0 0 1.5px rgba(25, 26, 25, .25); }
+.cal-day:disabled { color: rgba(25, 26, 25, .28); cursor: default; text-decoration: line-through; }
+
+.cal-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: var(--accent-strong);
+  background: var(--mint-tint);
+  font-size: 12px;
+  font-weight: 800;
+}
+.cal-summary small { margin-left: auto; font-size: 11px; font-weight: 700; }
+.cal-hint { margin: 10px 0 0; color: var(--muted); font-size: 11.5px; font-weight: 500; }
+
+/* Sheet footer â€” underlined Clear, ink Apply pill */
+.filter-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px 0 20px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+.filter-footer .text-button { color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: underline; }
+.filter-footer .wide-button { width: auto; margin: 0; padding: 13px 30px; }
+
+/* ============================================================
+   Type scale normalisation â€” LAST in the file on purpose.
+   Every module above tuned its own sizes; this pulls them all
+   back onto the six steps declared in :root so the app reads as
+   one document. Add new sizes here, not in the modules.
+   ============================================================ */
+
+.event-card-title, .event-location, .top-ten-row .tt-copy b, .going-card b,
+.detail-info-row .dir-copy b, .profile-list-row b, .search-card-row .sc-copy b,
+.attend-copy b, .follow-card b, .notification-card b, .share-group h3,
+.top-ten h2, .going-sheet h2, .no-results h3, .date-module-head h3,
+.pid-handle, .profile-goal b, .cal-head b {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+h1, .discover-heading h1 { font-size: var(--fs-page); }
+h2, .filter-sheet h2, .section-heading h2 { font-size: var(--fs-section); }
+
+.event-card-meta, .event-card-venue, .top-ten-row .tt-copy small, .going-card small,
+.detail-info-row .dir-copy small, .top-type small, .cal-hint, .pid-since,
+.profile-goal .goal-foot small, .no-results p, .following-hint,
+.top-ten-head span, .following-chip small, .search-card-row .sc-copy b {
+  font-size: var(--fs-small);
+  font-weight: 400;
+}
+.search-card-row .sc-copy b { font-weight: 600; font-size: var(--fs-title); }
+
+.chip, .filter-chip, .filter-options button, .date-presets button, .event-tag,
+.top-type b, .detail-info-row .dir-action, .text-button, .filter-button,
+.share-shortcut, .cal-summary, .profile-id-actions button, .top-ten-more,
+.following-chip b, .cal-summary small, .active-filter-summary span,
+.detail-decide-bar button, .profile-list-row .plr-count {
+  font-size: var(--fs-small);
+}
+.wide-button, .letter-btn, .explore-cta { font-size: var(--fs-body); letter-spacing: .02em; }
+.eyebrow, .feed-label, .settings-group-label, .event-meta,
+.top-types-head .eyebrow, .top-ten-head .eyebrow { font-size: var(--fs-label); }
+.nav-item, .nav-item.active { font-size: var(--fs-label); letter-spacing: 0; text-transform: none; }
+.cal-day { font-size: var(--fs-body); }
+.cal-weekdays span { font-size: var(--fs-micro); }
+.profile-counts b, .tt-num { font-size: var(--fs-section); }
+.profile-counts small { font-size: var(--fs-small); }
+input, textarea, select { font-size: var(--fs-body); }
+.splash-word { font-size: 38px; }
+.splash-city, .splash-tagline { font-size: var(--fs-label); }
+
+/* Stragglers that out-specified the block above. Scoped to .app-shell so they
+   win the tie, and kept here so every size still traces back to the scale. */
+.app-shell .event-tag,
+.app-shell .feed-mode-btn,
+.app-shell .event-card-price,
+.app-shell .event-card-price.is-free,
+.app-shell .sync-note span,
+.app-shell .event-card-reason,
+.app-shell .following-hint { font-size: var(--fs-small); }
+.app-shell .brand small,
+.app-shell .avatar,
+.app-shell .avatar.avatar-me,
+.app-shell .account-label,
+.app-shell .event-card-pill { font-size: var(--fs-label); }
+.app-shell .brand b { font-size: var(--fs-page); }
+.top-ten-row .tt-num { font-size: var(--fs-section); }
+.app-shell .search-card-row .sc-copy small { font-size: var(--fs-label); }
+
+/* Remaining per-screen strays: detail title, plan-card and profile numerals,
+   avatar initials, and the empty-state glyph. */
+.app-shell .detail-body h1,
+.app-shell .detail-title-block h1 { font-size: var(--fs-page); }
+.app-shell .toast b,
+.app-shell .event-card-info b,
+.app-shell .plan-card b,
+.app-shell .attend-copy b,
+.app-shell .score-block b { font-size: var(--fs-title); }
+.app-shell .profile-id .pid-avatar { font-size: var(--fs-section); }
+.app-shell .profile-summary-strip b,
+.app-shell .score-block b,
+.app-shell .profile-counts b { font-size: var(--fs-section); }
+.app-shell .profile-summary-strip small,
+.app-shell .score-block small,
+.app-shell .score-block em,
+.app-shell .detail-info-row small { font-size: var(--fs-small); }
+.app-shell .saved-empty-icon { font-size: 34px; }
+
+/* Modals render into #modal-root and the toast into #toast â€” both outside
+   .app-shell, so they need their own scope to win the same ties. */
+#modal-root .modal h1,
+#modal-root .detail-title-block h1 { font-size: var(--fs-page); }
+#modal-root .modal h2 { font-size: var(--fs-section); }
+#modal-root .modal b,
+#modal-root .detail-info-row .dir-copy b { font-size: var(--fs-title); }
+#modal-root .modal small,
+#modal-root .detail-info-row .dir-copy small,
+#modal-root .modal .lede { font-size: var(--fs-small); }
+#modal-root .modal .lede { font-size: var(--fs-body); }
+#toast, #toast b { font-size: var(--fs-body); }
+.app-shell .saved-empty-icon { font-size: 38px; }
+
     </style>
   </head>
   <body>
@@ -4173,7 +5025,8 @@ const icons = {
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
   tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
   megaphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 13h3l10-5v11L7 14H4v-1Z"/><path d="M7 14l1.4 5.2a1.2 1.2 0 0 0 1.2.8h1.6"/><path d="M19 9.5c1 .7 1.5 1.5 1.5 3s-.5 2.3-1.5 3"/><path d="M21 6.5c1.5 1.5 2.3 3.5 2.3 6s-.8 4.5-2.3 6"/></svg>',
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>'
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.3 16.3 21 21"/></svg>'
 };
 
 const demoEvents = [
@@ -7214,10 +8067,19 @@ function followingRail() {
   const stories = activeFollowingStories();
   const venues = followedVenueNames();
   if (!stories.length && !venues.length) return "";
-  const venueChips = venues.map(name => `<button class="following-chip" data-venue-events="${escapeHtml(name)}"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><b>${escapeHtml(name)}</b><small>Following</small></button>`).join("");
-  return `<div class="following-head"><p class="eyebrow">Following</p></div>
-    <div class="following-rail">${venueChips}${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.todayOnly ? "Happening today" : story.name)}</b><small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small></button>`).join("")}</div>
-    <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
+  // Same tile format as Your top types, so the two rows read as one system.
+  const venueTiles = venues.map(name => `<button class="top-type" data-venue-events="${escapeHtml(name)}">
+    <span class="tt-art tt-initial">${escapeHtml(name.slice(0, 1).toUpperCase())}</span>
+    <b>${escapeHtml(name)}</b>
+    <small>Following</small>
+  </button>`).join("");
+  const storyTiles = stories.map((story, index) => `<button class="top-type" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}">
+    <span class="tt-art tt-initial">${story.icon}</span>
+    <b>${escapeHtml(story.todayOnly ? "Today" : story.name)}</b>
+    <small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small>
+  </button>`).join("");
+  return `<div class="top-types-head"><p class="eyebrow">Following</p></div>
+    <div class="top-types top-types-scroll">${venueTiles}${storyTiles}</div>`;
 }
 
 function venueDirectoryMatch(name) {
@@ -7451,9 +8313,50 @@ function liveTicker() {
 
 // Paginated feed: every event renders as a full image-then-text card, 10 at a
 // time. "View more" reveals the next 10 only (state.feedShown), not everything.
+// Canvas "no results" screen â€” names the filters that are actually on and
+// offers to drop each one, rather than a dead end.
+function noResultsScreen() {
+  const active = [];
+  if (state.whatFilter && state.whatFilter.size) active.push({ label: "type", clear: "data-clear-what" });
+  if (state.whereFilter && state.whereFilter.size) active.push({ label: "neighborhood", clear: "data-clear-where" });
+  const whenOn = (state.whenFilter && state.whenFilter.size)
+    || (state.filter.date && state.filter.date !== "Any date")
+    || (state.filter.time && state.filter.time !== "Any time");
+  if (whenOn) active.push({ label: "date", clear: "data-clear-when" });
+
+  const headline = active.length > 1
+    ? `Nothing matches all ${active.length} filters`
+    : active.length === 1
+      ? `Nothing matches that ${active[0].label} filter`
+      : "Nothing to show right now";
+  const body = active.length
+    ? `That combination is rare in DC right now. Loosen one thing and we'll try again.`
+    : `We could not find any events for this view. Try refreshing the feed.`;
+  const actions = active
+    .map((item, index) => `<button class="wide-button ${index === 0 ? "" : "secondary"}" ${item.clear}>Drop the ${item.label} filter</button>`)
+    .join("");
+
+  const closest = dedupeFeedEvents(displayableDcEvents().slice().sort(sortEventsByStart))[0];
+  const closestBlock = closest
+    ? `<div class="no-results-closest"><p class="eyebrow">Closest match</p>
+        <button class="top-ten-row" data-event="${closest.id}">
+          <span class="tt-thumb"><img src="${eventCardImageSrc(closest)}" alt="" loading="lazy"></span>
+          <span class="tt-copy"><b>${escapeHtml(closest.title)}</b><small>${escapeHtml(eventMetaLine(closest))}</small></span>
+        </button></div>`
+    : "";
+
+  return `<div class="no-results">
+    <div class="no-results-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 20h18"/><path d="M6 20V9l5-4 5 4v11"/><path d="M9.5 20v-4h3v4"/><path d="M19 5.5l-2.5 2.5M16.5 5.5L19 8"/></svg></div>
+    <h3>${escapeHtml(headline)}</h3>
+    <p>${escapeHtml(body)}</p>
+    ${actions ? `<div class="no-results-actions">${actions}</div>` : ""}
+    ${closestBlock}
+  </div>`;
+}
+
 function renderEventFeed(list, opts = {}) {
   const uniqueList = dedupeFeedEvents(list);
-  if (!uniqueList.length) return `<p class="section-helper">No events match those filters right now.</p>`;
+  if (!uniqueList.length) return noResultsScreen();
   const shown = Math.max(10, state.feedShown || 10);
   const visible = uniqueList.slice(0, shown);
   // Show the "Because you like ..." reason only in explicitly personalized feeds.
@@ -7603,17 +8506,49 @@ function renderFilterBar() {
   const whenLabels = whenSelectionLabels();
   // Each pill owns its dropdown so the panel opens directly beneath the pill that
   // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
-  const pillWrap = (kind, icon, label, count) => {
-    const btn = `<button class="filter-pill${open === kind ? " open" : ""}${count ? " has-value" : ""}" data-open-filter="${kind}">${icon}<span>${escapeHtml(label)}</span>${count ? `<b class="pill-count">${count}</b>` : ""}<i class="pill-caret"></i></button>`;
-    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown${kind === "when" ? " align-end" : ""}">${filterDropdownContent(kind)}</div>` : "";
+  // Canvas search card: three stacked rows, one ink search button. Each row still
+  // owns its dropdown so the panel opens directly beneath the row that was tapped.
+  const cardRow = (kind, eyebrow, label, isSet) => {
+    const btn = `<button class="search-card-row${isSet ? "" : " is-empty"}" data-open-filter="${kind}">
+      <span class="sc-dot"></span>
+      <span class="sc-copy"><small>${eyebrow}</small><b>${escapeHtml(label)}</b></span>
+      <span class="sc-caret">&rsaquo;</span>
+    </button>`;
+    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown">${filterDropdownContent(kind)}</div>` : "";
     return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
   };
-  const pills = `<div class="filter-pills">
-    ${pillWrap("what", icons.megaphone, filterBarSummary([...what].map(whatLabelFor), "What"), what.size)}
-    ${pillWrap("where", icons.pin, filterBarSummary(where, "Where"), where.size)}
-    ${pillWrap("when", icons.clock, filterBarSummary(whenLabels, "When"), whenLabels.length)}
-  </div>`;
-  return `<div class="sub-filters">${pills}</div>`;
+  // When opens the full calendar sheet rather than a dropdown.
+  const whenRow = `<button class="search-card-row${whenLabels.length ? "" : " is-empty"}" data-when-sheet>
+    <span class="sc-dot"></span>
+    <span class="sc-copy"><small>When</small><b>${escapeHtml(filterBarSummary(whenLabels, "Anytime â€” whenever"))}</b></span>
+    <span class="sc-caret">&rsaquo;</span>
+  </button>`;
+  const matchCount = displayableDcEvents().filter(eventMatchesFilters).length;
+  const anyActive = what.size || where.size || whenLabels.length;
+  return `<div class="sub-filters"><div class="search-card">
+    ${whenRow}
+    ${cardRow("where", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
+    ${cardRow("what", "What", filterBarSummary([...what].map(whatLabelFor), "Anything â€” surprise me"), what.size)}
+    <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
+    ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
+  </div></div>`;
+}
+
+// The canvas "When step": preset chips, the month calendar, time of day,
+// then Clear / Apply. Same date module the filter sheet uses.
+function openWhenSheet() {
+  const when = state.whenFilter || new Set();
+  const hasTimeFilter = WHEN_TIME_TOKENS.some(token => when.has(token)) || (state.filter.time && state.filter.time !== "Any time");
+  const anytimeChip = `<button class="${hasTimeFilter ? "" : "selected"}" data-clear-time-filter>Anytime</button>`;
+  const timeChips = anytimeChip + WHEN_TIME_TOKENS
+    .map(token => `<button class="${when.has(token) ? "selected" : ""}" data-toggle-when="${token}">${token}</button>`)
+    .join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet when-sheet" role="dialog" aria-modal="true" aria-label="When">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    ${dateFilterModule()}
+    <div class="filter-block"><p class="eyebrow">Time of day</p><div class="filter-options">${timeChips}</div></div>
+    <div class="filter-footer"><button class="text-button" data-clear-when>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
+  </section></div>`;
 }
 
 function checkRow(kind, value, label, checked) {
@@ -7629,7 +8564,8 @@ function filterDropdownContent(kind) {
   if (kind === "where") {
     const where = state.whereFilter || new Set();
     const options = discoverNeighborhoodOptions(displayableDcEvents());
-    return `<div class="check-list check-list-scroll">${options.map(name => checkRow("where", name, name, where.has(name))).join("")}</div>${where.size ? `<button class="dropdown-clear" data-clear-where>Clear all</button>` : ""}`;
+    const everywhereRow = `<button class="check-row${where.size ? "" : " checked"}" data-clear-where><span class="check-box">${where.size ? "" : icons.check}</span><span>Everywhere</span></button>`;
+    return `<div class="check-list check-list-scroll">${everywhereRow}${options.map(name => checkRow("where", name, name, where.has(name))).join("")}</div>${where.size ? `<button class="dropdown-clear" data-clear-where>Clear all</button>` : ""}`;
   }
   if (kind === "when") {
     const when = state.whenFilter || new Set();
@@ -7638,8 +8574,10 @@ function filterDropdownContent(kind) {
     const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
     const isCustomTime = /^custom:/.test(timeVal);
     const pickRow = (kindAttr, checked, label) => `<button class="check-row${checked ? " checked" : ""}" data-${kindAttr}><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+    const hasTimeFilter = WHEN_TIME_TOKENS.some(token => when.has(token)) || Boolean(timeVal);
+    const anytimeRow = `<button class="check-row${hasTimeFilter ? "" : " checked"}" data-clear-time-filter><span class="check-box">${hasTimeFilter ? "" : icons.check}</span><span>Anytime</span></button>`;
     const dateGroup = `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="check-list">${WHEN_DATE_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-date", isCustomDate, isCustomDate ? dateVal.replace("..", " â€“ ") : "Pick a dateâ€¦")}</div></div>`;
-    const timeGroup = `<div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="check-list">${WHEN_TIME_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-time", isCustomTime, isCustomTime ? timeVal.replace("custom:", "").replace("-", " â€“ ") : "Pick a timeâ€¦")}</div></div>`;
+    const timeGroup = `<div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="check-list">${anytimeRow}${WHEN_TIME_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-time", isCustomTime, isCustomTime ? timeVal.replace("custom:", "").replace("-", " â€“ ") : "Pick a timeâ€¦")}</div></div>`;
     const clear = (when.size || dateVal || timeVal) ? `<button class="dropdown-clear" data-clear-when>Clear all</button>` : "";
     return `${dateGroup}${timeGroup}${clear}`;
   }
@@ -7714,6 +8652,50 @@ function discoverFiltersActive() {
     || whenActive);
 }
 
+// Canvas "Your top types" â€” the three categories with the most on today.
+function topTypesModule() {
+  const today = displayableDcEvents().filter(event => matchesDateFilter(event, "Today"));
+  if (today.length < 3) return "";
+  const ranked = discoverFilterItems()
+    .filter(([value]) => value !== "all" && value !== "free")
+    .map(([value, label]) => {
+      const matches = today.filter(event => matchesFilter(event, value));
+      return { value, label, count: matches.length, art: matches.find(event => event.image) || matches[0] };
+    })
+    .filter(item => item.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+  if (!ranked.length) return "";
+  const tiles = ranked.map(item => `<button class="top-type" data-discover-category="${item.value}">
+    <span class="tt-art">${item.art ? `<img src="${eventCardImageSrc(item.art)}" alt="" loading="lazy">` : ""}</span>
+    <b>${escapeHtml(item.label)}</b>
+    <small>${item.count} today</small>
+  </button>`).join("");
+  // Edit opens the taste editor only â€” these tiles are driven by tastes, not
+  // by the full filter set.
+  return `<div class="top-types-head"><p class="eyebrow">Your top types</p><button class="text-button" data-edit-tastes>Edit</button></div>
+    <div class="top-types">${tiles}</div>`;
+}
+
+// Canvas "Top 10 things to do in DC" â€” the same mixed ranking the feed uses.
+function topTenModule() {
+  const picks = dedupeFeedEvents(feedMixedSort(displayableDcEvents())).slice(0, 10);
+  if (picks.length < 3) return "";
+  const expanded = Boolean(state.topTenExpanded);
+  const shown = expanded ? picks : picks.slice(0, 3);
+  const rows = shown.map((event, index) => `<button class="top-ten-row" data-event="${event.id}">
+    <span class="tt-num">${String(index + 1).padStart(2, "0")}</span>
+    <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
+    <span class="tt-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
+  </button>`).join("");
+  return `<section class="top-ten">
+    <div class="top-ten-head"><p class="eyebrow">Presented by Lokal</p><span>Weekly</span></div>
+    <h2>Top ${picks.length} things to do in DC</h2>
+    <div class="top-ten-list">${rows}</div>
+    ${picks.length > 3 ? `<button class="top-ten-more" data-top-ten-toggle>${expanded ? "Show less" : `See all ${picks.length}`}</button>` : ""}
+  </section>`;
+}
+
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -7722,11 +8704,12 @@ function renderHome() {
   const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
   app.innerHTML = `<section class="page discover-page">
-    ${renderTonightMap()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
-    ${followingRail()}
     ${renderFilterBar()}
-    <label class="search-box discover-search-box subtle-search"><span>&#8981;</span><input data-discover-search placeholder="Search events, venues, or neighborhoods" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
+    <label class="search-box discover-search-box subtle-search"><span class="search-ic">${icons.search}</span><input data-discover-search placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
+    ${topTypesModule()}
+    ${followingRail()}
+    ${topTenModule()}
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
@@ -8762,6 +9745,17 @@ function profileSummaryStrip(isVenueProfile = false) {
   </section>`;
 }
 
+// Canvas profile list rows. Each one opens the list it counts, so this is a
+// second route into the same sheets the summary strip already opens.
+function profileListRows() {
+  const rows = [
+    ["attended", "Attended", profileReceipts().length, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.6 2.6L16 9.5"/></svg>`],
+    ["plans", "Want to go", profilePlanEvents().length, `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h10a1 1 0 011 1v15l-6-4.4L6 20V5a1 1 0 011-1z"/></svg>`],
+    ["venues", "Venues following", typeof followedVenueNames === "function" ? followedVenueNames().length : 0, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 16.6s-3.6-2.4-3.6-4.8a1.95 1.95 0 013.6-1.1 1.95 1.95 0 013.6 1.1c0 2.4-3.6 4.8-3.6 4.8z" fill="currentColor" stroke="none"/></svg>`]
+  ];
+  return `<div class="profile-list-rows">${rows.map(([kind, label, count, icon]) => `<button class="profile-list-row" data-profile-list="${kind}">${icon}<b>${label}</b><span class="plr-count">${count}</span><span class="plr-caret">&rsaquo;</span></button>`).join("")}</div>`;
+}
+
 function profileScoreSection(score, level, progress, toNext) {
   return `<section class="section compact-profile-section profile-score-section">
     <button class="score-block compact-score-block" data-score-activity>
@@ -8820,10 +9814,16 @@ function renderProfile() {
   const toNext = level.next ? Math.max(0, level.next - score) : 0;
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
-    <div class="discover-heading"><div><p class="eyebrow">Your Lokal</p><h1>Profile</h1></div><div class="profile-top-actions"><button class="filter-button" data-feedback>Feedback</button><button class="filter-button" data-settings>Settings</button></div></div>
-    <div class="profile-card"><div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><div><h2>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h2><p>${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : `@${escapeHtml(state.profile.username)} ${state.privateAccount ? "/ Private" : "/ Public"}`}</p><button class="text-button" data-settings>Settings</button></div></div>
-    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
+    <div class="discover-heading"><div><h1>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h1></div><div class="profile-top-actions"><button class="filter-button" data-share-profile="${escapeHtml(state.profile.username)}">Share</button><button class="filter-button" data-settings>Menu</button></div></div>
+    <div class="profile-id">
+      <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
+      <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
+      <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
+      <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
+    </div>
     ${profileSummaryStrip(isVenueProfile)}
+    ${isVenueProfile ? "" : profileListRows()}
+    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? venueVerificationPanel() : ""}
@@ -9101,33 +10101,109 @@ function openSimpleSheet(title, body, action = "") {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${title}"><button class="modal-close" aria-label="Close ${title}">&times;</button><p class="eyebrow">Lokal</p><h2>${title}</h2><p class="lede">${body}</p>${action}</section></div>`;
 }
 
-function rollingCalendar() {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setMonth(end.getMonth() + 2);
-  const months = [];
-  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-    const key = `${date.getFullYear()}-${date.getMonth()}`;
-    let month = months.find(item => item.key === key);
-    if (!month) {
-      month = { key, label: date.toLocaleDateString("en-US", { month: "long", year: "numeric" }), days: [] };
-      months.push(month);
-    }
-    month.days.push({ iso: date.toISOString().slice(0, 10), label: date.getDate() });
+// --- When? date filter (Lokal Design System, turn 3 / 3a) ---------------
+// state.filter.date holds "Any date", a preset label, "YYYY-MM-DD",
+// or "YYYY-MM-DD..YYYY-MM-DD". matchesDateFilter() reads all four.
+const DATE_PRESETS = ["Any date", "Today", "This weekend", "This week"];
+const CALENDAR_MONTH_SPAN = 12;
+
+function calendarIsoDay(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function filterDateSelection() {
+  const value = String(state.filter.date || "");
+  const range = value.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
+  if (range) return { start: range[1], end: range[2] };
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return { start: value, end: value };
+  return { start: "", end: "" };
+}
+
+function activeDatePreset() {
+  const value = String(state.filter.date || "Any date");
+  return DATE_PRESETS.includes(value) ? value : "";
+}
+
+// Month cursor is an offset from the current month, clamped to the span.
+function calendarMonthOffset() {
+  const offset = Number(state.filterCalMonth);
+  if (!Number.isFinite(offset)) return 0;
+  return Math.min(Math.max(Math.round(offset), 0), CALENDAR_MONTH_SPAN - 1);
+}
+
+function calendarMonthGrid(offset) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const first = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+  const total = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  const days = new Array(first.getDay()).fill(null);
+  for (let number = 1; number <= total; number += 1) {
+    const date = new Date(first.getFullYear(), first.getMonth(), number);
+    days.push({ iso: calendarIsoDay(date), number, past: date < today, isToday: date.getTime() === today.getTime() });
   }
-  const selected = String(state.filter.date || "");
-  const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/);
-  const selectedStart = range ? range[1] : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : "";
-  const selectedEnd = range ? range[2] : "";
-  const calendarVisible = Boolean(selectedStart) || state.filterDatePickerOpen;
-  const dateClass = iso => {
-    if (iso === selectedStart || iso === selectedEnd) return "selected";
-    if (selectedStart && selectedEnd && iso > selectedStart && iso < selectedEnd) return "in-range";
-    return "";
-  };
-  const label = selectedEnd ? `${selectedStart} to ${selectedEnd}` : selectedStart ? `${selectedStart} selected. Choose another day to make a range, or show events for this day.` : "Choose one day, or choose a start and end date for a range.";
-  return `<div class="calendar" data-calendar ${calendarVisible ? "" : "hidden"}><p class="calendar-helper">${label}</p>${selectedStart ? `<button class="text-button calendar-clear" data-calendar-clear>Clear dates</button>` : ""}${months.map(month => `<div class="calendar-month"><p class="eyebrow">${month.label}</p><div class="calendar-grid">${month.days.map(day => `<button class="${dateClass(day.iso)}" data-calendar-date="${day.iso}">${day.label}</button>`).join("")}</div></div>`).join("")}</div>`;
+  while (days.length % 7) days.push(null);
+  return { label: first.toLocaleDateString("en-US", { month: "long", year: "numeric" }), days };
+}
+
+function calendarEventCount(start, end) {
+  if (!start) return 0;
+  const list = typeof displayableDcEvents === "function" ? displayableDcEvents() : events;
+  return list.filter(event => {
+    const date = eventDateValue(event);
+    if (!date) return false;
+    const iso = calendarIsoDay(date);
+    return iso >= start && iso <= (end || start);
+  }).length;
+}
+
+function calendarDayLabel(iso) {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+function calendarDayCell(day, selection) {
+  if (!day) return `<span class="cal-cell"></span>`;
+  const { start, end } = selection;
+  const spans = Boolean(start && end && end > start);
+  const isStart = day.iso === start;
+  const isEnd = day.iso === end;
+  const inside = spans && day.iso > start && day.iso < end;
+  const band = [];
+  if (spans && (inside || isStart || isEnd)) {
+    band.push("cal-band");
+    if (isStart) band.push("cal-band-start");
+    else if (isEnd) band.push("cal-band-end");
+  }
+  const marks = [isStart || isEnd ? "cal-picked" : "", day.isToday ? "cal-today" : ""].filter(Boolean).join(" ");
+  return `<span class="cal-cell ${band.join(" ")}"><button class="cal-day ${marks}" data-calendar-date="${day.iso}" aria-pressed="${isStart || isEnd}" aria-label="${calendarDayLabel(day.iso)}"${day.past ? " disabled" : ""}>${day.number}</button></span>`;
+}
+
+function dateFilterModule() {
+  const offset = calendarMonthOffset();
+  const month = calendarMonthGrid(offset);
+  const selection = filterDateSelection();
+  const preset = activeDatePreset() || (selection.start ? "" : "Any date");
+  const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+  const nights = selection.end ? Math.round((new Date(`${selection.end}T00:00:00`) - new Date(`${selection.start}T00:00:00`)) / 86400000) + 1 : 0;
+  const count = calendarEventCount(selection.start, selection.end);
+  const summary = selection.start
+    ? `<div class="cal-summary"><span>${escapeHtml(calendarDayLabel(selection.start))}${selection.end && selection.end !== selection.start ? ` &rarr; ${escapeHtml(calendarDayLabel(selection.end))}` : ""}</span><small>${nights > 1 ? `${nights} days Â· ` : ""}${count} ${count === 1 ? "event" : "events"}</small></div>`
+    : `<p class="cal-hint">Tap a day, then tap another to build a range.</p>`;
+  return `<div class="date-module" data-date-module>
+    <div class="date-module-head"><h3>When?</h3>${selection.start ? `<button class="text-button" data-calendar-clear>Clear dates</button>` : ""}</div>
+    <div class="date-presets">${DATE_PRESETS.map(option => `<button class="${option === preset ? "selected" : ""}" data-filter-option data-filter-key="date" data-filter-value="${option}">${option}</button>`).join("")}</div>
+    <div class="cal-head"><b>${month.label}</b><span class="cal-nav"><button data-calendar-nav="-1" aria-label="Previous month"${offset === 0 ? " disabled" : ""}>&lsaquo;</button><button data-calendar-nav="1" aria-label="Next month"${offset >= CALENDAR_MONTH_SPAN - 1 ? " disabled" : ""}>&rsaquo;</button></span></div>
+    <div class="cal-weekdays" aria-hidden="true">${weekdays.map(day => `<span>${day}</span>`).join("")}</div>
+    <div class="cal-grid">${month.days.map(day => calendarDayCell(day, selection)).join("")}</div>
+    ${summary}
+  </div>`;
+}
+
+// Re-render just the date module so tapping a day never rebuilds the sheet
+// and drops the other filter selections the user has already made.
+function refreshDateModule() {
+  const host = document.querySelector("[data-date-module]");
+  if (!host) { openFilters(); return; }
+  host.outerHTML = dateFilterModule();
 }
 
 function activeFilterValue(label) {
@@ -9156,10 +10232,12 @@ function activeFilterSummary() {
 
 function openFilters() {
   const neighborhoodOptions = ["Any neighborhood", ...discoverNeighborhoodOptions(displayableDcEvents())];
-  const blocks = [["Date",["Any date","Today","This weekend","This week","Choose a date"]],["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","culture","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filter events.</h2>
+  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filters</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
-    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active || (block[0] === "Date" && option === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || "")) ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}${rollingCalendar()}<button class="wide-button" data-apply-filters>Show events</button></section></div>`;
+    ${dateFilterModule()}
+    ${blocks.map(block => { const active = activeFilterValue(block[0]); return `<div class="filter-block"><p class="eyebrow">${block[0]}</p><div class="filter-options">${block[1].map(option => `<button class="${option === active ? "selected" : ""}" data-filter-option data-filter-key="${block[0].toLowerCase()}" data-filter-value="${option}">${option}</button>`).join("")}</div></div>`; }).join("")}
+    <div class="filter-footer"><button class="text-button" data-clear-filters>Clear all</button><button class="wide-button" data-apply-filters>Show events</button></div></section></div>`;
 }
 
 function openNotifications() {
@@ -9261,37 +10339,58 @@ function openDetail(id, opts = {}) {
     : `<p class="detail-description">${detailDescription}</p>`;
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
-  const sourceCredit = eventSourceCredit(e);
-  const detailContext = opts.backToTopWeek ? "top-week" : "";
-  const backButton = opts.backToTopWeek ? `<button class="detail-back-button" data-top-week-events aria-label="Back to Top 10 events">&larr;</button>` : "";
-  const ticketButton = e.detailsUrl ? `<button class="wide-button" data-ticket="${e.id}">Get tickets / details</button>` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(displayTitle)}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2><button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
+  const isSaved = state.saved.has(e.id);
+  const isGoing = state.rsvps.has(e.id);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
+    <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b><small>Add to your calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</small></span>
+      <span class="dir-action">Add</span>
+    </button>
+    <button class="detail-info-row ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b><small>${isFollowingVenue ? "You follow this venue" : "Follow for new events here"}</small></span>
+      <span class="dir-action">${isFollowingVenue ? "Following" : "Follow"}</span>
+    </button>
+    <button class="detail-info-row" data-ticket="${e.id}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${e.detailsUrl ? "Tickets and details" : "Shareable event page"}</b><small>Opens the ${e.detailsUrl ? "venue" : "Lokal"} listing</small></span>
+      <span class="dir-action">Open</span>
+    </button>
     ${eventInterestSignal(e, true)}
+    <p class="eyebrow detail-about-label">About</p>
     ${descriptionBlock}
     ${occurrencesBlock}
-    <button class="wide-button calendar-recur-button detail-calendar-button" data-calendar-options="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</button>
-    <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved âœ“" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going âœ“" : "RSVP"}</button>${shareButton}</div>
-    ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
+    <div class="calendar-action-row"><button class="wide-button calendar-recur-button secondary-calendar" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>${shareButton}</div>
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
-    ${ticketButton}${sourceCredit.replace("event-source-credit", "detail-source-credit")}</div>
+    ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
+    <div class="detail-decide-bar">
+      <button class="${isSaved ? "selected" : ""}" data-save="${e.id}">${isSaved ? "Saved âœ“" : "Save"}</button>
+      <button class="decide-going ${isGoing ? "selected" : ""}" data-rsvp="${e.id}">${isGoing ? "Going âœ“" : "Going"}</button>
+    </div></div>
   </section></div>`;
 }
 
-function openCalendarOptions(id) {
+// Canvas confirmation screen â€” shown once an RSVP turns on.
+function openGoingConfirmation(id) {
   const e = events.find(event => event.id === Number(id));
   if (!e) return;
-  const displayTitle = eventDisplayTitle(e);
-  const recurrence = eventRecurrence(e);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet calendar-options-sheet" role="dialog" aria-modal="true" aria-label="Add ${escapeHtml(displayTitle)} to calendar"><button class="modal-close" aria-label="Close calendar options">&times;</button>
-    <p class="eyebrow">Add to calendar</p><h2>${escapeHtml(displayTitle)}</h2>
-    <p class="lede">Choose where you want to add this event.${recurrence ? ` This includes the recurring schedule: ${escapeHtml(recurrence.label)}.` : ""}</p>
-    <div class="calendar-options-list">
-      <button class="calendar-option-row" data-add-calendar="apple" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Apple Calendar</b><small>Download an .ics calendar file</small></span></button>
-      <button class="calendar-option-row" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Google Calendar</b><small>Open Google Calendar with this event filled in</small></span></button>
-      <button class="calendar-option-row" data-copy-event-share="${e.id}"><span class="cal-ic">${cardShareIcon}</span><span><b>Copy event details</b><small>Copy the Lokal event text and link</small></span></button>
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal going-sheet" role="dialog" aria-modal="true" aria-label="You're going">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <div class="going-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6.5 12.5l3.6 3.6L17.5 8.7"></path></svg></div>
+    <h2>You're going</h2>
+    <p class="lede">It's in Your Plans. We'll nudge you an hour before doors.</p>
+    <div class="going-card">
+      <span class="gc-thumb"><img src="${eventCardImageSrc(e)}" alt="" loading="lazy"></span>
+      <span><b>${escapeHtml(eventDisplayTitle(e))}</b><small>${escapeHtml(eventMetaLine(e))}</small></span>
+    </div>
+    <div class="going-actions">
+      <button class="wide-button" data-event="${e.id}">View event</button>
+      <button class="wide-button secondary" data-add-calendar="apple" data-calendar-event="${e.id}">Add to calendar</button>
+      <button class="wide-button going-invite" data-share="${e.id}">Invite friends</button>
     </div>
   </section></div>`;
 }
@@ -9825,6 +10924,7 @@ function resetAppScroll() {
 
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
+  const clickedDiscoverFilter = Boolean(event.target.closest(".filter-pill-wrap, .filter-dropdown, [data-when-sheet], .when-sheet"));
   const descriptionExpander = event.target.closest("[data-expand-description]");
   if (descriptionExpander) {
     const wrap = descriptionExpander.closest(".detail-description-wrap");
@@ -9837,7 +10937,13 @@ document.addEventListener("click", async event => {
     return;
   }
   const t = event.target.closest("button");
-  if (!t) return;
+  if (!t) {
+    if (state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
+      state.openFilterSheet = "";
+      renderHome();
+    }
+    return;
+  }
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
   const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
@@ -9855,10 +10961,17 @@ document.addEventListener("click", async event => {
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
-  if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
+  // Inside the When sheet these re-render the sheet; elsewhere they redraw the feed.
+  if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.whenSheet !== undefined) { mark(); state.openFilterSheet = ""; state.filterCalMonth = 0; openWhenSheet(); }
+  if (t.dataset.applyWhen !== undefined) { mark(); state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.clearAllFilters !== undefined) { mark(); state.whatFilter.clear(); state.whereFilter.clear(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; renderHome(); toast("Filters cleared"); }
+  if (t.dataset.topTenToggle !== undefined) { mark(); state.topTenExpanded = !state.topTenExpanded; renderHome(); }
+  if (t.dataset.scrollFeed !== undefined) { mark(); state.openFilterSheet = ""; renderHome(); document.querySelector(".feed-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
   if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
-  if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; state.filterCalMonth = 0; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.clearTimeFilter !== undefined) { mark(); WHEN_TIME_TOKENS.forEach(token => state.whenFilter.delete(token)); state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedShown = 10; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
@@ -9924,8 +11037,8 @@ document.addEventListener("click", async event => {
     state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id);
     const isRsvp = state.rsvps.has(id);
     setPlanSource("rsvp", id, isRsvp);
-    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
-    openDetail(id, { backToTopWeek });
+    if (isRsvp) openGoingConfirmation(id);
+    else openDetail(id);
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
@@ -10086,10 +11199,14 @@ document.addEventListener("click", async event => {
     }
   }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
-  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
-  if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }
-  if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; state.filterDatePickerOpen = true; openFilters(); }
-  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options, .date-presets"); if (parent) parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date") { state.filter.date = t.dataset.filterValue; state.filterCalMonth = 0; refreshDateModule(); } }
+  // Canvas semantics: a completed range, or a tap before the start, restarts there.
+  if (t.dataset.calendarDate) { const { start, end } = filterDateSelection(); const next = t.dataset.calendarDate; const spans = Boolean(end && end !== start); state.filter.date = (!start || spans || next <= start) ? next : `${start}..${next}`; refreshDateModule(); }
+  if (t.dataset.calendarNav) { state.filterCalMonth = (Number(state.filterCalMonth) || 0) + Number(t.dataset.calendarNav); refreshDateModule(); }
+  if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; refreshDateModule(); }
+  if (t.dataset.clearFilters !== undefined) { state.filter = { date: "Any date", time: "Any time", neighborhood: "Any neighborhood", category: "All categories", price: "Any price" }; state.highlightedOnly = false; state.filterCalMonth = 0; openFilters(); }
+  // Date is committed live by the calendar, so it is skipped here.
+  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (key !== "date") state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
@@ -10408,6 +11525,11 @@ document.addEventListener("click", async event => {
       t.remove();
       toast("Reset link sent");
     } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
+  }
+  if (!handled && state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
+    state.openFilterSheet = "";
+    renderHome();
+    return;
   }
   if (!handled && !t.disabled) toast("Action opened");
 });
