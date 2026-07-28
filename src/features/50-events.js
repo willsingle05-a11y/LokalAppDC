@@ -24,37 +24,58 @@ function openDetail(id, opts = {}) {
     : `<p class="detail-description">${detailDescription}</p>`;
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
-  const sourceCredit = eventSourceCredit(e);
-  const detailContext = opts.backToTopWeek ? "top-week" : "";
-  const backButton = opts.backToTopWeek ? `<button class="detail-back-button" data-top-week-events aria-label="Back to Top 10 events">&larr;</button>` : "";
-  const ticketButton = e.detailsUrl ? `<button class="wide-button" data-ticket="${e.id}">Get tickets / details</button>` : "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" ${detailContext ? `data-detail-context="${detailContext}"` : ""} role="dialog" aria-modal="true" aria-label="${escapeHtml(displayTitle)}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}${backButton}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1><p class="event-meta">${escapeHtml(eventMetaLine(e))}</p><h2>${escapeHtml(eventLocationLine(e))}</h2><button class="detail-follow-venue ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">${isFollowingVenue ? "Following venue" : "Follow venue"}</button></div>
+  const isSaved = state.saved.has(e.id);
+  const isGoing = state.rsvps.has(e.id);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
+    <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b><small>Add to your calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</small></span>
+      <span class="dir-action">Add</span>
+    </button>
+    <button class="detail-info-row ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b><small>${isFollowingVenue ? "You follow this venue" : "Follow for new events here"}</small></span>
+      <span class="dir-action">${isFollowingVenue ? "Following" : "Follow"}</span>
+    </button>
+    <button class="detail-info-row" data-ticket="${e.id}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${e.detailsUrl ? "Tickets and details" : "Shareable event page"}</b><small>Opens the ${e.detailsUrl ? "venue" : "Lokal"} listing</small></span>
+      <span class="dir-action">Open</span>
+    </button>
     ${eventInterestSignal(e, true)}
-    ${descriptionBlock}
+    <p class="eyebrow detail-about-label">About</p>
+    <p class="detail-description">${e.desc}</p>
     ${occurrencesBlock}
-    <button class="wide-button calendar-recur-button detail-calendar-button" data-calendar-options="${e.id}"><span class="cal-ic">${icons.calendar}</span>Add to calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</button>
-    <div class="detail-actions"><button class="action ${state.saved.has(e.id) ? "selected" : ""}" data-save="${e.id}">${state.saved.has(e.id) ? "Saved ✓" : "Save"}</button><button class="action rsvp-action ${state.rsvps.has(e.id) ? "selected" : ""}" data-rsvp="${e.id}">${state.rsvps.has(e.id) ? "Going ✓" : "RSVP"}</button>${shareButton}</div>
-    ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. RSVP = you're planning to go.</p>` : ""}
+    <div class="calendar-action-row"><button class="wide-button calendar-recur-button secondary-calendar" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>${shareButton}</div>
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
-    ${ticketButton}${sourceCredit.replace("event-source-credit", "detail-source-credit")}</div>
+    ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
+    <div class="detail-decide-bar">
+      <button class="${isSaved ? "selected" : ""}" data-save="${e.id}">${isSaved ? "Saved ✓" : "Save"}</button>
+      <button class="decide-going ${isGoing ? "selected" : ""}" data-rsvp="${e.id}">${isGoing ? "Going ✓" : "Going"}</button>
+    </div></div>
   </section></div>`;
 }
 
-function openCalendarOptions(id) {
+// Canvas confirmation screen — shown once an RSVP turns on.
+function openGoingConfirmation(id) {
   const e = events.find(event => event.id === Number(id));
   if (!e) return;
-  const displayTitle = eventDisplayTitle(e);
-  const recurrence = eventRecurrence(e);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet calendar-options-sheet" role="dialog" aria-modal="true" aria-label="Add ${escapeHtml(displayTitle)} to calendar"><button class="modal-close" aria-label="Close calendar options">&times;</button>
-    <p class="eyebrow">Add to calendar</p><h2>${escapeHtml(displayTitle)}</h2>
-    <p class="lede">Choose where you want to add this event.${recurrence ? ` This includes the recurring schedule: ${escapeHtml(recurrence.label)}.` : ""}</p>
-    <div class="calendar-options-list">
-      <button class="calendar-option-row" data-add-calendar="apple" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Apple Calendar</b><small>Download an .ics calendar file</small></span></button>
-      <button class="calendar-option-row" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span><span><b>Google Calendar</b><small>Open Google Calendar with this event filled in</small></span></button>
-      <button class="calendar-option-row" data-copy-event-share="${e.id}"><span class="cal-ic">${cardShareIcon}</span><span><b>Copy event details</b><small>Copy the Lokal event text and link</small></span></button>
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal going-sheet" role="dialog" aria-modal="true" aria-label="You're going">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <div class="going-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6.5 12.5l3.6 3.6L17.5 8.7"></path></svg></div>
+    <h2>You're going</h2>
+    <p class="lede">It's in Your Plans. We'll nudge you an hour before doors.</p>
+    <div class="going-card">
+      <span class="gc-thumb"><img src="${eventCardImageSrc(e)}" alt="" loading="lazy"></span>
+      <span><b>${escapeHtml(e.title)}</b><small>${escapeHtml(eventMetaLine(e))}</small></span>
+    </div>
+    <div class="going-actions">
+      <button class="wide-button" data-event="${e.id}">View event</button>
+      <button class="wide-button secondary" data-add-calendar="apple" data-calendar-event="${e.id}">Add to calendar</button>
+      <button class="wide-button going-invite" data-share="${e.id}">Invite friends</button>
     </div>
   </section></div>`;
 }

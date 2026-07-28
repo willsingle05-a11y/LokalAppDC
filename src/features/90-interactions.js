@@ -31,6 +31,8 @@ document.addEventListener("click", async event => {
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
+  if (t.dataset.topTenToggle !== undefined) { mark(); state.topTenExpanded = !state.topTenExpanded; renderHome(); }
+  if (t.dataset.scrollFeed !== undefined) { mark(); state.openFilterSheet = ""; renderHome(); document.querySelector(".feed-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
   if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
@@ -99,8 +101,8 @@ document.addEventListener("click", async event => {
     state.rsvps.has(id) ? state.rsvps.delete(id) : state.rsvps.add(id);
     const isRsvp = state.rsvps.has(id);
     setPlanSource("rsvp", id, isRsvp);
-    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
-    openDetail(id, { backToTopWeek });
+    if (isRsvp) openGoingConfirmation(id);
+    else openDetail(id);
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
@@ -261,10 +263,14 @@ document.addEventListener("click", async event => {
     }
   }
   if (t.dataset.friend !== undefined) toast("Friend connection settings");
-  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options"); parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date" && t.dataset.filterValue !== "Choose a date") { state.filter.date = t.dataset.filterValue; state.filterDatePickerOpen = false; } if (t.dataset.filterValue === "Choose a date") { state.filterDatePickerOpen = true; document.querySelector("[data-calendar]").hidden = false; } }
-  if (t.dataset.calendarDate) { const selected = String(state.filter.date || ""); const range = selected.match(/^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/); const start = range ? "" : /^\d{4}-\d{2}-\d{2}$/.test(selected) ? selected : ""; const next = t.dataset.calendarDate; state.filter.date = start && next > start ? `${start}..${next}` : next; state.filterDatePickerOpen = true; openFilters(); }
-  if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; state.filterDatePickerOpen = true; openFilters(); }
-  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (!(key === "date" && value === "Choose a date" && /^(\d{4}-\d{2}-\d{2})(\.\.\d{4}-\d{2}-\d{2})?$/.test(state.filter.date || ""))) state.filter[key] = value; }); state.filterDatePickerOpen = false; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.filterOption !== undefined) { const parent = t.closest(".filter-options, .date-presets"); if (parent) parent.querySelectorAll("button").forEach(button => button.classList.remove("selected")); t.classList.add("selected"); if (t.dataset.filterKey === "date") { state.filter.date = t.dataset.filterValue; state.filterCalMonth = 0; refreshDateModule(); } }
+  // Canvas semantics: a completed range, or a tap before the start, restarts there.
+  if (t.dataset.calendarDate) { const { start, end } = filterDateSelection(); const next = t.dataset.calendarDate; const spans = Boolean(end && end !== start); state.filter.date = (!start || spans || next <= start) ? next : `${start}..${next}`; refreshDateModule(); }
+  if (t.dataset.calendarNav) { state.filterCalMonth = (Number(state.filterCalMonth) || 0) + Number(t.dataset.calendarNav); refreshDateModule(); }
+  if (t.dataset.calendarClear !== undefined) { state.filter.date = "Any date"; refreshDateModule(); }
+  if (t.dataset.clearFilters !== undefined) { state.filter = { date: "Any date", time: "Any time", neighborhood: "Any neighborhood", category: "All categories", price: "Any price" }; state.highlightedOnly = false; state.filterCalMonth = 0; openFilters(); }
+  // Date is committed live by the calendar, so it is skipped here.
+  if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (key !== "date") state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
