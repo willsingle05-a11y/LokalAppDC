@@ -407,22 +407,43 @@ function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it wil
   start.setDate(start.getDate() + state.plannerWeekOffset * 7);
   const end = new Date(start);
   end.setDate(end.getDate() + 6);
-  const weekLabel = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-  const days = [];
-  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-    const iso = date.toISOString().slice(0, 10);
-    const dayPlans = plans.filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
-    days.push({ date: new Date(date), iso, plans: dayPlans });
-  }
-  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1">Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
-  <div class="planner-legend">${["concerts","live-music","happy-hours","trivia-nights","nightlife","culture","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
-  <div class="planner-calendar">${days.map(day => {
-    const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
-    return `<article class="planner-day ${day.plans.length ? "" : "empty"}">
-      <div class="planner-day-head"><span>${label}</span><b>${day.date.getDate()}</b></div>
-      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<button class="day-explore" data-day-explore="${day.iso}">Explore &rarr;</button>`}</div>
-    </article>`;
-  }).join("")}</div>`;
+  // Same anatomy as the filter calendar: month header with nav, a weekday
+  // row, and circular day cells. Days holding plans carry a mint dot.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const monthOffset = Number(state.plannerMonthOffset) || 0;
+  const monthCursor = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const monthLabel = monthCursor.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const total = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0).getDate();
+  const planCounts = new Map();
+  plans.forEach(event => {
+    const date = eventDateValue(event);
+    if (date) planCounts.set(calendarIsoDay(date), (planCounts.get(calendarIsoDay(date)) || 0) + 1);
+  });
+  const cells = new Array(monthCursor.getDay()).fill(null);
+  for (let number = 1; number <= total; number += 1) cells.push(new Date(monthCursor.getFullYear(), monthCursor.getMonth(), number));
+  while (cells.length % 7) cells.push(null);
+  const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+  const grid = cells.map(date => {
+    if (!date) return `<span class="cal-cell"></span>`;
+    const iso = calendarIsoDay(date);
+    const count = planCounts.get(iso) || 0;
+    const isToday = date.getTime() === today.getTime();
+    return `<span class="cal-cell"><button class="cal-day ${count ? "has-plans" : ""} ${isToday ? "cal-today" : ""}" data-calendar-day="${iso}" aria-label="${date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}${count ? `, ${count} plan${count === 1 ? "" : "s"}` : ""}">${date.getDate()}${count ? `<i class="cal-plan-dot"></i>` : ""}</button></span>`;
+  }).join("");
+  const upcoming = plans
+    .filter(event => { const date = eventDateValue(event); return date && date >= today; })
+    .sort(sortEventsByStart)
+    .slice(0, 3);
+  return `<div class="planner-cal">
+    <div class="cal-head"><b>${escapeHtml(monthLabel)}</b><span class="cal-nav"><button data-planner-month="-1" aria-label="Previous month">&lsaquo;</button><button data-planner-month="1" aria-label="Next month">&rsaquo;</button></span></div>
+    <div class="cal-weekdays" aria-hidden="true">${weekdays.map(day => `<span>${day}</span>`).join("")}</div>
+    <div class="cal-grid">${grid}</div>
+    ${upcoming.length ? `<div class="planner-next">${upcoming.map(event => `<button class="top-ten-row" data-event="${event.id}">
+      <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
+      <span class="tt-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
+    </button>`).join("")}</div>` : ""}
+  </div>`;
 }
 
 function openCalendarPlans(iso) {
