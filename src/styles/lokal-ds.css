@@ -849,3 +849,93 @@ input, textarea, select { font-size: var(--fs-body); }
 #modal-root .modal .lede { font-size: var(--fs-body); }
 #toast, #toast b { font-size: var(--fs-body); }
 .app-shell .saved-empty-icon { font-size: 38px; }
+
+/* ============================================================
+   Illustrated category tiles (Profile → Your top types)
+   Glovo-style: art in a white circle, ring highlight on select.
+   ============================================================ */
+
+.taste-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 8px;
+  margin-top: 14px;
+}
+.taste-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+}
+.taste-tile-art {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 2px 0 rgba(25, 26, 25, .10);
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.taste-tile-art svg { width: 44px; height: 44px; }
+.taste-tile b {
+  max-width: 100%;
+  color: var(--ink);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;
+}
+.taste-tile:hover .taste-tile-art { transform: translateY(-1px); }
+/* The ring sits outside the circle, so nothing shifts on select */
+.taste-tile.selected .taste-tile-art {
+  box-shadow: 0 0 0 3px var(--accent), 0 2px 0 rgba(25, 26, 25, .10);
+}
+.taste-tile.selected b { color: var(--accent-strong); font-weight: 800; }
+@media (prefers-reduced-motion: reduce) { .taste-tile-art { transition: none; } }
+
+/* ---- Filter intro ---------------------------------------------------- */
+.filter-intro { margin: 2px 0 14px; }
+.filter-intro h2 { margin: 0 0 6px; }
+.filter-intro p { margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.45; text-wrap: pretty; }
+
+/* ---- Where / What sheets, matching the When sheet -------------------- */
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.sheet-head h3 { margin: 0; font-size: var(--fs-title); font-weight: 800; letter-spacing: -.02em; }
+.where-sheet .filter-options, .what-sheet .filter-options { gap: 8px; }
+
+/* ---- Detail secondary actions --------------------------------------- */
+.detail-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 0; }
+.detail-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 13px 10px;
+  border: 1.5px solid rgba(25, 26, 25, .16);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--ds-font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: none;
+}
+.detail-action:hover { border-color: var(--ink); }
+.detail-action .cal-ic { display: grid; place-items: center; }
+.detail-action .cal-ic svg { width: 16px; height: 16px; stroke-width: 1.8; }
+/* Save / Going match the same shape, weight and casing */
+.detail-decide-bar button {
+  font-family: var(--ds-font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.detail-decide-bar .decide-going { font-weight: 700; letter-spacing: 0; text-transform: none; }
+.taste-more-link { display: block; margin: 16px auto 0; }

@@ -126,11 +126,22 @@ function venueFocusSection() {
     <div class="chips profile-taste-chips">${chips}</div>`;
 }
 
+// Illustrated category picker — moved here from Discover's "Your top types".
+// Tapping a tile toggles it straight into state.tastes.
+function tasteCategoryGrid() {
+  const selected = new Set(state.tastes);
+  const tiles = categoryArtOptions.map(name => `<button class="taste-tile${selected.has(name) ? " selected" : ""}" data-taste-toggle="${escapeHtml(name)}" aria-pressed="${selected.has(name)}">
+    <span class="taste-tile-art">${categoryArt[name]}</span>
+    <b>${escapeHtml(name)}</b>
+  </button>`).join("");
+  return `<div class="taste-tiles">${tiles}</div>`;
+}
+
 function userTasteSection(tastePills) {
-  return `<p class="eyebrow">Your tastes</p>
-    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
-    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
-    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>`;
+  return `<p class="eyebrow">Your top types</p>
+    <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
+    ${tasteCategoryGrid()}
+    <button class="text-button taste-more-link" data-edit-tastes>More types</button>`;
 }
 
 function profileInsightPanel() {

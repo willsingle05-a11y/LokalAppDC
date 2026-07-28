@@ -533,32 +533,59 @@ function renderFilterBar() {
   const whenLabels = whenSelectionLabels();
   // Each pill owns its dropdown so the panel opens directly beneath the pill that
   // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
-  // Canvas search card: three stacked rows, one ink search button. Each row still
-  // owns its dropdown so the panel opens directly beneath the row that was tapped.
-  const cardRow = (kind, eyebrow, label, isSet) => {
-    const btn = `<button class="search-card-row${isSet ? "" : " is-empty"}" data-open-filter="${kind}">
-      <span class="sc-dot"></span>
-      <span class="sc-copy"><small>${eyebrow}</small><b>${escapeHtml(label)}</b></span>
-      <span class="sc-caret">&rsaquo;</span>
-    </button>`;
-    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown">${filterDropdownContent(kind)}</div>` : "";
-    return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
-  };
-  // When opens the full calendar sheet rather than a dropdown.
-  const whenRow = `<button class="search-card-row${whenLabels.length ? "" : " is-empty"}" data-when-sheet>
+  // Three rows, three sheets. Each opens a full-height picker rather than an
+  // inline dropdown, so When, Where and What all behave the same way.
+  const cardRow = (attr, eyebrow, label, isSet) => `<button class="search-card-row${isSet ? "" : " is-empty"}" ${attr}>
     <span class="sc-dot"></span>
-    <span class="sc-copy"><small>When</small><b>${escapeHtml(filterBarSummary(whenLabels, "Anytime — whenever"))}</b></span>
+    <span class="sc-copy"><small>${eyebrow}</small><b>${escapeHtml(label)}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
   const matchCount = displayableDcEvents().filter(eventMatchesFilters).length;
   const anyActive = what.size || where.size || whenLabels.length;
-  return `<div class="sub-filters"><div class="search-card">
-    ${whenRow}
-    ${cardRow("where", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
-    ${cardRow("what", "What", filterBarSummary([...what].map(whatLabelFor), "Anything — surprise me"), what.size)}
+  return `<div class="sub-filters">
+    <div class="filter-intro">
+      <h2>What are you in the mood for?</h2>
+      <p>Narrow the feed by when you are free, the part of the city you want to be in, and the kind of night you are after.</p>
+    </div>
+    <div class="search-card">
+    ${cardRow("data-when-sheet", "When", filterBarSummary(whenLabels, "Anytime — whenever"), whenLabels.length)}
+    ${cardRow("data-where-sheet", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
+    ${cardRow("data-what-sheet", "What", filterBarSummary([...what].map(whatLabelFor), "Anything — surprise me"), what.size)}
     <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
     ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
-  </div></div>`;
+    </div>
+  </div>`;
+}
+
+// Where and What mirror the When sheet: a titled sheet, selectable options,
+// and the same Clear / Apply footer.
+function openWhereSheet() {
+  const where = state.whereFilter || new Set();
+  const options = discoverNeighborhoodOptions(displayableDcEvents());
+  const chips = options
+    .map(name => `<button class="${where.has(name) ? "selected" : ""}" data-toggle-where="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
+    .join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet where-sheet" role="dialog" aria-modal="true" aria-label="Where">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <div class="sheet-head"><h3>Where?</h3>${where.size ? `<button class="text-button" data-clear-where>Clear</button>` : ""}</div>
+    <p class="cal-hint">${where.size ? `${where.size} neighborhood${where.size === 1 ? "" : "s"} selected` : "Pick one or more neighborhoods, or leave it open."}</p>
+    <div class="filter-block"><div class="filter-options">${chips}</div></div>
+    <div class="filter-footer"><button class="text-button" data-clear-where>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
+  </section></div>`;
+}
+
+function openWhatSheet() {
+  const what = state.whatFilter || new Set();
+  const chips = whatFilterOptions()
+    .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+    .join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <div class="sheet-head"><h3>What?</h3>${what.size ? `<button class="text-button" data-clear-what>Clear</button>` : ""}</div>
+    <p class="cal-hint">${what.size ? `${what.size} type${what.size === 1 ? "" : "s"} selected` : "Pick the kinds of events you want to see."}</p>
+    <div class="filter-block"><div class="filter-options">${chips}</div></div>
+    <div class="filter-footer"><button class="text-button" data-clear-what>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
+  </section></div>`;
 }
 
 // The canvas "When step": preset chips, the month calendar, time of day,
@@ -674,50 +701,6 @@ function discoverFiltersActive() {
     || whenActive);
 }
 
-// Canvas "Your top types" — the three categories with the most on today.
-function topTypesModule() {
-  const today = displayableDcEvents().filter(event => matchesDateFilter(event, "Today"));
-  if (today.length < 3) return "";
-  const ranked = discoverFilterItems()
-    .filter(([value]) => value !== "all" && value !== "free")
-    .map(([value, label]) => {
-      const matches = today.filter(event => matchesFilter(event, value));
-      return { value, label, count: matches.length, art: matches.find(event => event.image) || matches[0] };
-    })
-    .filter(item => item.count > 0)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 3);
-  if (!ranked.length) return "";
-  const tiles = ranked.map(item => `<button class="top-type" data-discover-category="${item.value}">
-    <span class="tt-art">${item.art ? `<img src="${eventCardImageSrc(item.art)}" alt="" loading="lazy">` : ""}</span>
-    <b>${escapeHtml(item.label)}</b>
-    <small>${item.count} today</small>
-  </button>`).join("");
-  // Edit opens the taste editor only — these tiles are driven by tastes, not
-  // by the full filter set.
-  return `<div class="top-types-head"><p class="eyebrow">Your top types</p><button class="text-button" data-edit-tastes>Edit</button></div>
-    <div class="top-types">${tiles}</div>`;
-}
-
-// Canvas "Top 10 things to do in DC" — the same mixed ranking the feed uses.
-function topTenModule() {
-  const picks = dedupeFeedEvents(feedMixedSort(displayableDcEvents())).slice(0, 10);
-  if (picks.length < 3) return "";
-  const expanded = Boolean(state.topTenExpanded);
-  const shown = expanded ? picks : picks.slice(0, 3);
-  const rows = shown.map((event, index) => `<button class="top-ten-row" data-event="${event.id}">
-    <span class="tt-num">${String(index + 1).padStart(2, "0")}</span>
-    <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
-    <span class="tt-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
-  </button>`).join("");
-  return `<section class="top-ten">
-    <div class="top-ten-head"><p class="eyebrow">Presented by Lokal</p><span>Weekly</span></div>
-    <h2>Top ${picks.length} things to do in DC</h2>
-    <div class="top-ten-list">${rows}</div>
-    ${picks.length > 3 ? `<button class="top-ten-more" data-top-ten-toggle>${expanded ? "Show less" : `See all ${picks.length}`}</button>` : ""}
-  </section>`;
-}
-
 function renderHome() {
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
@@ -729,9 +712,7 @@ function renderHome() {
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span class="search-ic">${icons.search}</span><input data-discover-search placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
-    ${topTypesModule()}
     ${followingRail()}
-    ${topTenModule()}
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
