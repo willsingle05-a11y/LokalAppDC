@@ -28,7 +28,7 @@ function openDetail(id, opts = {}) {
   const isGoing = state.rsvps.has(e.id);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(e.title)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
+    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
       <span class="dir-art"></span>
@@ -47,7 +47,7 @@ function openDetail(id, opts = {}) {
     </button>
     ${eventInterestSignal(e, true)}
     <p class="eyebrow detail-about-label">About</p>
-    <p class="detail-description">${e.desc}</p>
+    ${descriptionBlock}
     ${occurrencesBlock}
     <div class="calendar-action-row"><button class="wide-button calendar-recur-button secondary-calendar" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>${shareButton}</div>
     <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
@@ -70,7 +70,7 @@ function openGoingConfirmation(id) {
     <p class="lede">It's in Your Plans. We'll nudge you an hour before doors.</p>
     <div class="going-card">
       <span class="gc-thumb"><img src="${eventCardImageSrc(e)}" alt="" loading="lazy"></span>
-      <span><b>${escapeHtml(e.title)}</b><small>${escapeHtml(eventMetaLine(e))}</small></span>
+      <span><b>${escapeHtml(eventDisplayTitle(e))}</b><small>${escapeHtml(eventMetaLine(e))}</small></span>
     </div>
     <div class="going-actions">
       <button class="wide-button" data-event="${e.id}">View event</button>
