@@ -57,6 +57,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".where-sheet")) openWhereSheet(); else renderHome(); }
   // Inside the When sheet these re-render the sheet; elsewhere they redraw the feed.
   if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.toggleFilterPanel !== undefined) { mark(); state.filterPanelOpen = !state.filterPanelOpen; renderHome(); }
   if (t.dataset.whenSheet !== undefined) { mark(); state.openFilterSheet = ""; state.filterCalMonth = 0; openWhenSheet(); }
   if (t.dataset.whereSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhereSheet(); }
   if (t.dataset.whatSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhatSheet(); }
