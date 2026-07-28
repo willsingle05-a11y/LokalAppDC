@@ -4449,7 +4449,21 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   text-align: left;
 }
 .search-card-row:last-of-type { border-bottom: 0; padding-bottom: 12px; }
-.search-card-row .sc-dot { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--mint-tint); }
+.search-card-row .sc-dot {
+  display: grid;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent-strong);
+  background: var(--mint-tint);
+}
+.search-card-row .sc-dot svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.2;
+}
 .search-card-row .sc-copy { flex: 1; min-width: 0; }
 .search-card-row .sc-copy small {
   display: block;
@@ -8667,8 +8681,8 @@ function renderFilterBar() {
   // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
   // Three rows, three sheets. Each opens a full-height picker rather than an
   // inline dropdown, so When, Where and What all behave the same way.
-  const cardRow = (attr, eyebrow, label, isSet) => `<button class="search-card-row${isSet ? "" : " is-empty"}" ${attr}>
-    <span class="sc-dot"></span>
+  const cardRow = (attr, eyebrow, label, isSet, icon) => `<button class="search-card-row${isSet ? "" : " is-empty"}" ${attr}>
+    <span class="sc-dot">${icon}</span>
     <span class="sc-copy"><small>${eyebrow}</small><b>${escapeHtml(label)}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
@@ -8680,9 +8694,9 @@ function renderFilterBar() {
       <p>Narrow the feed by when you are free, the part of the city you want to be in, and the kind of night you are after.</p>
     </div>
     <div class="search-card">
-    ${cardRow("data-when-sheet", "When", filterBarSummary(whenLabels, "Anytime â€” whenever"), whenLabels.length)}
-    ${cardRow("data-where-sheet", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
-    ${cardRow("data-what-sheet", "What", filterBarSummary([...what].map(whatLabelFor), "Anything â€” surprise me"), what.size)}
+    ${cardRow("data-when-sheet", "When", filterBarSummary(whenLabels, "Anytime â€” whenever"), whenLabels.length, icons.clock)}
+    ${cardRow("data-where-sheet", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size, icons.pin)}
+    ${cardRow("data-what-sheet", "What", filterBarSummary([...what].map(whatLabelFor), "Anything â€” surprise me"), what.size, icons.megaphone)}
     <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
     ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
     </div>

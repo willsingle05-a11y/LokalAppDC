@@ -334,7 +334,21 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   text-align: left;
 }
 .search-card-row:last-of-type { border-bottom: 0; padding-bottom: 12px; }
-.search-card-row .sc-dot { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--mint-tint); }
+.search-card-row .sc-dot {
+  display: grid;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent-strong);
+  background: var(--mint-tint);
+}
+.search-card-row .sc-dot svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.2;
+}
 .search-card-row .sc-copy { flex: 1; min-width: 0; }
 .search-card-row .sc-copy small {
   display: block;
