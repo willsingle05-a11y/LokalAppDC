@@ -734,7 +734,7 @@ function openTimePickerSheet() {
 function discoverStatusLabel() {
   if (state.eventSync.status === "loading") return "Checking shared events";
   if (state.eventSync.status === "error") return "Event refresh needs attention";
-  return "Events refreshed";
+  return "";
 }
 
 function discoverFiltersActive() {
@@ -753,11 +753,12 @@ function renderHome() {
   // All should feel broadly shared; For You is where onboarding interests tailor order.
   const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
+  const syncStatus = discoverStatusLabel();
   app.innerHTML = `<section class="page discover-page">
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
     ${followingRail()}
-    <div class="sync-note ${state.eventSync.status}"><span>${discoverStatusLabel()}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
+    ${syncStatus ? `<div class="sync-note ${state.eventSync.status}"><span>${syncStatus}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>` : ""}
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
