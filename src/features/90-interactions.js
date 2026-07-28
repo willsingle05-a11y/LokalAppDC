@@ -50,7 +50,7 @@ document.addEventListener("click", async event => {
     });
   }
   // Slide direction follows the tab bar: moving left plays the reverse slide.
-  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
+  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); modalRoot.innerHTML = ""; state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; if (t.dataset.route === "home") state.homeFilter = "all"; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; state.resetDiscoverScrollAfterRender = t.dataset.homeFilter === "for-you"; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); resetAppScroll(); if (state.resetDiscoverScrollAfterRender) setTimeout(() => { resetAppScroll(); state.resetDiscoverScrollAfterRender = false; }, 1200); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".what-sheet")) openWhatSheet(); else renderHome(); }
@@ -387,7 +387,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.ticket !== undefined) {
     mark();
     const eventToOpen = events.find(item => item.id === Number(t.dataset.ticket));
-    const destination = eventToOpen?.detailsUrl || (eventToOpen ? lokalEventShareUrl(eventToOpen) : "");
+    const destination = eventToOpen ? (eventWebsiteUrl(eventToOpen) || lokalEventShareUrl(eventToOpen)) : "";
     if (!destination) { toast("No event link is available"); return; }
     const opened = window.open(destination, "_blank", "noopener,noreferrer");
     if (!opened) window.location.assign(destination);

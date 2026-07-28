@@ -5293,9 +5293,24 @@ body.nav-back .page { animation-name: page-slide-right; }
 .event-card-media .event-card-img[src^="data:image/svg"],
 .tt-thumb img[src^="data:image/svg"],
 .gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #F6F4F0; }
-/* Discover shows the Bo lockup, so the topbar wordmark would be a duplicate */
-body[data-route="home"] .topbar .brand { display: none; }
-body[data-route="home"] .topbar .topbar-actions { margin-left: auto; }
+
+/* Bo leans on the wordmark in the topbar, on Discover only */
+.topbar-bo { display: none; }
+.brand { align-items: flex-end; gap: 6px; }
+.brand b, .brand small { white-space: nowrap; }
+body[data-route="home"] .topbar { height: 82px; padding-left: 10px; }
+body[data-route="home"] .topbar-bo {
+  display: block;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  margin-bottom: -10px;
+}
+body[data-route="home"] .topbar-bo svg { display: block; width: 100%; height: 100%; overflow: visible; }
+body[data-route="home"] .brand b { font-size: var(--fs-section); }
+body[data-route="home"] .topbar-actions { gap: 8px; }
+/* Bo takes the space the account name used to occupy on Discover */
+body[data-route="home"] .topbar .account-label { display: none; }
 
     </style>
   </head>
@@ -6051,6 +6066,16 @@ function eventSourceCredit(event) {
   if (source === "eventsdc") {
     return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://eventsdc.com/events")}" target="_blank" rel="noreferrer">Events DC</a></p>`;
   }
+  return "";
+}
+
+function eventWebsiteUrl(event) {
+  const direct = String(event?.detailsUrl || event?.externalUrl || event?.url || "").trim();
+  if (/^https?:\/\//i.test(direct)) return direct;
+  const venueKey = venueImageKeyName(event?.venue || event?.venueName || eventLocationLine(event));
+  const venue = venueKey && venueDirectory.find(item => venueImageKeyName(item.name) === venueKey);
+  const venueWebsite = String(venue?.website_url || venue?.website || event?.venueWebsite || "").trim();
+  if (/^https?:\/\//i.test(venueWebsite)) return venueWebsite;
   return "";
 }
 
@@ -9200,10 +9225,6 @@ function renderHome() {
   const deduped = dedupeFeedEvents(sorted);
   const syncStatus = discoverStatusLabel();
   app.innerHTML = `<section class="page discover-page">
-    <div class="bo-lockup">
-      <span class="bo-lockup-figure" aria-hidden="true">${typeof boPoseMarkup === "function" ? boPoseMarkup("Leaning on the wordmark") : ""}</span>
-      <span class="bo-lockup-card"><b>LOKAL</b><small>WASHINGTON, DC</small></span>
-    </div>
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
     ${followingRail()}
@@ -10868,6 +10889,9 @@ function openDetail(id, opts = {}) {
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const isSaved = state.saved.has(e.id);
   const isGoing = state.rsvps.has(e.id);
+  const websiteUrl = eventWebsiteUrl(e);
+  const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
+  const websiteHelper = e.detailsUrl ? "Opens the event listing" : websiteUrl ? "Opens the venue website" : "Opens the Lokal listing";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
@@ -10884,7 +10908,7 @@ function openDetail(id, opts = {}) {
     </button>
     <button class="detail-info-row" data-ticket="${e.id}">
       <span class="dir-art"></span>
-      <span class="dir-copy"><b>${e.detailsUrl ? "Tickets and details" : "Shareable event page"}</b><small>Opens the ${e.detailsUrl ? "venue" : "Lokal"} listing</small></span>
+      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b><small>${escapeHtml(websiteHelper)}</small></span>
       <span class="dir-action">Open</span>
     </button>
     ${eventInterestSignal(e, true)}
@@ -11427,8 +11451,13 @@ function showDiscoverHint() {
 function setRoute(route) {
   if (route === "map") route = "home";
   state.route = route;
-  // Discover carries its own Bo lockup, so the topbar wordmark stands down there.
   document.body.dataset.route = route;
+  // Bo leans on the wordmark in the topbar; drawn once, then CSS decides which
+  // routes show him.
+  const boSlot = document.querySelector(".topbar-bo");
+  if (boSlot && !boSlot.childElementCount && typeof boPoseMarkup === "function") {
+    boSlot.innerHTML = boPoseMarkup("Leaning on the wordmark");
+  }
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
 }
@@ -11507,7 +11536,7 @@ document.addEventListener("click", async event => {
     });
   }
   // Slide direction follows the tab bar: moving left plays the reverse slide.
-  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
+  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); modalRoot.innerHTML = ""; state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; if (t.dataset.route === "home") state.homeFilter = "all"; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; state.resetDiscoverScrollAfterRender = t.dataset.homeFilter === "for-you"; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); resetAppScroll(); if (state.resetDiscoverScrollAfterRender) setTimeout(() => { resetAppScroll(); state.resetDiscoverScrollAfterRender = false; }, 1200); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".what-sheet")) openWhatSheet(); else renderHome(); }
@@ -11844,7 +11873,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.ticket !== undefined) {
     mark();
     const eventToOpen = events.find(item => item.id === Number(t.dataset.ticket));
-    const destination = eventToOpen?.detailsUrl || (eventToOpen ? lokalEventShareUrl(eventToOpen) : "");
+    const destination = eventToOpen ? (eventWebsiteUrl(eventToOpen) || lokalEventShareUrl(eventToOpen)) : "";
     if (!destination) { toast("No event link is available"); return; }
     const opened = window.open(destination, "_blank", "noopener,noreferrer");
     if (!opened) window.location.assign(destination);

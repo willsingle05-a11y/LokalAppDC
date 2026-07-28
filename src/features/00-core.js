@@ -709,6 +709,16 @@ function eventSourceCredit(event) {
   return "";
 }
 
+function eventWebsiteUrl(event) {
+  const direct = String(event?.detailsUrl || event?.externalUrl || event?.url || "").trim();
+  if (/^https?:\/\//i.test(direct)) return direct;
+  const venueKey = venueImageKeyName(event?.venue || event?.venueName || eventLocationLine(event));
+  const venue = venueKey && venueDirectory.find(item => venueImageKeyName(item.name) === venueKey);
+  const venueWebsite = String(venue?.website_url || venue?.website || event?.venueWebsite || "").trim();
+  if (/^https?:\/\//i.test(venueWebsite)) return venueWebsite;
+  return "";
+}
+
 function cleanEventImageStyle(image) {
   return `background-image: linear-gradient(to top, rgba(17,24,39,.72) 0%, rgba(17,24,39,.28) 48%, rgba(255,255,255,.12) 100%), ${image}; background-size: cover, contain; background-repeat: no-repeat, no-repeat; background-position: center, center; background-color: #f7fafc;`;
 }

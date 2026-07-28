@@ -26,6 +26,9 @@ function openDetail(id, opts = {}) {
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const isSaved = state.saved.has(e.id);
   const isGoing = state.rsvps.has(e.id);
+  const websiteUrl = eventWebsiteUrl(e);
+  const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
+  const websiteHelper = e.detailsUrl ? "Opens the event listing" : websiteUrl ? "Opens the venue website" : "Opens the Lokal listing";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
@@ -42,7 +45,7 @@ function openDetail(id, opts = {}) {
     </button>
     <button class="detail-info-row" data-ticket="${e.id}">
       <span class="dir-art"></span>
-      <span class="dir-copy"><b>${e.detailsUrl ? "Tickets and details" : "Shareable event page"}</b><small>Opens the ${e.detailsUrl ? "venue" : "Lokal"} listing</small></span>
+      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b><small>${escapeHtml(websiteHelper)}</small></span>
       <span class="dir-action">Open</span>
     </button>
     ${eventInterestSignal(e, true)}
