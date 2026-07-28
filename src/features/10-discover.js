@@ -620,7 +620,9 @@ function openWhatSheet() {
 // then Clear / Apply. Same date module the filter sheet uses.
 function openWhenSheet() {
   const when = state.whenFilter || new Set();
-  const timeChips = WHEN_TIME_TOKENS
+  const hasTimeFilter = WHEN_TIME_TOKENS.some(token => when.has(token)) || (state.filter.time && state.filter.time !== "Any time");
+  const anytimeChip = `<button class="${hasTimeFilter ? "" : "selected"}" data-clear-time-filter>Anytime</button>`;
+  const timeChips = anytimeChip + WHEN_TIME_TOKENS
     .map(token => `<button class="${when.has(token) ? "selected" : ""}" data-toggle-when="${token}">${token}</button>`)
     .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet when-sheet" role="dialog" aria-modal="true" aria-label="When">
@@ -644,7 +646,8 @@ function filterDropdownContent(kind) {
   if (kind === "where") {
     const where = state.whereFilter || new Set();
     const options = discoverNeighborhoodOptions(displayableDcEvents());
-    return `<div class="check-list check-list-scroll">${options.map(name => checkRow("where", name, name, where.has(name))).join("")}</div>${where.size ? `<button class="dropdown-clear" data-clear-where>Clear all</button>` : ""}`;
+    const everywhereRow = `<button class="check-row${where.size ? "" : " checked"}" data-clear-where><span class="check-box">${where.size ? "" : icons.check}</span><span>Everywhere</span></button>`;
+    return `<div class="check-list check-list-scroll">${everywhereRow}${options.map(name => checkRow("where", name, name, where.has(name))).join("")}</div>${where.size ? `<button class="dropdown-clear" data-clear-where>Clear all</button>` : ""}`;
   }
   if (kind === "when") {
     const when = state.whenFilter || new Set();
@@ -653,8 +656,10 @@ function filterDropdownContent(kind) {
     const isCustomDate = /^\d{4}-\d{2}-\d{2}/.test(dateVal);
     const isCustomTime = /^custom:/.test(timeVal);
     const pickRow = (kindAttr, checked, label) => `<button class="check-row${checked ? " checked" : ""}" data-${kindAttr}><span class="check-box">${checked ? icons.check : ""}</span><span>${escapeHtml(label)}</span></button>`;
+    const hasTimeFilter = WHEN_TIME_TOKENS.some(token => when.has(token)) || Boolean(timeVal);
+    const anytimeRow = `<button class="check-row${hasTimeFilter ? "" : " checked"}" data-clear-time-filter><span class="check-box">${hasTimeFilter ? "" : icons.check}</span><span>Anytime</span></button>`;
     const dateGroup = `<div class="filter-group"><span class="filter-group-head">${icons.calendar}Date</span><div class="check-list">${WHEN_DATE_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-date", isCustomDate, isCustomDate ? dateVal.replace("..", " – ") : "Pick a date…")}</div></div>`;
-    const timeGroup = `<div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="check-list">${WHEN_TIME_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-time", isCustomTime, isCustomTime ? timeVal.replace("custom:", "").replace("-", " – ") : "Pick a time…")}</div></div>`;
+    const timeGroup = `<div class="filter-group"><span class="filter-group-head">${icons.clock}Time</span><div class="check-list">${anytimeRow}${WHEN_TIME_TOKENS.map(token => checkRow("when", token, token, when.has(token))).join("")}${pickRow("pick-time", isCustomTime, isCustomTime ? timeVal.replace("custom:", "").replace("-", " – ") : "Pick a time…")}</div></div>`;
     const clear = (when.size || dateVal || timeVal) ? `<button class="dropdown-clear" data-clear-when>Clear all</button>` : "";
     return `${dateGroup}${timeGroup}${clear}`;
   }

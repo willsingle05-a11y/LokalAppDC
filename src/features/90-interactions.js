@@ -1,5 +1,23 @@
+function showSavedAnimation(button) {
+  if (!button) return;
+  const card = button.closest("[data-event-card], .detail-actions, .planner-card, .managed-plan-main");
+  button.querySelector(".save-burst")?.remove();
+  button.classList.add("just-saved", "btn-pop");
+  const burst = document.createElement("span");
+  burst.className = "save-burst";
+  burst.innerHTML = "<b>&#10003;</b> Saved";
+  button.appendChild(burst);
+  if (card) card.classList.add("saved-sweep");
+  setTimeout(() => {
+    button.classList.remove("just-saved", "btn-pop");
+    burst.remove();
+    card?.classList.remove("saved-sweep");
+  }, 1500);
+}
+
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
+  const clickedDiscoverFilter = Boolean(event.target.closest(".filter-pill-wrap, .filter-dropdown, [data-when-sheet], .when-sheet"));
   const descriptionExpander = event.target.closest("[data-expand-description]");
   if (descriptionExpander) {
     const wrap = descriptionExpander.closest(".detail-description-wrap");
@@ -12,7 +30,13 @@ document.addEventListener("click", async event => {
     return;
   }
   const t = event.target.closest("button");
-  if (!t) return;
+  if (!t) {
+    if (state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
+      state.openFilterSheet = "";
+      renderHome();
+    }
+    return;
+  }
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
   const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
@@ -44,6 +68,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".what-sheet")) openWhatSheet(); else renderHome(); }
   if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".where-sheet")) openWhereSheet(); else renderHome(); }
   if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; state.filterCalMonth = 0; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.clearTimeFilter !== undefined) { mark(); WHEN_TIME_TOKENS.forEach(token => state.whenFilter.delete(token)); state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedShown = 10; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
@@ -96,10 +121,9 @@ document.addEventListener("click", async event => {
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
-    const flashSaved = button => { if (!button) return; button.classList.add("just-saved"); setTimeout(() => button.classList.remove("just-saved"), 1500); };
     const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
-    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
-    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) flashSaved(button); });
+    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (isSaved) showSavedAnimation(button); }
+    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) showSavedAnimation(button); });
     saveEventInteraction(id, "save", isSaved);
     // Saving confirms inline (the "Saved ✓" chip); only the removal needs a toast.
     if (!isSaved) toast("Removed from saved");
@@ -598,6 +622,11 @@ document.addEventListener("click", async event => {
       t.remove();
       toast("Reset link sent");
     } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
+  }
+  if (!handled && state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
+    state.openFilterSheet = "";
+    renderHome();
+    return;
   }
   if (!handled && !t.disabled) toast("Action opened");
 });
