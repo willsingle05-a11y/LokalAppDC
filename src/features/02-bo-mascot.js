@@ -61,7 +61,7 @@ const boDataUriCache = new Map();
 function boPoseDataUri(name) {
   const key = BO_POSES[name] ? name : "Hello";
   if (boDataUriCache.has(key)) return boDataUriCache.get(key);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="#F6F4F0"/>${BO_SPRITE}${BO_POSES[key]}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="#FFFFFF"/>${BO_SPRITE}${BO_POSES[key]}</svg>`;
   const uri = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   boDataUriCache.set(key, uri);
   return uri;
