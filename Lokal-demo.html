@@ -4350,12 +4350,12 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   transition: opacity .45s ease;
 }
 .lokal-splash.is-hiding { opacity: 0; pointer-events: none; }
-.splash-center { display: flex; flex-direction: column; align-items: center; margin-top: auto; }
+.splash-center { display: flex; flex-direction: column; align-items: center; margin: auto 0; }
 .splash-mark {
   position: relative;
   width: 150px;
   height: 172px;
-  margin-bottom: 2px;
+  margin: 0;
 }
 .splash-dots {
   position: absolute;
@@ -4376,21 +4376,21 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   border-radius: 50%;
   background: var(--mint-deep);
   opacity: 0;
-  transform-origin: center 86px;
+  will-change: opacity, transform;
 }
 .splash-dots i:nth-child(1) {
   left: 0;
-  animation: splashDotLeft 1.12s .58s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation: splashDotSettle .54s 1.08s ease-out forwards;
 }
 .splash-dots i:nth-child(2) {
   left: 27px;
   width: 20px;
   height: 20px;
-  animation: splashDotCenter 1.16s .66s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation: splashDotSettle .54s 1.18s ease-out forwards;
 }
 .splash-dots i:nth-child(3) {
   right: 0;
-  animation: splashDotRight 1.12s .74s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation: splashDotSettle .54s 1.28s ease-out forwards;
 }
 .splash-pin {
   position: absolute;
@@ -4399,80 +4399,27 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateX(-50%) translateY(-170px) scale(.96);
-  animation: splashPinDrop .72s cubic-bezier(.18, .9, .2, 1.08) forwards;
+  transform: translateX(-50%) translateY(-46vh) scale(.97);
+  animation: splashPinDrop 1.06s cubic-bezier(.2, .82, .22, 1.02) forwards;
 }
 .splash-pin-head { box-sizing: border-box; width: 96px; height: 96px; border: 26px solid var(--ink); border-radius: 50%; }
 .splash-pin-stem { width: 11px; height: 52px; border-radius: 0 0 6px 6px; background: var(--ink); }
-.splash-word {
-  margin-top: 22px;
-  color: var(--ink);
-  font-size: 38px;
-  font-weight: 900;
-  letter-spacing: -.03em;
-  line-height: 1;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: splashCopyIn .38s 1.22s ease forwards;
-}
-.splash-city {
-  margin-top: 10px;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: .28em;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: splashCopyIn .38s 1.34s ease forwards;
-}
-.splash-tagline {
-  margin-top: auto;
-  padding-bottom: 34px;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .2em;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: splashCopyIn .4s 1.46s ease forwards;
-}
 @keyframes splashPinDrop {
-  0% { transform: translateX(-50%) translateY(-170px) scale(.96); opacity: 0; }
-  62% { transform: translateX(-50%) translateY(8px) scale(1.02); opacity: 1; }
-  82% { transform: translateX(-50%) translateY(-5px) scale(.99); opacity: 1; }
+  0% { transform: translateX(-50%) translateY(-46vh) scale(.97); opacity: 0; }
+  12% { opacity: 1; }
+  78% { transform: translateX(-50%) translateY(10px) scale(1); opacity: 1; }
+  90% { transform: translateX(-50%) translateY(-4px) scale(1); opacity: 1; }
   100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 }
-@keyframes splashDotLeft {
-  0% { opacity: 0; transform: translate(82px, 92px) rotate(-170deg) scale(.75); }
-  45% { opacity: 1; transform: translate(46px, 42px) rotate(-58deg) scale(1.08); }
-  78% { opacity: 1; transform: translate(-4px, 0) rotate(8deg) scale(1); }
-  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
-}
-@keyframes splashDotCenter {
-  0% { opacity: 0; transform: translate(0, 112px) rotate(160deg) scale(.72); }
-  45% { opacity: 1; transform: translate(-35px, 45px) rotate(70deg) scale(1.08); }
-  78% { opacity: 1; transform: translate(0, -4px) rotate(-8deg) scale(1); }
-  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
-}
-@keyframes splashDotRight {
-  0% { opacity: 0; transform: translate(-82px, 92px) rotate(170deg) scale(.75); }
-  45% { opacity: 1; transform: translate(-46px, 42px) rotate(58deg) scale(1.08); }
-  78% { opacity: 1; transform: translate(4px, 0) rotate(-8deg) scale(1); }
-  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
-}
-@keyframes splashCopyIn {
-  to { opacity: 1; transform: translateY(0); }
+@keyframes splashDotSettle {
+  0% { opacity: 0; transform: translateY(10px) scale(.68); filter: blur(7px); }
+  62% { opacity: 1; transform: translateY(-3px) scale(1.08); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .lokal-splash { transition: none; }
   .splash-pin,
-  .splash-dots i,
-  .splash-word,
-  .splash-city,
-  .splash-tagline {
+  .splash-dots i {
     animation: none;
     opacity: 1;
     transform: none;
@@ -4502,7 +4449,27 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   text-align: left;
 }
 .search-card-row:last-of-type { border-bottom: 0; padding-bottom: 12px; }
-.search-card-row .sc-dot { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--mint-tint); }
+.search-card-row .sc-dot {
+  display: grid;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent-strong);
+  background: var(--mint-tint);
+}
+.search-card-row .sc-dot svg {
+  display: block !important;
+  width: 17px;
+  height: 17px;
+  flex: none;
+  color: currentColor;
+  fill: none !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+  stroke-width: 2.2;
+}
 .search-card-row .sc-copy { flex: 1; min-width: 0; }
 .search-card-row .sc-copy small {
   display: block;
@@ -5072,270 +5039,136 @@ input, textarea, select { font-size: var(--fs-body); }
 .app-shell .saved-empty-icon { font-size: 38px; }
 
 /* ============================================================
-   Product motion â€” subtle, tactile, and easy to turn down.
+   Illustrated category tiles (Profile â†’ Your top types)
+   Glovo-style: art in a white circle, ring highlight on select.
    ============================================================ */
 
-.page,
-.discover-page,
-.profile-page,
-.social-page {
-  animation: lokalPageIn .28s cubic-bezier(.2, .8, .2, 1) both;
+.taste-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 8px;
+  margin-top: 14px;
 }
-
-.event-card,
-.event-list-row,
-.top-type,
-.top-ten-card,
-.planner-day-event,
-.profile-summary-strip > *,
-.compact-profile-section,
-.saved-suggestion-rail .event-card {
-  animation: lokalLiftIn .38s cubic-bezier(.2, .8, .2, 1) both;
-}
-
-.event-card:nth-child(2),
-.event-list-row:nth-child(2),
-.top-type:nth-child(2),
-.planner-day-event:nth-child(2),
-.profile-summary-strip > *:nth-child(2) { animation-delay: .035s; }
-
-.event-card:nth-child(3),
-.event-list-row:nth-child(3),
-.top-type:nth-child(3),
-.planner-day-event:nth-child(3),
-.profile-summary-strip > *:nth-child(3) { animation-delay: .07s; }
-
-.event-card:nth-child(4),
-.event-list-row:nth-child(4),
-.top-type:nth-child(4),
-.planner-day-event:nth-child(4),
-.profile-summary-strip > *:nth-child(4) { animation-delay: .105s; }
-
-.event-card,
-.event-list-row,
-.top-type,
-.planner-day-event,
-.card-icon-btn,
-.wide-button,
-.filter-button,
-.search-card-row,
-.nav-item {
-  transition:
-    transform .18s cubic-bezier(.2, .8, .2, 1),
-    box-shadow .18s ease,
-    border-color .18s ease,
-    background-color .18s ease,
-    opacity .18s ease;
-}
-
-.event-card:hover,
-.event-list-row:hover,
-.planner-day-event:hover,
-.top-type:hover {
-  transform: translateY(-2px);
-}
-
-.event-card:active,
-.event-list-row:active,
-.planner-day-event:active,
-.top-type:active,
-.wide-button:active,
-.filter-button:active,
-.search-card-row:active,
-.nav-item:active {
-  transform: translateY(1px) scale(.99);
-}
-
-.event-card-img,
-.elr-thumb,
-.top-type .tt-art img {
-  transition: transform .45s cubic-bezier(.2, .8, .2, 1), filter .3s ease;
-}
-
-.event-card:hover .event-card-img,
-.event-list-row:hover .elr-thumb,
-.top-type:hover .tt-art img {
-  transform: scale(1.025);
-}
-
-.card-save {
-  overflow: visible;
-  transform-origin: center;
-}
-
-.card-save.just-saved {
-  color: #fff;
-  background: var(--accent-strong);
-  animation: lokalHeartPop .5s cubic-bezier(.2, .8, .2, 1) both;
-}
-
-.card-save.just-saved::before {
-  position: absolute;
-  inset: -8px;
-  border: 2px solid rgba(0, 200, 151, .5);
-  border-radius: 999px;
-  content: "";
-  pointer-events: none;
-  animation: lokalSaveRing .74s ease-out both;
-}
-
-.card-save.just-saved::after {
-  content: none !important;
-}
-
-.save-burst {
-  position: absolute;
-  right: 50%;
-  bottom: calc(100% + 9px);
-  z-index: 10;
-  display: inline-flex;
+.taste-tile {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  min-width: max-content;
-  padding: 7px 10px;
-  border: 1px solid rgba(25, 26, 25, .08);
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+}
+.taste-tile-art {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 2px 0 rgba(25, 26, 25, .10);
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.taste-tile-art svg { width: 44px; height: 44px; }
+.taste-tile b {
+  max-width: 100%;
+  color: var(--ink);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;
+}
+.taste-tile:hover .taste-tile-art { transform: translateY(-1px); }
+/* The ring sits outside the circle, so nothing shifts on select */
+.taste-tile.selected .taste-tile-art {
+  box-shadow: 0 0 0 3px var(--accent), 0 2px 0 rgba(25, 26, 25, .10);
+}
+.taste-tile.selected b { color: var(--accent-strong); font-weight: 800; }
+@media (prefers-reduced-motion: reduce) { .taste-tile-art { transition: none; } }
+
+/* ---- Filter intro ---------------------------------------------------- */
+.filter-intro { margin: 2px 0 14px; }
+.filter-intro h2 { margin: 0 0 6px; }
+.filter-intro p { margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.45; text-wrap: pretty; }
+
+/* ---- Where / What sheets, matching the When sheet -------------------- */
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.sheet-head h3 { margin: 0; font-size: var(--fs-title); font-weight: 800; letter-spacing: -.02em; }
+.where-sheet .filter-options, .what-sheet .filter-options { gap: 8px; }
+
+/* ---- Detail secondary actions --------------------------------------- */
+.detail-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 0; }
+.detail-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 13px 10px;
+  border: 1.5px solid rgba(25, 26, 25, .16);
   border-radius: 999px;
   color: var(--ink);
   background: var(--paper);
-  box-shadow: 0 9px 24px rgba(25, 26, 25, .16);
-  font-size: 11px;
-  font-weight: 900;
+  font-family: var(--ds-font);
+  font-size: var(--fs-small);
+  font-weight: 700;
   letter-spacing: 0;
-  pointer-events: none;
-  transform: translateX(50%);
-  animation: lokalSaveBurst 1.45s cubic-bezier(.2, .8, .2, 1) both;
+  text-align: center;
+  text-transform: none;
 }
-
-.save-burst b {
-  display: grid;
-  width: 17px;
-  height: 17px;
-  place-items: center;
-  border-radius: 50%;
-  color: #fff;
-  background: var(--accent-strong);
-  font-size: 11px !important;
-  line-height: 1;
+.detail-action:hover { border-color: var(--ink); }
+.detail-action .cal-ic { display: grid; place-items: center; }
+.detail-action .cal-ic svg { width: 16px; height: 16px; stroke-width: 1.8; }
+/* Save / Going match the same shape, weight and casing */
+.detail-decide-bar button {
+  font-family: var(--ds-font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
 }
+.detail-decide-bar .decide-going { font-weight: 700; letter-spacing: 0; text-transform: none; }
+.taste-more-link { display: block; margin: 16px auto 0; }
 
-.saved-sweep {
-  animation: lokalSavedSweep 1.15s ease both;
+/* ============================================================
+   Route transition â€” Discover / Saved / Profile slide in the
+   direction you travelled along the tab bar.
+   ============================================================ */
+
+@keyframes page-slide-left {
+  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-
-.modal-backdrop {
-  animation: lokalFadeIn .18s ease both;
+@keyframes page-slide-right {
+  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-
-#modal-root .modal {
-  transform-origin: bottom center;
-  animation: lokalSheetUp .34s cubic-bezier(.2, .8, .2, 1) both;
-}
-
-#toast {
-  animation: lokalToastIn .24s cubic-bezier(.2, .8, .2, 1) both;
-}
-
-.nav-item.active svg,
-.profile-pulse::before,
-.score-fill,
-.score-bar > span {
-  animation: lokalSoftPulse 3.2s ease-in-out infinite;
-}
-
-@keyframes lokalPageIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes lokalLiftIn {
-  from { opacity: 0; transform: translateY(14px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes lokalHeartPop {
-  0% { transform: scale(1); }
-  42% { transform: scale(1.18) rotate(-4deg); }
-  72% { transform: scale(.96) rotate(2deg); }
-  100% { transform: scale(1); }
-}
-
-@keyframes lokalSaveRing {
-  from { opacity: .9; transform: scale(.78); }
-  to { opacity: 0; transform: scale(1.55); }
-}
-
-@keyframes lokalSaveBurst {
-  0% { opacity: 0; transform: translateX(50%) translateY(7px) scale(.86); }
-  16%, 78% { opacity: 1; transform: translateX(50%) translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateX(50%) translateY(-8px) scale(.98); }
-}
-
-@keyframes lokalSavedSweep {
-  0%, 100% { box-shadow: var(--shadow-sm); }
-  35% { box-shadow: 0 0 0 3px rgba(0, 200, 151, .14), 0 12px 34px rgba(0, 134, 99, .16); }
-}
-
-@keyframes lokalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes lokalSheetUp {
-  from { opacity: 0; transform: translateY(26px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes lokalToastIn {
-  from { opacity: 0; transform: translateY(12px) scale(.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes lokalSoftPulse {
-  0%, 100% { filter: none; }
-  50% { filter: drop-shadow(0 0 8px rgba(0, 200, 151, .28)); }
-}
-
+.page { animation: page-slide-left .26s cubic-bezier(.22, .61, .36, 1) both; }
+body.nav-back .page { animation-name: page-slide-right; }
 @media (prefers-reduced-motion: reduce) {
-  .page,
-  .discover-page,
-  .profile-page,
-  .social-page,
-  .event-card,
-  .event-list-row,
-  .top-type,
-  .top-ten-card,
-  .planner-day-event,
-  .profile-summary-strip > *,
-  .compact-profile-section,
-  .saved-suggestion-rail .event-card,
-  .card-save.just-saved,
-  .card-save.just-saved::before,
-  .save-burst,
-  .saved-sweep,
-  .modal-backdrop,
-  #modal-root .modal,
-  #toast,
-  .nav-item.active svg,
-  .profile-pulse::before,
-  .score-fill,
-  .score-bar > span {
-    animation: none !important;
-  }
-  .event-card,
-  .event-list-row,
-  .top-type,
-  .planner-day-event,
-  .card-icon-btn,
-  .wide-button,
-  .filter-button,
-  .search-card-row,
-  .nav-item,
-  .event-card-img,
-  .elr-thumb,
-  .top-type .tt-art img {
-    transition: none !important;
-  }
+  .page, body.nav-back .page { animation: none; }
 }
+
+/* ---- Filter rows: criterion only ------------------------------------ */
+.search-card-row .sc-copy b { font-size: var(--fs-title); font-weight: 600; color: var(--muted); }
+.search-card-row.is-set .sc-copy b { color: var(--ink); font-weight: 800; }
+.search-card-row.is-set .sc-dot { color: #fff; background: var(--accent); }
+.search-card-row.is-set .sc-dot svg { color: #fff; stroke: #fff !important; }
+.filter-intro { margin: 2px 0 12px; }
+
+/* ---- Saved calendar, matching the filter calendar -------------------- */
+.planner-cal { margin-top: 6px; }
+.planner-cal .cal-day { position: relative; font-weight: 600; }
+.planner-cal .cal-day.has-plans { color: var(--accent-strong); font-weight: 800; }
+.planner-cal .cal-plan-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.planner-next { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
 
     </style>
   </head>
@@ -5400,6 +5233,22 @@ const icons = {
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.3 16.3 21 21"/></svg>'
 };
+
+// Illustrated category art â€” flat fills over an ink outline, in the Lokal
+// palette. Used for the taste picker on Profile.
+const categoryArt = {
+  "Live music": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="8" width="10" height="18" rx="5" fill="#C7F3E8"/><path d="M15 21a9 9 0 0 0 18 0"/><path d="M24 30v7"/><path d="M18 40h12"/><circle cx="37" cy="14" r="3" fill="#FFC53D" stroke-width="1.6"/><path d="M40 14V7" stroke-width="1.6"/></svg>',
+  "Markets": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M7 19h34l-3-8H10z" fill="#00C897"/><path d="M18 11v8M30 11v8" stroke-width="1.5"/><rect x="12" y="25" width="24" height="14" rx="2" fill="#FFE3A0"/><circle cx="19" cy="30" r="3" fill="#FF7B54" stroke-width="1.6"/><circle cx="28" cy="31" r="3.5" fill="#BFF2E0" stroke-width="1.6"/></svg>',
+  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="14" fill="#FFC53D"/><path d="M10 24h28M24 10v28" stroke-width="1.5"/><path d="M14 14c5.5 4 5.5 16 0 20M34 14c-5.5 4-5.5 16 0 20" stroke-width="1.5"/></svg>',
+  "Food & drink": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M8 25a9 9 0 0 1 18 0z" fill="#FFE3A0"/><path d="M8 25h18v4H8z" fill="#00C897"/><path d="M8 29h18a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#FFE3A0"/><path d="M31 17h11l-1.5 20h-8z" fill="#BFF2E0"/><path d="M34 12l2 5M40 12l-1.5 5" stroke-width="1.6"/></svg>',
+  "Trivia nights": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H23l-8 6v-6h-5a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z" fill="#D8D4F5"/><path d="M20 19a4.2 4.2 0 0 1 7.4 2.7c0 2.1-3.2 2.5-3.2 4.6" stroke-width="2.2"/><circle cx="24" cy="29" r="1.5" fill="#191A19" stroke="none"/></svg>',
+  "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 14h26L24 28z" fill="#C7F3E8"/><path d="M24 28v10M17 39h14"/><circle cx="30" cy="19" r="2.6" fill="#FFC53D" stroke-width="1.5"/><path d="M39 6l1.4 3 3 1.4-3 1.4L39 15l-1.4-3.2-3-1.4 3-1.4z" fill="#FFC53D" stroke-width="1.2"/></svg>',
+  "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
+  "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="11" cy="21" r="4" fill="#FFE3A0" stroke-width="1.8"/><path d="M4 34c0-4.2 3.1-7 7-7" stroke-width="1.8"/><circle cx="37" cy="21" r="4" fill="#D8D4F5" stroke-width="1.8"/><path d="M44 34c0-4.2-3.1-7-7-7" stroke-width="1.8"/><circle cx="24" cy="16" r="5.5" fill="#00C897"/><path d="M14 33c0-5.4 4.5-9 10-9s10 3.6 10 9z" fill="#00C897"/></svg>',
+  "Performing arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 10h24v12c0 9.5-5.2 17-12 17s-12-7.5-12-17z" fill="#FFE3A0"/><circle cx="19" cy="22" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="22" r="2" fill="#191A19" stroke="none"/><path d="M19 30c3 2.6 7 2.6 10 0"/></svg>'
+};
+
+const categoryArtOptions = Object.keys(categoryArt);
 
 const demoEvents = [
   { id: 1, title: "Jazz on the Hill", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Tonight, 7:30 PM", price: "$18", cat: "music", tag: "Live music", friends: [], desc: "A warm, unhurried set from DC's new guard of jazz players. The room is small, the sound is close, and you will want to get there before the first pour." },
@@ -6142,9 +5991,18 @@ function feedDedupeKey(event) {
 // is the next upcoming occurrence.
 function dedupeFeedEvents(list) {
   const seen = new Set();
+  const seriesWeekday = new Set();
   return list.filter(event => {
     const key = feedDedupeKey(event);
     if (seen.has(key)) return false;
+    // A weekly series would otherwise return a card for every future week.
+    // Keep at most one per weekday, which is the next one on that day.
+    const date = eventDateValue(event);
+    if (date) {
+      const weekdayKey = `${eventDedupeKey(event)}|${date.getDay()}`;
+      if (seriesWeekday.has(weekdayKey)) return false;
+      seriesWeekday.add(weekdayKey);
+    }
     seen.add(key);
     return true;
   });
@@ -8644,23 +8502,52 @@ function feedPersonalSort(list) {
 
 // General All feed ordering: keep it broadly similar for everyone by using time
 // and category variety instead of personal tastes.
+// The feed leans on the user's tastes, but a handful of categories (happy
+// hours, trivia) have far more listings than anything else, so a purely
+// interest-weighted order buries the rest of the city. Each pick is scored on
+// interest match, then penalised for how recently its category, venue and
+// title-shape have already appeared. Variety wins ties.
+function feedCategoryKey(event) {
+  return String(discoverCategoryLabel(event.cat || "other")).toLowerCase();
+}
+
+// Spread a single round so the same category never lands three deep.
+function spaceFeedCategories(round) {
+  const remaining = round.slice();
+  const out = [];
+  while (remaining.length) {
+    const recent = new Set(out.slice(-2).map(feedCategoryKey));
+    let index = remaining.findIndex(event => !recent.has(feedCategoryKey(event)));
+    if (index === -1) index = 0;
+    out.push(remaining.splice(index, 1)[0]);
+  }
+  return out;
+}
+
 function feedMixedSort(list) {
-  const groups = new Map();
+  const weights = typeof userPreferenceWeights === "function" ? userPreferenceWeights() : null;
+  const interestOf = event => (weights && typeof eventPersonalScore === "function") ? eventPersonalScore(event, weights) : 0;
+
+  // Bucket by category + title shape, so the eight "Happy Hour" listings queue
+  // behind one another instead of competing for the top of the feed.
+  const buckets = new Map();
   list.slice().sort(sortEventsByStart).forEach(event => {
-    const category = String(discoverCategoryLabel(event.cat || "other")).toLowerCase();
-    if (!groups.has(category)) groups.set(category, []);
-    groups.get(category).push(event);
+    const key = `${feedCategoryKey(event)}|${normalizedFeedDedupeTitle(event)}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(event);
   });
+
+  // Round 1 takes one event from every distinct listing, ordered by how well it
+  // matches the user's tastes. Round 2 takes the seconds, and so on â€” so the
+  // feed leads with breadth and only repeats a listing once everything else
+  // has had a turn.
+  const lists = [...buckets.values()];
+  const depth = Math.max(0, ...lists.map(items => items.length));
   const result = [];
-  while (groups.size) {
-    const candidates = Array.from(groups.entries())
-      .filter(([, items]) => items.length)
-      .sort((a, b) => sortEventsByStart(a[1][0], b[1][0]));
-    const recentCategories = new Set(result.slice(-3).map(event => String(discoverCategoryLabel(event.cat || "other")).toLowerCase()));
-    const pick = candidates.find(([category]) => !recentCategories.has(category)) || candidates[0];
-    const [category, items] = pick;
-    result.push(items.shift());
-    if (!items.length) groups.delete(category);
+  for (let round = 0; round < depth; round += 1) {
+    const picks = lists.map(items => items[round]).filter(Boolean);
+    picks.sort((a, b) => (interestOf(b) - interestOf(a)) || sortEventsByStart(a, b));
+    result.push(...spaceFeedCategories(picks));
   }
   return result;
 }
@@ -8878,32 +8765,59 @@ function renderFilterBar() {
   const whenLabels = whenSelectionLabels();
   // Each pill owns its dropdown so the panel opens directly beneath the pill that
   // was tapped (absolutely positioned inside the pill's wrapper), not full-width.
-  // Canvas search card: three stacked rows, one ink search button. Each row still
-  // owns its dropdown so the panel opens directly beneath the row that was tapped.
-  const cardRow = (kind, eyebrow, label, isSet) => {
-    const btn = `<button class="search-card-row${isSet ? "" : " is-empty"}" data-open-filter="${kind}">
-      <span class="sc-dot"></span>
-      <span class="sc-copy"><small>${eyebrow}</small><b>${escapeHtml(label)}</b></span>
-      <span class="sc-caret">&rsaquo;</span>
-    </button>`;
-    const dropdown = open === kind ? `<div class="filter-panel filter-dropdown">${filterDropdownContent(kind)}</div>` : "";
-    return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
-  };
-  // When opens the full calendar sheet rather than a dropdown.
-  const whenRow = `<button class="search-card-row${whenLabels.length ? "" : " is-empty"}" data-when-sheet>
-    <span class="sc-dot"></span>
-    <span class="sc-copy"><small>When</small><b>${escapeHtml(filterBarSummary(whenLabels, "Anytime â€” whenever"))}</b></span>
+  // Three rows, three sheets. Each opens a full-height picker rather than an
+  // inline dropdown, so When, Where and What all behave the same way.
+  // The rows carry the criterion and nothing else; an active filter reads
+  // through weight and the mint dot rather than a second line of text.
+  const cardRow = (attr, label, isSet, iconName) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
+    <span class="sc-dot filter-row-icon filter-row-icon-${iconName}" aria-hidden="true">${icons[iconName]}</span>
+    <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
-  const matchCount = displayableDcEvents().filter(eventMatchesFilters).length;
   const anyActive = what.size || where.size || whenLabels.length;
-  return `<div class="sub-filters"><div class="search-card">
-    ${whenRow}
-    ${cardRow("where", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
-    ${cardRow("what", "What", filterBarSummary([...what].map(whatLabelFor), "Anything â€” surprise me"), what.size)}
-    <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
+  return `<div class="sub-filters">
+    <div class="filter-intro"><h2>Find events</h2></div>
+    <div class="search-card">
+    ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
+    ${cardRow("data-where-sheet", "Where", where.size, "pin")}
+    ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
     ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
-  </div></div>`;
+    </div>
+  </div>`;
+}
+
+// Where and What mirror the When sheet: a titled sheet, selectable options,
+// and the same Clear / Apply footer.
+function openWhereSheet() {
+  const where = state.whereFilter || new Set();
+  const options = discoverNeighborhoodOptions(displayableDcEvents());
+  // "Everywhere" is the explicit default, mirroring "Anytime" in the When sheet.
+  const chips = `<button class="${where.size ? "" : "selected"}" data-clear-where>Everywhere</button>`
+    + options
+      .map(name => `<button class="${where.has(name) ? "selected" : ""}" data-toggle-where="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
+      .join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet where-sheet" role="dialog" aria-modal="true" aria-label="Where">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <div class="sheet-head"><h3>Where?</h3>${where.size ? `<button class="text-button" data-clear-where>Clear</button>` : ""}</div>
+    <p class="cal-hint">${where.size ? `${where.size} neighborhood${where.size === 1 ? "" : "s"} selected` : "Pick one or more neighborhoods, or leave it open."}</p>
+    <div class="filter-block"><div class="filter-options">${chips}</div></div>
+    <div class="filter-footer"><button class="text-button" data-clear-where>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
+  </section></div>`;
+}
+
+function openWhatSheet() {
+  const what = state.whatFilter || new Set();
+  const chips = `<button class="${what.size ? "" : "selected"}" data-clear-what>Anything</button>`
+    + whatFilterOptions()
+      .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+      .join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <div class="sheet-head"><h3>What?</h3>${what.size ? `<button class="text-button" data-clear-what>Clear</button>` : ""}</div>
+    <p class="cal-hint">${what.size ? `${what.size} type${what.size === 1 ? "" : "s"} selected` : "Pick the kinds of events you want to see."}</p>
+    <div class="filter-block"><div class="filter-options">${chips}</div></div>
+    <div class="filter-footer"><button class="text-button" data-clear-what>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
+  </section></div>`;
 }
 
 // The canvas "When step": preset chips, the month calendar, time of day,
@@ -9007,12 +8921,10 @@ function openTimePickerSheet() {
   </section></div>`;
 }
 
-// Live count under the feed heading. Reflects the active What/Where/When filters
-// so the number tracks what's actually shown, not the full loaded catalog.
-function feedFilterCountLabel(count) {
-  const plural = count === 1 ? "" : "s";
-  if (discoverFiltersActive()) return `${count} event${plural} match${count === 1 ? "es" : ""} your filters`;
-  return `${count} upcoming DC event${plural}`;
+function discoverStatusLabel() {
+  if (state.eventSync.status === "loading") return "Checking shared events";
+  if (state.eventSync.status === "error") return "Event refresh needs attention";
+  return "Events refreshed";
 }
 
 function discoverFiltersActive() {
@@ -9022,50 +8934,6 @@ function discoverFiltersActive() {
   return Boolean((state.whatFilter && state.whatFilter.size)
     || (state.whereFilter && state.whereFilter.size)
     || whenActive);
-}
-
-// Canvas "Your top types" â€” the three categories with the most on today.
-function topTypesModule() {
-  const today = displayableDcEvents().filter(event => matchesDateFilter(event, "Today"));
-  if (today.length < 3) return "";
-  const ranked = discoverFilterItems()
-    .filter(([value]) => value !== "all" && value !== "free")
-    .map(([value, label]) => {
-      const matches = today.filter(event => matchesFilter(event, value));
-      return { value, label, count: matches.length, art: matches.find(event => event.image) || matches[0] };
-    })
-    .filter(item => item.count > 0)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 3);
-  if (!ranked.length) return "";
-  const tiles = ranked.map(item => `<button class="top-type" data-discover-category="${item.value}">
-    <span class="tt-art">${item.art ? `<img src="${eventCardImageSrc(item.art)}" alt="" loading="lazy">` : ""}</span>
-    <b>${escapeHtml(item.label)}</b>
-    <small>${item.count} today</small>
-  </button>`).join("");
-  // Edit opens the taste editor only â€” these tiles are driven by tastes, not
-  // by the full filter set.
-  return `<div class="top-types-head"><p class="eyebrow">Your top types</p><button class="text-button" data-edit-tastes>Edit</button></div>
-    <div class="top-types">${tiles}</div>`;
-}
-
-// Canvas "Top 10 things to do in DC" â€” the same mixed ranking the feed uses.
-function topTenModule() {
-  const picks = dedupeFeedEvents(feedMixedSort(displayableDcEvents())).slice(0, 10);
-  if (picks.length < 3) return "";
-  const expanded = Boolean(state.topTenExpanded);
-  const shown = expanded ? picks : picks.slice(0, 3);
-  const rows = shown.map((event, index) => `<button class="top-ten-row" data-event="${event.id}">
-    <span class="tt-num">${String(index + 1).padStart(2, "0")}</span>
-    <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
-    <span class="tt-copy"><b>${escapeHtml(event.title)}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
-  </button>`).join("");
-  return `<section class="top-ten">
-    <div class="top-ten-head"><p class="eyebrow">Presented by Lokal</p><span>Weekly</span></div>
-    <h2>Top ${picks.length} things to do in DC</h2>
-    <div class="top-ten-list">${rows}</div>
-    ${picks.length > 3 ? `<button class="top-ten-more" data-top-ten-toggle>${expanded ? "Show less" : `See all ${picks.length}`}</button>` : ""}
-  </section>`;
 }
 
 function renderHome() {
@@ -9079,11 +8947,9 @@ function renderHome() {
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span class="search-ic">${icons.search}</span><input data-discover-search placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
-    ${topTypesModule()}
     ${followingRail()}
-    ${topTenModule()}
-    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    <div class="sync-note ${state.eventSync.status}"><span>${discoverStatusLabel()}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
@@ -9106,7 +8972,6 @@ function renderDiscoverCategoryPage(category) {
     : categoryEvents;
   app.innerHTML = `<section class="page category-list-page">
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
-    <p class="feed-count">${visibleEvents.length} upcoming DC event${visibleEvents.length === 1 ? "" : "s"}</p>
     ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
     ${renderEventFeed(visibleEvents, { showBadge: false })}
   </section>`;
@@ -9890,22 +9755,43 @@ function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it wil
   start.setDate(start.getDate() + state.plannerWeekOffset * 7);
   const end = new Date(start);
   end.setDate(end.getDate() + 6);
-  const weekLabel = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-  const days = [];
-  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-    const iso = date.toISOString().slice(0, 10);
-    const dayPlans = plans.filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
-    days.push({ date: new Date(date), iso, plans: dayPlans });
-  }
-  return `<div class="planner-week-controls"><button class="secondary" data-planner-week="-1">Previous week</button><span>${escapeHtml(weekLabel)}</span><button class="secondary" data-planner-week="1">Next week</button></div>
-  <div class="planner-legend">${["concerts","live-music","happy-hours","trivia-nights","nightlife","culture","performing-arts","museums","sports","festivals","community","expos"].map(cat => `<span><i class="${cat}"></i>${escapeHtml(discoverCategoryLabel(cat))}</span>`).join("")}</div>
-  <div class="planner-calendar">${days.map(day => {
-    const label = day.date.toLocaleDateString("en-US", { weekday: "short" });
-    return `<article class="planner-day ${day.plans.length ? "" : "empty"}">
-      <div class="planner-day-head"><span>${label}</span><b>${day.date.getDate()}</b></div>
-      <div class="planner-day-events">${day.plans.length ? day.plans.map(event => `<button class="planner-day-event planner-${event.cat}" data-event="${event.id}"><i class="${event.cat}"></i><span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") : `<button class="day-explore" data-day-explore="${day.iso}">Explore &rarr;</button>`}</div>
-    </article>`;
-  }).join("")}</div>`;
+  // Same anatomy as the filter calendar: month header with nav, a weekday
+  // row, and circular day cells. Days holding plans carry a mint dot.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const monthOffset = Number(state.plannerMonthOffset) || 0;
+  const monthCursor = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const monthLabel = monthCursor.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const total = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0).getDate();
+  const planCounts = new Map();
+  plans.forEach(event => {
+    const date = eventDateValue(event);
+    if (date) planCounts.set(calendarIsoDay(date), (planCounts.get(calendarIsoDay(date)) || 0) + 1);
+  });
+  const cells = new Array(monthCursor.getDay()).fill(null);
+  for (let number = 1; number <= total; number += 1) cells.push(new Date(monthCursor.getFullYear(), monthCursor.getMonth(), number));
+  while (cells.length % 7) cells.push(null);
+  const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+  const grid = cells.map(date => {
+    if (!date) return `<span class="cal-cell"></span>`;
+    const iso = calendarIsoDay(date);
+    const count = planCounts.get(iso) || 0;
+    const isToday = date.getTime() === today.getTime();
+    return `<span class="cal-cell"><button class="cal-day ${count ? "has-plans" : ""} ${isToday ? "cal-today" : ""}" data-calendar-day="${iso}" aria-label="${date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}${count ? `, ${count} plan${count === 1 ? "" : "s"}` : ""}">${date.getDate()}${count ? `<i class="cal-plan-dot"></i>` : ""}</button></span>`;
+  }).join("");
+  const upcoming = plans
+    .filter(event => { const date = eventDateValue(event); return date && date >= today; })
+    .sort(sortEventsByStart)
+    .slice(0, 3);
+  return `<div class="planner-cal">
+    <div class="cal-head"><b>${escapeHtml(monthLabel)}</b><span class="cal-nav"><button data-planner-month="-1" aria-label="Previous month">&lsaquo;</button><button data-planner-month="1" aria-label="Next month">&rsaquo;</button></span></div>
+    <div class="cal-weekdays" aria-hidden="true">${weekdays.map(day => `<span>${day}</span>`).join("")}</div>
+    <div class="cal-grid">${grid}</div>
+    ${upcoming.length ? `<div class="planner-next">${upcoming.map(event => `<button class="top-ten-row" data-event="${event.id}">
+      <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
+      <span class="tt-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
+    </button>`).join("")}</div>` : ""}
+  </div>`;
 }
 
 function openCalendarPlans(iso) {
@@ -10074,11 +9960,22 @@ function venueFocusSection() {
     <div class="chips profile-taste-chips">${chips}</div>`;
 }
 
+// Illustrated category picker â€” moved here from Discover's "Your top types".
+// Tapping a tile toggles it straight into state.tastes.
+function tasteCategoryGrid() {
+  const selected = new Set(state.tastes);
+  const tiles = categoryArtOptions.map(name => `<button class="taste-tile${selected.has(name) ? " selected" : ""}" data-taste-toggle="${escapeHtml(name)}" aria-pressed="${selected.has(name)}">
+    <span class="taste-tile-art">${categoryArt[name]}</span>
+    <b>${escapeHtml(name)}</b>
+  </button>`).join("");
+  return `<div class="taste-tiles">${tiles}</div>`;
+}
+
 function userTasteSection(tastePills) {
-  return `<p class="eyebrow">Your tastes</p>
-    <p class="section-subnote">These shape your personalized recommendations. Keep them updated.</p>
-    ${state.tastes.length < 2 ? `<button class="taste-prompt" data-edit-tastes>Add your tastes &rarr; better recommendations</button>` : ""}
-    <div class="chips profile-taste-chips">${tastePills}<button class="chip taste-edit-chip" data-edit-tastes>Edit</button></div>`;
+  return `<p class="eyebrow">Your top types</p>
+    <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
+    ${tasteCategoryGrid()}
+    <button class="text-button taste-more-link" data-edit-tastes>More types</button>`;
 }
 
 function profileInsightPanel() {
@@ -10736,8 +10633,12 @@ function openDetail(id, opts = {}) {
     <p class="eyebrow detail-about-label">About</p>
     ${descriptionBlock}
     ${occurrencesBlock}
-    <div class="calendar-action-row"><button class="wide-button calendar-recur-button secondary-calendar" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>${shareButton}</div>
-    <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
+    <div class="detail-action-row">
+      <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
+      ${canNativeShare
+        ? `<button class="detail-action" data-share="${e.id}">Share event</button>`
+        : `<button class="detail-action" data-copy-detail-link="${e.id}">Copy link</button>`}
+    </div>
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
     <div class="detail-decide-bar">
       <button class="${isSaved ? "selected" : ""}" data-save="${e.id}">${isSaved ? "Saved âœ“" : "Save"}</button>
@@ -11345,20 +11246,24 @@ document.addEventListener("click", async event => {
       friendName: t.dataset.friendName || ""
     });
   }
-  if (t.dataset.route) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
+  // Slide direction follows the tab bar: moving left plays the reverse slide.
+  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; state.resetDiscoverScrollAfterRender = t.dataset.homeFilter === "for-you"; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); resetAppScroll(); if (state.resetDiscoverScrollAfterRender) setTimeout(() => { resetAppScroll(); state.resetDiscoverScrollAfterRender = false; }, 1200); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
-  if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
-  if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
+  if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".what-sheet")) openWhatSheet(); else renderHome(); }
+  if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".where-sheet")) openWhereSheet(); else renderHome(); }
   // Inside the When sheet these re-render the sheet; elsewhere they redraw the feed.
   if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
   if (t.dataset.whenSheet !== undefined) { mark(); state.openFilterSheet = ""; state.filterCalMonth = 0; openWhenSheet(); }
+  if (t.dataset.whereSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhereSheet(); }
+  if (t.dataset.whatSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhatSheet(); }
+  if (t.dataset.tasteToggle) { mark(); const name = t.dataset.tasteToggle; const set = new Set(state.tastes); if (set.has(name)) set.delete(name); else if (set.size >= 5) { toast("Choose up to 5 types"); return; } else set.add(name); state.tastes = [...set]; state.profile = { ...state.profile, tastes: state.tastes }; localStorage.setItem("lokalProfile", JSON.stringify(state.profile)); renderProfile(); }
   if (t.dataset.applyWhen !== undefined) { mark(); state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.clearAllFilters !== undefined) { mark(); state.whatFilter.clear(); state.whereFilter.clear(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; renderHome(); toast("Filters cleared"); }
   if (t.dataset.topTenToggle !== undefined) { mark(); state.topTenExpanded = !state.topTenExpanded; renderHome(); }
   if (t.dataset.scrollFeed !== undefined) { mark(); state.openFilterSheet = ""; renderHome(); document.querySelector(".feed-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
-  if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
-  if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".what-sheet")) openWhatSheet(); else renderHome(); }
+  if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".where-sheet")) openWhereSheet(); else renderHome(); }
   if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; state.filterCalMonth = 0; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
   if (t.dataset.clearTimeFilter !== undefined) { mark(); WHEN_TIME_TOKENS.forEach(token => state.whenFilter.delete(token)); state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
@@ -11442,6 +11347,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.calendarPlan) { mark(); openDetail(t.dataset.calendarPlan); }
   if (t.dataset.calendarDay) { mark(); openCalendarPlans(t.dataset.calendarDay); }
   if (t.dataset.plannerWeek) { mark(); state.plannerWeekOffset += Number(t.dataset.plannerWeek); renderSocial(); }
+  if (t.dataset.plannerMonth) { mark(); state.plannerMonthOffset = (Number(state.plannerMonthOffset) || 0) + Number(t.dataset.plannerMonth); renderSocial(); }
   if (t.dataset.nativeShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.nativeShare)); const payload = lokalEventSharePayload(eventToShare); try { if (navigator.share) await navigator.share({ title: eventToShare.title, text: payload, url: lokalEventShareUrl(eventToShare) }); else await copyText(payload); toast(navigator.share ? "Share sheet opened" : "Lokal event copied"); } catch { toast(navigator.share ? "Share canceled" : "Could not copy the event"); } }
   if (t.dataset.copyEventShare) { mark(); const eventToShare = events.find(item => item.id === Number(t.dataset.copyEventShare)); try { await copyText(lokalEventSharePayload(eventToShare)); toast("Lokal event copied"); } catch { toast("Could not copy the event"); } }
   if (t.dataset.postStory) { mark(); const eventId = Number(t.dataset.postStory); state.storyPosts = [{ eventId, postedAt: Date.now(), source: "user" }, ...state.storyPosts.filter(post => post.eventId !== eventId)].slice(0, 12); localStorage.setItem("lokalStoryPosts", JSON.stringify(state.storyPosts)); modalRoot.innerHTML = ""; if (state.route === "home") renderHome(); toast("Added to your story"); }

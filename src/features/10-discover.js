@@ -566,8 +566,8 @@ function renderFilterBar() {
   // inline dropdown, so When, Where and What all behave the same way.
   // The rows carry the criterion and nothing else; an active filter reads
   // through weight and the mint dot rather than a second line of text.
-  const cardRow = (attr, label, isSet) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
-    <span class="sc-dot"></span>
+  const cardRow = (attr, label, isSet, iconName) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
+    <span class="sc-dot filter-row-icon filter-row-icon-${iconName}" aria-hidden="true">${icons[iconName]}</span>
     <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
@@ -588,9 +588,9 @@ function renderFilterBar() {
     </div>
     <div class="discover-search-results" data-discover-results hidden></div>
     ${panelOpen ? `<div class="filter-panel-rows">
-      ${cardRow("data-when-sheet", "When", whenLabels.length)}
-      ${cardRow("data-where-sheet", "Where", where.size)}
-      ${cardRow("data-what-sheet", "What", what.size)}
+      ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
+      ${cardRow("data-where-sheet", "Where", where.size, "pin")}
+      ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
       ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
     </div>` : ""}
   </div>`;
@@ -731,12 +731,10 @@ function openTimePickerSheet() {
   </section></div>`;
 }
 
-// Live count under the feed heading. Reflects the active What/Where/When filters
-// so the number tracks what's actually shown, not the full loaded catalog.
-function feedFilterCountLabel(count) {
-  const plural = count === 1 ? "" : "s";
-  if (discoverFiltersActive()) return `${count} event${plural} match${count === 1 ? "es" : ""} your filters`;
-  return `${count} upcoming DC event${plural}`;
+function discoverStatusLabel() {
+  if (state.eventSync.status === "loading") return "Checking shared events";
+  if (state.eventSync.status === "error") return "Event refresh needs attention";
+  return "Events refreshed";
 }
 
 function discoverFiltersActive() {
@@ -759,8 +757,8 @@ function renderHome() {
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
     ${followingRail()}
-    <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
-    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    <div class="sync-note ${state.eventSync.status}"><span>${discoverStatusLabel()}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
+    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
@@ -783,7 +781,6 @@ function renderDiscoverCategoryPage(category) {
     : categoryEvents;
   app.innerHTML = `<section class="page category-list-page">
     <div class="discover-heading category-detail-heading"><button class="back-button" data-discover-back aria-label="Back to Discover">&larr;</button><div><h1>${escapeHtml(label)}</h1></div></div>
-    <p class="feed-count">${visibleEvents.length} upcoming DC event${visibleEvents.length === 1 ? "" : "s"}</p>
     ${hasCategorySearch ? categoryFacetControls(category, categoryEvents) : ""}
     ${renderEventFeed(visibleEvents, { showBadge: false })}
   </section>`;
