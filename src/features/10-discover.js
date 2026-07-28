@@ -93,10 +93,19 @@ function followingRail() {
   const stories = activeFollowingStories();
   const venues = followedVenueNames();
   if (!stories.length && !venues.length) return "";
-  const venueChips = venues.map(name => `<button class="following-chip" data-venue-events="${escapeHtml(name)}"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><b>${escapeHtml(name)}</b><small>Following</small></button>`).join("");
-  return `<div class="following-head"><p class="eyebrow">Following</p></div>
-    <div class="following-rail">${venueChips}${stories.map((story, index) => `<button class="following-chip" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}"><span class="group-icon">${story.icon}</span><b>${escapeHtml(story.todayOnly ? "Happening today" : story.name)}</b><small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small></button>`).join("")}</div>
-    <p class="following-hint">Tap to see curated picks from venues and people you follow</p>`;
+  // Same tile format as Your top types, so the two rows read as one system.
+  const venueTiles = venues.map(name => `<button class="top-type" data-venue-events="${escapeHtml(name)}">
+    <span class="tt-art tt-initial">${escapeHtml(name.slice(0, 1).toUpperCase())}</span>
+    <b>${escapeHtml(name)}</b>
+    <small>Following</small>
+  </button>`).join("");
+  const storyTiles = stories.map((story, index) => `<button class="top-type" data-story="${index}" data-search-text="${`${story.name} ${story.type}`.toLowerCase()}">
+    <span class="tt-art tt-initial">${story.icon}</span>
+    <b>${escapeHtml(story.todayOnly ? "Today" : story.name)}</b>
+    <small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small>
+  </button>`).join("");
+  return `<div class="top-types-head"><p class="eyebrow">Following</p></div>
+    <div class="top-types top-types-scroll">${venueTiles}${storyTiles}</div>`;
 }
 
 function venueDirectoryMatch(name) {
@@ -462,13 +471,36 @@ function renderFilterBar() {
     const dropdown = open === kind ? `<div class="filter-panel filter-dropdown">${filterDropdownContent(kind)}</div>` : "";
     return `<div class="filter-pill-wrap${open === kind ? " open" : ""}">${btn}${dropdown}</div>`;
   };
+  // When opens the full calendar sheet rather than a dropdown.
+  const whenRow = `<button class="search-card-row${whenLabels.length ? "" : " is-empty"}" data-when-sheet>
+    <span class="sc-dot"></span>
+    <span class="sc-copy"><small>When</small><b>${escapeHtml(filterBarSummary(whenLabels, "Anytime — whenever"))}</b></span>
+    <span class="sc-caret">&rsaquo;</span>
+  </button>`;
   const matchCount = displayableDcEvents().filter(eventMatchesFilters).length;
+  const anyActive = what.size || where.size || whenLabels.length;
   return `<div class="sub-filters"><div class="search-card">
-    ${cardRow("when", "When", filterBarSummary(whenLabels, "Anytime — whenever"), whenLabels.length)}
+    ${whenRow}
     ${cardRow("where", "Where", filterBarSummary([...where], "Anywhere in DC"), where.size)}
     ${cardRow("what", "What", filterBarSummary([...what].map(whatLabelFor), "Anything — surprise me"), what.size)}
     <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
+    ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
   </div></div>`;
+}
+
+// The canvas "When step": preset chips, the month calendar, time of day,
+// then Clear / Apply. Same date module the filter sheet uses.
+function openWhenSheet() {
+  const when = state.whenFilter || new Set();
+  const timeChips = WHEN_TIME_TOKENS
+    .map(token => `<button class="${when.has(token) ? "selected" : ""}" data-toggle-when="${token}">${token}</button>`)
+    .join("");
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet when-sheet" role="dialog" aria-modal="true" aria-label="When">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    ${dateFilterModule()}
+    <div class="filter-block"><p class="eyebrow">Time of day</p><div class="filter-options">${timeChips}</div></div>
+    <div class="filter-footer"><button class="text-button" data-clear-when>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
+  </section></div>`;
 }
 
 function checkRow(kind, value, label, checked) {
@@ -584,7 +616,9 @@ function topTypesModule() {
     <b>${escapeHtml(item.label)}</b>
     <small>${item.count} today</small>
   </button>`).join("");
-  return `<div class="top-types-head"><p class="eyebrow">Your top types</p><button class="text-button" data-more-filters>Edit</button></div>
+  // Edit opens the taste editor only — these tiles are driven by tastes, not
+  // by the full filter set.
+  return `<div class="top-types-head"><p class="eyebrow">Your top types</p><button class="text-button" data-edit-tastes>Edit</button></div>
     <div class="top-types">${tiles}</div>`;
 }
 
@@ -615,12 +649,11 @@ function renderHome() {
   const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
   app.innerHTML = `<section class="page discover-page">
-    ${renderTonightMap()}
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
-    ${followingRail()}
     ${renderFilterBar()}
     <label class="search-box discover-search-box subtle-search"><span class="search-ic">${icons.search}</span><input data-discover-search placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     ${topTypesModule()}
+    ${followingRail()}
     ${topTenModule()}
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>

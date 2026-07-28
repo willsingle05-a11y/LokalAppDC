@@ -19,12 +19,16 @@ document.addEventListener("click", async event => {
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
-  if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
+  // Inside the When sheet these re-render the sheet; elsewhere they redraw the feed.
+  if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.whenSheet !== undefined) { mark(); state.openFilterSheet = ""; state.filterCalMonth = 0; openWhenSheet(); }
+  if (t.dataset.applyWhen !== undefined) { mark(); state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
+  if (t.dataset.clearAllFilters !== undefined) { mark(); state.whatFilter.clear(); state.whereFilter.clear(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; renderHome(); toast("Filters cleared"); }
   if (t.dataset.topTenToggle !== undefined) { mark(); state.topTenExpanded = !state.topTenExpanded; renderHome(); }
   if (t.dataset.scrollFeed !== undefined) { mark(); state.openFilterSheet = ""; renderHome(); document.querySelector(".feed-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
   if (t.dataset.clearWhat !== undefined) { mark(); state.whatFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.clearWhere !== undefined) { mark(); state.whereFilter.clear(); state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
-  if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; renderHome(); }
+  if (t.dataset.clearWhen !== undefined) { mark(); state.whenFilter.clear(); state.filter.date = "Any date"; state.filter.time = "Any time"; state.openFilterSheet = ""; state.feedShown = 10; state.filterCalMonth = 0; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
   if (t.dataset.mapFilter) { state.mapFilter = t.dataset.mapFilter; renderMap(); }
   if (t.dataset.discoverCategory) { mark(); if (t.dataset.discoverCategory !== "for-you") { state.discoverGenreFilter = ""; state.feedShown = 10; state.discoverCategoryView = t.dataset.discoverCategory; renderHome(); } }
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
