@@ -712,8 +712,18 @@ function eventSourceCredit(event) {
 function eventWebsiteUrl(event) {
   const direct = String(event?.detailsUrl || event?.externalUrl || event?.url || "").trim();
   if (/^https?:\/\//i.test(direct)) return direct;
-  const venueKey = venueImageKeyName(event?.venue || event?.venueName || eventLocationLine(event));
-  const venue = venueKey && venueDirectory.find(item => venueImageKeyName(item.name) === venueKey);
+  const venueNames = [event?.venue, event?.venueName, eventLocationLine(event)]
+    .map(value => String(value || "").trim())
+    .filter(Boolean);
+  const venueKeys = venueNames.map(venueImageKeyName).filter(Boolean);
+  const venue = venueDirectory.find(item => {
+    const itemKey = venueImageKeyName(item.name);
+    if (!itemKey) return false;
+    return venueKeys.some(key =>
+      itemKey === key
+      || (itemKey.length >= 5 && key.length >= 5 && (itemKey.includes(key) || key.includes(itemKey)))
+    );
+  });
   const venueWebsite = String(venue?.website_url || venue?.website || event?.venueWebsite || "").trim();
   if (/^https?:\/\//i.test(venueWebsite)) return venueWebsite;
   return "";

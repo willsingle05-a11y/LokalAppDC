@@ -4126,7 +4126,7 @@ h3 { font-weight: 800; }
 
 :root {
   /* Canvas + surfaces */
-  --cream: #F6F4F0;
+  --cream: #FFFFFF;
   --paper: #FFFFFF;
   --line: rgba(25, 26, 25, .10);
 
@@ -5292,7 +5292,7 @@ body.nav-back .page { animation-name: page-slide-right; }
 /* Bo standing in for a missing photo should sit on the card, not fill it */
 .event-card-media .event-card-img[src^="data:image/svg"],
 .tt-thumb img[src^="data:image/svg"],
-.gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #F6F4F0; }
+.gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #FFFFFF; }
 
 /* Bo leans on the wordmark in the topbar, on Discover only */
 .topbar-bo { display: none; }
@@ -5311,6 +5311,20 @@ body[data-route="home"] .brand b { font-size: var(--fs-section); }
 body[data-route="home"] .topbar-actions { gap: 8px; }
 /* Bo takes the space the account name used to occupy on Discover */
 body[data-route="home"] .topbar .account-label { display: none; }
+
+/* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
+   warm cream, so those are overridden here alongside the shell. */
+.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream); }
+.topbar, .bottom-nav { background: var(--paper); }
+/* Cards are white on white now, so the hard offset shadow does the separating
+   and gets a hairline to sit on. */
+.event-card, .event-row, .feature-card, .insight-card, .follow-card, .stat-card,
+.activity-card, .group-card, .community-card, .interest-event, .friend-feed-card,
+.share-group, .suggestion-card, .anchor-pick, .managed-list-row, .attend-row,
+.occurrence-row, .top-type, .search-card, .filter-panel-rows, .going-card,
+.profile-goal, .top-ten {
+  border: 1px solid rgba(25, 26, 25, .08);
+}
 
     </style>
   </head>
@@ -6072,8 +6086,18 @@ function eventSourceCredit(event) {
 function eventWebsiteUrl(event) {
   const direct = String(event?.detailsUrl || event?.externalUrl || event?.url || "").trim();
   if (/^https?:\/\//i.test(direct)) return direct;
-  const venueKey = venueImageKeyName(event?.venue || event?.venueName || eventLocationLine(event));
-  const venue = venueKey && venueDirectory.find(item => venueImageKeyName(item.name) === venueKey);
+  const venueNames = [event?.venue, event?.venueName, eventLocationLine(event)]
+    .map(value => String(value || "").trim())
+    .filter(Boolean);
+  const venueKeys = venueNames.map(venueImageKeyName).filter(Boolean);
+  const venue = venueDirectory.find(item => {
+    const itemKey = venueImageKeyName(item.name);
+    if (!itemKey) return false;
+    return venueKeys.some(key =>
+      itemKey === key
+      || (itemKey.length >= 5 && key.length >= 5 && (itemKey.includes(key) || key.includes(itemKey)))
+    );
+  });
   const venueWebsite = String(venue?.website_url || venue?.website || event?.venueWebsite || "").trim();
   if (/^https?:\/\//i.test(venueWebsite)) return venueWebsite;
   return "";
@@ -6532,7 +6556,7 @@ const boDataUriCache = new Map();
 function boPoseDataUri(name) {
   const key = BO_POSES[name] ? name : "Hello";
   if (boDataUriCache.has(key)) return boDataUriCache.get(key);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="#F6F4F0"/>${BO_SPRITE}${BO_POSES[key]}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="#FFFFFF"/>${BO_SPRITE}${BO_POSES[key]}</svg>`;
   const uri = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   boDataUriCache.set(key, uri);
   return uri;
