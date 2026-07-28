@@ -1,3 +1,20 @@
+function showSavedAnimation(button) {
+  if (!button) return;
+  const card = button.closest("[data-event-card], .detail-actions, .planner-card, .managed-plan-main");
+  button.querySelector(".save-burst")?.remove();
+  button.classList.add("just-saved", "btn-pop");
+  const burst = document.createElement("span");
+  burst.className = "save-burst";
+  burst.innerHTML = "<b>&#10003;</b> Saved";
+  button.appendChild(burst);
+  if (card) card.classList.add("saved-sweep");
+  setTimeout(() => {
+    button.classList.remove("just-saved", "btn-pop");
+    burst.remove();
+    card?.classList.remove("saved-sweep");
+  }, 1500);
+}
+
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
   const clickedDiscoverFilter = Boolean(event.target.closest(".filter-pill-wrap, .filter-dropdown, [data-when-sheet], .when-sheet"));
@@ -100,10 +117,9 @@ document.addEventListener("click", async event => {
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
-    const flashSaved = button => { if (!button) return; button.classList.add("just-saved"); setTimeout(() => button.classList.remove("just-saved"), 1500); };
     const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
-    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
-    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) flashSaved(button); });
+    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (isSaved) showSavedAnimation(button); }
+    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) showSavedAnimation(button); });
     saveEventInteraction(id, "save", isSaved);
     // Saving confirms inline (the "Saved ✓" chip); only the removal needs a toast.
     if (!isSaved) toast("Removed from saved");

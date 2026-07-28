@@ -849,3 +849,269 @@ input, textarea, select { font-size: var(--fs-body); }
 #modal-root .modal .lede { font-size: var(--fs-body); }
 #toast, #toast b { font-size: var(--fs-body); }
 .app-shell .saved-empty-icon { font-size: 38px; }
+
+/* ============================================================
+   Product motion — subtle, tactile, and easy to turn down.
+   ============================================================ */
+
+.page,
+.discover-page,
+.profile-page,
+.social-page {
+  animation: lokalPageIn .28s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.event-card,
+.event-list-row,
+.top-type,
+.top-ten-card,
+.planner-day-event,
+.profile-summary-strip > *,
+.compact-profile-section,
+.saved-suggestion-rail .event-card {
+  animation: lokalLiftIn .38s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.event-card:nth-child(2),
+.event-list-row:nth-child(2),
+.top-type:nth-child(2),
+.planner-day-event:nth-child(2),
+.profile-summary-strip > *:nth-child(2) { animation-delay: .035s; }
+
+.event-card:nth-child(3),
+.event-list-row:nth-child(3),
+.top-type:nth-child(3),
+.planner-day-event:nth-child(3),
+.profile-summary-strip > *:nth-child(3) { animation-delay: .07s; }
+
+.event-card:nth-child(4),
+.event-list-row:nth-child(4),
+.top-type:nth-child(4),
+.planner-day-event:nth-child(4),
+.profile-summary-strip > *:nth-child(4) { animation-delay: .105s; }
+
+.event-card,
+.event-list-row,
+.top-type,
+.planner-day-event,
+.card-icon-btn,
+.wide-button,
+.filter-button,
+.search-card-row,
+.nav-item {
+  transition:
+    transform .18s cubic-bezier(.2, .8, .2, 1),
+    box-shadow .18s ease,
+    border-color .18s ease,
+    background-color .18s ease,
+    opacity .18s ease;
+}
+
+.event-card:hover,
+.event-list-row:hover,
+.planner-day-event:hover,
+.top-type:hover {
+  transform: translateY(-2px);
+}
+
+.event-card:active,
+.event-list-row:active,
+.planner-day-event:active,
+.top-type:active,
+.wide-button:active,
+.filter-button:active,
+.search-card-row:active,
+.nav-item:active {
+  transform: translateY(1px) scale(.99);
+}
+
+.event-card-img,
+.elr-thumb,
+.top-type .tt-art img {
+  transition: transform .45s cubic-bezier(.2, .8, .2, 1), filter .3s ease;
+}
+
+.event-card:hover .event-card-img,
+.event-list-row:hover .elr-thumb,
+.top-type:hover .tt-art img {
+  transform: scale(1.025);
+}
+
+.card-save {
+  overflow: visible;
+  transform-origin: center;
+}
+
+.card-save.just-saved {
+  color: #fff;
+  background: var(--accent-strong);
+  animation: lokalHeartPop .5s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.card-save.just-saved::before {
+  position: absolute;
+  inset: -8px;
+  border: 2px solid rgba(0, 200, 151, .5);
+  border-radius: 999px;
+  content: "";
+  pointer-events: none;
+  animation: lokalSaveRing .74s ease-out both;
+}
+
+.card-save.just-saved::after {
+  content: none !important;
+}
+
+.save-burst {
+  position: absolute;
+  right: 50%;
+  bottom: calc(100% + 9px);
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: max-content;
+  padding: 7px 10px;
+  border: 1px solid rgba(25, 26, 25, .08);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: 0 9px 24px rgba(25, 26, 25, .16);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+  pointer-events: none;
+  transform: translateX(50%);
+  animation: lokalSaveBurst 1.45s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.save-burst b {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--accent-strong);
+  font-size: 11px !important;
+  line-height: 1;
+}
+
+.saved-sweep {
+  animation: lokalSavedSweep 1.15s ease both;
+}
+
+.modal-backdrop {
+  animation: lokalFadeIn .18s ease both;
+}
+
+#modal-root .modal {
+  transform-origin: bottom center;
+  animation: lokalSheetUp .34s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+#toast {
+  animation: lokalToastIn .24s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.nav-item.active svg,
+.profile-pulse::before,
+.score-fill,
+.score-bar > span {
+  animation: lokalSoftPulse 3.2s ease-in-out infinite;
+}
+
+@keyframes lokalPageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lokalLiftIn {
+  from { opacity: 0; transform: translateY(14px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes lokalHeartPop {
+  0% { transform: scale(1); }
+  42% { transform: scale(1.18) rotate(-4deg); }
+  72% { transform: scale(.96) rotate(2deg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes lokalSaveRing {
+  from { opacity: .9; transform: scale(.78); }
+  to { opacity: 0; transform: scale(1.55); }
+}
+
+@keyframes lokalSaveBurst {
+  0% { opacity: 0; transform: translateX(50%) translateY(7px) scale(.86); }
+  16%, 78% { opacity: 1; transform: translateX(50%) translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateX(50%) translateY(-8px) scale(.98); }
+}
+
+@keyframes lokalSavedSweep {
+  0%, 100% { box-shadow: var(--shadow-sm); }
+  35% { box-shadow: 0 0 0 3px rgba(0, 200, 151, .14), 0 12px 34px rgba(0, 134, 99, .16); }
+}
+
+@keyframes lokalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes lokalSheetUp {
+  from { opacity: 0; transform: translateY(26px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes lokalToastIn {
+  from { opacity: 0; transform: translateY(12px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes lokalSoftPulse {
+  0%, 100% { filter: none; }
+  50% { filter: drop-shadow(0 0 8px rgba(0, 200, 151, .28)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .discover-page,
+  .profile-page,
+  .social-page,
+  .event-card,
+  .event-list-row,
+  .top-type,
+  .top-ten-card,
+  .planner-day-event,
+  .profile-summary-strip > *,
+  .compact-profile-section,
+  .saved-suggestion-rail .event-card,
+  .card-save.just-saved,
+  .card-save.just-saved::before,
+  .save-burst,
+  .saved-sweep,
+  .modal-backdrop,
+  #modal-root .modal,
+  #toast,
+  .nav-item.active svg,
+  .profile-pulse::before,
+  .score-fill,
+  .score-bar > span {
+    animation: none !important;
+  }
+  .event-card,
+  .event-list-row,
+  .top-type,
+  .planner-day-event,
+  .card-icon-btn,
+  .wide-button,
+  .filter-button,
+  .search-card-row,
+  .nav-item,
+  .event-card-img,
+  .elr-thumb,
+  .top-type .tt-art img {
+    transition: none !important;
+  }
+}
