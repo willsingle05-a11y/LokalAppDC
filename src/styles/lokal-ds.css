@@ -35,10 +35,21 @@
   --shadow-sm: 0 2px 0 rgba(25, 26, 25, .07);
   --radius: 18px;
 
-  --ds-font: Figtree, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --display: Figtree, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --card-font: Figtree, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --mono: ui-monospace, Menlo, Consolas, "Courier New", monospace;
+  /* Beli sets everything in the native UI face — SF Pro on iOS. One family
+     across the app, including the small uppercase labels. */
+  --ds-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif;
+  --display: var(--ds-font);
+  --card-font: var(--ds-font);
+  --mono: var(--ds-font);
+
+  /* One type scale. Every size below comes from this list — nothing else. */
+  --fs-label: 11px;   /* uppercase eyebrows and tab labels */
+  --fs-micro: 12px;   /* counts, timestamps */
+  --fs-small: 13px;   /* secondary copy, chips */
+  --fs-body: 15px;    /* body copy, inputs, row labels */
+  --fs-title: 17px;   /* card and row titles */
+  --fs-section: 21px; /* section headings */
+  --fs-page: 26px;    /* page titles */
 }
 
 html, body { background: #E7E3DB; }
@@ -51,26 +62,27 @@ h1, h2, h3, .brand b, .event-card-title, .score-big, .score-level-tag,
   font-family: var(--ds-font);
   color: var(--ink);
 }
-h1 { font-size: 26px; font-weight: 900; line-height: 1; letter-spacing: -.03em; text-transform: uppercase; }
-h2 { font-size: 21px; font-weight: 900; line-height: 1.1; letter-spacing: -.025em; }
-h3 { font-size: 14px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; }
-.discover-heading h1 { font-size: 26px; }
+h1 { font-size: var(--fs-page); font-weight: 800; line-height: 1.05; letter-spacing: -.02em; text-transform: uppercase; }
+h2 { font-size: var(--fs-section); font-weight: 800; line-height: 1.15; letter-spacing: -.015em; }
+h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
+.discover-heading h1 { font-size: var(--fs-page); }
 
 .eyebrow, .feed-label, .settings-group-label, .event-meta {
   color: rgba(25, 26, 25, .45);
-  font-family: var(--mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .16em;
+  font-family: var(--ds-font);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: .09em;
   text-transform: uppercase;
 }
-.lede, .section-helper, .event-copy p {
+.lede, .section-helper, .event-copy p, .bio, .detail-description {
   color: var(--muted);
-  font-size: 12.5px;
-  font-weight: 500;
+  font-size: var(--fs-body);
+  font-weight: 400;
   line-height: 1.45;
   text-wrap: pretty;
 }
+
 
 /* ---- Brand ----------------------------------------------------------- */
 .topbar { background: var(--cream); border-bottom: 1px solid var(--line); backdrop-filter: none; }
@@ -329,10 +341,42 @@ h3 { font-size: 14px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em
   background: var(--paper);
   box-shadow: var(--shadow-sm);
 }
+/* Following uses the same tiles but scrolls, since the list is open-ended. */
+.top-types-scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.top-types-scroll::-webkit-scrollbar { display: none; }
+.top-types-scroll .top-type { flex: 0 0 108px; }
+.top-type .tt-initial {
+  display: grid;
+  place-items: center;
+  color: var(--accent-strong);
+  font-size: var(--fs-small);
+  font-weight: 800;
+}
+.top-type .tt-initial svg { width: 17px; height: 17px; }
+.search-card-clear {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 2px 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: underline;
+}
+.search-card-clear:hover { color: var(--ink); }
 .top-type .tt-art { width: 30px; height: 30px; overflow: hidden; border-radius: 50%; background: var(--mint-tint); }
 .top-type .tt-art img { width: 100%; height: 100%; object-fit: cover; }
 .top-type b { max-width: 100%; overflow: hidden; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
-.top-type small { color: rgba(25, 26, 25, .5); font-size: 9.5px; font-weight: 600; white-space: nowrap; }
+.top-type small {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(25, 26, 25, .5);
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .top-ten {
   margin-bottom: 20px;
@@ -707,3 +751,101 @@ h3 { font-size: 14px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em
 }
 .filter-footer .text-button { color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: underline; }
 .filter-footer .wide-button { width: auto; margin: 0; padding: 13px 30px; }
+
+/* ============================================================
+   Type scale normalisation — LAST in the file on purpose.
+   Every module above tuned its own sizes; this pulls them all
+   back onto the six steps declared in :root so the app reads as
+   one document. Add new sizes here, not in the modules.
+   ============================================================ */
+
+.event-card-title, .event-location, .top-ten-row .tt-copy b, .going-card b,
+.detail-info-row .dir-copy b, .profile-list-row b, .search-card-row .sc-copy b,
+.attend-copy b, .follow-card b, .notification-card b, .share-group h3,
+.top-ten h2, .going-sheet h2, .no-results h3, .date-module-head h3,
+.pid-handle, .profile-goal b, .cal-head b {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+h1, .discover-heading h1 { font-size: var(--fs-page); }
+h2, .filter-sheet h2, .section-heading h2 { font-size: var(--fs-section); }
+
+.event-card-meta, .event-card-venue, .top-ten-row .tt-copy small, .going-card small,
+.detail-info-row .dir-copy small, .top-type small, .cal-hint, .pid-since,
+.profile-goal .goal-foot small, .no-results p, .following-hint,
+.top-ten-head span, .following-chip small, .search-card-row .sc-copy b {
+  font-size: var(--fs-small);
+  font-weight: 400;
+}
+.search-card-row .sc-copy b { font-weight: 600; font-size: var(--fs-title); }
+
+.chip, .filter-chip, .filter-options button, .date-presets button, .event-tag,
+.top-type b, .detail-info-row .dir-action, .text-button, .filter-button,
+.share-shortcut, .cal-summary, .profile-id-actions button, .top-ten-more,
+.following-chip b, .cal-summary small, .active-filter-summary span,
+.detail-decide-bar button, .profile-list-row .plr-count {
+  font-size: var(--fs-small);
+}
+.wide-button, .letter-btn, .explore-cta { font-size: var(--fs-body); letter-spacing: .02em; }
+.eyebrow, .feed-label, .settings-group-label, .event-meta,
+.top-types-head .eyebrow, .top-ten-head .eyebrow { font-size: var(--fs-label); }
+.nav-item, .nav-item.active { font-size: var(--fs-label); letter-spacing: 0; text-transform: none; }
+.cal-day { font-size: var(--fs-body); }
+.cal-weekdays span { font-size: var(--fs-micro); }
+.profile-counts b, .tt-num { font-size: var(--fs-section); }
+.profile-counts small { font-size: var(--fs-small); }
+input, textarea, select { font-size: var(--fs-body); }
+.splash-word { font-size: 38px; }
+.splash-city, .splash-tagline { font-size: var(--fs-label); }
+
+/* Stragglers that out-specified the block above. Scoped to .app-shell so they
+   win the tie, and kept here so every size still traces back to the scale. */
+.app-shell .event-tag,
+.app-shell .feed-mode-btn,
+.app-shell .event-card-price,
+.app-shell .event-card-price.is-free,
+.app-shell .sync-note span,
+.app-shell .event-card-reason,
+.app-shell .following-hint { font-size: var(--fs-small); }
+.app-shell .brand small,
+.app-shell .avatar,
+.app-shell .avatar.avatar-me,
+.app-shell .account-label,
+.app-shell .event-card-pill { font-size: var(--fs-label); }
+.app-shell .brand b { font-size: var(--fs-page); }
+.top-ten-row .tt-num { font-size: var(--fs-section); }
+.app-shell .search-card-row .sc-copy small { font-size: var(--fs-label); }
+
+/* Remaining per-screen strays: detail title, plan-card and profile numerals,
+   avatar initials, and the empty-state glyph. */
+.app-shell .detail-body h1,
+.app-shell .detail-title-block h1 { font-size: var(--fs-page); }
+.app-shell .toast b,
+.app-shell .event-card-info b,
+.app-shell .plan-card b,
+.app-shell .attend-copy b,
+.app-shell .score-block b { font-size: var(--fs-title); }
+.app-shell .profile-id .pid-avatar { font-size: var(--fs-section); }
+.app-shell .profile-summary-strip b,
+.app-shell .score-block b,
+.app-shell .profile-counts b { font-size: var(--fs-section); }
+.app-shell .profile-summary-strip small,
+.app-shell .score-block small,
+.app-shell .score-block em,
+.app-shell .detail-info-row small { font-size: var(--fs-small); }
+.app-shell .saved-empty-icon { font-size: 34px; }
+
+/* Modals render into #modal-root and the toast into #toast — both outside
+   .app-shell, so they need their own scope to win the same ties. */
+#modal-root .modal h1,
+#modal-root .detail-title-block h1 { font-size: var(--fs-page); }
+#modal-root .modal h2 { font-size: var(--fs-section); }
+#modal-root .modal b,
+#modal-root .detail-info-row .dir-copy b { font-size: var(--fs-title); }
+#modal-root .modal small,
+#modal-root .detail-info-row .dir-copy small,
+#modal-root .modal .lede { font-size: var(--fs-small); }
+#modal-root .modal .lede { font-size: var(--fs-body); }
+#toast, #toast b { font-size: var(--fs-body); }
+.app-shell .saved-empty-icon { font-size: 38px; }
