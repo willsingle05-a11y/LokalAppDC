@@ -49,8 +49,12 @@ function openDetail(id, opts = {}) {
     <p class="eyebrow detail-about-label">About</p>
     ${descriptionBlock}
     ${occurrencesBlock}
-    <div class="calendar-action-row"><button class="wide-button calendar-recur-button secondary-calendar" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>${shareButton}</div>
-    <button class="wide-button attended-button ${state.attended.has(e.id) ? "selected" : ""}" data-attended="${e.id}">${state.attended.has(e.id) ? "Added to receipt" : "I went to this"}</button>
+    <div class="detail-action-row">
+      <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
+      ${canNativeShare
+        ? `<button class="detail-action" data-share="${e.id}">Share event</button>`
+        : `<button class="detail-action" data-copy-detail-link="${e.id}">Copy link</button>`}
+    </div>
     ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
     <div class="detail-decide-bar">
       <button class="${isSaved ? "selected" : ""}" data-save="${e.id}">${isSaved ? "Saved ✓" : "Save"}</button>
