@@ -586,7 +586,7 @@ h3 { font-weight: 700; }
 /* ============================================================
    Event detail: RSVP/Save feedback, hint, social urgency
    ============================================================ */
-.rsvp-hint { margin: -6px 0 14px; color: var(--muted); font-size: 11px; text-align: center; }
+.rsvp-hint { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.35; text-align: center; }
 @keyframes btnPop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
 .btn-pop { animation: btnPop .32s ease; }
 .action.rsvp-action.selected { background: var(--accent); color: #fff; }

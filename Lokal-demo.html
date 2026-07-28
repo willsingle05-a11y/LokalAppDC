@@ -2567,7 +2567,7 @@ h3 { font-weight: 700; }
 /* ============================================================
    Event detail: RSVP/Save feedback, hint, social urgency
    ============================================================ */
-.rsvp-hint { margin: -6px 0 14px; color: var(--muted); font-size: 11px; text-align: center; }
+.rsvp-hint { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.35; text-align: center; }
 @keyframes btnPop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
 .btn-pop { animation: btnPop .32s ease; }
 .action.rsvp-action.selected { background: var(--accent); color: #fff; }
@@ -5171,6 +5171,91 @@ body.nav-back .page { animation-name: page-slide-right; }
 }
 .planner-next { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
 
+/* ============================================================
+   Search row â€” pill field with a round filter button beside it
+   ============================================================ */
+
+.search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+
+.search-field {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 20px;
+  border: 1px solid rgba(25, 26, 25, .18);
+  border-radius: 999px;
+  background: var(--paper);
+  transition: border-color .15s ease;
+}
+.search-field:hover { border-color: rgba(25, 26, 25, .34); }
+.search-field:focus-within { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.search-field .search-ic { display: grid; flex: none; place-items: center; color: rgba(25, 26, 25, .55); font-size: 0; }
+.search-field .search-ic svg { width: 22px; height: 22px; stroke-width: 2; }
+.search-field input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--ds-font);
+  font-size: var(--fs-body);
+  font-weight: 500;
+  outline: 0;
+}
+.search-field input::placeholder { color: rgba(25, 26, 25, .5); font-weight: 400; }
+
+.filter-round-btn {
+  position: relative;
+  display: grid;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border: 1.5px solid rgba(25, 26, 25, .28);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  transition: border-color .15s ease, background .15s ease;
+}
+.filter-round-btn svg { width: 24px; height: 24px; stroke-width: 1.9; }
+.filter-round-btn:hover { border-color: var(--ink); }
+.filter-round-btn.open { border-color: var(--ink); color: #fff; background: var(--ink); }
+.filter-round-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: var(--fs-label);
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* Criteria revealed by the filter button */
+.filter-panel-rows {
+  overflow: hidden;
+  margin-bottom: 16px;
+  padding: 4px 14px 10px;
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 0 4px 0 rgba(25, 26, 25, .10);
+  animation: filter-panel-in .22s cubic-bezier(.22, .61, .36, 1) both;
+}
+@keyframes filter-panel-in {
+  from { opacity: 0; transform: translate3d(0, -8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .filter-panel-rows { animation: none; } }
+.filter-panel-rows .search-card-clear { margin-top: 4px; }
+
     </style>
   </head>
   <body>
@@ -5232,7 +5317,8 @@ const icons = {
   tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
   megaphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 13h3l10-5v11L7 14H4v-1Z"/><path d="M7 14l1.4 5.2a1.2 1.2 0 0 0 1.2.8h1.6"/><path d="M19 9.5c1 .7 1.5 1.5 1.5 3s-.5 2.3-1.5 3"/><path d="M21 6.5c1.5 1.5 2.3 3.5 2.3 6s-.8 4.5-2.3 6"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>',
-  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.3 16.3 21 21"/></svg>'
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.3 16.3 21 21"/></svg>',
+  sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 12h3M11 12h9M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></svg>'
 };
 
 // Illustrated category art â€” flat fills over an ink outline, in the Lokal
@@ -5562,6 +5648,44 @@ function keywordTagsForEvent(event) {
   add("Family Friendly", /\b(family|kids|children)\b/);
   return tags;
 }
+
+function fallbackTagForEvent(event) {
+  const text = `${event?.title || ""} ${event?.venue || ""} ${event?.desc || ""} ${event?.tag || ""}`.toLowerCase();
+  const category = String(event?.cat || event?.category || "").toLowerCase();
+  if (/\b(mlb|nationals|baseball)\b/.test(text)) return "Baseball";
+  if (/\b(nba|mystics|wizards|basketball)\b/.test(text)) return "Basketball";
+  if (/\b(nfl|commanders|football)\b/.test(text)) return "Football";
+  if (/\b(nhl|capitals|hockey)\b/.test(text)) return "Hockey";
+  if (/\b(mls|dc united|soccer)\b/.test(text)) return "Soccer";
+  if (/\b(dj|vinyl|dance floor|club night|nightclub)\b/.test(text)) return "DJ Set";
+  if (/\b(beer|shot|cocktail|margarita|wine|happy hour|drink special)\b/.test(text)) return "Drink Specials";
+  if (/\b(trivia|quiz|prizes)\b/.test(text)) return "Prizes";
+  if (/\b(embassy|international|ambassador|global|heritage)\b/.test(text)) return "International";
+  if (/\b(comedy|stand[- ]?up|improv|comic)\b/.test(text)) return "Comedy";
+  if (/\b(exhibit|exhibition|gallery|museum)\b/.test(text)) return "Exhibit";
+  if (/\b(rooftop|patio|outdoor|park|garden)\b/.test(text)) return "Outdoor";
+  if (/\b(food|tasting|dinner|brunch|chef)\b/.test(text)) return "Food tasting";
+  if (category === "sports") return "Game Day";
+  if (category === "museums") return "Exhibit";
+  if (category === "happy-hours") return "Drink Specials";
+  if (category === "trivia-nights") return "Prizes";
+  if (category === "nightlife") return "Late Night";
+  if (category === "culture") return "International";
+  if (category === "food") return "Food tasting";
+  return "Local Pick";
+}
+
+function ensureEventTags(event, tags) {
+  const clean = tags
+    .map(tag => String(tag || "").trim())
+    .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => !isCategoryTag(event, tag))
+    .filter(tag => !isBroadCategoryTag(tag))
+    .filter(tag => !isLocationTag(event, tag))
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  return clean.length ? clean : [fallbackTagForEvent(event)];
+}
+
 function eventTags(event) {
   const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
@@ -5610,14 +5734,14 @@ function eventTags(event) {
     const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()));
     const genre = [...clean, ...inferred].find(isMusicGenreTag) || seededMusicGenreTag(`${event.title || ""} ${event.venue || ""} ${event.desc || ""}`);
     const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
-    return [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
+    return ensureEventTags(event, [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1));
+      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1)));
   }
   if (String(event.cat || "").toLowerCase() !== "performing-arts") {
-    return [...tags, ...keywordTagsForEvent(event)]
+    return ensureEventTags(event, [...tags, ...keywordTagsForEvent(event)]
       .filter(tag => !isCategoryTag(event, tag) && !isBroadCategoryTag(tag) && !isLocationTag(event, tag))
-      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index));
   }
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
   const inferred = [];
@@ -5640,9 +5764,9 @@ function eventTags(event) {
   add("Spoken Word", /spoken word|poetry/);
   const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()));
   const fallback = seededPerformingArtsFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(tag => clean.length + inferred.length < 2 || inferred.length < 2);
-  return [...clean, ...inferred, ...fallback]
+  return ensureEventTags(event, [...clean, ...inferred, ...fallback]
     .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-    .slice(0, Math.max(3, clean.length + inferred.length + fallback.length));
+    .slice(0, Math.max(3, clean.length + inferred.length + fallback.length)));
 }
 
 function eventTagChips(event, limit = 3) {
@@ -8775,15 +8899,28 @@ function renderFilterBar() {
     <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
-  const anyActive = what.size || where.size || whenLabels.length;
+  const anyActive = (what.size ? 1 : 0) + (where.size ? 1 : 0) + (whenLabels.length ? 1 : 0);
+  const panelOpen = Boolean(state.filterPanelOpen);
+  // Search field and a round filter button beside it. The three criteria stay
+  // out of the way until the filter button is tapped; each then opens its own
+  // sheet, so When, Where and What all behave identically.
   return `<div class="sub-filters">
-    <div class="filter-intro"><h2>Find events</h2></div>
-    <div class="search-card">
-    ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
-    ${cardRow("data-where-sheet", "Where", where.size, "pin")}
-    ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
-    ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
+    <div class="search-row">
+      <label class="search-field">
+        <span class="search-ic">${icons.search}</span>
+        <input data-discover-search value="${escapeHtml(state.discoverSearch || "")}" placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods">
+      </label>
+      <button class="filter-round-btn${panelOpen ? " open" : ""}${anyActive ? " has-value" : ""}" data-toggle-filter-panel aria-expanded="${panelOpen}" aria-label="Filters">
+        ${icons.sliders}${anyActive ? `<i class="filter-round-count">${anyActive}</i>` : ""}
+      </button>
     </div>
+    <div class="discover-search-results" data-discover-results hidden></div>
+    ${panelOpen ? `<div class="filter-panel-rows">
+      ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
+      ${cardRow("data-where-sheet", "Where", where.size, "pin")}
+      ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
+      ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
+    </div>` : ""}
   </div>`;
 }
 
@@ -8947,7 +9084,6 @@ function renderHome() {
   app.innerHTML = `<section class="page discover-page">
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
-    <label class="search-box discover-search-box subtle-search"><span class="search-ic">${icons.search}</span><input data-discover-search placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     ${followingRail()}
     <div class="sync-note ${state.eventSync.status}"><span>${discoverStatusLabel()}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
@@ -11255,6 +11391,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".where-sheet")) openWhereSheet(); else renderHome(); }
   // Inside the When sheet these re-render the sheet; elsewhere they redraw the feed.
   if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.toggleFilterPanel !== undefined) { mark(); state.filterPanelOpen = !state.filterPanelOpen; renderHome(); }
   if (t.dataset.whenSheet !== undefined) { mark(); state.openFilterSheet = ""; state.filterCalMonth = 0; openWhenSheet(); }
   if (t.dataset.whereSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhereSheet(); }
   if (t.dataset.whatSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhatSheet(); }

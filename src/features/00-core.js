@@ -344,6 +344,44 @@ function keywordTagsForEvent(event) {
   add("Family Friendly", /\b(family|kids|children)\b/);
   return tags;
 }
+
+function fallbackTagForEvent(event) {
+  const text = `${event?.title || ""} ${event?.venue || ""} ${event?.desc || ""} ${event?.tag || ""}`.toLowerCase();
+  const category = String(event?.cat || event?.category || "").toLowerCase();
+  if (/\b(mlb|nationals|baseball)\b/.test(text)) return "Baseball";
+  if (/\b(nba|mystics|wizards|basketball)\b/.test(text)) return "Basketball";
+  if (/\b(nfl|commanders|football)\b/.test(text)) return "Football";
+  if (/\b(nhl|capitals|hockey)\b/.test(text)) return "Hockey";
+  if (/\b(mls|dc united|soccer)\b/.test(text)) return "Soccer";
+  if (/\b(dj|vinyl|dance floor|club night|nightclub)\b/.test(text)) return "DJ Set";
+  if (/\b(beer|shot|cocktail|margarita|wine|happy hour|drink special)\b/.test(text)) return "Drink Specials";
+  if (/\b(trivia|quiz|prizes)\b/.test(text)) return "Prizes";
+  if (/\b(embassy|international|ambassador|global|heritage)\b/.test(text)) return "International";
+  if (/\b(comedy|stand[- ]?up|improv|comic)\b/.test(text)) return "Comedy";
+  if (/\b(exhibit|exhibition|gallery|museum)\b/.test(text)) return "Exhibit";
+  if (/\b(rooftop|patio|outdoor|park|garden)\b/.test(text)) return "Outdoor";
+  if (/\b(food|tasting|dinner|brunch|chef)\b/.test(text)) return "Food tasting";
+  if (category === "sports") return "Game Day";
+  if (category === "museums") return "Exhibit";
+  if (category === "happy-hours") return "Drink Specials";
+  if (category === "trivia-nights") return "Prizes";
+  if (category === "nightlife") return "Late Night";
+  if (category === "culture") return "International";
+  if (category === "food") return "Food tasting";
+  return "Local Pick";
+}
+
+function ensureEventTags(event, tags) {
+  const clean = tags
+    .map(tag => String(tag || "").trim())
+    .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => !isCategoryTag(event, tag))
+    .filter(tag => !isBroadCategoryTag(tag))
+    .filter(tag => !isLocationTag(event, tag))
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  return clean.length ? clean : [fallbackTagForEvent(event)];
+}
+
 function eventTags(event) {
   const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
@@ -392,14 +430,14 @@ function eventTags(event) {
     const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()));
     const genre = [...clean, ...inferred].find(isMusicGenreTag) || seededMusicGenreTag(`${event.title || ""} ${event.venue || ""} ${event.desc || ""}`);
     const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
-    return [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
+    return ensureEventTags(event, [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1));
+      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1)));
   }
   if (String(event.cat || "").toLowerCase() !== "performing-arts") {
-    return [...tags, ...keywordTagsForEvent(event)]
+    return ensureEventTags(event, [...tags, ...keywordTagsForEvent(event)]
       .filter(tag => !isCategoryTag(event, tag) && !isBroadCategoryTag(tag) && !isLocationTag(event, tag))
-      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index));
   }
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
   const inferred = [];
@@ -422,9 +460,9 @@ function eventTags(event) {
   add("Spoken Word", /spoken word|poetry/);
   const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()));
   const fallback = seededPerformingArtsFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(tag => clean.length + inferred.length < 2 || inferred.length < 2);
-  return [...clean, ...inferred, ...fallback]
+  return ensureEventTags(event, [...clean, ...inferred, ...fallback]
     .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-    .slice(0, Math.max(3, clean.length + inferred.length + fallback.length));
+    .slice(0, Math.max(3, clean.length + inferred.length + fallback.length)));
 }
 
 function eventTagChips(event, limit = 3) {
