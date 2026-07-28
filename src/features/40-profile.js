@@ -253,12 +253,12 @@ function renderProfile() {
     <div class="profile-id">
       <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
       <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
+      <p class="bio pid-bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
       <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
     </div>
     ${profileSummaryStrip(isVenueProfile)}
     ${isVenueProfile ? "" : profileListRows()}
-    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? venueVerificationPanel() : ""}

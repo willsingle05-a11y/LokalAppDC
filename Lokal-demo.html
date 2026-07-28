@@ -4716,6 +4716,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .profile-id .pid-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-id .pid-handle { margin-top: 11px; font-size: 15px; font-weight: 800; }
+.profile-id .pid-bio { max-width: 520px; margin: 5px auto 0; text-align: center; }
 .profile-id .pid-since { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
 .profile-id-actions { display: flex; gap: 9px; width: 100%; margin-top: 12px; }
 .profile-id-actions button {
@@ -10087,12 +10088,12 @@ function renderProfile() {
     <div class="profile-id">
       <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
       <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
+      <p class="bio pid-bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
       <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
     </div>
     ${profileSummaryStrip(isVenueProfile)}
     ${isVenueProfile ? "" : profileListRows()}
-    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? venueVerificationPanel() : ""}
