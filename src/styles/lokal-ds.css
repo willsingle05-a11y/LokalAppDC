@@ -235,7 +235,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   transition: opacity .45s ease;
 }
 .lokal-splash.is-hiding { opacity: 0; pointer-events: none; }
-.splash-center { display: flex; flex-direction: column; align-items: center; margin-top: auto; }
+.splash-center { display: flex; flex-direction: column; align-items: center; margin: auto 0; }
 .splash-mark {
   position: relative;
   width: 150px;
@@ -319,39 +319,39 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 }
 @keyframes splashDotLeftOrbit {
-  0% { opacity: 0; transform: translate(-170px, -16px); }
-  10% { opacity: 1; transform: translate(-150px, -72px); }
-  22% { opacity: 1; transform: translate(-96px, -116px); }
-  34% { opacity: 1; transform: translate(-18px, -132px); }
-  46% { opacity: 1; transform: translate(66px, -112px); }
-  58% { opacity: 1; transform: translate(126px, -64px); }
-  70% { opacity: 1; transform: translate(142px, -6px); }
-  82% { opacity: 1; transform: translate(92px, 18px); }
-  92% { opacity: 1; transform: translate(28px, 10px); }
+  0% { opacity: 0; transform: translate(-44px, -12px); }
+  8% { opacity: 1; transform: translate(-96px, 8px); }
+  18% { opacity: 1; transform: translate(-132px, 70px); }
+  30% { opacity: 1; transform: translate(-96px, 148px); }
+  42% { opacity: 1; transform: translate(-2px, 180px); }
+  54% { opacity: 1; transform: translate(104px, 136px); }
+  66% { opacity: 1; transform: translate(138px, 48px); }
+  78% { opacity: 1; transform: translate(90px, -34px); }
+  90% { opacity: 1; transform: translate(22px, -18px); }
   100% { opacity: 1; transform: translate(0, 0); }
 }
 @keyframes splashDotCenterOrbit {
-  0% { opacity: 0; transform: translate(0, -178px); }
-  10% { opacity: 1; transform: translate(78px, -154px); }
-  22% { opacity: 1; transform: translate(138px, -98px); }
-  34% { opacity: 1; transform: translate(154px, -24px); }
-  46% { opacity: 1; transform: translate(122px, 22px); }
-  58% { opacity: 1; transform: translate(44px, -88px); }
-  70% { opacity: 1; transform: translate(-64px, -114px); }
-  82% { opacity: 1; transform: translate(-134px, -52px); }
-  92% { opacity: 1; transform: translate(-36px, 6px); }
+  0% { opacity: 0; transform: translate(0, -42px); }
+  8% { opacity: 1; transform: translate(74px, -26px); }
+  18% { opacity: 1; transform: translate(132px, 34px); }
+  30% { opacity: 1; transform: translate(118px, 126px); }
+  42% { opacity: 1; transform: translate(34px, 184px); }
+  54% { opacity: 1; transform: translate(-82px, 162px); }
+  66% { opacity: 1; transform: translate(-138px, 78px); }
+  78% { opacity: 1; transform: translate(-108px, -14px); }
+  90% { opacity: 1; transform: translate(-26px, -22px); }
   100% { opacity: 1; transform: translate(0, 0); }
 }
 @keyframes splashDotRightOrbit {
-  0% { opacity: 0; transform: translate(170px, -16px); }
-  10% { opacity: 1; transform: translate(150px, -72px); }
-  22% { opacity: 1; transform: translate(96px, -116px); }
-  34% { opacity: 1; transform: translate(18px, -132px); }
-  46% { opacity: 1; transform: translate(-66px, -112px); }
-  58% { opacity: 1; transform: translate(-126px, -64px); }
-  70% { opacity: 1; transform: translate(-142px, -6px); }
-  82% { opacity: 1; transform: translate(-92px, 18px); }
-  92% { opacity: 1; transform: translate(-28px, 10px); }
+  0% { opacity: 0; transform: translate(44px, -12px); }
+  8% { opacity: 1; transform: translate(96px, 8px); }
+  18% { opacity: 1; transform: translate(132px, 70px); }
+  30% { opacity: 1; transform: translate(96px, 148px); }
+  42% { opacity: 1; transform: translate(2px, 180px); }
+  54% { opacity: 1; transform: translate(-104px, 136px); }
+  66% { opacity: 1; transform: translate(-138px, 48px); }
+  78% { opacity: 1; transform: translate(-90px, -34px); }
+  90% { opacity: 1; transform: translate(-22px, -18px); }
   100% { opacity: 1; transform: translate(0, 0); }
 }
 @keyframes splashCopyIn {
