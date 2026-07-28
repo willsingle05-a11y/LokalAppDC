@@ -1,10 +1,11 @@
-function openDetail(id) {
+function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const occurrencesBlock = otherOccurrences.length
     ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
     : "";
   const recurrence = eventRecurrence(e);
+  const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
     ? `<button class="primary" data-share="${e.id}">Share event</button>`
@@ -16,6 +17,11 @@ function openDetail(id) {
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
   const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
+  const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
+  const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
+  const descriptionBlock = isThingsToDoEvent
+    ? `<div class="detail-description-wrap things-to-do-description collapsed"><p class="detail-description expandable-description" data-expand-description role="button" tabindex="0" aria-expanded="false" aria-label="Show full description">${detailDescription}</p></div>`
+    : `<p class="detail-description">${detailDescription}</p>`;
   const venueFollowKey = `venue:${e.venue}`;
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const isSaved = state.saved.has(e.id);
@@ -87,13 +93,14 @@ function shareGroupResultsHtml(eventId, query = "") {
 
 function openShareSheet(id) {
   const e = events.find(event => event.id === Number(id));
+  const displayTitle = eventDisplayTitle(e);
   const shareText = shareMessageForEvent(e);
   const shareUrl = lokalEventShareUrl(e);
   const smsBody = encodeURIComponent(shareText);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${e.title}">
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${escapeHtml(displayTitle)}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Send a Lokal event</p><h2>Share ${e.title}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
-    <div class="share-preview"><b>${escapeHtml(e.title)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" · ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
+    <p class="eyebrow">Send a Lokal event</p><h2>Share ${escapeHtml(displayTitle)}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
+    <div class="share-preview"><b>${escapeHtml(displayTitle)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" · ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
     <div class="share-channel-grid">
       <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
       <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
@@ -107,7 +114,7 @@ function openShareSheet(id) {
 
 function shareMessageForEvent(event) {
   const price = eventPriceLabel(event);
-  return `Want to go to ${event.title}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
+  return `Want to go to ${eventDisplayTitle(event)}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
 }
 
 function lokalEventShareUrl(event) {
@@ -116,13 +123,14 @@ function lokalEventShareUrl(event) {
   const existing = new URLSearchParams(location.search);
   if (existing.get("bypassSignup")) url.searchParams.set("bypassSignup", existing.get("bypassSignup"));
   url.searchParams.set("event", String(event.sourceId || event.id));
+  url.searchParams.set("openEvent", "1");
   return url.toString();
 }
 
 function lokalEventSharePayload(event) {
   return [
     "Lokal event",
-    event.title,
+    eventDisplayTitle(event),
     eventMetaLine(event),
     eventLocationLine(event),
     eventTags(event).slice(0, 5).join(", "),

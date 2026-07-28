@@ -144,7 +144,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -166,6 +166,7 @@ function eventArtKind(event) {
   if (/yoga|fitness|wellness|pickleball/.test(titleText)) key = "fitness";
   if (/nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night|dj set/.test(titleText)) key = "nightlife";
   if (/food|market|chef|brunch|wine|beer|cocktail|restaurant/.test(titleText)) key = "food";
+  if (/embassy|ambassador|international|cultural|culture|heritage|global|foreign soil/.test(titleText)) key = "culture";
   return key;
 }
 
@@ -176,6 +177,7 @@ function genericEventArt(event) {
     "performing-arts": { a: "#3fd47b", b: "#0bbf73", c: "#cdf9db", shapes: "<path d='M18 24 Q50 11 82 24 V82 Q50 67 18 82 Z' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='4'/><path d='M33 43 Q50 54 67 43' fill='none' stroke='white' stroke-width='5'/><circle cx='37' cy='34' r='4' fill='white'/><circle cx='63' cy='34' r='4' fill='white'/>" },
     sports: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<rect x='16' y='22' width='68' height='56' rx='12' fill='rgba(255,255,255,.15)' stroke='white' stroke-width='4'/><path d='M16 50 H84 M50 22 V78' stroke='white' stroke-width='4'/><circle cx='50' cy='50' r='13' fill='none' stroke='white' stroke-width='4'/>" },
     festivals: { a: "#36d676", b: "#00c897", c: "#d8ffe9", shapes: "<path d='M18 42 C33 23 67 23 82 42' fill='none' stroke='white' stroke-width='5'/><path d='M26 46 H74 L68 78 H32 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M36 46 V78 M50 35 V78 M64 46 V78' stroke='white' stroke-width='4'/>" },
+    culture: { a: "#40c4ff", b: "#2f80ed", c: "#e3f3ff", shapes: "<path d='M23 76 H77 M29 68 V34 H71 V68' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' stroke='white' stroke-width='4' fill='none'/><circle cx='72' cy='25' r='8' fill='rgba(255,255,255,.65)'/>" },
     community: { a: "#5fe18d", b: "#28cf79", c: "#e7fff0", shapes: "<path d='M22 80 V38 H47 V80 M53 80 V24 H78 V80' fill='rgba(255,255,255,.55)' stroke='white' stroke-width='4'/><path d='M30 48 H39 M61 36 H70 M61 50 H70' stroke='white' stroke-width='4'/><circle cx='28' cy='23' r='8' fill='rgba(255,255,255,.75)'/>" },
     expos: { a: "#46dc82", b: "#10c578", c: "#dfffea", shapes: "<rect x='19' y='25' width='62' height='52' rx='7' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><path d='M29 39 H71 M29 52 H71 M29 65 H56' stroke='white' stroke-width='4'/><circle cx='74' cy='22' r='8' fill='rgba(255,255,255,.65)'/>" },
     food: { a: "#50dc82", b: "#18c973", c: "#eafff1", shapes: "<path d='M30 22 V57 M40 22 V57 M30 40 H40 M60 22 V78' stroke='white' stroke-width='5' stroke-linecap='round'/><path d='M22 70 C34 54 66 54 78 70' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><circle cx='50' cy='48' r='10' fill='rgba(255,255,255,.45)'/>" },
@@ -204,6 +206,7 @@ function eventArtScene(event) {
     "performing-arts": "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M20 26 Q50 14 80 26 L72 76 Q50 64 28 76 Z'/><circle cx='39' cy='41' r='4'/><circle cx='61' cy='41' r='4'/><path d='M38 58 Q50 68 62 58' fill='none'/></svg>",
     sports: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31' fill='none'/><path d='M20 50 H80 M50 19 C37 36 37 64 50 81 M50 19 C63 36 63 64 50 81' fill='none'/></svg>",
     festivals: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M18 40 C34 23 66 23 82 40' fill='none'/><path d='M26 47 H74 L68 78 H32 Z'/><path d='M38 47 V78 M50 36 V78 M62 47 V78' fill='none'/></svg>",
+    culture: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 76 H77 M29 68 V34 H71 V68'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' fill='none'/><circle cx='72' cy='25' r='8'/></svg>",
     community: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 80 V38 H47 V80 M53 80 V25 H77 V80'/><path d='M31 49 H40 M61 37 H70 M61 51 H70' fill='none'/></svg>",
     expos: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='20' y='25' width='60' height='52' rx='7'/><path d='M31 40 H69 M31 53 H69 M31 66 H56' fill='none'/></svg>",
     food: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M30 23 V58 M40 23 V58 M30 41 H40 M61 23 V78' fill='none'/><path d='M22 71 C34 55 66 55 78 71'/><circle cx='50' cy='49' r='10'/></svg>",
@@ -259,14 +262,82 @@ function seededMusicGenreTag(seedText) {
   const seed = Array.from(String(seedText || "lokal")).reduce((total, char) => total + char.charCodeAt(0), 0);
   return pool[seed % pool.length];
 }
+function categoryTagAliases(category) {
+  const aliases = {
+    concerts: ["concert", "concerts"],
+    "live-music": ["live music", "music"],
+    "performing-arts": ["arts", "art", "performing arts", "performance"],
+    museums: ["museums", "museum"],
+    festivals: ["festivals", "festival"],
+    culture: ["culture", "cultural"],
+    sports: ["sports", "sport"],
+    community: ["community"],
+    expos: ["expos", "expo"],
+    nightlife: ["nightlife", "night out"],
+    "happy-hours": ["happy hour", "happy hours"],
+    "trivia-nights": ["trivia", "trivia night", "trivia nights"],
+    food: ["food", "food & drink", "food and drink"]
+  };
+  return aliases[String(category || "").toLowerCase()] || [];
+}
+const LOCATION_TAG_ALIASES = [
+  "adams morgan", "u street", "shaw", "navy yard", "penn quarter", "h street", "logan circle",
+  "dupont", "dupont circle", "georgetown", "noma", "no ma", "union market", "noma / union market area",
+  "capitol hill", "anacostia", "columbia heights", "petworth", "the wharf", "wharf", "downtown",
+  "mount vernon", "mount vernon triangle", "foggy bottom", "west end", "cleveland park", "woodley park",
+  "brookland", "ivy city", "barracks row", "southwest", "national mall", "kalorama", "van ness",
+  "cathedral heights", "park view", "takoma", "takoma dc", "washington dc", "washington, dc"
+];
+function isCategoryTag(event, tag) {
+  return categoryTagAliases(event.cat || event.category).includes(String(tag || "").trim().toLowerCase());
+}
+function isBroadCategoryTag(tag) {
+  return [
+    "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
+    "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
+    "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
+    "festival", "festivals", "culture", "cultural", "free"
+  ].includes(String(tag || "").trim().toLowerCase());
+}
+function isLocationTag(event, tag) {
+  const normalized = String(tag || "").trim().toLowerCase();
+  if (!normalized) return false;
+  const eventLocations = [event.area, event.neighborhood, event.venue_address, event.address]
+    .map(value => String(value || "").trim().toLowerCase())
+    .filter(Boolean);
+  return LOCATION_TAG_ALIASES.includes(normalized) || eventLocations.some(location => location === normalized);
+}
+function keywordTagsForEvent(event) {
+  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""}`.toLowerCase();
+  const tags = [];
+  const add = (label, pattern) => { if (pattern.test(text) && !tags.includes(label)) tags.push(label); };
+  add("Drink Specials", /\b(beer|shot|cocktail|margarita|wine|bar|happy hour|drink special|cash bar)\b/);
+  add("DJ Set", /\b(dj|vinyl|dance floor|club night|nightclub)\b/);
+  add("Rooftop", /\b(rooftop|roof deck|skyline)\b/);
+  add("Country", /\b(wild west|country|western|boots)\b/);
+  add("Food tasting", /\b(tasting|cuisine|dinner|brunch|chef|restaurant|food)\b/);
+  add("Interactive", /\b(scavenger|hunt|trivia|game|clue|interactive)\b/);
+  add("International", /\b(embassy|international|ambassador|global|foreign soil)\b/);
+  add("Heritage", /\b(heritage|cultural heritage|tradition|traditional)\b/);
+  add("Outdoor", /\b(outdoor|patio|garden|park|plaza|cruise|potomac)\b/);
+  add("Tour", /\b(tour|guided|walk|crawl)\b/);
+  add("Comedy", /\b(comedy|stand[- ]?up|improv|comic)\b/);
+  add("Museum", /\b(museum|gallery|smithsonian|exhibit|exhibition)\b/);
+  add("Networking", /\b(networking|young professionals|mixer|social)\b/);
+  add("Family Friendly", /\b(family|kids|children)\b/);
+  return tags;
+}
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
     .map(tag => String(tag || "").trim())
     .map(tag => labels[tag.toLowerCase()] || tag)
     .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => !isCategoryTag(event, tag))
+    .filter(tag => !isBroadCategoryTag(tag))
+    .filter(tag => !isLocationTag(event, tag))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
   if (["concerts", "live-music"].includes(String(event.cat || "").toLowerCase())) {
     const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
@@ -308,7 +379,11 @@ function eventTags(event) {
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
       .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1));
   }
-  if (String(event.cat || "").toLowerCase() !== "performing-arts") return tags;
+  if (String(event.cat || "").toLowerCase() !== "performing-arts") {
+    return [...tags, ...keywordTagsForEvent(event)]
+      .filter(tag => !isCategoryTag(event, tag) && !isBroadCategoryTag(tag) && !isLocationTag(event, tag))
+      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  }
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
   const inferred = [];
   const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
@@ -378,6 +453,7 @@ function eventArtLabel(event) {
     fitness: "Fitness",
     food: "Food",
     festivals: "Festival",
+    culture: "Culture",
     community: "Community",
     expos: "Expo",
     nightlife: "Night out",
@@ -389,6 +465,7 @@ function eventArtLabel(event) {
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
   if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Night out";
   if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concert";
+  if (/\b(embassy|ambassador|international|cultural|culture|heritage|global|foreign soil)\b/.test(text)) return "Culture";
   if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
   if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
   if (/\b(baseball|mlb|nba|nfl|nhl|soccer|sports?|game)\b/.test(text)) return "Sports";
@@ -454,17 +531,17 @@ const DISCOVER_CITY_SECTIONS = [
 ];
 
 const CITY_SECTION_PATTERNS = [
-  ["National Mall", /\bnational mall|federal triangle|smithsonian|hirshhorn|renwick|national gallery|portrait gallery|saam|american art museum|air and space|natural history|american history|african american history|american indian|botanic garden|constitution ave|madison dr|jefferson dr|independence ave|l'enfant plaza|the mall\b/i],
+  ["National Mall", /\bnational mall|federal triangle|ronald reagan building|international trade center|smithsonian|hirshhorn|renwick|national gallery|portrait gallery|saam|american art museum|air and space|natural history|american history|african american history|american indian|botanic garden|constitution ave|pennsylvania ave nw|madison dr|jefferson dr|independence ave|l'enfant plaza|the mall\b/i],
   ["Downtown", /\bdowntown|penn quarter|chinatown|gallery place|metro center|citycenter|city center|mount vernon square|mount vernon triangle|convention center|franklin park|white house|farragut|mcpherson|judiciary square|anthem row|national theatre|warner theatre|hard rock cafe|mlk library|sixth\s*&\s*i|e street|g st nw|k street|i street nw|new york ave nw/i],
-  ["Dupont", /\bdupont|dupont circle|logan circle|14th street|14th st|thomas circle|scott circle|admiral|number nine|fireplace|st\.? arnold|bier baron|dc comedy loft|swingers|kramerbooks|black cat|s street nw|p street nw|q street nw|22nd st nw/i],
+  ["Dupont", /\bdupont|dupont circle|logan circle|14th street|14th st|thomas circle|scott circle|admiral|number nine|fireplace|st\.? arnold|bier baron|dc comedy loft|dc improv|improv comedy club|swingers|kramerbooks|black cat|connecticut ave n\.?w\.?|s street nw|p street nw|q street nw|22nd st nw/i],
   ["U Street / Shaw Area", /\bu street|u st|shaw|cardozo|le droit|ledroit|blagden alley|truxton circle|9:30 club|930 club|the atlantis|howard theatre|howard theater|lincoln theatre|room 808|atlantic plumbing|florida ave nw|7th st nw|9th st nw|v street|v st nw|t street nw|upshur st nw/i],
   ["Adams Morgan", /\badams morgan|columbia heights|mount pleasant|mt pleasant|meridian hill|kalorama|lanier heights|bedrock billiards|town tavern|tryst|roofer'?s union|18th st nw|columbia rd|wonderland ballroom|club timehri/i],
   ["Georgetown", /\bgeorgetown|foggy bottom|west end|kennedy center|watergate|rose park|palisades|macarthur|loughboro|sibley|gw university|george washington university|m street nw|wisconsin ave|k street waterfront|dumbarton|glover park|tenleytown/i],
   ["Capitol Hill / H Street Area", /\bcapitol hill|h street|h st|barracks row|eastern market|lincoln park|atlas performing|miracle theatre|trusty'?s|tune inn|union pub|union station|noma bid|h street corridor|trinidad|benning road|kingman park|stadium-armory|118 park st se/i],
   ["NoMa / Union Market Area", /\bnoma|no ma|union market|ivy city|brookland|edgewood|eckington|bloomingdale|rhode island ave|michigan ave ne|monroe street market|la cosecha|gallaudet|city state|wunder ?garten|red bear|echostage|queens chapel|penn st ne|1st st\.? ne|3rd street ne|m and n streets ne|v st nw/i],
-  ["Navy Yard", /\bnavy yard|capitol riverfront|capitol waterfront|nationals park|nats park|yards park|the yards|half street|half st se|potomac avenue se|n st se|water street se|m street se|first street se|dacha|bullpen|atlas brew works navy yard|royal sands|sandlot|takoda navy yard|solace outpost|the brig|tap99|walter'?s/i],
+  ["Navy Yard", /\bnavy yard|capitol riverfront|capitol waterfront|buzzard point|audi field|nationals park|nats park|yards park|the yards|half street|half st se|potomac avenue se|potomac ave sw|n st se|water street se|m street se|first street se|dacha|bullpen|atlas brew works navy yard|royal sands|sandlot|takoda navy yard|solace outpost|the brig|tap99|walter'?s/i],
   ["Wharf", /\bwharf|southwest waterfront|sw waterfront|waterfront|district pier|transit pier|pearl street warehouse|union stage|anthem\b|arena stage|maine ave|kirwan|boardwalk bar|farmers market sw|12 stories|officina|tiki tnt|water st sw|wharf st sw/i],
-  ["Upper Northwest", /\bupper northwest|cleveland park|woodley park|van ness|tenleytown|friendship heights|chevy chase|cathedral heights|forest hills|petworth|brightwood|park view|takoma|fort reno|fort totten|lamond riggs|lamont riggs|south dakota ave|rock creek park|rock creek park tennis center|politics and prose|crestwood|colorado ave|connecticut ave nw|jackie lee'?s/i],
+  ["Upper Northwest", /\bupper northwest|cleveland park|woodley park|van ness|tenleytown|friendship heights|chevy chase|cathedral heights|forest hills|petworth|brightwood|park view|takoma|fort reno|fort totten|lamond riggs|lamont riggs|south dakota ave|rock creek park|rock creek park tennis center|fitzgerald tennis center|mubadala citi dc open|international pl nw|international place nw|politics and prose|crestwood|colorado ave|jackie lee'?s/i],
   ["Anacostia / Southeast", /\banacostia|southeast|se dc|congress heights|bellevue|atlantic street sw|hillcrest|naval yard|good hope|mlk ave|minnesota ave|east capitol|benning|fairlawn|skyland|historic anacostia|oxon run|wheeler road se|mississippi ave se|fort pl se|parkside pl ne|ord st ne|oak drive se|carefirst arena|thearc|kenilworth|simon elementary/i]
 ];
 
@@ -504,6 +581,7 @@ const CATEGORY_COLORS = {
   sports: "#F59E0B",
   fitness: "#27AE60",
   festivals: "#FF6B9D",
+  culture: "#2F80ED",
   food: "#FF7B54",
   community: "#7BC67E",
   expos: "#64748B"
@@ -536,6 +614,43 @@ function eventCardArea(event) {
   return line && !isGenericLocationName(line) ? line : "";
 }
 
+function normalizedTitlePart(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function eventDisplayTitle(event) {
+  const title = String(event?.title || "").trim();
+  if (!title) return "";
+  const venue = cleanLocationPart(event?.venue || event?.venueName || eventLocationLine(event));
+  const normalizedTitle = normalizedTitlePart(title);
+  const normalizedVenue = normalizedTitlePart(venue);
+  const venueLedTitle = normalizedVenue && (
+    normalizedTitle === `${normalizedVenue} trivia night`
+    || normalizedTitle === `${normalizedVenue} trivia nights`
+    || normalizedTitle === `${normalizedVenue} happy hour`
+    || normalizedTitle === `${normalizedVenue} happy hours`
+  );
+  if (venueLedTitle && String(event?.cat || "").toLowerCase() === "trivia-nights") return "Trivia Night";
+  if (venueLedTitle && String(event?.cat || "").toLowerCase() === "happy-hours") return "Happy Hour";
+  return title;
+}
+
+function eventSourceCredit(event) {
+  const source = String(event?.source || "").toLowerCase();
+  const sourceUrl = event.detailsUrl || event.externalUrl || "";
+  if (source === "thingstododc") {
+    return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://thingstododc.com/events/all/")}" target="_blank" rel="noreferrer">Thing to do</a></p>`;
+  }
+  if (source === "eventsdc") {
+    return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://eventsdc.com/events")}" target="_blank" rel="noreferrer">Events DC</a></p>`;
+  }
+  return "";
+}
+
 function cleanEventImageStyle(image) {
   return `background-image: linear-gradient(to top, rgba(17,24,39,.72) 0%, rgba(17,24,39,.28) 48%, rgba(255,255,255,.12) 100%), ${image}; background-size: cover, contain; background-repeat: no-repeat, no-repeat; background-position: center, center; background-color: #f7fafc;`;
 }
@@ -549,31 +664,29 @@ function cleanEventThumbStyle(image) {
 // venue, time / neighborhood, a dashed "receipt" divider, and a price row.
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
+  const displayTitle = eventDisplayTitle(event);
   const area = eventCardArea(event);
   const tags = eventTags(event);
   const catLabel = eventArtLabel(event);
   const rawVenue = cleanLocationPart(event.venue);
   const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
   const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  ·  ");
-  const isFree = eventNumericPrice(event) === 0 || /free/i.test(String(event.price || ""));
-  const priceLabel = eventPriceLabel(event);
-  const priceHtml = isFree ? `<span class="event-card-price is-free">Free</span>` : (priceLabel ? `<span class="event-card-price">${escapeHtml(priceLabel)}</span>` : "");
-  const leftTag = eventTagChips(event, 1);
-  const bottomHtml = priceHtml || leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span>${priceHtml}</span>` : "";
+  const leftTag = eventTagChips(event, 3);
+  const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
       <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
-      <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+      <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
-      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></span>
+      <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>
     </div>
     <div class="event-card-info">
       ${opts.reason ? `<span class="event-card-reason">${escapeHtml(opts.reason)}</span>` : ""}
       <div class="event-card-titlerow">
-        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><h3 class="event-card-title">${escapeHtml(event.title)}</h3></button>
-        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+        <button class="event-card-title-btn" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"><h3 class="event-card-title">${escapeHtml(displayTitle)}</h3></button>
+        <button class="card-icon-btn card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
       </div>
-      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}">
+      <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}">
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
         ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
       </button>
@@ -600,17 +713,18 @@ function eventListSideBadge(event) {
 
 function eventListRow(event, opts = {}) {
   const tags = eventTags(event);
+  const displayTitle = eventDisplayTitle(event);
   const meta = [event.time, eventLocationLine(event)].filter(Boolean).join(" · ");
   return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"></button>
+    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
     <span class="elr-thumb" style="${eventThumbStyle(event)}"></span>
     <span class="elr-copy">
-      <b class="elr-venue">${escapeHtml(event.title)}</b>
+      <b class="elr-venue">${escapeHtml(displayTitle)}</b>
       <span class="elr-meta">${escapeHtml(meta)}</span>
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
-      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(event.title)}">${cardHeartIcon}</button>
+      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
       ${eventListSideBadge(event)}
     </span>
   </article>`;
@@ -620,13 +734,31 @@ function eventDedupeKey(event) {
   return `${String(event.title || "").trim().toLowerCase().replace(/\s+/g, " ")}|${venueImageKeyName(event.venue || eventLocationLine(event))}`;
 }
 
+function normalizedFeedDedupeTitle(event) {
+  return String(event.title || "")
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/:.+$/g, " ")
+    .replace(/\bwashington\s+mystics\b/g, "mystics")
+    .replace(/\bvs\.?\b/g, "vs")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function feedDedupeKey(event) {
+  const day = event.startDate || (Number.isFinite(event.startSort) ? localDateKey(new Date(event.startSort)) : "");
+  const hour = Number.isFinite(event.startSort) ? Math.floor(event.startSort / 60000) : eventDisplayTime(event);
+  return `${day}|${hour}|${normalizedFeedDedupeTitle(event)}|${venueImageKeyName(event.venue || eventLocationLine(event))}`;
+}
+
 // Feed-only dedupe: collapse repeated title+venue occurrences to a single card.
 // Assumes `list` is already sorted ascending by start, so the first match kept
 // is the next upcoming occurrence.
 function dedupeFeedEvents(list) {
   const seen = new Set();
   return list.filter(event => {
-    const key = eventDedupeKey(event);
+    const key = feedDedupeKey(event);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -848,12 +980,12 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }

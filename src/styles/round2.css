@@ -674,6 +674,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .planner-dot.museums, .planner-legend i.museums, .planner-day i.museums { background: #5f9fc3; }
 .planner-dot.sports, .planner-legend i.sports, .planner-day i.sports { background: #f59e0b; }
 .planner-dot.festivals, .planner-legend i.festivals, .planner-day i.festivals { background: #ef6f6c; }
+.planner-dot.culture, .planner-legend i.culture, .planner-day i.culture { background: #2f80ed; }
 .planner-dot.community, .planner-legend i.community, .planner-day i.community { background: #7bc67e; }
 .planner-dot.expos, .planner-legend i.expos, .planner-day i.expos { background: #64748b; }
 .empty-planner {

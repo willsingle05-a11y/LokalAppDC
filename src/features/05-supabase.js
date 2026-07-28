@@ -464,6 +464,9 @@ async function syncVenueVerificationStatus() {
 }
 
 async function submitVenueEventPost(payload) {
+  if (typeof isVerifiedVenueName === "function" && !isVerifiedVenueName(payload.venueName)) {
+    throw new Error("Venue must be approved before posting events.");
+  }
   const record = {
     requester_user_id: currentInteractionUserId(),
     venue_name: payload.venueName,
@@ -496,6 +499,7 @@ function cleanSupabaseDescription(value) {
     .replace(/^Sourced from [\w.-]+(?:\.com)?\s*-\s*/i, "")
     .replace(/^Sourced from [\w.-]+(?:\.com)?\.?\s*/i, "")
     .replace(/\s*Sourced from [\w.-]+(?:\.com)?\.?\s*/ig, " ")
+    .replace(/\s*\[\.\.\.\]\s*$/g, "...")
     .trim();
   return cleaned || "More details are coming soon.";
 }
@@ -632,8 +636,24 @@ function isSupabaseEventInDc(row) {
   return dcText;
 }
 
+function bestSupabaseDescription(row) {
+  const values = [
+    row.raw_json?.full_description,
+    row.raw_json?.detail_description,
+    row.raw_json?.description,
+    row.description,
+    row.desc,
+    row.raw_json?.listing?.summary
+  ].map(value => String(value || "").trim()).filter(Boolean);
+  if (String(row.source || "").toLowerCase() !== "thingstododc") return values[0] || "";
+  const complete = values
+    .filter(value => !/\[\s*\.\.\.\s*\]|\.\.\.$/.test(value))
+    .sort((a, b) => b.length - a.length)[0];
+  return complete || values.sort((a, b) => b.length - a.length)[0] || "";
+}
+
 function normalizeSupabaseDescription(row) {
-  const extracted = extractLocationFromDescription(row.description || row.desc);
+  const extracted = extractLocationFromDescription(bestSupabaseDescription(row));
   return cleanSupabaseDescription(extracted.description);
 }
 
@@ -717,7 +737,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "live-music", "festivals", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights"]);
+  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -752,8 +772,10 @@ function normalizeImportedCategory(row) {
     "dance/electronic": "concerts",
     religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
   };
+  if (row.source === "thingstododc" && /\b(scavenger|hunt|game of clue|interactive)\b/.test(text)) return "community";
+  if (/\b(embassy|ambassador|international|cultural|culture|heritage|foreign soil|ukraine house|egyptian cultural|venetian ball)\b/.test(text)) return "culture";
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
-  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife"].includes(directCategory)) return directCategory;
+  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "food", "culture"].includes(directCategory)) return directCategory;
   if (/comedy|comedian|stand[- ]?up|improv/.test(classificationText)) return "performing-arts";
   if (/sports|baseball|basketball|football|hockey|soccer/.test(classificationText)) return "sports";
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
@@ -770,6 +792,7 @@ function normalizeImportedCategory(row) {
   if (/concert/.test(text)) return "concerts";
   if (/music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "live-music";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
+  if (/embassy|ambassador|international|cultural|culture|heritage|foreign soil/.test(text)) return "culture";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "expos";
   if (/showcase/.test(text)) return "performing-arts";
@@ -887,11 +910,10 @@ function normalizeSupabaseTags(row, category) {
   const text = `${row.category || ""} ${row.Category || ""} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""} ${rawTags.join(" ")}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
   const inferredTags = [];
-  const categoryLabels = { concerts: "", "live-music": "", festivals: "Festivals", "performing-arts": "", sports: "Sports", community: "Community", expos: "Expos", museums: "Museums", nightlife: "Nightlife", "happy-hours": "", "trivia-nights": "" };
   if (/museum|smithsonian|hirshhorn|renwick gallery|portrait gallery|american art museum|air and space|natural history|american history/.test(text)) inferredTags.push("Museums");
   if (/smithsonian|hirshhorn|renwick gallery|national portrait gallery|american art museum|national air and space museum|national museum of african american history|national museum of natural history|national museum of american history/.test(text)) inferredTags.push("Smithsonian");
   if (["concerts", "live-music"].includes(category)) inferredTags.push(...concertDetailTags(row));
-  if (/theatre|theater|performance art|performing|arts & theatre|gallery|art|exhibit|exhibition|musical|opera/.test(text)) inferredTags.push("Arts");
+  if (/\b(theatre|theater|performance art|performing|arts? & theatre|gallery|art|arts|exhibit|exhibition|musical|opera)\b/.test(text)) inferredTags.push("Arts");
   if (/comedy|stand up|stand-up|improv/.test(text)) inferredTags.push("Comedy");
   if (/film|cinema|screening|movie/.test(text)) inferredTags.push("Film");
   const sportTags = sportsLeagueTags(row);
@@ -900,10 +922,45 @@ function normalizeSupabaseTags(row, category) {
   if (/food|drink|wine|beer|cocktail|restaurant|brunch|market/.test(text)) inferredTags.push("Food & Drink");
   if (rowIsExplicitlyFree(row)) inferredTags.push("Free");
   if (category === "performing-arts") inferredTags.push(...performingArtsDetailTags(row));
-  return [...inferredTags, categoryLabels[category] || "", ...rawTags, row.tag, ...labels]
+  const categoryAliases = {
+    concerts: ["concert", "concerts"],
+    "live-music": ["live music", "music"],
+    "performing-arts": ["arts", "art", "performing arts", "performance"],
+    museums: ["museums", "museum"],
+    festivals: ["festivals", "festival"],
+    culture: ["culture", "cultural"],
+    sports: ["sports", "sport"],
+    community: ["community"],
+    expos: ["expos", "expo"],
+    nightlife: ["nightlife", "night out"],
+    "happy-hours": ["happy hour", "happy hours"],
+    "trivia-nights": ["trivia", "trivia night", "trivia nights"],
+    food: ["food", "food & drink", "food and drink"]
+  }[category] || [];
+  const locationAliases = [
+    "adams morgan", "u street", "shaw", "navy yard", "penn quarter", "h street", "logan circle",
+    "dupont", "dupont circle", "georgetown", "noma", "no ma", "union market", "noma / union market area",
+    "capitol hill", "anacostia", "columbia heights", "petworth", "the wharf", "wharf", "downtown",
+    "mount vernon", "mount vernon triangle", "foggy bottom", "west end", "cleveland park", "woodley park",
+    "brookland", "ivy city", "barracks row", "southwest", "national mall", "kalorama", "van ness",
+    "cathedral heights", "park view", "takoma", "takoma dc", "washington dc", "washington, dc"
+  ];
+  const rowLocations = [row.neighborhood, row.area, row.venue_address, row.address]
+    .map(value => String(value || "").trim().toLowerCase())
+    .filter(Boolean);
+  const broadCategoryAliases = [
+    "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
+    "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
+    "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
+    "festival", "festivals", "culture", "cultural", "free"
+  ];
+  return [...inferredTags, ...rawTags, row.tag, ...labels]
     .map(normalizeTagValue)
     .map(tag => String(tag || "").trim())
     .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => !categoryAliases.includes(tag.toLowerCase()))
+    .filter(tag => !broadCategoryAliases.includes(tag.toLowerCase()))
+    .filter(tag => !locationAliases.includes(tag.toLowerCase()) && !rowLocations.includes(tag.toLowerCase()))
     .filter(tag => !["concerts", "live-music"].includes(category) || !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()))
     .filter(tag => category !== "performing-arts" || !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
@@ -978,6 +1035,7 @@ function normalizeSupabaseEvent(row, index) {
     detailsUrl: row.ticket_url || row.external_url || row.url || "",
     title: row.title || row.name || "Untitled Lokal event",
     venue: normalizeSupabaseVenue(row),
+    venueAddress: row.venue_address || row.address || rawEventApiAddress(row) || "",
     area: normalizeSupabaseArea(row),
     time: hasReliableSupabaseStart(row) ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : "Ongoing / time varies",
     startDate: row.date || "",
@@ -1053,11 +1111,25 @@ async function syncSupabaseEvents(showToast = false) {
 
 function openSharedEventFromUrl() {
   if (state.sharedEventOpened) return;
-  const eventParam = new URLSearchParams(location.search).get("event");
+  const params = new URLSearchParams(location.search);
+  const eventParam = params.get("event");
   if (!eventParam) return;
+  const shouldOpen = params.get("openEvent") === "1" || params.get("shared") === "1";
+  if (!shouldOpen) {
+    params.delete("event");
+    const nextSearch = params.toString();
+    history.replaceState(null, "", `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`);
+    state.sharedEventOpened = true;
+    return;
+  }
   const sharedEvent = events.find(event => String(event.sourceId || event.id) === String(eventParam) || String(event.id) === String(eventParam));
   if (!sharedEvent) return;
   state.sharedEventOpened = true;
+  params.delete("event");
+  params.delete("openEvent");
+  params.delete("shared");
+  const nextSearch = params.toString();
+  history.replaceState(null, "", `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`);
   openDetail(sharedEvent.id);
 }
 

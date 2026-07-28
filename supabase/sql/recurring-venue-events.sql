@@ -169,7 +169,7 @@ insert into public.recurring_venue_event_schedules (
    'Grab the mic at DC''s country bar — live band cowboy karaoke every Wednesday at Desert 5 Spot.',
    'nightlife', 'Karaoke', array['Karaoke','Live Band','Country'],
    'Desert 5 Spot', '400 Morse St NE, Washington, DC 20002', 'Union Market', 3, time '21:00', null,
-   null, false, null, null, 'Desert 5 Spot DC', true),
+   '$35', false, null, null, 'Desert 5 Spot DC', true),
 
   ('d5dc_saddle_up_swing_wed', 'desert_5_spot',
    'Saddle Up Swing — Country Dancing with Live Band Karaoke',
