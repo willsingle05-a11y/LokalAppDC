@@ -566,8 +566,8 @@ function renderFilterBar() {
   // inline dropdown, so When, Where and What all behave the same way.
   // The rows carry the criterion and nothing else; an active filter reads
   // through weight and the mint dot rather than a second line of text.
-  const cardRow = (attr, label, isSet, icon) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
-    <span class="sc-dot">${icon}</span>
+  const cardRow = (attr, label, isSet, iconName) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
+    <span class="sc-dot filter-row-icon filter-row-icon-${iconName}" aria-hidden="true">${icons[iconName]}</span>
     <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
@@ -575,9 +575,9 @@ function renderFilterBar() {
   return `<div class="sub-filters">
     <div class="filter-intro"><h2>Find events</h2></div>
     <div class="search-card">
-    ${cardRow("data-when-sheet", "When", whenLabels.length, icons.clock)}
-    ${cardRow("data-where-sheet", "Where", where.size, icons.pin)}
-    ${cardRow("data-what-sheet", "What", what.size, icons.megaphone)}
+    ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
+    ${cardRow("data-where-sheet", "Where", where.size, "pin")}
+    ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
     ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
     </div>
   </div>`;

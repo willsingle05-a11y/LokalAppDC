@@ -345,8 +345,14 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   background: var(--mint-tint);
 }
 .search-card-row .sc-dot svg {
+  display: block !important;
   width: 17px;
   height: 17px;
+  flex: none;
+  color: currentColor;
+  fill: none !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
   stroke-width: 2.2;
 }
 .search-card-row .sc-copy { flex: 1; min-width: 0; }
@@ -1029,7 +1035,8 @@ body.nav-back .page { animation-name: page-slide-right; }
 /* ---- Filter rows: criterion only ------------------------------------ */
 .search-card-row .sc-copy b { font-size: var(--fs-title); font-weight: 600; color: var(--muted); }
 .search-card-row.is-set .sc-copy b { color: var(--ink); font-weight: 800; }
-.search-card-row.is-set .sc-dot { background: var(--accent); }
+.search-card-row.is-set .sc-dot { color: #fff; background: var(--accent); }
+.search-card-row.is-set .sc-dot svg { color: #fff; stroke: #fff !important; }
 .filter-intro { margin: 2px 0 12px; }
 
 /* ---- Saved calendar, matching the filter calendar -------------------- */

@@ -4460,8 +4460,14 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   background: var(--mint-tint);
 }
 .search-card-row .sc-dot svg {
+  display: block !important;
   width: 17px;
   height: 17px;
+  flex: none;
+  color: currentColor;
+  fill: none !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
   stroke-width: 2.2;
 }
 .search-card-row .sc-copy { flex: 1; min-width: 0; }
@@ -5144,7 +5150,8 @@ body.nav-back .page { animation-name: page-slide-right; }
 /* ---- Filter rows: criterion only ------------------------------------ */
 .search-card-row .sc-copy b { font-size: var(--fs-title); font-weight: 600; color: var(--muted); }
 .search-card-row.is-set .sc-copy b { color: var(--ink); font-weight: 800; }
-.search-card-row.is-set .sc-dot { background: var(--accent); }
+.search-card-row.is-set .sc-dot { color: #fff; background: var(--accent); }
+.search-card-row.is-set .sc-dot svg { color: #fff; stroke: #fff !important; }
 .filter-intro { margin: 2px 0 12px; }
 
 /* ---- Saved calendar, matching the filter calendar -------------------- */
@@ -8762,8 +8769,8 @@ function renderFilterBar() {
   // inline dropdown, so When, Where and What all behave the same way.
   // The rows carry the criterion and nothing else; an active filter reads
   // through weight and the mint dot rather than a second line of text.
-  const cardRow = (attr, label, isSet, icon) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
-    <span class="sc-dot">${icon}</span>
+  const cardRow = (attr, label, isSet, iconName) => `<button class="search-card-row${isSet ? " is-set" : ""}" ${attr}>
+    <span class="sc-dot filter-row-icon filter-row-icon-${iconName}" aria-hidden="true">${icons[iconName]}</span>
     <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
@@ -8771,9 +8778,9 @@ function renderFilterBar() {
   return `<div class="sub-filters">
     <div class="filter-intro"><h2>Find events</h2></div>
     <div class="search-card">
-    ${cardRow("data-when-sheet", "When", whenLabels.length, icons.clock)}
-    ${cardRow("data-where-sheet", "Where", where.size, icons.pin)}
-    ${cardRow("data-what-sheet", "What", what.size, icons.megaphone)}
+    ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
+    ${cardRow("data-where-sheet", "Where", where.size, "pin")}
+    ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
     ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
     </div>
   </div>`;
