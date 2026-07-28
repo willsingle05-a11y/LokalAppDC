@@ -75,7 +75,9 @@ function approvedVenueProfileName() {
 }
 
 function hasApprovedVenueProfile() {
-  return Boolean(approvedVenueProfileName() || state.verifiedVenues?.size);
+  const venueName = accountVenueName();
+  if (venueName && state.verifiedVenues?.has(venueImageKeyName(venueName))) return true;
+  return Boolean(approvedVenueProfileName());
 }
 
 function hostedEventsForVenue() {
@@ -202,19 +204,24 @@ function profileHistorySection(isVenueProfile) {
 function venueVerificationPanel() {
   const pending = state.pendingVenueRequests || [];
   const approvedNames = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames : [];
-  const approvedName = accountVenueName() || approvedNames[0] || "";
-  const hasApprovedVenue = Boolean(approvedName || state.verifiedVenues?.size);
+  const venueName = accountVenueName();
+  const approvedName = approvedNames.find(name => venueImageKeyName(name) === venueImageKeyName(venueName)) || approvedNames[0] || "";
+  const hasApprovedVenue = Boolean(approvedName || (venueName && state.verifiedVenues?.has(venueImageKeyName(venueName))));
+  const pendingForVenue = pending.some(request => venueImageKeyName(request.venue_name || request.venueName) === venueImageKeyName(venueName || approvedName));
   if (!hasApprovedVenue && state.venueVerificationDismissed) return "";
   const status = hasApprovedVenue
     ? "Venue approved"
-    : pending.length
+    : pendingForVenue || pending.length
       ? "Request pending"
-      : "No venue attached";
-  const approvedRow = approvedName ? `<div class="venue-owner-row"><span><b>${escapeHtml(approvedName)}</b><small>Approved to post events</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(approvedName)}" aria-label="Post event for ${escapeHtml(approvedName)}">+</button></div>` : "";
+      : venueName
+        ? "Approval needed"
+        : "No venue attached";
+  const displayName = approvedName || venueName;
+  const approvedRow = displayName ? `<div class="venue-owner-row"><span><b>${escapeHtml(displayName)}</b><small>${hasApprovedVenue ? "Approved to submit event posts" : "Verification required before posting"}</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(displayName)}" aria-label="${hasApprovedVenue ? "Post event" : "Request approval"} for ${escapeHtml(displayName)}">+</button></div>` : "";
   return `<section class="section venue-owner-panel">
     ${!hasApprovedVenue ? `<button class="venue-owner-dismiss" data-dismiss-venue-verification aria-label="Hide venue verification">&times;</button>` : ""}
     <div class="section-heading"><div><p class="eyebrow">Venue tools</p><h2>For venue owners</h2></div><span class="profile-pulse">${escapeHtml(status)}</span></div>
-    <p class="section-helper">Request verification so approved venues can post events from Profile. Requests are stored for Lokal review.</p>
+    <p class="section-helper">Venue onboarding creates your profile. Lokal approval is required before you can upload event posts.</p>
     ${approvedRow ? `<div class="venue-owner-list">${approvedRow}</div>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
   </section>`;
 }

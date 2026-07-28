@@ -1,5 +1,16 @@
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
+  const descriptionExpander = event.target.closest("[data-expand-description]");
+  if (descriptionExpander) {
+    const wrap = descriptionExpander.closest(".detail-description-wrap");
+    if (wrap) {
+      const expanded = wrap.classList.toggle("expanded");
+      wrap.classList.toggle("collapsed", !expanded);
+      descriptionExpander.setAttribute("aria-expanded", String(expanded));
+      descriptionExpander.setAttribute("aria-label", expanded ? "Collapse description" : "Show full description");
+    }
+    return;
+  }
   const t = event.target.closest("button");
   if (!t) return;
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
@@ -30,6 +41,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
+  if (t.dataset.topWeekEvents !== undefined) { mark(); openTopWeekEvents(); }
   if (t.dataset.feedMode) {
     mark();
     const mode = t.dataset.feedMode;
@@ -56,6 +68,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.applyTime !== undefined) { mark(); const from = document.querySelector("[data-time-from]")?.value; const to = document.querySelector("[data-time-to]")?.value; state.filter.time = from ? `custom:${from}-${to || from}` : "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast(from ? "Time filter applied" : "Time cleared"); }
   if (t.dataset.clearTime !== undefined) { mark(); state.filter.time = "Any time"; state.feedShown = 10; modalRoot.innerHTML = ""; renderHome(); toast("Time cleared"); }
   if (t.dataset.dayExplore) { mark(); state.filter.date = t.dataset.dayExplore; state.homeFilter = "all"; state.discoverCategoryView = ""; state.feedShown = 10; setRoute("home"); toast("Showing events for that day"); }
+  if (t.dataset.topWeekEvent) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.topWeekEvent, { backToTopWeek: true }); }
   if (t.dataset.event) { mark(); const hintCount = Number(localStorage.getItem("lokalRsvpHintCount")) || 0; if (hintCount <= 3) localStorage.setItem("lokalRsvpHintCount", String(hintCount + 1)); openDetail(t.dataset.event); }
   if (t.classList.contains("modal-close")) { mark(); modalRoot.innerHTML = ""; }
   if (t.dataset.quickSave) {
@@ -76,7 +89,8 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     const flashSaved = button => { if (!button) return; button.classList.add("just-saved"); setTimeout(() => button.classList.remove("just-saved"), 1500); };
-    if (inDetail) { openDetail(id); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
+    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
+    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (button && isSaved) { button.classList.add("btn-pop"); flashSaved(button); } }
     else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) flashSaved(button); });
     saveEventInteraction(id, "save", isSaved);
     // Saving confirms inline (the "Saved ✓" chip); only the removal needs a toast.
@@ -95,8 +109,9 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await copyText(lokalEventShareUrl(shareEvent)); } catch { toast("Could not copy the link"); return; } const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
   if (t.dataset.addRecurring) { mark(); addRecurringEventToCalendar(t.dataset.addRecurring); }
+  if (t.dataset.calendarOptions) { mark(); openCalendarOptions(t.dataset.calendarOptions); }
   if (t.dataset.addCalendar) { mark(); addEventToCalendar(t.dataset.calendarEvent, t.dataset.addCalendar); }
-  if (t.dataset.attended) { mark(); const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended); toast(result.message); }
+  if (t.dataset.attended) { mark(); const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week"; const result = markEventAttended(Number(t.dataset.attended)); openDetail(t.dataset.attended, { backToTopWeek }); toast(result.message); }
   if (t.dataset.planAttended) { mark(); const result = markEventAttended(Number(t.dataset.planAttended)); if (state.route === "social") renderSocial(); else if (state.route === "profile") renderProfile(); toast(result.message); }
   if (t.dataset.receiptEvent) { mark(); openReceipt(t.dataset.receiptEvent); }
   if (t.dataset.share) openShareSheet(t.dataset.share);
@@ -216,6 +231,7 @@ document.addEventListener("click", async event => {
     const isRecurring = Boolean(sheet.querySelector("[data-post-recurring]")?.checked);
     const recurrenceFrequency = sheet.querySelector("[data-post-recurrence-frequency]")?.value || "";
     if (!venueName || !title || !startsAt) { error.textContent = "Add an event name and start date/time."; return; }
+    if (!isVerifiedVenueName(venueName)) { error.textContent = "This venue must be approved by Lokal before you can upload events."; return; }
     if (isRecurring && !recurrenceFrequency) { error.textContent = "Choose how often this recurring event repeats."; return; }
     const tags = String(sheet.querySelector("[data-post-tags]")?.value || "").split(",").map(tag => tag.trim()).filter(Boolean);
     t.disabled = true;
@@ -575,6 +591,14 @@ document.addEventListener("click", async event => {
     } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
   }
   if (!handled && !t.disabled) toast("Action opened");
+});
+
+document.addEventListener("keydown", event => {
+  if (!["Enter", " "].includes(event.key)) return;
+  const descriptionExpander = event.target.closest?.("[data-expand-description]");
+  if (!descriptionExpander) return;
+  event.preventDefault();
+  descriptionExpander.click();
 });
 
 let storyTouchStart = null;

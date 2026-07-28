@@ -54,7 +54,8 @@ const categoryFeedConfig = {
   "trivia-nights": { label: "Trivia nights", searchPlaceholder: "Search by bar, theme, or night…", chips: ["All nights", "Free to play", "Pop culture", "Sports", "Music", "Science", "80s", "90s"] },
   food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or deal…", chips: ["All", "Happy hour", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails"] },
   nightlife: { label: "Nightlife", searchPlaceholder: "Search by venue, vibe, or night…", chips: ["All venues", "Clubs", "Bars", "Rooftop", "DJ nights", "Late night", "21+"] },
-  "performing-arts": { label: "Arts and culture", searchPlaceholder: "Search by museum, gallery, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
+  culture: { label: "Culture", searchPlaceholder: "Search by embassy, country, heritage, or speaker…", chips: ["All culture", "Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance"] },
+  "performing-arts": { label: "Performing arts", searchPlaceholder: "Search by theater, comedy, dance, film, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or show…", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
   festivals: { label: "Festivals", searchPlaceholder: "Search by festival, neighborhood, or type…", chips: ["All festivals", "Food & drink", "Music", "Art", "Cultural", "Outdoor", "Family"] },
@@ -133,6 +134,16 @@ function isVerifiedVenueName(name) {
   return state.verifiedVenues?.has(venueImageKeyName(name));
 }
 
+function openVenueApprovalRequiredSheet(name) {
+  const displayName = cleanLocationPart(name) || accountVenueName() || "your venue";
+  const pending = (state.pendingVenueRequests || []).some(request => venueImageKeyName(request.venue_name || request.venueName) === venueImageKeyName(displayName));
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-approval-sheet" role="dialog" aria-modal="true" aria-label="Venue approval required"><button class="modal-close" aria-label="Close venue approval">&times;</button>
+    <p class="eyebrow">Venue approval</p><h2>Approval required before posting.</h2>
+    <p class="lede">${escapeHtml(displayName)} needs Lokal approval before event posts can be uploaded. ${pending ? "Your request is already pending review." : "Submit a verification request from Profile and we will review it."}</p>
+    ${pending ? `<button class="wide-button" data-route="profile">View profile status</button>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
+  </section></div>`;
+}
+
 function openVenueEvents(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
@@ -146,7 +157,7 @@ function openVenueEvents(name) {
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
     <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
-    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${verified ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="Post event for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${isVenueAccount() ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="${verified ? "Post event" : "Request approval"} for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
     <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
@@ -155,6 +166,10 @@ function openVenueEvents(name) {
 function openVenueEventPostSheet(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
   const displayName = directoryVenue.name || name;
+  if (!isVerifiedVenueName(displayName)) {
+    openVenueApprovalRequiredSheet(displayName);
+    return;
+  }
   const address = directoryVenue.address || "";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Post an event for ${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close post event">&times;</button>
     <p class="eyebrow">Verified venue</p><h2>Post an event</h2>
@@ -166,6 +181,7 @@ function openVenueEventPostSheet(name) {
     <label class="settings-field">Where<input data-post-venue-address value="${escapeHtml(address)}" placeholder="Venue address or room"></label>
     <label class="settings-field">Category<select data-post-category>
       <option value="nightlife">Nightlife</option>
+      <option value="culture">Culture</option>
       <option value="concerts">Concerts</option>
       <option value="live-music">Live music</option>
       <option value="performing-arts">Performing arts</option>
@@ -258,7 +274,7 @@ function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
   if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
-  const catTier = { concerts: 4, festivals: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
@@ -371,6 +387,63 @@ function renderEventFeed(list, opts = {}) {
   return `<div class="feed-masonry">${cards}</div>${more}`;
 }
 
+function topWeekEventScore(event) {
+  const interactionScore =
+    (state.saved?.has(event.id) ? 8 : 0)
+    + (state.rsvps?.has(event.id) ? 10 : 0)
+    + (event.friends?.length || 0) * 3;
+  const imageScore = String(event.image || "").trim() ? 4 : 0;
+  return eventPopularityScore(event) + interactionScore + imageScore;
+}
+
+function topWeekEvents(limit = 10) {
+  const now = Date.now();
+  const weekEnd = now + 7 * 24 * 60 * 60 * 1000;
+  const weekEvents = dedupeFeedEvents(displayableDcEvents()
+    .filter(event => Number.isFinite(event.startSort) && event.startSort >= now && event.startSort <= weekEnd)
+    .sort((a, b) => topWeekEventScore(b) - topWeekEventScore(a) || sortEventsByStart(a, b)));
+  const fallbackEvents = dedupeFeedEvents(displayableDcEvents()
+    .filter(event => Number.isFinite(event.startSort) && event.startSort >= now)
+    .sort((a, b) => topWeekEventScore(b) - topWeekEventScore(a) || sortEventsByStart(a, b)));
+  const pool = weekEvents.length >= limit ? weekEvents : [...weekEvents, ...fallbackEvents.filter(event => !weekEvents.some(item => item.id === event.id))];
+  const picks = [];
+  const usedCategories = new Set();
+  pool.forEach(event => {
+    const category = String(event.cat || "").toLowerCase();
+    if (picks.length < limit && category && !usedCategories.has(category)) {
+      picks.push(event);
+      usedCategories.add(category);
+    }
+  });
+  pool.forEach(event => {
+    if (picks.length < limit && !picks.some(item => item.id === event.id)) picks.push(event);
+  });
+  return picks.slice(0, limit);
+}
+
+function renderTopWeekEvents() {
+  const picks = topWeekEvents(10);
+  if (!picks.length) return "";
+  return `<section class="top-week-section" aria-label="Top 10 events this week discovered by Lokal">
+    <button class="top-week-heading" data-top-week-events>
+      <span class="top-week-badge">10</span><div><p class="eyebrow">Discovered by Lokal</p><h3>Top 10 events this week</h3></div><i aria-hidden="true">&rarr;</i>
+    </button>
+  </section>`;
+}
+
+function topWeekThumbSrc(event) {
+  return event.image ? eventCardImageSrc(event) : (venueDirectoryMatch(event.venue)?.image_url || eventCardImageSrc(event));
+}
+
+function openTopWeekEvents() {
+  const picks = topWeekEvents(10);
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet top-week-sheet" role="dialog" aria-modal="true" aria-label="Top 10 events this week"><button class="modal-close" aria-label="Close top 10">&times;</button>
+    <p class="eyebrow">Discovered by Lokal</p><h2>Top 10 events this week</h2>
+    <p class="lede">A ranked mix of the week across DC, balancing category variety with saves, RSVPs, shares, venue quality, and timing.</p>
+    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-top-week-event="${event.id}" aria-label="Open ${escapeHtml(eventDisplayTitle(event))}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-thumb"><img src="${escapeHtml(topWeekThumbSrc(event))}" alt="" loading="lazy"></span><span class="top-week-row-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
+  </section></div>`;
+}
+
 function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const withPictures = dc.filter(event => String(event.image || "").trim());
@@ -478,7 +551,8 @@ function checkRow(kind, value, label, checked) {
 function filterDropdownContent(kind) {
   if (kind === "what") {
     const what = state.whatFilter || new Set();
-    return `<div class="check-list check-list-scroll">${whatFilterOptions().map(([value, label]) => checkRow("what", value, label, what.has(value))).join("")}</div>${what.size ? `<button class="dropdown-clear" data-clear-what>Clear all</button>` : ""}`;
+    const allRow = `<button class="check-row${what.size ? "" : " checked"}" data-clear-what><span class="check-box">${what.size ? "" : icons.check}</span><span>All</span></button>`;
+    return `<div class="check-list check-list-scroll">${allRow}${whatFilterOptions().map(([value, label]) => checkRow("what", value, label, what.has(value))).join("")}</div>${what.size ? `<button class="dropdown-clear" data-clear-what>Clear all</button>` : ""}`;
   }
   if (kind === "where") {
     const where = state.whereFilter || new Set();
@@ -554,15 +628,18 @@ function openTimePickerSheet() {
 // Live count under the feed heading. Reflects the active What/Where/When filters
 // so the number tracks what's actually shown, not the full loaded catalog.
 function feedFilterCountLabel(count) {
+  const plural = count === 1 ? "" : "s";
+  if (discoverFiltersActive()) return `${count} event${plural} match${count === 1 ? "es" : ""} your filters`;
+  return `${count} upcoming DC event${plural}`;
+}
+
+function discoverFiltersActive() {
   const whenActive = (state.whenFilter && state.whenFilter.size)
     || (state.filter.date && state.filter.date !== "Any date")
     || (state.filter.time && state.filter.time !== "Any time");
-  const filtersActive = (state.whatFilter && state.whatFilter.size)
+  return Boolean((state.whatFilter && state.whatFilter.size)
     || (state.whereFilter && state.whereFilter.size)
-    || whenActive;
-  const plural = count === 1 ? "" : "s";
-  if (filtersActive) return `${count} event${plural} match${count === 1 ? "es" : ""} your filters`;
-  return `${count} upcoming DC event${plural}`;
+    || whenActive);
 }
 
 // Canvas "Your top types" — the three categories with the most on today.
@@ -624,6 +701,7 @@ function renderHome() {
     ${topTenModule()}
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
   if (state.resetDiscoverScrollAfterRender && typeof resetAppScroll === "function") resetAppScroll();
@@ -652,7 +730,7 @@ function renderDiscoverCategoryPage(category) {
 }
 
 function searchableDiscoverCategory(category) {
-  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
 }
 
 function eventMatchesCategoryFacet(event, query) {
@@ -672,6 +750,7 @@ function categoryFacetLabel(category) {
     "happy-hours": "happy hour type",
     "trivia-nights": "trivia type",
     nightlife: "nightlife type",
+    culture: "culture type",
     museums: "museum type",
     festivals: "festival type",
     community: "community type",
@@ -690,6 +769,7 @@ function categoryFacetAllLabel(category) {
     "happy-hours": "All deals",
     "trivia-nights": "All trivia",
     nightlife: "All nightlife",
+    culture: "All culture",
     museums: "All museum types",
     festivals: "All festival types",
     community: "All community types",
@@ -708,6 +788,7 @@ function categoryFacetPriorityList(category) {
     "happy-hours": ["Cocktails", "Beer", "Wine", "Rooftop", "Patio", "Food Specials", "All Night", "Date Spot", "Dive Bar", "Upscale"],
     "trivia-nights": ["Weekly", "Monthly", "Team Trivia", "Pop Culture", "General Knowledge", "Prizes", "Bar Trivia"],
     nightlife: ["DJ Set", "Dance Floor", "Club Night", "Rooftop", "Late Night", "Pride", "Lounge", "Cocktails"],
+    culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
     festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
     community: ["Volunteer", "Networking", "Book Club", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
@@ -724,7 +805,7 @@ function categoryFacetPriority(category, tag) {
 }
 
 function categoryFacetOptions(category, categoryEvents) {
-  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
+  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "culture", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
   const taggedOptions = categoryEvents
     .flatMap(eventTags)
     .map(tag => String(tag || "").trim())
@@ -754,6 +835,7 @@ function categoryFromTaste(taste) {
   if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
+  if (/embassy|international|culture|cultural|heritage|ambassador|global/.test(text)) return "culture";
   if (/museum/.test(text)) return "museums";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
   if (/sport|pickleball/.test(text)) return "sports";
@@ -763,7 +845,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
@@ -794,7 +876,7 @@ function renderDiscoverFeedContent(list) {
 
 function discoverSearchText(event) {
   const neighborhood = typeof eventNeighborhoodLine === "function" ? eventNeighborhoodLine(event) : "";
-  return `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
+  return `${event.title || ""} ${event.venue || ""} ${event.venueAddress || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
 }
 
 function displayableDcEvents() {
@@ -803,7 +885,7 @@ function displayableDcEvents() {
 
 function isDisplayableDcEvent(event) {
   if (!isMuseumDisplayEvent(event)) return false;
-  const text = `${event.title || ""} ${event.venue || ""} ${event.area || ""} ${event.desc || ""}`.toLowerCase();
+  const text = `${event.title || ""} ${event.venue || ""} ${event.venueAddress || ""} ${event.area || ""} ${event.desc || ""}`.toLowerCase();
   const outsideDc = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore)\b|,\s*(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy)\b|\bvirginia\b/.test(text);
   if (outsideDc) return false;
   return /washington,\s*(dc|d\.c\.)|washington dc|district of columbia|\bdc\b|northwest|northeast|southwest|southeast|\bnw\b|\bne\b|\bsw\b|\bse\b|adams morgan|u street|logan circle|shaw|navy yard|penn quarter|h street|georgetown|dupont|capitol hill|noma|union market|waterfront|wharf|foggy bottom|columbia heights|petworth|tenleytown|cleveland park|woodley park|brookland|anacostia|eckington|ivy city|barracks row|mount vernon square|downtown/.test(text);
@@ -824,6 +906,7 @@ function renderDiscoverEventSearch(query) {
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
+  document.querySelector(".top-week-section")?.remove();
   const dcEvents = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
   const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));

@@ -1199,7 +1199,7 @@ h3 { font-weight: 800; }
   object-position: center;
   background: #f7fafc;
 }
-.detail-hero.has-image > :not(.detail-hero-img):not(.modal-close),
+.detail-hero.has-image > :not(.detail-hero-img):not(.modal-close):not(.detail-back-button),
 .venue-page-hero.has-image > :not(.venue-page-img) {
   position: relative;
   z-index: 2;
@@ -1207,6 +1207,22 @@ h3 { font-weight: 800; }
 .detail-hero.has-image > .modal-close {
   position: absolute;
   z-index: 3;
+}
+.detail-back-button {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  background: rgba(23, 58, 53, .58);
+  font-size: 21px;
+  font-weight: 900;
+  backdrop-filter: blur(5px);
 }
 .venue-page-hero.has-image {
   min-height: 210px;
@@ -1218,6 +1234,41 @@ h3 { font-weight: 800; }
 }
 .venue-event-row:hover {
   background: rgba(22, 160, 133, .12);
+}
+.detail-description-price {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-weight: 900;
+}
+.detail-description-wrap {
+  position: relative;
+  display: grid;
+  gap: 4px;
+}
+.things-to-do-description.collapsed .detail-description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+.things-to-do-description.collapsed::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 36px;
+  left: 0;
+  height: 38px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0), var(--card));
+}
+.expandable-description {
+  cursor: pointer;
+}
+.expandable-description:focus-visible {
+  outline: 3px solid rgba(23, 179, 132, .38);
+  outline-offset: 4px;
+  border-radius: 10px;
 }
 
 /* ===== Onboarding: immersive welcome + animated steps ===== */
@@ -1497,6 +1548,42 @@ h3 { font-weight: 800; }
 .calendar-action-row .wide-button { margin: 0; }
 .secondary-calendar { background: #eef6f4; color: #0E7C66; border-color: rgba(14, 124, 102, .18); }
 @media (max-width: 520px) { .calendar-action-row { grid-template-columns: 1fr; } }
+.detail-calendar-button { margin: 10px 0; }
+.calendar-options-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.calendar-option-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(14, 124, 102, .14);
+  border-radius: 13px;
+  color: var(--ink);
+  background: #fff;
+  text-align: left;
+}
+.calendar-option-row .cal-ic {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  color: #0E7C66;
+  background: rgba(22, 160, 133, .12);
+}
+.calendar-option-row svg { width: 17px; height: 17px; }
+.calendar-option-row span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.calendar-option-row b { font-size: 13px; }
+.calendar-option-row small { color: var(--muted); font-size: 11px; line-height: 1.3; }
 
 /* ============================================================
    Blended "For You" feed — header toggle + labelled sections
@@ -1842,10 +1929,12 @@ h3 { font-weight: 800; }
 
 /* Info block below the photo */
 .event-card-info { display: grid; gap: 3px; padding: 11px 10px 7px; text-align: left; }
-.event-card-titlerow { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 6px; }
-.event-card-title-btn { padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
+.event-card-titlerow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 6px; min-width: 0; overflow: hidden; }
+.event-card-title-btn { min-width: 0; padding: 0; background: transparent; border: 0; text-align: left; cursor: pointer; }
 .event-card-title {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
   color: #1a1a1a;
   font-family: var(--card-font);
   font-size: 17px;
@@ -1853,14 +1942,17 @@ h3 { font-weight: 800; }
   line-height: 1.14;
   letter-spacing: -.01em;
   text-shadow: none;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .event-card-hero .event-card-title { font-size: 22px; }
 
 /* The heart sits in the title row as a quiet, tappable icon */
 .event-card-titlerow .card-save {
-  width: 32px;
-  height: 32px;
-  margin: -3px -4px 0 0;
+  width: 28px;
+  height: 28px;
+  margin: -2px 0 0 0;
   border-radius: 50%;
   color: #b1b7b0;
   background: transparent;
@@ -1889,23 +1981,153 @@ h3 { font-weight: 800; }
   font-family: var(--card-font);
   font-size: 12px;
   font-weight: 500;
+  line-height: 1.32;
   letter-spacing: 0;
   text-transform: none;
+  overflow-wrap: anywhere;
 }
 
 /* Dashed "receipt" perforation + price row */
 .event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
-.event-card-bottom2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
-.event-card-price {
-  margin-left: auto;
-  color: #1a1a1a;
-  font-family: var(--card-font);
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -.01em;
-  white-space: nowrap;
-}
-.event-card-price.is-free { color: var(--onboard-green); }
+.event-card-bottom2 { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; min-width: 0; }
+.event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; overflow: hidden; }
 
 .event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
+
+.top-week-section {
+  position: relative;
+  display: grid;
+  margin: 0 0 14px;
+  overflow: hidden;
+  border: 1px solid rgba(23, 28, 26, .11);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(0, 201, 167, .24), transparent 34%),
+    linear-gradient(135deg, #ffffff 0%, #f4fbf8 52%, #eef7ff 100%);
+  box-shadow: 0 12px 26px rgba(17, 24, 39, .08);
+}
+.top-week-section[hidden] { display: none !important; }
+.top-week-section::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  bottom: -28px;
+  width: 120px;
+  height: 120px;
+  border: 1px solid rgba(22, 160, 133, .18);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.top-week-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 14px;
+  background: transparent;
+  text-align: left;
+}
+.top-week-heading .eyebrow { margin: 0 0 5px; }
+.top-week-heading h3 {
+  margin: 1px 0 0;
+  color: var(--onboard-ink);
+  font-family: var(--card-font);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+.top-week-badge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border: 2px solid #fff;
+  border-radius: 14px;
+  color: #fff;
+  background: #111827;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, .18);
+  font-size: 17px;
+  font-weight: 1000;
+}
+.top-week-heading i {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border-radius: 50%;
+  color: #fff;
+  background: #16A085;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 900;
+}
+.top-week-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.top-week-row {
+  display: grid;
+  grid-template-columns: 34px 54px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(23, 28, 26, .08);
+  border-radius: 13px;
+  background: #fff;
+  text-align: left;
+}
+.top-week-row-rank {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  background: #111827;
+  font-size: 13px;
+  font-weight: 1000;
+}
+.top-week-row-thumb {
+  display: block;
+  width: 54px;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 11px;
+  background: #f7fafc;
+  box-shadow: inset 0 0 0 1px rgba(23, 28, 26, .08);
+}
+.top-week-row-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.top-week-row-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.top-week-row-copy b {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-week-row-copy small,
+.top-week-row-copy em {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
