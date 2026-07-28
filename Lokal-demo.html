@@ -4380,17 +4380,17 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .splash-dots i:nth-child(1) {
   left: 0;
-  animation: splashDotLeftOrbit 1.48s .68s linear forwards;
+  animation: splashDotLeftOrbit 1.82s .82s linear forwards;
 }
 .splash-dots i:nth-child(2) {
   left: 27px;
   width: 20px;
   height: 20px;
-  animation: splashDotCenterOrbit 1.48s .68s linear forwards;
+  animation: splashDotCenterOrbit 1.82s .82s linear forwards;
 }
 .splash-dots i:nth-child(3) {
   right: 0;
-  animation: splashDotRightOrbit 1.48s .68s linear forwards;
+  animation: splashDotRightOrbit 1.82s .82s linear forwards;
 }
 .splash-pin {
   position: absolute;
@@ -4400,7 +4400,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   flex-direction: column;
   align-items: center;
   transform: translateX(-50%) translateY(-46vh) scale(.97);
-  animation: splashPinDrop .86s cubic-bezier(.2, .82, .22, 1.02) forwards;
+  animation: splashPinDrop 1.06s cubic-bezier(.2, .82, .22, 1.02) forwards;
 }
 .splash-pin-head { box-sizing: border-box; width: 96px; height: 96px; border: 26px solid var(--ink); border-radius: 50%; }
 .splash-pin-stem { width: 11px; height: 52px; border-radius: 0 0 6px 6px; background: var(--ink); }
@@ -4413,7 +4413,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   line-height: 1;
   opacity: 0;
   transform: translateY(8px);
-  animation: splashCopyIn .38s 1.72s ease forwards;
+  animation: splashCopyIn .42s 2.38s ease forwards;
 }
 .splash-city {
   margin-top: 10px;
@@ -4424,20 +4424,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   letter-spacing: .28em;
   opacity: 0;
   transform: translateY(8px);
-  animation: splashCopyIn .38s 1.84s ease forwards;
-}
-.splash-tagline {
-  margin-top: auto;
-  padding-bottom: 34px;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .2em;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: splashCopyIn .4s 1.96s ease forwards;
+  animation: splashCopyIn .42s 2.5s ease forwards;
 }
 @keyframes splashPinDrop {
   0% { transform: translateX(-50%) translateY(-46vh) scale(.97); opacity: 0; }
@@ -4447,39 +4434,39 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 }
 @keyframes splashDotLeftOrbit {
-  0% { opacity: 0; transform: translate(-132px, 138px); }
-  10% { opacity: 1; transform: translate(-146px, 82px); }
-  22% { opacity: 1; transform: translate(-116px, 22px); }
-  34% { opacity: 1; transform: translate(-48px, -24px); }
-  46% { opacity: 1; transform: translate(34px, -32px); }
-  58% { opacity: 1; transform: translate(104px, 2px); }
-  70% { opacity: 1; transform: translate(126px, 68px); }
-  82% { opacity: 1; transform: translate(76px, 122px); }
-  92% { opacity: 1; transform: translate(22px, 36px); }
+  0% { opacity: 0; transform: translate(-170px, -16px); }
+  10% { opacity: 1; transform: translate(-150px, -72px); }
+  22% { opacity: 1; transform: translate(-96px, -116px); }
+  34% { opacity: 1; transform: translate(-18px, -132px); }
+  46% { opacity: 1; transform: translate(66px, -112px); }
+  58% { opacity: 1; transform: translate(126px, -64px); }
+  70% { opacity: 1; transform: translate(142px, -6px); }
+  82% { opacity: 1; transform: translate(92px, 18px); }
+  92% { opacity: 1; transform: translate(28px, 10px); }
   100% { opacity: 1; transform: translate(0, 0); }
 }
 @keyframes splashDotCenterOrbit {
-  0% { opacity: 0; transform: translate(0, 166px); }
-  10% { opacity: 1; transform: translate(74px, 142px); }
-  22% { opacity: 1; transform: translate(132px, 82px); }
-  34% { opacity: 1; transform: translate(122px, 8px); }
-  46% { opacity: 1; transform: translate(52px, -46px); }
-  58% { opacity: 1; transform: translate(-38px, -42px); }
-  70% { opacity: 1; transform: translate(-118px, 22px); }
-  82% { opacity: 1; transform: translate(-92px, 104px); }
-  92% { opacity: 1; transform: translate(-18px, 38px); }
+  0% { opacity: 0; transform: translate(0, -178px); }
+  10% { opacity: 1; transform: translate(78px, -154px); }
+  22% { opacity: 1; transform: translate(138px, -98px); }
+  34% { opacity: 1; transform: translate(154px, -24px); }
+  46% { opacity: 1; transform: translate(122px, 22px); }
+  58% { opacity: 1; transform: translate(44px, -88px); }
+  70% { opacity: 1; transform: translate(-64px, -114px); }
+  82% { opacity: 1; transform: translate(-134px, -52px); }
+  92% { opacity: 1; transform: translate(-36px, 6px); }
   100% { opacity: 1; transform: translate(0, 0); }
 }
 @keyframes splashDotRightOrbit {
-  0% { opacity: 0; transform: translate(132px, 138px); }
-  10% { opacity: 1; transform: translate(146px, 82px); }
-  22% { opacity: 1; transform: translate(116px, 22px); }
-  34% { opacity: 1; transform: translate(48px, -24px); }
-  46% { opacity: 1; transform: translate(-34px, -32px); }
-  58% { opacity: 1; transform: translate(-104px, 2px); }
-  70% { opacity: 1; transform: translate(-126px, 68px); }
-  82% { opacity: 1; transform: translate(-76px, 122px); }
-  92% { opacity: 1; transform: translate(-22px, 36px); }
+  0% { opacity: 0; transform: translate(170px, -16px); }
+  10% { opacity: 1; transform: translate(150px, -72px); }
+  22% { opacity: 1; transform: translate(96px, -116px); }
+  34% { opacity: 1; transform: translate(18px, -132px); }
+  46% { opacity: 1; transform: translate(-66px, -112px); }
+  58% { opacity: 1; transform: translate(-126px, -64px); }
+  70% { opacity: 1; transform: translate(-142px, -6px); }
+  82% { opacity: 1; transform: translate(-92px, 18px); }
+  92% { opacity: 1; transform: translate(-28px, 10px); }
   100% { opacity: 1; transform: translate(0, 0); }
 }
 @keyframes splashCopyIn {
@@ -4490,8 +4477,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   .splash-pin,
   .splash-dots i,
   .splash-word,
-  .splash-city,
-  .splash-tagline {
+  .splash-city {
     animation: none;
     opacity: 1;
     transform: none;
