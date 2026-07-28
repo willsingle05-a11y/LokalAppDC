@@ -288,8 +288,13 @@ function showDiscoverHint() {
 function setRoute(route) {
   if (route === "map") route = "home";
   state.route = route;
-  // Discover carries its own Bo lockup, so the topbar wordmark stands down there.
   document.body.dataset.route = route;
+  // Bo leans on the wordmark in the topbar; drawn once, then CSS decides which
+  // routes show him.
+  const boSlot = document.querySelector(".topbar-bo");
+  if (boSlot && !boSlot.childElementCount && typeof boPoseMarkup === "function") {
+    boSlot.innerHTML = boPoseMarkup("Leaning on the wordmark");
+  }
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
 }
