@@ -240,7 +240,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   position: relative;
   width: 150px;
   height: 172px;
-  margin-bottom: 2px;
+  margin: 0;
 }
 .splash-dots {
   position: absolute;
@@ -265,17 +265,17 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .splash-dots i:nth-child(1) {
   left: 0;
-  animation: splashDotLeftOrbit 1.64s .76s linear forwards;
+  animation: splashDotSettle .54s 1.08s ease-out forwards;
 }
 .splash-dots i:nth-child(2) {
   left: 27px;
   width: 20px;
   height: 20px;
-  animation: splashDotCenterOrbit 1.64s .76s linear forwards;
+  animation: splashDotSettle .54s 1.18s ease-out forwards;
 }
 .splash-dots i:nth-child(3) {
   right: 0;
-  animation: splashDotRightOrbit 1.64s .76s linear forwards;
+  animation: splashDotSettle .54s 1.28s ease-out forwards;
 }
 .splash-pin {
   position: absolute;
@@ -289,28 +289,6 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .splash-pin-head { box-sizing: border-box; width: 96px; height: 96px; border: 26px solid var(--ink); border-radius: 50%; }
 .splash-pin-stem { width: 11px; height: 52px; border-radius: 0 0 6px 6px; background: var(--ink); }
-.splash-word {
-  margin-top: 22px;
-  color: var(--ink);
-  font-size: 38px;
-  font-weight: 900;
-  letter-spacing: -.03em;
-  line-height: 1;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: splashCopyIn .42s 2.38s ease forwards;
-}
-.splash-city {
-  margin-top: 10px;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: .28em;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: splashCopyIn .42s 2.5s ease forwards;
-}
 @keyframes splashPinDrop {
   0% { transform: translateX(-50%) translateY(-46vh) scale(.97); opacity: 0; }
   12% { opacity: 1; }
@@ -318,51 +296,15 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   90% { transform: translateX(-50%) translateY(-4px) scale(1); opacity: 1; }
   100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 }
-@keyframes splashDotLeftOrbit {
-  0% { opacity: 0; transform: translate(-44px, -12px); }
-  8% { opacity: 1; transform: translate(-96px, 8px); }
-  18% { opacity: 1; transform: translate(-132px, 70px); }
-  30% { opacity: 1; transform: translate(-96px, 148px); }
-  42% { opacity: 1; transform: translate(-2px, 180px); }
-  54% { opacity: 1; transform: translate(104px, 136px); }
-  66% { opacity: 1; transform: translate(138px, 48px); }
-  78% { opacity: 1; transform: translate(90px, -34px); }
-  90% { opacity: 1; transform: translate(22px, -18px); }
-  100% { opacity: 1; transform: translate(0, 0); }
-}
-@keyframes splashDotCenterOrbit {
-  0% { opacity: 0; transform: translate(0, -42px); }
-  8% { opacity: 1; transform: translate(74px, -26px); }
-  18% { opacity: 1; transform: translate(132px, 34px); }
-  30% { opacity: 1; transform: translate(118px, 126px); }
-  42% { opacity: 1; transform: translate(34px, 184px); }
-  54% { opacity: 1; transform: translate(-82px, 162px); }
-  66% { opacity: 1; transform: translate(-138px, 78px); }
-  78% { opacity: 1; transform: translate(-108px, -14px); }
-  90% { opacity: 1; transform: translate(-26px, -22px); }
-  100% { opacity: 1; transform: translate(0, 0); }
-}
-@keyframes splashDotRightOrbit {
-  0% { opacity: 0; transform: translate(154px, -88px); }
-  8% { opacity: 1; transform: translate(178px, -20px); }
-  18% { opacity: 1; transform: translate(142px, 74px); }
-  30% { opacity: 1; transform: translate(54px, 152px); }
-  42% { opacity: 1; transform: translate(-46px, 166px); }
-  54% { opacity: 1; transform: translate(-128px, 104px); }
-  66% { opacity: 1; transform: translate(-148px, 18px); }
-  78% { opacity: 1; transform: translate(-98px, -56px); }
-  90% { opacity: 1; transform: translate(-30px, -12px); }
-  100% { opacity: 1; transform: translate(0, 0); }
-}
-@keyframes splashCopyIn {
-  to { opacity: 1; transform: translateY(0); }
+@keyframes splashDotSettle {
+  0% { opacity: 0; transform: translateY(10px) scale(.68); filter: blur(7px); }
+  62% { opacity: 1; transform: translateY(-3px) scale(1.08); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .lokal-splash { transition: none; }
   .splash-pin,
-  .splash-dots i,
-  .splash-word,
-  .splash-city {
+  .splash-dots i {
     animation: none;
     opacity: 1;
     transform: none;
