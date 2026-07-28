@@ -1177,6 +1177,21 @@ body.nav-back .page { animation-name: page-slide-right; }
 .event-card-media .event-card-img[src^="data:image/svg"],
 .tt-thumb img[src^="data:image/svg"],
 .gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #F6F4F0; }
-/* Discover shows the Bo lockup, so the topbar wordmark would be a duplicate */
-body[data-route="home"] .topbar .brand { display: none; }
-body[data-route="home"] .topbar .topbar-actions { margin-left: auto; }
+
+/* Bo leans on the wordmark in the topbar, on Discover only */
+.topbar-bo { display: none; }
+.brand { align-items: flex-end; gap: 6px; }
+.brand b, .brand small { white-space: nowrap; }
+body[data-route="home"] .topbar { height: 82px; padding-left: 10px; }
+body[data-route="home"] .topbar-bo {
+  display: block;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  margin-bottom: -10px;
+}
+body[data-route="home"] .topbar-bo svg { display: block; width: 100%; height: 100%; overflow: visible; }
+body[data-route="home"] .brand b { font-size: var(--fs-section); }
+body[data-route="home"] .topbar-actions { gap: 8px; }
+/* Bo takes the space the account name used to occupy on Discover */
+body[data-route="home"] .topbar .account-label { display: none; }

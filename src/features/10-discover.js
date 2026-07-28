@@ -755,10 +755,6 @@ function renderHome() {
   const deduped = dedupeFeedEvents(sorted);
   const syncStatus = discoverStatusLabel();
   app.innerHTML = `<section class="page discover-page">
-    <div class="bo-lockup">
-      <span class="bo-lockup-figure" aria-hidden="true">${typeof boPoseMarkup === "function" ? boPoseMarkup("Leaning on the wordmark") : ""}</span>
-      <span class="bo-lockup-card"><b>LOKAL</b><small>WASHINGTON, DC</small></span>
-    </div>
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
     ${followingRail()}
