@@ -1208,3 +1208,24 @@ body[data-route="home"] .topbar .account-label { display: none; }
 .profile-goal, .top-ten {
   border: 1px solid rgba(25, 26, 25, .08);
 }
+
+/* ---- Repeat strip: which weekdays a series lands on ------------------ */
+.repeat-strip {
+  display: flex;
+  gap: 3px;
+  margin-top: 8px;
+}
+.repeat-strip i {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(25, 26, 25, .05);
+  color: rgba(25, 26, 25, .35);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+}
+.repeat-strip i.on { color: var(--accent-strong); background: var(--mint-tint); font-weight: 800; }
