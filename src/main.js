@@ -41,7 +41,7 @@ document.body.appendChild(script);
 // reads as a brand moment instead of a flash on a warm cache.
 const splash = document.getElementById("lokal-splash");
 if (splash) {
-  const MIN_VISIBLE = 1900;
+  const MIN_VISIBLE = 2300;
   const shownAt = performance.now();
   const dismiss = () => {
     const remaining = Math.max(0, MIN_VISIBLE - (performance.now() - shownAt));

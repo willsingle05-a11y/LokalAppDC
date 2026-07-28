@@ -261,21 +261,25 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   border-radius: 50%;
   background: var(--mint-deep);
   opacity: 0;
-  transform-origin: center 86px;
+  transform-origin: center 118px;
+  will-change: offset-distance, opacity, transform;
 }
 .splash-dots i:nth-child(1) {
   left: 0;
-  animation: splashDotLeft 1.12s .58s cubic-bezier(.2, .8, .2, 1) forwards;
+  offset-path: path("M -92 128 C -168 72 -128 -38 -24 -54 C 64 -68 124 4 92 76 C 74 118 28 126 0 0");
+  animation: splashDotOrbit 1.46s .52s cubic-bezier(.16, .82, .18, 1) forwards;
 }
 .splash-dots i:nth-child(2) {
   left: 27px;
   width: 20px;
   height: 20px;
-  animation: splashDotCenter 1.16s .66s cubic-bezier(.2, .8, .2, 1) forwards;
+  offset-path: path("M 0 154 C 116 120 136 6 40 -48 C -52 -100 -142 -26 -102 70 C -72 142 -14 124 0 0");
+  animation: splashDotOrbit 1.52s .62s cubic-bezier(.16, .82, .18, 1) forwards;
 }
 .splash-dots i:nth-child(3) {
   right: 0;
-  animation: splashDotRight 1.12s .74s cubic-bezier(.2, .8, .2, 1) forwards;
+  offset-path: path("M 92 128 C 168 72 128 -38 24 -54 C -64 -68 -124 4 -92 76 C -74 118 -28 126 0 0");
+  animation: splashDotOrbit 1.46s .72s cubic-bezier(.16, .82, .18, 1) forwards;
 }
 .splash-pin {
   position: absolute;
@@ -330,23 +334,12 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   82% { transform: translateX(-50%) translateY(-5px) scale(.99); opacity: 1; }
   100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 }
-@keyframes splashDotLeft {
-  0% { opacity: 0; transform: translate(82px, 92px) rotate(-170deg) scale(.75); }
-  45% { opacity: 1; transform: translate(46px, 42px) rotate(-58deg) scale(1.08); }
-  78% { opacity: 1; transform: translate(-4px, 0) rotate(8deg) scale(1); }
-  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
-}
-@keyframes splashDotCenter {
-  0% { opacity: 0; transform: translate(0, 112px) rotate(160deg) scale(.72); }
-  45% { opacity: 1; transform: translate(-35px, 45px) rotate(70deg) scale(1.08); }
-  78% { opacity: 1; transform: translate(0, -4px) rotate(-8deg) scale(1); }
-  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
-}
-@keyframes splashDotRight {
-  0% { opacity: 0; transform: translate(-82px, 92px) rotate(170deg) scale(.75); }
-  45% { opacity: 1; transform: translate(-46px, 42px) rotate(58deg) scale(1.08); }
-  78% { opacity: 1; transform: translate(4px, 0) rotate(-8deg) scale(1); }
-  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
+@keyframes splashDotOrbit {
+  0% { opacity: 0; offset-distance: 0%; transform: scale(.62); }
+  12% { opacity: 1; transform: scale(.82); }
+  64% { opacity: 1; transform: scale(1.08); }
+  86% { opacity: 1; transform: scale(.98); }
+  100% { opacity: 1; offset-distance: 100%; transform: scale(1); }
 }
 @keyframes splashCopyIn {
   to { opacity: 1; transform: translateY(0); }
