@@ -571,17 +571,28 @@ function renderFilterBar() {
     <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
-  const matchCount = displayableDcEvents().filter(eventMatchesFilters).length;
-  const anyActive = what.size || where.size || whenLabels.length;
+  const anyActive = (what.size ? 1 : 0) + (where.size ? 1 : 0) + (whenLabels.length ? 1 : 0);
+  const panelOpen = Boolean(state.filterPanelOpen);
+  // Search field and a round filter button beside it. The three criteria stay
+  // out of the way until the filter button is tapped; each then opens its own
+  // sheet, so When, Where and What all behave identically.
   return `<div class="sub-filters">
-    <div class="filter-intro"><h2>Find events</h2></div>
-    <div class="search-card">
-    ${cardRow("data-when-sheet", "When", whenLabels.length)}
-    ${cardRow("data-where-sheet", "Where", where.size)}
-    ${cardRow("data-what-sheet", "What", what.size)}
-    <button class="wide-button" data-scroll-feed>Search ${matchCount} event${matchCount === 1 ? "" : "s"}</button>
-    ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
+    <div class="search-row">
+      <label class="search-field">
+        <span class="search-ic">${icons.search}</span>
+        <input data-discover-search value="${escapeHtml(state.discoverSearch || "")}" placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods">
+      </label>
+      <button class="filter-round-btn${panelOpen ? " open" : ""}${anyActive ? " has-value" : ""}" data-toggle-filter-panel aria-expanded="${panelOpen}" aria-label="Filters">
+        ${icons.sliders}${anyActive ? `<i class="filter-round-count">${anyActive}</i>` : ""}
+      </button>
     </div>
+    <div class="discover-search-results" data-discover-results hidden></div>
+    ${panelOpen ? `<div class="filter-panel-rows">
+      ${cardRow("data-when-sheet", "When", whenLabels.length)}
+      ${cardRow("data-where-sheet", "Where", where.size)}
+      ${cardRow("data-what-sheet", "What", what.size)}
+      ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
+    </div>` : ""}
   </div>`;
 }
 
@@ -747,7 +758,6 @@ function renderHome() {
   app.innerHTML = `<section class="page discover-page">
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
-    <label class="search-box discover-search-box subtle-search"><span class="search-ic">${icons.search}</span><input data-discover-search placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     ${followingRail()}
     <div class="sync-note ${state.eventSync.status}"><span>${state.eventSync.label}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2><p class="feed-count" data-feed-count>${feedFilterCountLabel(deduped.length)}</p></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
