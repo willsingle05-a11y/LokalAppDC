@@ -5,6 +5,7 @@ import "./styles/lokal-ds.css";
 
 import coreSource from "./features/00-core.js?raw";
 import demoProfilesSource from "./features/01-demo-profiles.js?raw";
+import boMascotSource from "./features/02-bo-mascot.js?raw";
 import supabaseSource from "./features/05-supabase.js?raw";
 import scoringSource from "./features/06-scoring.js?raw";
 import blendedFeedSource from "./features/07-blended-feed.js?raw";
@@ -18,6 +19,7 @@ import interactionsSource from "./features/90-interactions.js?raw";
 const featureScripts = [
   ["00-core.js", coreSource],
   ["01-demo-profiles.js", demoProfilesSource],
+  ["02-bo-mascot.js", boMascotSource],
   ["05-supabase.js", supabaseSource],
   ["06-scoring.js", scoringSource],
   ["07-blended-feed.js", blendedFeedSource],

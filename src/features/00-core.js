@@ -245,6 +245,8 @@ function eventArtScene(event) {
 
 function eventArtImage(event) {
   if (event.image) return `url('${String(event.image).replace(/'/g, "%27")}')`;
+  // No photo — Bo stands in, posed to match the kind of event.
+  if (typeof boEventImage === "function") return `url("${boEventImage(event)}")`;
   return genericEventArt(event);
 }
 
@@ -252,6 +254,7 @@ function eventArtImage(event) {
 // natural aspect ratio). Falls back to the generated SVG art.
 function eventCardImageSrc(event) {
   if (event.image) return String(event.image);
+  if (typeof boEventImage === "function") return boEventImage(event);
   const art = genericEventArt(event);
   const match = art.match(/^url\(['"]?([\s\S]*?)['"]?\)$/);
   return match ? match[1] : art;

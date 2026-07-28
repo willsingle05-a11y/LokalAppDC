@@ -288,6 +288,8 @@ function showDiscoverHint() {
 function setRoute(route) {
   if (route === "map") route = "home";
   state.route = route;
+  // Discover carries its own Bo lockup, so the topbar wordmark stands down there.
+  document.body.dataset.route = route;
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
 }
