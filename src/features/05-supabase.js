@@ -1103,6 +1103,9 @@ async function syncSupabaseEvents(showToast = false) {
     events = [...demoEvents];
     state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
   }
+  // The venue name clusters are derived from the loaded events, so they have to
+  // be rebuilt whenever the event set is replaced.
+  if (typeof venueCanonicalReset === "function") venueCanonicalReset();
   reconcileUserPlans();
   if (state.route === "home") renderHome();
   openSharedEventFromUrl();

@@ -118,9 +118,12 @@ function venueSearchMatches(query, limit = 8) {
   const terms = String(query || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.length) return [];
   const fromEvents = displayableDcEvents().map(event => ({ name: cleanLocationPart(event.venue), neighborhood: cleanLocationPart(event.area || event.neighborhood), image_url: event.image || "" }));
+  // Collapse the spellings of a venue to one entry — "Tryst", "Tryst Bar
+  // Events" and "Tryst Coffee House bar" are one result, not three.
   const merged = [...venueDirectory, ...fromEvents]
     .filter(venue => venue.name)
-    .filter((venue, index, all) => all.findIndex(item => venueImageKeyName(item.name) === venueImageKeyName(venue.name)) === index);
+    .map(venue => ({ ...venue, name: canonicalVenueName(venue.name) }))
+    .filter((venue, index, all) => all.findIndex(item => venueCanonicalKey(item.name) === venueCanonicalKey(venue.name)) === index);
   return merged
     .filter(venue => terms.every(term => `${venue.name} ${venue.neighborhood || ""} ${venue.address || ""}`.toLowerCase().includes(term)))
     .slice(0, limit);

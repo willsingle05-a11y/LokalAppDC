@@ -746,8 +746,12 @@ function eventRow(event, variant = "", opts = {}) {
   const area = eventCardArea(event);
   const tags = eventTags(event);
   const catLabel = eventArtLabel(event);
-  const rawVenue = cleanLocationPart(event.venue);
+  const rawVenue = canonicalVenueName(event.venue);
   const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
+  const repeat = eventSeriesWeekdays(event);
+  const repeatHtml = repeat.count > 1 && repeat.days.length
+    ? `<span class="repeat-strip" aria-label="Repeats on ${repeat.days.map(day => REPEAT_DAY_NAMES[day]).join(", ")}">${REPEAT_DAY_LETTERS.map((letter, day) => `<i class="${repeat.days.includes(day) ? "on" : ""}">${letter}</i>`).join("")}</span>`
+    : "";
   const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  ·  ");
   const leftTag = eventTagChips(event, 3);
   const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
@@ -768,6 +772,7 @@ function eventRow(event, variant = "", opts = {}) {
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
         ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
       </button>
+      ${repeatHtml}
       ${bottomHtml}
     </div>
   </article>`;
@@ -808,6 +813,146 @@ function eventListRow(event, opts = {}) {
   </article>`;
 }
 
+// --- Venue name canonicalisation ------------------------------------------
+// The same venue arrives under several names — "Tryst", "Tryst Bar Events",
+// "Tryst Coffee House bar". venueImageKeyName only trims a trailing generic
+// word, so those stay three separate keys. Here they are clustered: a shorter
+// key that is a prefix of a longer one wins, and the cluster takes the
+// shortest, most common spelling as its display name.
+const venueCanonical = { built: false, toCanon: new Map(), display: new Map() };
+
+function venueCanonicalReset() {
+  venueCanonical.built = false;
+  venueCanonical.toCanon.clear();
+  venueCanonical.display.clear();
+}
+
+// Words that describe what a place is rather than name it. A longer name only
+// folds into a shorter one when everything it adds comes from this list —
+// "Tryst" + "coffee house bar" merges, but "The Royal" and "Royal Sands Social
+// Club" stay apart, and so does "The Royal Embassy of Saudi Arabia".
+const VENUE_GENERIC_TOKENS = new Set([
+  "the", "a", "an", "of", "and", "at", "on", "dc", "washington",
+  "bar", "bars", "cafe", "café", "coffee", "house", "lounge", "tavern", "pub",
+  "kitchen", "grill", "grille", "restaurant", "eatery", "bistro", "diner",
+  "brewing", "brewery", "taproom", "beer", "wine", "winery", "cocktail",
+  "events", "event", "venue", "hall", "room", "rooms", "space", "spaces",
+  "theatre", "theater", "music", "live", "stage", "studio", "gallery",
+  "company", "co", "inc", "llc", "group"
+]);
+
+function venueTokenKey(name) {
+  return venueNameTokens(name).join("");
+}
+
+function venueTokens(name) {
+  // Parenthesised text is kept as words so "(Navy Yard)" and "Navy Yard" agree.
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[()]/g, " ")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+// Distinctive tokens are what actually identify the place.
+function venueNameTokens(name) {
+  const tokens = venueTokens(name);
+  while (tokens.length > 1 && VENUE_GENERIC_TOKENS.has(tokens[0])) tokens.shift();
+  return tokens;
+}
+
+function venueFoldsInto(shortTokens, longTokens) {
+  if (!shortTokens.length || longTokens.length <= shortTokens.length) return false;
+  for (let i = 0; i < shortTokens.length; i += 1) {
+    if (shortTokens[i] !== longTokens[i]) return false;
+  }
+  // Everything the longer name adds has to be a generic descriptor.
+  return longTokens.slice(shortTokens.length).every(token => VENUE_GENERIC_TOKENS.has(token));
+}
+
+function buildVenueCanonicalIndex() {
+  const counts = new Map();
+  const names = new Map();
+  const note = raw => {
+    const name = typeof cleanLocationPart === "function" ? cleanLocationPart(raw) : String(raw || "").trim();
+    if (!name) return;
+    const key = venueTokenKey(name);
+    if (key.length < 3) return;
+    counts.set(key, (counts.get(key) || 0) + 1);
+    const seen = names.get(key) || new Map();
+    seen.set(name, (seen.get(name) || 0) + 1);
+    names.set(key, seen);
+  };
+  (Array.isArray(events) ? events : []).forEach(event => note(event.venue));
+  (Array.isArray(venueDirectory) ? venueDirectory : []).forEach(venue => note(venue.name));
+
+  // Representative spelling per key, then fewest-tokens first so the base name
+  // becomes the cluster root.
+  const repName = new Map();
+  names.forEach((bucket, key) => {
+    const best = [...bucket.entries()].sort((a, b) => b[1] - a[1] || a[0].length - b[0].length)[0];
+    repName.set(key, best ? best[0] : key);
+  });
+  const keys = [...counts.keys()].sort((a, b) => {
+    const delta = venueNameTokens(repName.get(a)).length - venueNameTokens(repName.get(b)).length;
+    return delta || a.length - b.length || a.localeCompare(b);
+  });
+
+  const roots = [];
+  keys.forEach(key => {
+    const tokens = venueNameTokens(repName.get(key));
+    const root = roots.find(candidate => venueFoldsInto(candidate.tokens, tokens));
+    if (root) { venueCanonical.toCanon.set(key, root.key); return; }
+    roots.push({ key, tokens });
+    venueCanonical.toCanon.set(key, key);
+  });
+
+  // Display name: the shortest spelling in the cluster, most common breaking ties.
+  const clusterNames = new Map();
+  keys.forEach(key => {
+    const root = venueCanonical.toCanon.get(key);
+    const bucket = clusterNames.get(root) || new Map();
+    (names.get(key) || new Map()).forEach((count, name) => bucket.set(name, (bucket.get(name) || 0) + count));
+    clusterNames.set(root, bucket);
+  });
+  clusterNames.forEach((bucket, root) => {
+    const best = [...bucket.entries()].sort((a, b) => a[0].length - b[0].length || b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+    if (best) venueCanonical.display.set(root, best[0]);
+  });
+  venueCanonical.built = true;
+}
+
+function venueCanonicalKey(name) {
+  if (!venueCanonical.built) buildVenueCanonicalIndex();
+  const key = venueTokenKey(name);
+  return venueCanonical.toCanon.get(key) || key;
+}
+
+function canonicalVenueName(name) {
+  if (!venueCanonical.built) buildVenueCanonicalIndex();
+  const clean = typeof cleanLocationPart === "function" ? cleanLocationPart(name) : String(name || "").trim();
+  // Branch qualifiers are part of the cluster key now, so "Atlas Brew Works
+  // (Navy Yard)" and "Atlas Brew Works Navy Yard" resolve to one name while
+  // the Ivy City taproom stays its own venue.
+  return venueCanonical.display.get(venueCanonicalKey(clean)) || clean;
+}
+
+// --- Recurring series ------------------------------------------------------
+const REPEAT_DAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
+const REPEAT_DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// Weekdays a series actually lands on, taken from the loaded occurrences
+// rather than from wording in the title.
+function eventSeriesWeekdays(event) {
+  const all = typeof occurrencesForEvent === "function" ? occurrencesForEvent(event) : [event];
+  const days = new Set();
+  all.forEach(item => {
+    const date = eventDateValue(item);
+    if (date) days.add(date.getDay());
+  });
+  return { days: [...days].sort((a, b) => a - b), count: all.length };
+}
+
 function eventDedupeKey(event) {
   return `${String(event.title || "").trim().toLowerCase().replace(/\s+/g, " ")}|${venueImageKeyName(event.venue || eventLocationLine(event))}`;
 }
@@ -835,18 +980,15 @@ function feedDedupeKey(event) {
 // is the next upcoming occurrence.
 function dedupeFeedEvents(list) {
   const seen = new Set();
-  const seriesWeekday = new Set();
+  const series = new Set();
   return list.filter(event => {
     const key = feedDedupeKey(event);
     if (seen.has(key)) return false;
-    // A weekly series would otherwise return a card for every future week.
-    // Keep at most one per weekday, which is the next one on that day.
-    const date = eventDateValue(event);
-    if (date) {
-      const weekdayKey = `${eventDedupeKey(event)}|${date.getDay()}`;
-      if (seriesWeekday.has(weekdayKey)) return false;
-      seriesWeekday.add(weekdayKey);
-    }
+    // One card per series. A weekly happy hour used to return a card for every
+    // future occurrence; the card now carries a strip of the days it repeats on.
+    const seriesKey = eventDedupeKey(event);
+    if (series.has(seriesKey)) return false;
+    series.add(seriesKey);
     seen.add(key);
     return true;
   });
