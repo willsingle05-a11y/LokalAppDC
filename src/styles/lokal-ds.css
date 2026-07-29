@@ -1193,7 +1193,7 @@ body[data-route="home"] .topbar-bo {
 }
 body[data-route="home"] .topbar-bo svg { display: block; width: 100%; height: 100%; overflow: visible; }
 body[data-route="home"] .brand b { font-size: var(--fs-section); }
-body[data-route="home"] .topbar-actions { gap: 8px; }
+body[data-route="home"] .topbar-actions { gap: 8px; transform: translateY(-8px); }
 /* Bo takes the space the account name used to occupy on Discover */
 body[data-route="home"] .topbar .account-label { display: none; }
 
