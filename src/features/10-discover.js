@@ -46,21 +46,20 @@ function eventFeedPattern(list) {
 
 // Per-category copy + filter chips. The first chip in each list is the
 // "all/clear" option. Categories beyond the original brief (museums, festivals,
-// community, expos, free) are inferred following the same pattern.
+// community, free) are inferred following the same pattern.
 const categoryFeedConfig = {
   concerts: { label: "Concerts", searchPlaceholder: "Search by artist, venue, or date…", chips: ["All shows", "This week", "This month", "Pop", "Rock", "Hip-Hop", "Country", "Classical"] },
   "live-music": { label: "Live music", searchPlaceholder: "Search by genre, venue, or artist…", chips: ["All shows", "Jazz", "Indie", "R&B", "Blues", "Folk", "Electronic", "Soul"] },
   "happy-hours": { label: "Happy hours", searchPlaceholder: "Search by type, vibe, or venue…", chips: ["All deals", "Cocktails", "Beer", "Wine", "Rooftop", "Patio", "Food deals", "After work"] },
   "trivia-nights": { label: "Trivia nights", searchPlaceholder: "Search by bar, theme, or night…", chips: ["All nights", "Free to play", "Pop culture", "Sports", "Music", "Science", "80s", "90s"] },
-  food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or deal…", chips: ["All", "Happy hour", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails"] },
+  food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or deal…", chips: ["All", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails", "Food festival"] },
   nightlife: { label: "Nightlife", searchPlaceholder: "Search by venue, vibe, or night…", chips: ["All venues", "Clubs", "Bars", "Rooftop", "DJ nights", "Late night", "21+"] },
   culture: { label: "Culture", searchPlaceholder: "Search by embassy, country, heritage, or speaker…", chips: ["All culture", "Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance"] },
   "performing-arts": { label: "Performing arts", searchPlaceholder: "Search by theater, comedy, dance, film, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or show…", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
   festivals: { label: "Festivals", searchPlaceholder: "Search by festival, neighborhood, or type…", chips: ["All festivals", "Food & drink", "Music", "Art", "Cultural", "Outdoor", "Family"] },
-  community: { label: "Community", searchPlaceholder: "Search by cause, group, or neighborhood…", chips: ["All events", "Volunteer", "Networking", "Book club", "Outdoor", "Free", "Neighborhood"] },
-  expos: { label: "Expos", searchPlaceholder: "Search by expo, theme, or venue…", chips: ["All expos", "Convention", "Trade show", "Marketplace", "Workshop", "Networking"] },
+  community: { label: "Community", searchPlaceholder: "Search by cause, group, convention, or neighborhood…", chips: ["All events", "Volunteer", "Networking", "Convention", "Workshop", "Book club", "Outdoor", "Free"] },
   free: { label: "Free events", searchPlaceholder: "Search free events by type or venue…", chips: ["All free", "Comedy", "Museums", "Outdoor", "Live music", "Festivals", "Workshops", "Talks"] }
 };
 
@@ -105,8 +104,7 @@ function followingRail() {
     <b>${escapeHtml(story.todayOnly ? "Today" : story.name)}</b>
     <small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small>
   </button>`).join("");
-  return `<div class="top-types-head"><p class="eyebrow">Following</p></div>
-    <div class="top-types top-types-scroll">${venueTiles}${storyTiles}</div>`;
+  return `<div class="top-types top-types-scroll following-stories-row">${venueTiles}${storyTiles}</div>`;
 }
 
 function venueDirectoryMatch(name) {
@@ -286,7 +284,7 @@ function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
   if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
-  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, community: 1, expos: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
@@ -611,7 +609,7 @@ function openWhereSheet() {
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet where-sheet" role="dialog" aria-modal="true" aria-label="Where">
     <button class="modal-close" aria-label="Close">&times;</button>
-    <div class="sheet-head"><h3>Where?</h3>${where.size ? `<button class="text-button" data-clear-where>Clear</button>` : ""}</div>
+    <div class="sheet-head"><h3>Where?</h3></div>
     <p class="cal-hint">${where.size ? `${where.size} neighborhood${where.size === 1 ? "" : "s"} selected` : "Pick one or more neighborhoods, or leave it open."}</p>
     <div class="filter-block"><div class="filter-options">${chips}</div></div>
     <div class="filter-footer"><button class="text-button" data-clear-where>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
@@ -620,13 +618,32 @@ function openWhereSheet() {
 
 function openWhatSheet() {
   const what = state.whatFilter || new Set();
-  const chips = `<button class="${what.size ? "" : "selected"}" data-clear-what>Anything</button>`
+  const artForWhat = (value, label) => {
+    const aliases = {
+      concerts: "Concerts",
+      "live-music": "Live music",
+      food: "Food & drink",
+      nightlife: "Nightlife",
+      culture: "Culture",
+      "performing-arts": "Performing arts",
+      museums: "Museums",
+      sports: "Sports",
+      festivals: "Markets",
+      community: "Community",
+      "happy-hours": "Happy hours",
+      "trivia-nights": "Trivia",
+      free: "Free events"
+    };
+    return categoryArt[aliases[value] || label] || "";
+  };
+  const optionButton = (value, label) => `<button class="what-option ${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${artForWhat(value, label) ? `<span class="what-option-art" aria-hidden="true">${artForWhat(value, label)}</span>` : ""}<span>${escapeHtml(label)}</span></button>`;
+  const chips = `<button class="what-option ${what.size ? "" : "selected"}" data-clear-what><span class="what-option-art what-option-all" aria-hidden="true">${icons.spark}</span><span>All</span></button>`
     + whatFilterOptions()
-      .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+      .map(([value, label]) => optionButton(value, label))
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
     <button class="modal-close" aria-label="Close">&times;</button>
-    <div class="sheet-head"><h3>What?</h3>${what.size ? `<button class="text-button" data-clear-what>Clear</button>` : ""}</div>
+    <div class="sheet-head"><h3>What?</h3></div>
     <p class="cal-hint">${what.size ? `${what.size} type${what.size === 1 ? "" : "s"} selected` : "Pick the kinds of events you want to see."}</p>
     <div class="filter-block"><div class="filter-options">${chips}</div></div>
     <div class="filter-footer"><button class="text-button" data-clear-what>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
@@ -737,7 +754,7 @@ function openTimePickerSheet() {
 function discoverStatusLabel() {
   if (state.eventSync.status === "loading") return "Checking shared events";
   if (state.eventSync.status === "error") return "Event refresh needs attention";
-  return "Events refreshed";
+  return "";
 }
 
 function discoverFiltersActive() {
@@ -756,11 +773,12 @@ function renderHome() {
   // All should feel broadly shared; For You is where onboarding interests tailor order.
   const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
+  const syncStatus = discoverStatusLabel();
   app.innerHTML = `<section class="page discover-page">
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
     ${followingRail()}
-    <div class="sync-note ${state.eventSync.status}"><span>${discoverStatusLabel()}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
+    ${syncStatus ? `<div class="sync-note ${state.eventSync.status}"><span>${syncStatus}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>` : ""}
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
@@ -790,7 +808,7 @@ function renderDiscoverCategoryPage(category) {
 }
 
 function searchableDiscoverCategory(category) {
-  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "free"].includes(category);
 }
 
 function eventMatchesCategoryFacet(event, query) {
@@ -814,7 +832,6 @@ function categoryFacetLabel(category) {
     museums: "museum type",
     festivals: "festival type",
     community: "community type",
-    expos: "expo type",
     free: "type"
   };
   return labels[category] || "type";
@@ -833,7 +850,6 @@ function categoryFacetAllLabel(category) {
     museums: "All museum types",
     festivals: "All festival types",
     community: "All community types",
-    expos: "All expos",
     free: "All free events"
   };
   return labels[category] || "All types";
@@ -851,8 +867,7 @@ function categoryFacetPriorityList(category) {
     culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
     festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
-    community: ["Volunteer", "Networking", "Book Club", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
-    expos: ["Convention", "Expo", "Trade Show", "Marketplace", "Workshop", "Networking"],
+    community: ["Volunteer", "Networking", "Book Club", "Convention", "Workshop", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
     free: ["Comedy", "Museum", "Outdoor", "Family Friendly", "Live music", "Festival", "Workshop", "Talk", "Community"]
   }[category] || [];
 }
@@ -892,20 +907,22 @@ function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
   if (/concert/.test(text)) return "concerts";
   if (/music|jazz|dj|karaoke/.test(text)) return "live-music";
-  if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
+  if (/happy hour/.test(text)) return "happy-hours";
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/embassy|international|culture|cultural|heritage|ambassador|global/.test(text)) return "culture";
   if (/museum/.test(text)) return "museums";
+  if (/visual art|gallery|art/.test(text)) return "performing-arts";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
   if (/sport|pickleball/.test(text)) return "sports";
-  if (/food|restaurant|brunch|festival|street fair|market/.test(text)) return "festivals";
+  if (/food|restaurant|brunch|chef|culinary|tasting|wine|beer|cocktail/.test(text)) return "food";
+  if (/festival|street fair|market/.test(text)) return "festivals";
   if (/community|volunteer|book club|networking|professional/.test(text)) return "community";
   return "";
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
@@ -1086,15 +1103,54 @@ function diverseEventSelection(list, limit = 5) {
   return picked;
 }
 
+function eventDaypart(event) {
+  if (!Number.isFinite(event?.startSort)) return "anytime";
+  const hour = new Date(event.startSort).getHours();
+  if (hour < 12) return "morning";
+  if (hour < 17) return "afternoon";
+  if (hour < 22) return "evening";
+  return "late";
+}
+
+function dailyFeaturedEventSelection(list, limit = 5) {
+  const candidates = list
+    .filter(event => event.image)
+    .filter(event => Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER)
+    .sort((a, b) => eventPopularityScore(b) - eventPopularityScore(a) || sortEventsByStart(a, b));
+  const picked = [];
+  const usedIds = new Set();
+  const usedCategories = new Set();
+  const usedDayparts = new Set();
+  const addBest = (pool, preferNewCategory = true, preferNewDaypart = false) => {
+    const next = pool.find(event =>
+      !usedIds.has(event.id)
+      && (!preferNewCategory || !usedCategories.has(event.cat))
+      && (!preferNewDaypart || !usedDayparts.has(eventDaypart(event)))
+    );
+    if (!next) return false;
+    picked.push(next);
+    usedIds.add(next.id);
+    usedCategories.add(next.cat);
+    usedDayparts.add(eventDaypart(next));
+    return true;
+  };
+  ["morning", "afternoon", "evening", "late"].forEach(daypart => {
+    if (picked.length < limit) addBest(candidates.filter(event => eventDaypart(event) === daypart), true);
+  });
+  while (picked.length < limit && addBest(candidates, true, true)) {}
+  while (picked.length < limit && addBest(candidates, true, false)) {}
+  while (picked.length < limit && addBest(candidates, false, false)) {}
+  return picked.slice(0, limit).sort(sortEventsByStart);
+}
+
 function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dcEvents = displayableDcEvents().sort(sortEventsByStart);
-    const todaysEvents = diverseEventSelection(dcEvents
-      .filter(event => sameCalendarDate(eventDateValue(event), today))
-      .filter(event => event.image), 5);
-    const fallbackEvents = diverseEventSelection(dcEvents.filter(event => event.image), 5);
+    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
+    const todaysEvents = dailyFeaturedEventSelection(dcEvents
+      .filter(event => sameCalendarDate(eventDateValue(event), today)), 5);
+    const fallbackEvents = dailyFeaturedEventSelection(dcEvents, 5);
     return (todaysEvents.length ? todaysEvents : fallbackEvents);
   }
   const venueKeywords = story.venueKeywords || [];
@@ -1118,6 +1174,10 @@ function storyEventPool(story) {
     .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
     .sort(sortEventsByStart)
     .slice(0, 6);
+}
+
+function storyEventAlreadyHappened(event) {
+  return Number.isFinite(event?.startSort) && event.startSort < Date.now();
 }
 
 function activeFollowingStories() {
@@ -1153,7 +1213,7 @@ function openStory(index) {
     <div class="story-progress">${stories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.todayOnly ? "Happening today" : escapeHtml(story.name)}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
-    <div class="event-stack">${storyEvents.map(event => eventListRow(event)).join("")}</div>
+    <div class="event-stack">${storyEvents.map(event => eventListRow(event, { disabled: story.todayOnly && storyEventAlreadyHappened(event), expired: story.todayOnly && storyEventAlreadyHappened(event) })).join("")}</div>
     <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }

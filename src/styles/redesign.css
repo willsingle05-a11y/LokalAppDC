@@ -129,6 +129,7 @@ h3 { font-weight: 700; }
 }
 .card-icon-btn:hover { background: rgba(0, 0, 0, .62); transform: scale(1.06); }
 .card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+.card-icon-btn svg path { transition: fill .08s ease, stroke .08s ease; }
 .card-save svg { fill: none; }
 .card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
 .event-card-bottom {
@@ -423,6 +424,16 @@ h3 { font-weight: 700; }
 .detail-occurrences { margin: 16px 0 4px; }
 .detail-occurrences .eyebrow { margin-bottom: 8px; }
 .occurrence-list { display: grid; gap: 7px; }
+.occurrence-summary {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border: 1px solid rgba(58, 124, 165, .16);
+  border-radius: 13px;
+  background: #f7fafc;
+}
+.occurrence-summary b { font-size: 13px; }
+.occurrence-summary small { color: var(--muted); font-size: 11px; }
 .occurrence-row {
   display: flex;
   align-items: center;
@@ -500,6 +511,18 @@ h3 { font-weight: 700; }
 .event-list-row.is-first { border-top: 1px solid rgba(58, 124, 165, .13); border-radius: 14px 14px 0 0; }
 .event-list-row.is-last { border-radius: 0 0 14px 14px; }
 .event-list-row:hover { background: #fbfdfc; }
+.event-list-row.is-disabled {
+  color: rgba(28, 43, 28, .5);
+  background: #f1f2ef;
+  cursor: default;
+  filter: grayscale(.75);
+}
+.event-list-row.is-disabled:hover { background: #f1f2ef; }
+.event-list-row.is-disabled .elr-thumb { opacity: .45; }
+.event-list-row.is-disabled .elr-venue,
+.event-list-row.is-disabled .elr-meta,
+.event-list-row.is-disabled .event-tag { color: rgba(28, 43, 28, .45); }
+.event-list-row.is-disabled .event-tag { background: rgba(28, 43, 28, .08); }
 .event-list-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
 .elr-thumb { width: 54px; height: 54px; border-radius: 10px; background-position: center; background-size: cover; }
 .elr-copy { display: grid; gap: 3px; min-width: 0; }
@@ -525,6 +548,15 @@ h3 { font-weight: 700; }
   font-weight: 700;
 }
 .elr-side { position: relative; z-index: 2; display: grid; gap: 6px; justify-items: end; pointer-events: none; }
+.elr-expired {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(28, 43, 28, .08);
+  color: rgba(28, 43, 28, .55);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
 .elr-save {
   display: grid;
   place-items: center;
@@ -586,7 +618,7 @@ h3 { font-weight: 700; }
 /* ============================================================
    Event detail: RSVP/Save feedback, hint, social urgency
    ============================================================ */
-.rsvp-hint { margin: -6px 0 14px; color: var(--muted); font-size: 11px; text-align: center; }
+.rsvp-hint { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.35; text-align: center; }
 @keyframes btnPop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
 .btn-pop { animation: btnPop .32s ease; }
 .action.rsvp-action.selected { background: var(--accent); color: #fff; }
@@ -1985,6 +2017,18 @@ h3 { font-weight: 800; }
   letter-spacing: 0;
   text-transform: none;
   overflow-wrap: anywhere;
+}
+.event-card-info .event-card-time {
+  color: #4f5751;
+  font-weight: 650;
+}
+.event-card-info .event-card-time strong { font-weight: 700; }
+.event-card-info .event-card-more-week {
+  color: #8b918b;
+  font-weight: 500;
+}
+.event-card-info .event-card-area {
+  color: #9a9f98;
 }
 
 /* Dashed "receipt" perforation + price row */

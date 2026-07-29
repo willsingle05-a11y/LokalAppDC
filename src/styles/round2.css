@@ -583,6 +583,14 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-weight: 900;
   text-transform: uppercase;
 }
+.planner-card.planner-calendar-card {
+  border-style: dashed;
+  background: #fbfdff;
+}
+.planner-actions span.calendar-plan-pill {
+  color: #326f91;
+  background: #eef6fb;
+}
 .planner-legend {
   display: flex;
   flex-wrap: wrap;
@@ -676,7 +684,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .planner-dot.festivals, .planner-legend i.festivals, .planner-day i.festivals { background: #ef6f6c; }
 .planner-dot.culture, .planner-legend i.culture, .planner-day i.culture { background: #2f80ed; }
 .planner-dot.community, .planner-legend i.community, .planner-day i.community { background: #7bc67e; }
-.planner-dot.expos, .planner-legend i.expos, .planner-day i.expos { background: #64748b; }
+.planner-dot.expos, .planner-legend i.expos, .planner-day i.expos { background: #7bc67e; }
 .empty-planner {
   padding: 13px;
   border: 1px dashed rgba(58, 124, 165, .24);

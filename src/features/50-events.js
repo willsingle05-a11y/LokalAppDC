@@ -76,6 +76,13 @@ function openDetail(id, opts = {}) {
       ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
       : "";
   const recurrence = eventRecurrence(e);
+  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
+  const occurrenceSummary = eventOccurrenceSummary(e, recurrence, otherOccurrences);
+  const occurrencesBlock = occurrenceSummary
+    ? `<div class="detail-occurrences detail-occurrences-summary"><p class="eyebrow">More dates</p><div class="occurrence-summary"><b>${escapeHtml(occurrenceSummary.title)}</b>${occurrenceSummary.detail ? `<small>${escapeHtml(occurrenceSummary.detail)}</small>` : ""}</div></div>`
+    : otherOccurrences.length
+      ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(eventCardTimeLine(occurrence))}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
+      : "";
   const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
@@ -83,10 +90,12 @@ function openDetail(id, opts = {}) {
     : `<button class="primary" data-copy-detail-link="${e.id}">Copy link</button>`;
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
   const heroImage = eventArtImage(e);
-  const heroStyle = e.image
+  const hasUsableHeroPhoto = eventHasUsablePhoto(e);
+  const fallbackHeroImage = eventFallbackImageSrc(e);
+  const heroStyle = hasUsableHeroPhoto
     ? `background-image: linear-gradient(180deg, rgba(13,24,22,.08), rgba(13,24,22,.62)); background-color: #f7fafc;`
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
-  const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
+  const heroImg = hasUsableHeroPhoto ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
   const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
@@ -97,8 +106,11 @@ function openDetail(id, opts = {}) {
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const isSaved = state.saved.has(e.id);
   const isGoing = state.rsvps.has(e.id);
+  const websiteUrl = eventWebsiteUrl(e);
+  const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
+  const websiteHelper = e.detailsUrl ? "Opens the event listing" : websiteUrl ? "Opens the venue website" : "Opens the Lokal listing";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-hero cat-${e.cat}${hasUsableHeroPhoto ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
@@ -113,12 +125,13 @@ function openDetail(id, opts = {}) {
     </button>
     <button class="detail-info-row" data-ticket="${e.id}">
       <span class="dir-art"></span>
-      <span class="dir-copy"><b>${e.detailsUrl ? "Tickets and details" : "Shareable event page"}</b><small>Opens the ${e.detailsUrl ? "venue" : "Lokal"} listing</small></span>
+      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b><small>${escapeHtml(websiteHelper)}</small></span>
       <span class="dir-action">Open</span>
     </button>
     ${eventInterestSignal(e, true)}
     <p class="eyebrow detail-about-label">About</p>
     ${descriptionBlock}
+    ${eventSourceCredit(e)}
     ${occurrencesBlock}
     <div class="detail-action-row">
       <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
@@ -157,6 +170,55 @@ function openGoingConfirmation(id) {
 
 function shareableGroupNames() {
   return userGroupNames().filter(name => !state.leftGroups.has(name));
+}
+
+function eventOccurrenceSummary(event, recurrence, otherOccurrences) {
+  if (!event || !otherOccurrences.length) return null;
+  const allOccurrences = occurrencesForEvent(event);
+  const timeText = String(event.time || "").replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+  const weekdayCodes = occurrenceWeekdayCodes(allOccurrences);
+  if (weekdayCodes.length > 1) {
+    return { title: formatRecurringWeekdays(weekdayCodes), detail: timeText };
+  }
+  if (recurrence?.label) {
+    return { title: recurrence.label.replace(/^every /i, "Every "), detail: timeText };
+  }
+  if (weekdayCodes.length === 1) {
+    return { title: formatRecurringWeekdays(weekdayCodes), detail: timeText };
+  }
+  return null;
+}
+
+function occurrenceWeekdayCodes(occurrences) {
+  return occurrences
+    .map(occurrence => eventDateValue(occurrence))
+    .filter(Boolean)
+    .map(date => ICS_WEEKDAY_CODES[date.getDay()])
+    .filter((code, index, all) => code && all.indexOf(code) === index)
+    .sort((a, b) => ICS_WEEKDAY_CODES.indexOf(a) - ICS_WEEKDAY_CODES.indexOf(b));
+}
+
+function formatRecurringWeekdays(codes) {
+  const key = codes.join(",");
+  if (key === "SU,MO,TU,WE,TH,FR,SA") return "Daily";
+  if (key === "MO,TU,WE,TH,FR") return "Every weekday";
+  if (key === "SU,SA") return "Every weekend";
+  const ranges = [];
+  let start = 0;
+  for (let index = 1; index <= codes.length; index += 1) {
+    const previous = ICS_WEEKDAY_CODES.indexOf(codes[index - 1]);
+    const current = ICS_WEEKDAY_CODES.indexOf(codes[index]);
+    if (index === codes.length || current !== previous + 1) {
+      ranges.push(codes.slice(start, index));
+      start = index;
+    }
+  }
+  const parts = ranges.map(range => {
+    const names = range.map(code => ICS_CODE_LABEL[code]);
+    if (names.length >= 3) return `${names[0]} through ${names[names.length - 1]}`;
+    return names.join(" & ");
+  });
+  return `Every ${parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`}`;
 }
 
 function shareGroupResultsHtml(eventId, query = "") {
@@ -341,15 +403,27 @@ function addEventToCalendar(id, provider = "apple") {
   if (provider === "google") {
     const url = googleCalendarUrl(event);
     if (!url) { toast("This event is missing a date to schedule."); return; }
+    addCalendarPlan(event.id);
     window.open(url, "_blank", "noopener,noreferrer") || window.location.assign(url);
+    toast("Added to Your Plans as a calendar item.");
     return;
   }
   const recurrence = eventRecurrence(event);
   const ics = recurrence ? buildEventIcs(event, recurrence) : buildSingleEventIcs(event);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(recurrence ? `Calendar file ready — repeats ${recurrence.label}.` : "Calendar file ready.");
+}
+
+function addCalendarPlan(id) {
+  const eventId = Number(id);
+  if (!Number.isFinite(eventId)) return;
+  state.calendarAdds.add(eventId);
+  localStorage.setItem("lokalCalendarAdds", JSON.stringify(Array.from(state.calendarAdds)));
+  setPlanSource("calendar", eventId, true);
+  if (state.route === "social") renderSocial();
 }
 
 function addRecurringEventToCalendar(id) {
@@ -359,6 +433,7 @@ function addRecurringEventToCalendar(id) {
   if (!recurrence) { toast("This event doesn't repeat on a set schedule."); return; }
   const ics = buildEventIcs(event, recurrence);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(`Added to your calendar — repeats ${recurrence.label}.`);

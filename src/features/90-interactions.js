@@ -15,6 +15,33 @@ function showSavedAnimation(button) {
   }, 1500);
 }
 
+let discoverSearchTimer = null;
+
+function queueDiscoverSearch(input) {
+  state.discoverSearch = input.value;
+  window.clearTimeout(discoverSearchTimer);
+  discoverSearchTimer = window.setTimeout(() => {
+    const query = String(state.discoverSearch || "").trim().toLowerCase();
+    const visible = renderDiscoverEventSearch(query);
+    document.querySelectorAll("#app .following-chip").forEach(card => {
+      const match = !query || card.dataset.searchText.includes(query);
+      card.style.display = match ? "" : "none";
+    });
+    const results = document.querySelector("[data-discover-results]");
+    if (results) { results.hidden = true; results.innerHTML = ""; }
+    const feed = document.querySelector(".feed-section");
+    const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
+    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
+    if (!query) {
+      const nextInput = document.querySelector("[data-discover-search]");
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+      }
+    }
+  }, input.value.trim() ? 120 : 40);
+}
+
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
   const clickedDiscoverFilter = Boolean(event.target.closest(".filter-pill-wrap, .filter-dropdown, [data-when-sheet], .when-sheet"));
@@ -50,7 +77,7 @@ document.addEventListener("click", async event => {
     });
   }
   // Slide direction follows the tab bar: moving left plays the reverse slide.
-  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
+  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); modalRoot.innerHTML = ""; state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; if (t.dataset.route === "home") state.homeFilter = "all"; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; state.resetDiscoverScrollAfterRender = t.dataset.homeFilter === "for-you"; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); resetAppScroll(); if (state.resetDiscoverScrollAfterRender) setTimeout(() => { resetAppScroll(); state.resetDiscoverScrollAfterRender = false; }, 1200); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".what-sheet")) openWhatSheet(); else renderHome(); }
@@ -118,10 +145,12 @@ document.addEventListener("click", async event => {
     return;
   }
   if (t.dataset.save) {
+    mark();
     const id = Number(t.dataset.save);
     const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
+    document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     setPlanSource("saved", id, isSaved);
     const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
     if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (isSaved) showSavedAnimation(button); }
@@ -307,6 +336,7 @@ document.addEventListener("click", async event => {
   // Date is committed live by the calendar, so it is skipped here.
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (key !== "date") state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
+  if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {
@@ -361,7 +391,7 @@ document.addEventListener("click", async event => {
       console.warn("[supabase] feedback submission failed", feedbackError);
     }
   }
-  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "score-guide") { openScoreGuideSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
@@ -386,7 +416,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.ticket !== undefined) {
     mark();
     const eventToOpen = events.find(item => item.id === Number(t.dataset.ticket));
-    const destination = eventToOpen?.detailsUrl || (eventToOpen ? lokalEventShareUrl(eventToOpen) : "");
+    const destination = eventToOpen ? (eventWebsiteUrl(eventToOpen) || lokalEventShareUrl(eventToOpen)) : "";
     if (!destination) { toast("No event link is available"); return; }
     const opened = window.open(destination, "_blank", "noopener,noreferrer");
     if (!opened) window.location.assign(destination);
@@ -730,15 +760,7 @@ document.addEventListener("input", event => {
     if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
   }
   if (input.matches("[data-discover-search]")) {
-    const query = input.value.trim().toLowerCase();
-    const visible = renderDiscoverEventSearch(query);
-    document.querySelectorAll("#app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; });
-    const venueMatches = query ? venueSearchMatches(query, 8) : [];
-    const venuesHtml = venueMatches.map(venue => { const on = state.follows.has(`venue:${venue.name}`); return `<div class="follow-card venue-result"><button class="venue-result-main" data-venue-events="${escapeHtml(venue.name)}"><span class="group-icon">${escapeHtml(venue.name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(venue.name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small></span></button><button class="follow-button ${on ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(venue.name)}">${on ? "Following" : "Follow"}</button></div>`; }).join("");
-    const results = document.querySelector("[data-discover-results]");
-    if (results) { results.hidden = !query || !venueMatches.length; results.innerHTML = venuesHtml; }
-    const feed = document.querySelector(".feed-section");
-    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches.length === 0);
+    queueDiscoverSearch(input);
   }
   if (input.matches("[data-share-group-search]")) {
     const query = input.value.trim();

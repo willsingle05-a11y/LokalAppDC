@@ -138,10 +138,10 @@ function tasteCategoryGrid() {
 }
 
 function userTasteSection(tastePills) {
-  return `<p class="eyebrow">Your top types</p>
+  return `<p class="eyebrow">Your top tastes</p>
     <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
     ${tasteCategoryGrid()}
-    <button class="text-button taste-more-link" data-edit-tastes>More types</button>`;
+    <button class="text-button taste-more-link" data-edit-tastes>More</button>`;
 }
 
 function profileInsightPanel() {
@@ -253,6 +253,7 @@ function renderProfile() {
     <div class="profile-id">
       <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
       <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
+      <p class="bio pid-bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
       <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
     </div>
@@ -385,7 +386,7 @@ function scoreActivityItems() {
 function openScoreActivitySheet() {
   const score = lokalScore();
   const level = scoreLevel(score);
-  const items = scoreActivityItems();
+  const items = scoreActivityItems().slice(0, 3);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score activity"><button class="modal-close" aria-label="Close score activity">&times;</button>
     <p class="eyebrow">Lokal score</p><h2>Recent score activity</h2>
     <p class="lede">${score} points / ${escapeHtml(level.name)}</p>
@@ -667,7 +668,7 @@ function activeFilterSummary() {
 
 function openFilters() {
   const neighborhoodOptions = ["Any neighborhood", ...discoverNeighborhoodOptions(displayableDcEvents())];
-  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filters</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
     ${dateFilterModule()}

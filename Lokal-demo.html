@@ -1095,6 +1095,14 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-weight: 900;
   text-transform: uppercase;
 }
+.planner-card.planner-calendar-card {
+  border-style: dashed;
+  background: #fbfdff;
+}
+.planner-actions span.calendar-plan-pill {
+  color: #326f91;
+  background: #eef6fb;
+}
 .planner-legend {
   display: flex;
   flex-wrap: wrap;
@@ -1188,7 +1196,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 .planner-dot.festivals, .planner-legend i.festivals, .planner-day i.festivals { background: #ef6f6c; }
 .planner-dot.culture, .planner-legend i.culture, .planner-day i.culture { background: #2f80ed; }
 .planner-dot.community, .planner-legend i.community, .planner-day i.community { background: #7bc67e; }
-.planner-dot.expos, .planner-legend i.expos, .planner-day i.expos { background: #64748b; }
+.planner-dot.expos, .planner-legend i.expos, .planner-day i.expos { background: #7bc67e; }
 .empty-planner {
   padding: 13px;
   border: 1px dashed rgba(58, 124, 165, .24);
@@ -2110,6 +2118,7 @@ h3 { font-weight: 700; }
 }
 .card-icon-btn:hover { background: rgba(0, 0, 0, .62); transform: scale(1.06); }
 .card-icon-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+.card-icon-btn svg path { transition: fill .08s ease, stroke .08s ease; }
 .card-save svg { fill: none; }
 .card-save.is-saved svg { fill: var(--heart); stroke: var(--heart); }
 .event-card-bottom {
@@ -2404,6 +2413,16 @@ h3 { font-weight: 700; }
 .detail-occurrences { margin: 16px 0 4px; }
 .detail-occurrences .eyebrow { margin-bottom: 8px; }
 .occurrence-list { display: grid; gap: 7px; }
+.occurrence-summary {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border: 1px solid rgba(58, 124, 165, .16);
+  border-radius: 13px;
+  background: #f7fafc;
+}
+.occurrence-summary b { font-size: 13px; }
+.occurrence-summary small { color: var(--muted); font-size: 11px; }
 .occurrence-row {
   display: flex;
   align-items: center;
@@ -2481,6 +2500,18 @@ h3 { font-weight: 700; }
 .event-list-row.is-first { border-top: 1px solid rgba(58, 124, 165, .13); border-radius: 14px 14px 0 0; }
 .event-list-row.is-last { border-radius: 0 0 14px 14px; }
 .event-list-row:hover { background: #fbfdfc; }
+.event-list-row.is-disabled {
+  color: rgba(28, 43, 28, .5);
+  background: #f1f2ef;
+  cursor: default;
+  filter: grayscale(.75);
+}
+.event-list-row.is-disabled:hover { background: #f1f2ef; }
+.event-list-row.is-disabled .elr-thumb { opacity: .45; }
+.event-list-row.is-disabled .elr-venue,
+.event-list-row.is-disabled .elr-meta,
+.event-list-row.is-disabled .event-tag { color: rgba(28, 43, 28, .45); }
+.event-list-row.is-disabled .event-tag { background: rgba(28, 43, 28, .08); }
 .event-list-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
 .elr-thumb { width: 54px; height: 54px; border-radius: 10px; background-position: center; background-size: cover; }
 .elr-copy { display: grid; gap: 3px; min-width: 0; }
@@ -2506,6 +2537,15 @@ h3 { font-weight: 700; }
   font-weight: 700;
 }
 .elr-side { position: relative; z-index: 2; display: grid; gap: 6px; justify-items: end; pointer-events: none; }
+.elr-expired {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(28, 43, 28, .08);
+  color: rgba(28, 43, 28, .55);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
 .elr-save {
   display: grid;
   place-items: center;
@@ -2567,7 +2607,7 @@ h3 { font-weight: 700; }
 /* ============================================================
    Event detail: RSVP/Save feedback, hint, social urgency
    ============================================================ */
-.rsvp-hint { margin: -6px 0 14px; color: var(--muted); font-size: 11px; text-align: center; }
+.rsvp-hint { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.35; text-align: center; }
 @keyframes btnPop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
 .btn-pop { animation: btnPop .32s ease; }
 .action.rsvp-action.selected { background: var(--accent); color: #fff; }
@@ -3967,6 +4007,18 @@ h3 { font-weight: 800; }
   text-transform: none;
   overflow-wrap: anywhere;
 }
+.event-card-info .event-card-time {
+  color: #4f5751;
+  font-weight: 650;
+}
+.event-card-info .event-card-time strong { font-weight: 700; }
+.event-card-info .event-card-more-week {
+  color: #8b918b;
+  font-weight: 500;
+}
+.event-card-info .event-card-area {
+  color: #9a9f98;
+}
 
 /* Dashed "receipt" perforation + price row */
 .event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
@@ -4125,7 +4177,7 @@ h3 { font-weight: 800; }
 
 :root {
   /* Canvas + surfaces */
-  --cream: #F6F4F0;
+  --cream: #FFFFFF;
   --paper: #FFFFFF;
   --line: rgba(25, 26, 25, .10);
 
@@ -4314,12 +4366,15 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   width: 28px;
   height: 28px;
   place-items: center;
+  overflow: hidden;
   border-radius: 50%;
   color: var(--ink);
-  background: #F1F1EE;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 1px rgba(25, 26, 25, .08), 0 2px 6px rgba(25, 26, 25, .08);
   font-size: 15px;
+  isolation: isolate;
 }
-.modal-close:hover { background: #E6E4DF; }
+.modal-close:hover { background: #F1F1EE; }
 .settings-field input, .settings-field textarea, .float-field input, .search-box {
   border: 1.5px solid rgba(25, 26, 25, .14);
   border-radius: 12px;
@@ -4513,10 +4568,10 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 .discover-page .discover-search-box.subtle-search input { font-size: 16px; font-weight: 500; }
 .discover-page .discover-search-box.subtle-search input::placeholder { color: rgba(25, 26, 25, .5); font-weight: 500; }
 
-.top-types-head { display: flex; align-items: baseline; gap: 8px; margin: 4px 0 8px; }
+.top-types-head { display: flex; align-items: baseline; gap: 8px; margin: -2px 0 5px; }
 .top-types-head .eyebrow { margin: 0; }
 .top-types-head .text-button { margin-left: auto; }
-.top-types { display: flex; gap: 8px; margin-bottom: 18px; }
+.top-types { display: flex; gap: 8px; margin-bottom: 4px; }
 .top-type {
   display: flex;
   flex: 1;
@@ -4532,7 +4587,8 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 /* Following uses the same tiles but scrolls, since the list is open-ended. */
 .top-types-scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .top-types-scroll::-webkit-scrollbar { display: none; }
-.top-types-scroll .top-type { flex: 0 0 108px; }
+.top-types-scroll .top-type { flex: 0 0 126px; min-height: 112px; padding: 12px 8px; }
+.following-stories-row { margin-top: -2px; margin-bottom: 2px; }
 .top-type .tt-initial {
   display: grid;
   place-items: center;
@@ -4716,6 +4772,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .profile-id .pid-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-id .pid-handle { margin-top: 11px; font-size: 15px; font-weight: 800; }
+.profile-id .pid-bio { max-width: 520px; margin: 5px auto 0; text-align: center; }
 .profile-id .pid-since { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
 .profile-id-actions { display: flex; gap: 9px; width: 100%; margin-top: 12px; }
 .profile-id-actions button {
@@ -4816,6 +4873,36 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .filter-options button:hover { border-color: var(--ink); }
 .filter-options button.selected { border-color: var(--ink); color: #fff; background: var(--ink); font-weight: 800; }
+.what-sheet .filter-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.what-sheet .filter-options .what-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  text-align: left;
+}
+.what-option-art {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(22, 160, 133, .09);
+}
+.what-option-art svg { width: 24px; height: 24px; stroke-width: 2.3; }
+.what-option.selected .what-option-art { background: rgba(255, 255, 255, .18); }
+.what-option span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .active-filter-summary {
   margin: 2px 0 4px;
   padding: 11px;
@@ -5170,6 +5257,207 @@ body.nav-back .page { animation-name: page-slide-right; }
 }
 .planner-next { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
 
+/* ============================================================
+   Search row â€” pill field with a round filter button beside it
+   ============================================================ */
+
+.search-row { display: flex; align-items: center; gap: 10px; margin: 3px 6px 0; }
+
+.search-field {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+  height: 46px;
+  padding: 0 15px;
+  border: 1px solid rgba(25, 26, 25, .18);
+  border-radius: 999px;
+  background: var(--paper);
+  transition: border-color .15s ease;
+}
+.search-field:hover { border-color: rgba(25, 26, 25, .34); }
+.search-field:focus-within { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.search-field .search-ic { display: grid; flex: none; place-items: center; color: rgba(25, 26, 25, .55); font-size: 0; }
+.search-field .search-ic svg { width: 20px; height: 20px; stroke-width: 2; }
+.search-field input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--ds-font);
+  font-size: var(--fs-body);
+  font-weight: 500;
+  outline: 0;
+}
+.search-field input::placeholder { color: rgba(25, 26, 25, .5); font-weight: 400; }
+
+.filter-round-btn {
+  position: relative;
+  display: grid;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1.5px solid rgba(25, 26, 25, .28);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  transition: border-color .15s ease, background .15s ease;
+}
+.filter-round-btn svg { width: 20px; height: 20px; stroke-width: 1.9; }
+.filter-round-btn:hover { border-color: var(--ink); }
+.filter-round-btn.open { border-color: var(--ink); color: #fff; background: var(--ink); }
+.filter-round-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: var(--fs-label);
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* Criteria revealed by the filter button */
+.filter-panel-rows {
+  overflow: hidden;
+  margin-bottom: 16px;
+  padding: 4px 14px 10px;
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 0 4px 0 rgba(25, 26, 25, .10);
+  animation: filter-panel-in .22s cubic-bezier(.22, .61, .36, 1) both;
+}
+@keyframes filter-panel-in {
+  from { opacity: 0; transform: translate3d(0, -8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .filter-panel-rows { animation: none; } }
+.filter-panel-rows .search-card-clear { margin-top: 4px; }
+
+/* ============================================================
+   Bo the Bear â€” mascot lockup at the top of Discover
+   ============================================================ */
+
+.bo-lockup {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 116px;
+  margin: 0 0 6px;
+  padding-left: 4px;
+}
+.bo-lockup-figure { flex: none; width: 124px; height: 124px; margin-bottom: -8px; }
+.bo-lockup-figure svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.bo-lockup-card {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 22px -18px;
+  padding: 14px 22px;
+  border-radius: 18px;
+  background: var(--paper);
+  box-shadow: 0 2px 0 rgba(25, 26, 25, .06);
+}
+.bo-lockup-card b { color: var(--accent-strong); font-size: 26px; font-weight: 900; letter-spacing: -.02em; line-height: 1; }
+.bo-lockup-card small {
+  margin-top: 5px;
+  color: rgba(25, 26, 25, .5);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: .18em;
+}
+
+/* Bo standing in for a missing photo should sit on the card, not fill it */
+.event-card-media .event-card-img[src^="data:image/svg"],
+.tt-thumb img[src^="data:image/svg"],
+.gc-thumb img[src^="data:image/svg"] { object-fit: contain; background: #FFFFFF; }
+
+/* Bo leans on the wordmark in the topbar on the three main app pages. */
+.topbar-bo { display: none; }
+.brand { align-items: flex-end; gap: 6px; }
+.brand b, .brand small { white-space: nowrap; }
+body[data-route="home"] .topbar,
+body[data-route="social"] .topbar,
+body[data-route="profile"] .topbar { align-items: flex-end; height: 66px; padding: 4px 18px 0 10px; }
+body[data-route="home"] .topbar-bo,
+body[data-route="social"] .topbar-bo,
+body[data-route="profile"] .topbar-bo {
+  display: block;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  margin-bottom: -2px;
+}
+body[data-route="home"] .topbar-bo svg,
+body[data-route="social"] .topbar-bo svg,
+body[data-route="profile"] .topbar-bo svg { display: block; width: 100%; height: 100%; overflow: visible; }
+body[data-route="home"] .brand b,
+body[data-route="social"] .brand b,
+body[data-route="profile"] .brand b { font-size: calc(var(--fs-section) + 4px); line-height: .9; }
+body[data-route="home"] .topbar-actions,
+body[data-route="social"] .topbar-actions,
+body[data-route="profile"] .topbar-actions { gap: 8px; transform: translateY(-8px); }
+/* Bo takes the space the account name used to occupy in the compact header. */
+body[data-route="home"] .topbar .account-label,
+body[data-route="social"] .topbar .account-label,
+body[data-route="profile"] .topbar .account-label { display: none; }
+
+/* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
+   warm cream, so those are overridden here alongside the shell. */
+.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream); }
+.topbar, .bottom-nav { background: var(--paper); }
+/* Cards are white on white now, so the hard offset shadow does the separating
+   and gets a hairline to sit on. */
+.event-card, .event-row, .feature-card, .insight-card, .follow-card, .stat-card,
+.activity-card, .group-card, .community-card, .interest-event, .friend-feed-card,
+.share-group, .suggestion-card, .anchor-pick, .managed-list-row, .attend-row,
+.occurrence-row, .top-type, .search-card, .filter-panel-rows, .going-card,
+.profile-goal, .top-ten {
+  border: 1px solid rgba(25, 26, 25, .08);
+}
+
+/* ---- Repeat strip: which weekdays a series lands on ------------------ */
+.repeat-strip {
+  display: flex;
+  gap: 3px;
+  margin-top: 8px;
+}
+.repeat-strip i {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(25, 26, 25, .05);
+  color: rgba(25, 26, 25, .35);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+}
+.repeat-strip i.on { color: var(--accent-strong); background: var(--mint-tint); font-weight: 800; }
+
+/* Discover top stack: keep the hero/search/following/feed flow tighter. */
+body[data-route="home"] .discover-page {
+  padding-top: 4px;
+}
+body[data-route="home"] .discover-page .sub-filters {
+  margin-bottom: 0;
+}
+body[data-route="home"] .discover-page .feed-section {
+  margin-top: 2px;
+}
+body[data-route="home"] .discover-page .feed-section .section-heading {
+  margin-bottom: 4px;
+}
+
     </style>
   </head>
   <body>
@@ -5192,6 +5480,7 @@ body.nav-back .page { animation-name: page-slide-right; }
       <div class="app-shell">
         <header class="topbar">
           <button class="brand" data-route="home" aria-label="Lokal home">
+            <span class="topbar-bo" aria-hidden="true"></span>
             <span><b>LOKAL</b><small>WASHINGTON, DC</small></span>
           </button>
           <div class="topbar-actions">
@@ -5231,24 +5520,31 @@ const icons = {
   tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
   megaphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 13h3l10-5v11L7 14H4v-1Z"/><path d="M7 14l1.4 5.2a1.2 1.2 0 0 0 1.2.8h1.6"/><path d="M19 9.5c1 .7 1.5 1.5 1.5 3s-.5 2.3-1.5 3"/><path d="M21 6.5c1.5 1.5 2.3 3.5 2.3 6s-.8 4.5-2.3 6"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>',
-  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.3 16.3 21 21"/></svg>'
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.3 16.3 21 21"/></svg>',
+  sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 12h3M11 12h9M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></svg>'
 };
 
 // Illustrated category art â€” flat fills over an ink outline, in the Lokal
 // palette. Used for the taste picker on Profile.
 const categoryArt = {
+  "Concerts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 15h22v20H13z" fill="#C7F3E8"/><path d="M17 20h14M17 26h10"/><circle cx="34" cy="30" r="5" fill="#FFC53D" stroke-width="1.6"/><path d="M37 30V16h5" stroke-width="1.8"/></svg>',
   "Live music": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="8" width="10" height="18" rx="5" fill="#C7F3E8"/><path d="M15 21a9 9 0 0 0 18 0"/><path d="M24 30v7"/><path d="M18 40h12"/><circle cx="37" cy="14" r="3" fill="#FFC53D" stroke-width="1.6"/><path d="M40 14V7" stroke-width="1.6"/></svg>',
-  "Markets": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M7 19h34l-3-8H10z" fill="#00C897"/><path d="M18 11v8M30 11v8" stroke-width="1.5"/><rect x="12" y="25" width="24" height="14" rx="2" fill="#FFE3A0"/><circle cx="19" cy="30" r="3" fill="#FF7B54" stroke-width="1.6"/><circle cx="28" cy="31" r="3.5" fill="#BFF2E0" stroke-width="1.6"/></svg>',
-  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="14" fill="#FFC53D"/><path d="M10 24h28M24 10v28" stroke-width="1.5"/><path d="M14 14c5.5 4 5.5 16 0 20M34 14c-5.5 4-5.5 16 0 20" stroke-width="1.5"/></svg>',
   "Food & drink": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M8 25a9 9 0 0 1 18 0z" fill="#FFE3A0"/><path d="M8 25h18v4H8z" fill="#00C897"/><path d="M8 29h18a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#FFE3A0"/><path d="M31 17h11l-1.5 20h-8z" fill="#BFF2E0"/><path d="M34 12l2 5M40 12l-1.5 5" stroke-width="1.6"/></svg>',
-  "Trivia nights": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H23l-8 6v-6h-5a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z" fill="#D8D4F5"/><path d="M20 19a4.2 4.2 0 0 1 7.4 2.7c0 2.1-3.2 2.5-3.2 4.6" stroke-width="2.2"/><circle cx="24" cy="29" r="1.5" fill="#191A19" stroke="none"/></svg>',
+  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="14" fill="#FFC53D"/><path d="M10 24h28M24 10v28" stroke-width="1.5"/><path d="M14 14c5.5 4 5.5 16 0 20M34 14c-5.5-4-5.5-16 0-20" stroke-width="1.5"/></svg>',
+  "Comedy": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 15h22v13c0 7-5 12-11 12s-11-5-11-12z" fill="#FFE3A0"/><path d="M18 24c2 2 10 2 12 0"/><circle cx="19" cy="21" r="1.8" fill="#191A19" stroke="none"/><circle cx="29" cy="21" r="1.8" fill="#191A19" stroke="none"/><path d="M35 15c-2-4-8-6-11-2-3-4-9-2-11 2" fill="#D8D4F5"/></svg>',
+  "Visual arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="10" y="10" width="28" height="28" rx="3" fill="#D8D4F5"/><circle cx="19" cy="20" r="3" fill="#FFC53D" stroke-width="1.5"/><path d="M14 33l8-8 5 5 3-3 5 6" fill="#BFF2E0"/></svg>',
+  "Performing arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 10h24v12c0 9.5-5.2 17-12 17s-12-7.5-12-17z" fill="#FFE3A0"/><circle cx="19" cy="22" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="22" r="2" fill="#191A19" stroke="none"/><path d="M19 30c3 2.6 7 2.6 10 0"/></svg>',
+  "Museums": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
+  "Markets": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M7 19h34l-3-8H10z" fill="#00C897"/><path d="M18 11v8M30 11v8" stroke-width="1.5"/><rect x="12" y="25" width="24" height="14" rx="2" fill="#FFE3A0"/><circle cx="19" cy="30" r="3" fill="#FF7B54" stroke-width="1.6"/><circle cx="28" cy="31" r="3.5" fill="#BFF2E0" stroke-width="1.6"/></svg>',
+  "Happy hours": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 12h22l-11 14z" fill="#C7F3E8"/><path d="M21 26v10M15 38h12"/><circle cx="27" cy="18" r="2.5" fill="#FFC53D" stroke-width="1.4"/><path d="M35 10h6v20h-6z" fill="#FFE3A0"/><path d="M35 16h6M35 24h6"/><path d="M7 34c5.5-3 10.5-3 16 0" stroke="#00C897" stroke-width="2.2"/></svg>',
+  "Trivia": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H23l-8 6v-6h-5a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z" fill="#D8D4F5"/><path d="M20 19a4.2 4.2 0 0 1 7.4 2.7c0 2.1-3.2 2.5-3.2 4.6" stroke-width="2.2"/><circle cx="24" cy="29" r="1.5" fill="#191A19" stroke="none"/></svg>',
+  "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="18" r="6" fill="#C7F3E8"/><circle cx="31" cy="19" r="5" fill="#FFE3A0"/><path d="M8 38c2-7 16-7 20 0M24 38c1.5-5 11-5 14 0"/></svg>',
   "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 14h26L24 28z" fill="#C7F3E8"/><path d="M24 28v10M17 39h14"/><circle cx="30" cy="19" r="2.6" fill="#FFC53D" stroke-width="1.5"/><path d="M39 6l1.4 3 3 1.4-3 1.4L39 15l-1.4-3.2-3-1.4 3-1.4z" fill="#FFC53D" stroke-width="1.2"/></svg>',
   "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
-  "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="11" cy="21" r="4" fill="#FFE3A0" stroke-width="1.8"/><path d="M4 34c0-4.2 3.1-7 7-7" stroke-width="1.8"/><circle cx="37" cy="21" r="4" fill="#D8D4F5" stroke-width="1.8"/><path d="M44 34c0-4.2-3.1-7-7-7" stroke-width="1.8"/><circle cx="24" cy="16" r="5.5" fill="#00C897"/><path d="M14 33c0-5.4 4.5-9 10-9s10 3.6 10 9z" fill="#00C897"/></svg>',
-  "Performing arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 10h24v12c0 9.5-5.2 17-12 17s-12-7.5-12-17z" fill="#FFE3A0"/><circle cx="19" cy="22" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="22" r="2" fill="#191A19" stroke="none"/><path d="M19 30c3 2.6 7 2.6 10 0"/></svg>'
+  "Free events": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 12h20a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#FFE3A0"/><path d="M17 22h10M17 28h7"/><path d="M33 17v14"/><path d="M30 20c4-4 8 2 3 5-5-3-1-9 3-5" fill="#C7F3E8"/></svg>'
 };
 
-const categoryArtOptions = Object.keys(categoryArt);
+const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
 
 const demoEvents = [
   { id: 1, title: "Jazz on the Hill", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Tonight, 7:30 PM", price: "$18", cat: "music", tag: "Live music", friends: [], desc: "A warm, unhurried set from DC's new guard of jazz players. The room is small, the sound is close, and you will want to get there before the first pour." },
@@ -5267,9 +5563,9 @@ let events = [...demoEvents];
 let venueDirectory = [];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
-const tasteOptions = ["Live music", "Food", "Art", "Patios", "Sports", "Run clubs", "Comedy", "Rooftops", "Museums", "Markets", "Outdoor movies", "Theater", "Coffee", "Dancing", "Trivia", "Book clubs", "Wellness", "Volunteering", "Pop-ups", "Free events", "Low-key hangs", "New in town", "Wine bars", "Cocktail bars", "Jazz", "DJs", "Karaoke", "Festivals", "Street fairs", "Farmers markets", "Classes", "Networking", "Dating-friendly", "Family-friendly", "Dog-friendly", "Brunch", "Late night food", "Speakeasies", "Gallery openings", "History", "Parks", "Pickleball", "Yoga", "Board games", "LGBTQ+ events", "College events", "Professional mixers"];
+const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -5278,6 +5574,7 @@ state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) 
 // shapes what they see.
 state.savedSources = new Set(JSON.parse(localStorage.getItem("lokalSavedSources") || "[]"));
 state.rsvpSources = new Set(JSON.parse(localStorage.getItem("lokalRsvpSources") || "[]"));
+state.calendarSources = new Set(JSON.parse(localStorage.getItem("lokalCalendarSources") || "[]"));
 // Discover filter bar: multi-select What (category), Where (neighborhood), When (day/time).
 state.whatFilter = new Set();
 state.whereFilter = new Set();
@@ -5322,9 +5619,10 @@ function setPlanSource(kind, id, on) {
   const event = events.find(item => item.id === Number(id));
   if (!event) return;
   const sourceId = String(event.sourceId || event.id);
-  const store = kind === "saved" ? state.savedSources : state.rsvpSources;
+  const store = kind === "saved" ? state.savedSources : kind === "rsvp" ? state.rsvpSources : state.calendarSources;
   on ? store.add(sourceId) : store.delete(sourceId);
-  localStorage.setItem(kind === "saved" ? "lokalSavedSources" : "lokalRsvpSources", JSON.stringify(Array.from(store)));
+  const storageKey = kind === "saved" ? "lokalSavedSources" : kind === "rsvp" ? "lokalRsvpSources" : "lokalCalendarSources";
+  localStorage.setItem(storageKey, JSON.stringify(Array.from(store)));
 }
 
 // Re-link persisted saves/RSVPs onto the freshly loaded events (runtime ids change
@@ -5334,6 +5632,7 @@ function reconcileUserPlans() {
     const sourceId = String(event.sourceId || event.id);
     if (state.savedSources.has(sourceId)) state.saved.add(event.id);
     if (state.rsvpSources.has(sourceId)) state.rsvps.add(event.id);
+    if (state.calendarSources.has(sourceId)) state.calendarAdds.add(event.id);
   });
 }
 
@@ -5378,7 +5677,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "food", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -5461,17 +5760,42 @@ function eventArtScene(event) {
 }
 
 function eventArtImage(event) {
-  if (event.image) return `url('${String(event.image).replace(/'/g, "%27")}')`;
+  if (eventHasUsablePhoto(event)) return `url('${String(event.image).replace(/'/g, "%27")}')`;
+  // No photo â€” Bo stands in, posed to match the kind of event.
+  if (typeof boEventImage === "function") return `url("${boEventImage(event)}")`;
   return genericEventArt(event);
 }
 
 // Bare image URL/data-URI for use in an <img> (so cards size to the image's
 // natural aspect ratio). Falls back to the generated SVG art.
 function eventCardImageSrc(event) {
-  if (event.image) return String(event.image);
+  if (eventHasUsablePhoto(event)) return String(event.image);
+  return eventFallbackImageSrc(event);
+}
+
+function eventFallbackImageSrc(event) {
+  if (typeof boEventImage === "function") return boEventImage(event);
   const art = genericEventArt(event);
   const match = art.match(/^url\(['"]?([\s\S]*?)['"]?\)$/);
   return match ? match[1] : art;
+}
+
+function eventImageLooksLogoLike(imageUrl) {
+  const value = String(imageUrl || "").trim();
+  if (!value) return false;
+  let path = value.toLowerCase();
+  try {
+    const parsed = new URL(value);
+    path = `${parsed.pathname} ${parsed.search}`.toLowerCase();
+  } catch (_) {}
+  const fileName = path.split(/[/?#]/).filter(Boolean).pop() || path;
+  return /\b(logo|logos|brand-image|icon|mark)\b/.test(fileName)
+    || /(?:^|[._-])(logo|logos|icon|mark)(?:[._-]|$)/.test(fileName)
+    || /\btr=w-(?:\d{1,2}|1\d\d)\b/.test(path);
+}
+
+function eventHasUsablePhoto(event) {
+  return Boolean(event?.image) && !eventImageLooksLogoLike(event.image);
 }
 
 function seededPerformingArtsFallbackTags(seedText) {
@@ -5505,7 +5829,7 @@ function categoryTagAliases(category) {
     festivals: ["festivals", "festival"],
     culture: ["culture", "cultural"],
     sports: ["sports", "sport"],
-    community: ["community"],
+    community: ["community", "expos", "expo"],
     expos: ["expos", "expo"],
     nightlife: ["nightlife", "night out"],
     "happy-hours": ["happy hour", "happy hours"],
@@ -5561,8 +5885,46 @@ function keywordTagsForEvent(event) {
   add("Family Friendly", /\b(family|kids|children)\b/);
   return tags;
 }
+
+function fallbackTagForEvent(event) {
+  const text = `${event?.title || ""} ${event?.venue || ""} ${event?.desc || ""} ${event?.tag || ""}`.toLowerCase();
+  const category = String(event?.cat || event?.category || "").toLowerCase();
+  if (/\b(mlb|nationals|baseball)\b/.test(text)) return "Baseball";
+  if (/\b(nba|mystics|wizards|basketball)\b/.test(text)) return "Basketball";
+  if (/\b(nfl|commanders|football)\b/.test(text)) return "Football";
+  if (/\b(nhl|capitals|hockey)\b/.test(text)) return "Hockey";
+  if (/\b(mls|dc united|soccer)\b/.test(text)) return "Soccer";
+  if (/\b(dj|vinyl|dance floor|club night|nightclub)\b/.test(text)) return "DJ Set";
+  if (/\b(beer|shot|cocktail|margarita|wine|happy hour|drink special)\b/.test(text)) return "Drink Specials";
+  if (/\b(trivia|quiz|prizes)\b/.test(text)) return "Prizes";
+  if (/\b(embassy|international|ambassador|global|heritage)\b/.test(text)) return "International";
+  if (/\b(comedy|stand[- ]?up|improv|comic)\b/.test(text)) return "Comedy";
+  if (/\b(exhibit|exhibition|gallery|museum)\b/.test(text)) return "Exhibit";
+  if (/\b(rooftop|patio|outdoor|park|garden)\b/.test(text)) return "Outdoor";
+  if (/\b(food|tasting|dinner|brunch|chef)\b/.test(text)) return "Food tasting";
+  if (category === "sports") return "Game Day";
+  if (category === "museums") return "Exhibit";
+  if (category === "happy-hours") return "Drink Specials";
+  if (category === "trivia-nights") return "Prizes";
+  if (category === "nightlife") return "Late Night";
+  if (category === "culture") return "International";
+  if (category === "food") return "Food tasting";
+  return "Local Pick";
+}
+
+function ensureEventTags(event, tags) {
+  const clean = tags
+    .map(tag => String(tag || "").trim())
+    .filter(tag => tag && tag !== "[object Object]")
+    .filter(tag => !isCategoryTag(event, tag))
+    .filter(tag => !isBroadCategoryTag(tag))
+    .filter(tag => !isLocationTag(event, tag))
+    .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+  return clean.length ? clean : [fallbackTagForEvent(event)];
+}
+
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Community", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -5609,14 +5971,14 @@ function eventTags(event) {
     const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()));
     const genre = [...clean, ...inferred].find(isMusicGenreTag) || seededMusicGenreTag(`${event.title || ""} ${event.venue || ""} ${event.desc || ""}`);
     const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
-    return [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
+    return ensureEventTags(event, [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1));
+      .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1)));
   }
   if (String(event.cat || "").toLowerCase() !== "performing-arts") {
-    return [...tags, ...keywordTagsForEvent(event)]
+    return ensureEventTags(event, [...tags, ...keywordTagsForEvent(event)]
       .filter(tag => !isCategoryTag(event, tag) && !isBroadCategoryTag(tag) && !isLocationTag(event, tag))
-      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+      .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index));
   }
   const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
   const inferred = [];
@@ -5639,9 +6001,9 @@ function eventTags(event) {
   add("Spoken Word", /spoken word|poetry/);
   const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()));
   const fallback = seededPerformingArtsFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(tag => clean.length + inferred.length < 2 || inferred.length < 2);
-  return [...clean, ...inferred, ...fallback]
+  return ensureEventTags(event, [...clean, ...inferred, ...fallback]
     .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
-    .slice(0, Math.max(3, clean.length + inferred.length + fallback.length));
+    .slice(0, Math.max(3, clean.length + inferred.length + fallback.length)));
 }
 
 function eventTagChips(event, limit = 3) {
@@ -5668,6 +6030,48 @@ function eventMetaLine(event) {
   return [eventDisplayTime(event), eventPriceLabel(event)].filter(Boolean).join(" / ");
 }
 
+function compactEventTimeLabel(event) {
+  const text = String(eventDisplayTime(event) || "").trim();
+  if (!text) return "";
+  return text.replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2}),\s+/, "$1 - ");
+}
+
+function currentWeekEndDate() {
+  const now = new Date();
+  const end = new Date(now);
+  end.setDate(now.getDate() + ((7 - now.getDay()) % 7));
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+function eventSeriesThisWeekCount(event) {
+  const start = Number(event?.startSort || 0);
+  if (!Number.isFinite(start) || start <= 0) return 0;
+  const weekEnd = currentWeekEndDate().getTime();
+  return occurrencesForEvent(event)
+    .filter(item => item.id !== event.id)
+    .filter(item => Number.isFinite(item.startSort) && item.startSort > start && item.startSort <= weekEnd)
+    .length;
+}
+
+function eventCardTimeLine(event) {
+  const time = compactEventTimeLabel(event);
+  if (/^ongoing$/i.test(time)) return time;
+  const moreThisWeek = eventSeriesThisWeekCount(event);
+  if (!time) return moreThisWeek ? `+${moreThisWeek} more this week` : "";
+  return moreThisWeek ? `${time} + ${moreThisWeek} more this week` : time;
+}
+
+function eventCardTimeHtml(event) {
+  const time = compactEventTimeLabel(event);
+  if (/^ongoing$/i.test(time)) return escapeHtml(time);
+  const moreThisWeek = eventSeriesThisWeekCount(event);
+  if (!time) return moreThisWeek ? `<span class="event-card-more-week">+${moreThisWeek} more this week</span>` : "";
+  return moreThisWeek
+    ? `<strong>${escapeHtml(time)}</strong> <span class="event-card-more-week">+${moreThisWeek} more this week</span>`
+    : `<strong>${escapeHtml(time)}</strong>`;
+}
+
 function primaryEventTag(event) {
   return eventTags(event)[0] || event.tag || event.cat || "Local event";
 }
@@ -5675,38 +6079,38 @@ function primaryEventTag(event) {
 function eventArtLabel(event) {
   const category = String(event.cat || event.category || "").toLowerCase();
   const labels = {
-    music: "Concert",
-    concerts: "Concert",
+    music: "Concerts",
+    concerts: "Concerts",
     "live-music": "Live music",
-    art: "Arts",
-    "performing-arts": "Arts",
+    art: "Performing arts",
+    "performing-arts": "Performing arts",
     museums: "Museums",
-    theatre: "Arts",
-    theater: "Arts",
+    theatre: "Performing arts",
+    theater: "Performing arts",
     sports: "Sports",
-    fitness: "Fitness",
-    food: "Food",
-    festivals: "Festival",
+    fitness: "Sports",
+    food: "Food & drink",
+    festivals: "Festivals",
     culture: "Culture",
     community: "Community",
-    expos: "Expo",
-    nightlife: "Night out",
-    "happy-hours": "Happy hour",
-    "trivia-nights": "Trivia night"
+    expos: "Community",
+    nightlife: "Nightlife",
+    "happy-hours": "Happy hours",
+    "trivia-nights": "Trivia Nights"
   };
   if (labels[category]) return labels[category];
   const tagText = eventTags(event).join(" ").toLowerCase();
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
-  if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Night out";
-  if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concert";
+  if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Nightlife";
+  if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concerts";
   if (/\b(embassy|ambassador|international|cultural|culture|heritage|global|foreign soil)\b/.test(text)) return "Culture";
   if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
-  if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
+  if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Performing arts";
   if (/\b(baseball|mlb|nba|nfl|nhl|soccer|sports?|game)\b/.test(text)) return "Sports";
-  if (/\b(food|drink|wine|beer|cocktail|restaurant|brunch|market)\b/.test(text)) return "Food";
-  if (/\b(festival|fair)\b/.test(text)) return "Festival";
-  if (/\b(expo|conference|convention)\b/.test(text)) return "Expo";
-  if (/\b(run|yoga|fitness|wellness|pickleball)\b/.test(text)) return "Fitness";
+  if (/\b(food|drink|wine|beer|cocktail|restaurant|brunch|market)\b/.test(text)) return "Food & drink";
+  if (/\b(festival|fair)\b/.test(text)) return "Festivals";
+  if (/\b(expo|conference|convention)\b/.test(text)) return "Community";
+  if (/\b(run|yoga|fitness|wellness|pickleball)\b/.test(text)) return "Sports";
   if (/\b(community|volunteer|neighborhood|meetup)\b/.test(text)) return "Community";
   return "Community";
 }
@@ -5818,7 +6222,7 @@ const CATEGORY_COLORS = {
   culture: "#2F80ED",
   food: "#FF7B54",
   community: "#7BC67E",
-  expos: "#64748B"
+  expos: "#7BC67E"
 };
 
 const cardShareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>';
@@ -5882,6 +6286,29 @@ function eventSourceCredit(event) {
   if (source === "eventsdc") {
     return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://eventsdc.com/events")}" target="_blank" rel="noreferrer">Events DC</a></p>`;
   }
+  if (source === "edibledc") {
+    return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://edibledc.com/events/")}" target="_blank" rel="noreferrer">Edible DC</a></p>`;
+  }
+  return "";
+}
+
+function eventWebsiteUrl(event) {
+  const direct = String(event?.detailsUrl || event?.externalUrl || event?.url || "").trim();
+  if (/^https?:\/\//i.test(direct)) return direct;
+  const venueNames = [event?.venue, event?.venueName, eventLocationLine(event)]
+    .map(value => String(value || "").trim())
+    .filter(Boolean);
+  const venueKeys = venueNames.map(venueImageKeyName).filter(Boolean);
+  const venue = venueDirectory.find(item => {
+    const itemKey = venueImageKeyName(item.name);
+    if (!itemKey) return false;
+    return venueKeys.some(key =>
+      itemKey === key
+      || (itemKey.length >= 5 && key.length >= 5 && (itemKey.includes(key) || key.includes(itemKey)))
+    );
+  });
+  const venueWebsite = String(venue?.website_url || venue?.website || event?.venueWebsite || "").trim();
+  if (/^https?:\/\//i.test(venueWebsite)) return venueWebsite;
   return "";
 }
 
@@ -5895,21 +6322,22 @@ function cleanEventThumbStyle(image) {
 
 // Event card, Too Good To Go-inspired: framed rounded photo with a category pill
 // (and optional social-proof pill), then a clean info block â€” bold title + heart,
-// venue, time / neighborhood, a dashed "receipt" divider, and a price row.
+// venue, a compact date/time line, neighborhood, and lightweight tag row.
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const displayTitle = eventDisplayTitle(event);
   const area = eventCardArea(event);
   const tags = eventTags(event);
   const catLabel = eventArtLabel(event);
-  const rawVenue = cleanLocationPart(event.venue);
+  const rawVenue = canonicalVenueName(event.venue);
   const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
-  const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  Â·  ");
+  const timeLine = eventCardTimeHtml(event);
   const leftTag = eventTagChips(event, 3);
   const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
-  return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+  const fallbackImage = eventFallbackImageSrc(event);
+  return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
-      <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
+      <img class="event-card-img" src="${eventCardImageSrc(event)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
       <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>
@@ -5922,7 +6350,8 @@ function eventRow(event, variant = "", opts = {}) {
       </div>
       <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}">
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
-        ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
+        ${timeLine ? `<span class="event-card-meta event-card-time">${timeLine}</span>` : ""}
+        ${area ? `<span class="event-card-meta event-card-area">${escapeHtml(area)}</span>` : ""}
       </button>
       ${bottomHtml}
     </div>
@@ -5931,7 +6360,7 @@ function eventRow(event, variant = "", opts = {}) {
 
 function eventThumbStyle(event) {
   const image = eventArtImage(event);
-  return event.image ? cleanEventThumbStyle(image) : `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${image};`;
+  return eventHasUsablePhoto(event) ? cleanEventThumbStyle(image) : `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${image};`;
 }
 
 // Compact horizontal list row used below the hero in the hero-then-list feeds.
@@ -5949,8 +6378,10 @@ function eventListRow(event, opts = {}) {
   const tags = eventTags(event);
   const displayTitle = eventDisplayTitle(event);
   const meta = [event.time, eventLocationLine(event)].filter(Boolean).join(" Â· ");
-  return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
+  const disabled = Boolean(opts.disabled);
+  const expiredBadge = opts.expired ? `<span class="elr-expired">Already happened</span>` : "";
+  return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}${disabled ? " is-disabled" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    ${disabled ? "" : `<button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>`}
     <span class="elr-thumb" style="${eventThumbStyle(event)}"></span>
     <span class="elr-copy">
       <b class="elr-venue">${escapeHtml(displayTitle)}</b>
@@ -5958,10 +6389,150 @@ function eventListRow(event, opts = {}) {
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
-      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
-      ${eventListSideBadge(event)}
+      ${disabled ? "" : `<button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>`}
+      ${expiredBadge || eventListSideBadge(event)}
     </span>
   </article>`;
+}
+
+// --- Venue name canonicalisation ------------------------------------------
+// The same venue arrives under several names â€” "Tryst", "Tryst Bar Events",
+// "Tryst Coffee House bar". venueImageKeyName only trims a trailing generic
+// word, so those stay three separate keys. Here they are clustered: a shorter
+// key that is a prefix of a longer one wins, and the cluster takes the
+// shortest, most common spelling as its display name.
+const venueCanonical = { built: false, toCanon: new Map(), display: new Map() };
+
+function venueCanonicalReset() {
+  venueCanonical.built = false;
+  venueCanonical.toCanon.clear();
+  venueCanonical.display.clear();
+}
+
+// Words that describe what a place is rather than name it. A longer name only
+// folds into a shorter one when everything it adds comes from this list â€”
+// "Tryst" + "coffee house bar" merges, but "The Royal" and "Royal Sands Social
+// Club" stay apart, and so does "The Royal Embassy of Saudi Arabia".
+const VENUE_GENERIC_TOKENS = new Set([
+  "the", "a", "an", "of", "and", "at", "on", "dc", "washington",
+  "bar", "bars", "cafe", "cafÃ©", "coffee", "house", "lounge", "tavern", "pub",
+  "kitchen", "grill", "grille", "restaurant", "eatery", "bistro", "diner",
+  "brewing", "brewery", "taproom", "beer", "wine", "winery", "cocktail",
+  "events", "event", "venue", "hall", "room", "rooms", "space", "spaces",
+  "theatre", "theater", "music", "live", "stage", "studio", "gallery",
+  "company", "co", "inc", "llc", "group"
+]);
+
+function venueTokenKey(name) {
+  return venueNameTokens(name).join("");
+}
+
+function venueTokens(name) {
+  // Parenthesised text is kept as words so "(Navy Yard)" and "Navy Yard" agree.
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[()]/g, " ")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+// Distinctive tokens are what actually identify the place.
+function venueNameTokens(name) {
+  const tokens = venueTokens(name);
+  while (tokens.length > 1 && VENUE_GENERIC_TOKENS.has(tokens[0])) tokens.shift();
+  return tokens;
+}
+
+function venueFoldsInto(shortTokens, longTokens) {
+  if (!shortTokens.length || longTokens.length <= shortTokens.length) return false;
+  for (let i = 0; i < shortTokens.length; i += 1) {
+    if (shortTokens[i] !== longTokens[i]) return false;
+  }
+  // Everything the longer name adds has to be a generic descriptor.
+  return longTokens.slice(shortTokens.length).every(token => VENUE_GENERIC_TOKENS.has(token));
+}
+
+function buildVenueCanonicalIndex() {
+  const counts = new Map();
+  const names = new Map();
+  const note = raw => {
+    const name = typeof cleanLocationPart === "function" ? cleanLocationPart(raw) : String(raw || "").trim();
+    if (!name) return;
+    const key = venueTokenKey(name);
+    if (key.length < 3) return;
+    counts.set(key, (counts.get(key) || 0) + 1);
+    const seen = names.get(key) || new Map();
+    seen.set(name, (seen.get(name) || 0) + 1);
+    names.set(key, seen);
+  };
+  (Array.isArray(events) ? events : []).forEach(event => note(event.venue));
+  (Array.isArray(venueDirectory) ? venueDirectory : []).forEach(venue => note(venue.name));
+
+  // Representative spelling per key, then fewest-tokens first so the base name
+  // becomes the cluster root.
+  const repName = new Map();
+  names.forEach((bucket, key) => {
+    const best = [...bucket.entries()].sort((a, b) => b[1] - a[1] || a[0].length - b[0].length)[0];
+    repName.set(key, best ? best[0] : key);
+  });
+  const keys = [...counts.keys()].sort((a, b) => {
+    const delta = venueNameTokens(repName.get(a)).length - venueNameTokens(repName.get(b)).length;
+    return delta || a.length - b.length || a.localeCompare(b);
+  });
+
+  const roots = [];
+  keys.forEach(key => {
+    const tokens = venueNameTokens(repName.get(key));
+    const root = roots.find(candidate => venueFoldsInto(candidate.tokens, tokens));
+    if (root) { venueCanonical.toCanon.set(key, root.key); return; }
+    roots.push({ key, tokens });
+    venueCanonical.toCanon.set(key, key);
+  });
+
+  // Display name: the shortest spelling in the cluster, most common breaking ties.
+  const clusterNames = new Map();
+  keys.forEach(key => {
+    const root = venueCanonical.toCanon.get(key);
+    const bucket = clusterNames.get(root) || new Map();
+    (names.get(key) || new Map()).forEach((count, name) => bucket.set(name, (bucket.get(name) || 0) + count));
+    clusterNames.set(root, bucket);
+  });
+  clusterNames.forEach((bucket, root) => {
+    const best = [...bucket.entries()].sort((a, b) => a[0].length - b[0].length || b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+    if (best) venueCanonical.display.set(root, best[0]);
+  });
+  venueCanonical.built = true;
+}
+
+function venueCanonicalKey(name) {
+  if (!venueCanonical.built) buildVenueCanonicalIndex();
+  const key = venueTokenKey(name);
+  return venueCanonical.toCanon.get(key) || key;
+}
+
+function canonicalVenueName(name) {
+  if (!venueCanonical.built) buildVenueCanonicalIndex();
+  const clean = typeof cleanLocationPart === "function" ? cleanLocationPart(name) : String(name || "").trim();
+  // Branch qualifiers are part of the cluster key now, so "Atlas Brew Works
+  // (Navy Yard)" and "Atlas Brew Works Navy Yard" resolve to one name while
+  // the Ivy City taproom stays its own venue.
+  return venueCanonical.display.get(venueCanonicalKey(clean)) || clean;
+}
+
+// --- Recurring series ------------------------------------------------------
+const REPEAT_DAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
+const REPEAT_DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// Weekdays a series actually lands on, taken from the loaded occurrences
+// rather than from wording in the title.
+function eventSeriesWeekdays(event) {
+  const all = typeof occurrencesForEvent === "function" ? occurrencesForEvent(event) : [event];
+  const days = new Set();
+  all.forEach(item => {
+    const date = eventDateValue(item);
+    if (date) days.add(date.getDay());
+  });
+  return { days: [...days].sort((a, b) => a - b), count: all.length };
 }
 
 function eventDedupeKey(event) {
@@ -5991,18 +6562,15 @@ function feedDedupeKey(event) {
 // is the next upcoming occurrence.
 function dedupeFeedEvents(list) {
   const seen = new Set();
-  const seriesWeekday = new Set();
+  const series = new Set();
   return list.filter(event => {
     const key = feedDedupeKey(event);
     if (seen.has(key)) return false;
-    // A weekly series would otherwise return a card for every future week.
-    // Keep at most one per weekday, which is the next one on that day.
-    const date = eventDateValue(event);
-    if (date) {
-      const weekdayKey = `${eventDedupeKey(event)}|${date.getDay()}`;
-      if (seriesWeekday.has(weekdayKey)) return false;
-      seriesWeekday.add(weekdayKey);
-    }
+    // One card per series. A weekly happy hour used to return a card for every
+    // future occurrence; the card now carries a strip of the days it repeats on.
+    const seriesKey = eventDedupeKey(event);
+    if (series.has(seriesKey)) return false;
+    series.add(seriesKey);
     seen.add(key);
     return true;
   });
@@ -6216,20 +6784,27 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (filter === "weekend") return !event.time.startsWith("Tonight");
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
-  // Food & drink is tag-aware: anything tagged/described with food or drink shows
-  // here, so a food-tagged happy hour appears under Food & drink too.
-  if (filter === "food") return /\b(food|drink|dining|restaurant|tasting|brunch|wine|beer|cocktail|happy hour|food deals?)\b/.test(`${event.cat} ${eventTags(event).join(" ")} ${event.title} ${event.desc || ""}`.toLowerCase());
+  if (filter === "food") return eventMatchesFoodDrinkFocus(event);
+  if (filter === "community") return event.cat === "community" || event.cat === "expos";
   return event.cat === filter;
 }
 
+function eventMatchesFoodDrinkFocus(event) {
+  const category = String(event.cat || "").toLowerCase();
+  if (["happy-hours", "trivia-nights"].includes(category)) return false;
+  const text = `${eventTags(event).join(" ")} ${event.title || ""} ${event.desc || ""}`.toLowerCase();
+  return /\b(food festival|farmers? market|food market|culinary|chef dinner|tasting|wine tasting|beer festival|brew fest|cocktail class|restaurant week|cookout|brunch|supper club|pop-up dinner|food truck|food vendors?|local food|food tasting)\b/.test(text)
+    || (category === "food" && /\b(food|culinary|chef|dinner|tasting|wine|beer|cocktail|restaurant week|cookout|brunch|market|farm)\b/.test(text));
+}
+
 function discoverFilterItems() {
-  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 
@@ -6273,6 +6848,80 @@ function profileToFriendRow(profile) {
   const mutuals = profile.mutuals || `${2 + (fullName.length % 7)} mutual friends`;
   const bio = profile.bio || "Washington, DC";
   return [initials, fullName, `@${username}`, mutuals, bio];
+}
+
+// Bo the Bear â€” the Lokal mascot, taken from the "Lokal Bear Mascot" canvas.
+// Every pose composes the same sprite of parts, so each standalone SVG inlines
+// the sprite before it is serialised to a data URI. That keeps the art usable
+// anywhere an image URL is expected, with no markup changes at the call sites.
+const BO_SPRITE = "<defs> <g id=\"lb-legs\"> <rect x=\"70\" y=\"146\" width=\"25\" height=\"32\" rx=\"12.5\" fill=\"#A46A41\"></rect> <rect x=\"105\" y=\"146\" width=\"25\" height=\"32\" rx=\"12.5\" fill=\"#A46A41\"></rect> <ellipse cx=\"82.5\" cy=\"172\" rx=\"9.5\" ry=\"6.5\" fill=\"#EFD3B0\"></ellipse> <ellipse cx=\"117.5\" cy=\"172\" rx=\"9.5\" ry=\"6.5\" fill=\"#EFD3B0\"></ellipse> </g> <g id=\"lb-body\"> <ellipse cx=\"100\" cy=\"136\" rx=\"39\" ry=\"35\" fill=\"#B37A4F\"></ellipse> <ellipse cx=\"100\" cy=\"142\" rx=\"25\" ry=\"24\" fill=\"#EFD3B0\"></ellipse> </g> <g id=\"lb-arm\"> <rect x=\"-9\" y=\"-10\" width=\"18\" height=\"40\" rx=\"9\" fill=\"#A46A41\"></rect> <circle cx=\"0\" cy=\"28\" r=\"9.5\" fill=\"#EFD3B0\"></circle> </g> <g id=\"lb-head\"> <circle cx=\"64\" cy=\"46\" r=\"21\" fill=\"#B37A4F\"></circle><circle cx=\"60\" cy=\"40\" r=\"10\" fill=\"#EFD3B0\"></circle> <circle cx=\"136\" cy=\"46\" r=\"21\" fill=\"#B37A4F\"></circle><circle cx=\"140\" cy=\"40\" r=\"10\" fill=\"#EFD3B0\"></circle> <ellipse cx=\"100\" cy=\"78\" rx=\"49\" ry=\"43\" fill=\"#B37A4F\"></ellipse> <ellipse cx=\"100\" cy=\"95\" rx=\"25\" ry=\"19\" fill=\"#EFD3B0\"></ellipse> <ellipse cx=\"62\" cy=\"92\" rx=\"8\" ry=\"5\" fill=\"#FF6B4A\" opacity=\".32\"></ellipse> <ellipse cx=\"138\" cy=\"92\" rx=\"8\" ry=\"5\" fill=\"#FF6B4A\" opacity=\".32\"></ellipse> </g> <g id=\"lb-face\"> <circle cx=\"82\" cy=\"72\" r=\"5.4\" fill=\"#191A19\"></circle><circle cx=\"118\" cy=\"72\" r=\"5.4\" fill=\"#191A19\"></circle> <circle cx=\"84\" cy=\"70\" r=\"1.8\" fill=\"#fff\"></circle><circle cx=\"120\" cy=\"70\" r=\"1.8\" fill=\"#fff\"></circle> <ellipse cx=\"100\" cy=\"88\" rx=\"8.5\" ry=\"6\" fill=\"#191A19\"></ellipse> <path d=\"M100 94v4\" stroke=\"#191A19\" stroke-width=\"2.6\" stroke-linecap=\"round\" fill=\"none\"></path> <path d=\"M100 98q-6 6-11 1\" stroke=\"#191A19\" stroke-width=\"2.6\" stroke-linecap=\"round\" fill=\"none\"></path> <path d=\"M100 98q6 6 11 1\" stroke=\"#191A19\" stroke-width=\"2.6\" stroke-linecap=\"round\" fill=\"none\"></path> </g> <g id=\"lb-face-shut\"> <path d=\"M75 71q7 7 14 0\" stroke=\"#191A19\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"></path> <path d=\"M111 71q7 7 14 0\" stroke=\"#191A19\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"></path> <ellipse cx=\"100\" cy=\"88\" rx=\"8.5\" ry=\"6\" fill=\"#191A19\"></ellipse> </g> <g id=\"lb-face-happy\"> <path d=\"M75 74q7-9 14 0\" stroke=\"#191A19\" stroke-width=\"3.2\" stroke-linecap=\"round\" fill=\"none\"></path> <path d=\"M111 74q7-9 14 0\" stroke=\"#191A19\" stroke-width=\"3.2\" stroke-linecap=\"round\" fill=\"none\"></path> <ellipse cx=\"100\" cy=\"88\" rx=\"8.5\" ry=\"6\" fill=\"#191A19\"></ellipse> <path d=\"M91 96q9 9 18 0\" stroke=\"#191A19\" stroke-width=\"2.8\" stroke-linecap=\"round\" fill=\"none\"></path> </g> <g id=\"lb-hat\"> <g transform=\"rotate(-8 100 30)\"> <ellipse cx=\"100\" cy=\"35\" rx=\"37\" ry=\"9\" fill=\"#00C897\"></ellipse> <path d=\"M78 33c-1-15 4-23 11-25 4 7 18 7 22 0 7 2 12 10 11 25z\" fill=\"#00C897\"></path> <path d=\"M78 27q22 7 44 0v8q-22 7-44 0z\" fill=\"#0E7C6B\"></path> </g> </g> </defs>";
+
+const BO_POSES = {
+  "Leaning on the wordmark": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <g transform=\"rotate(6 100 180)\"> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(10)\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face\"></use> <use href=\"#lb-hat\"></use> <use href=\"#lb-arm\" transform=\"translate(138,112) rotate(156) scale(1,0.7)\"></use> </g>",
+  "Shopping": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> <path d=\"M41 148h34v30H41z\" fill=\"#00C897\"></path> <path d=\"M48 148q10-40 20 0\" stroke=\"#0E7C6B\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"></path> <path d=\"M54 160h8\" stroke=\"#F6F4F0\" stroke-width=\"3\"></path> <path d=\"M125 152h30v26h-30z\" fill=\"#FF6B4A\"></path> <path d=\"M132 152q8-42 16 0\" stroke=\"#B23A20\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"></path> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(8)\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(-8)\"></use>",
+  "Singing": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(46)\"></use> <use href=\"#lb-head\"></use> <path d=\"M75 74q7-9 14 0\" stroke=\"#191A19\" stroke-width=\"3.2\" stroke-linecap=\"round\" fill=\"none\"></path> <path d=\"M111 74q7-9 14 0\" stroke=\"#191A19\" stroke-width=\"3.2\" stroke-linecap=\"round\" fill=\"none\"></path> <ellipse cx=\"100\" cy=\"84\" rx=\"7.5\" ry=\"5.2\" fill=\"#191A19\"></ellipse> <ellipse cx=\"100\" cy=\"104\" rx=\"7.5\" ry=\"8\" fill=\"#191A19\"></ellipse> <ellipse cx=\"100\" cy=\"108\" rx=\"4.2\" ry=\"3.8\" fill=\"#FF6B4A\"></ellipse> <use href=\"#lb-hat\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(215)\"></use> <g transform=\"rotate(18 160 92)\"> <rect x=\"155\" y=\"76\" width=\"10\" height=\"34\" rx=\"5\" fill=\"#3A3C39\"></rect> <circle cx=\"160\" cy=\"74\" r=\"9.5\" fill=\"#191A19\"></circle> <circle cx=\"160\" cy=\"74\" r=\"4.6\" fill=\"#00C897\"></circle> </g> <circle cx=\"159\" cy=\"95\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <path d=\"M34 60q7-11 13-2\" stroke=\"#00C897\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"></path> <circle cx=\"33\" cy=\"62\" r=\"4.6\" fill=\"#00C897\"></circle> <path d=\"M158 34q7-11 13-2\" stroke=\"#F5B942\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"></path> <circle cx=\"157\" cy=\"36\" r=\"4.6\" fill=\"#F5B942\"></circle>",
+  "Dancing": "<ellipse cx=\"106\" cy=\"184\" rx=\"42\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <rect x=\"99\" y=\"146\" width=\"25\" height=\"32\" rx=\"12.5\" fill=\"#A46A41\"></rect> <ellipse cx=\"111.5\" cy=\"172\" rx=\"9.5\" ry=\"6.5\" fill=\"#EFD3B0\"></ellipse> <g transform=\"rotate(-40 100 150)\"> <rect x=\"72\" y=\"146\" width=\"25\" height=\"32\" rx=\"12.5\" fill=\"#A46A41\"></rect> <ellipse cx=\"84.5\" cy=\"172\" rx=\"9.5\" ry=\"6.5\" fill=\"#EFD3B0\"></ellipse> </g> <use href=\"#lb-body\"></use> <g transform=\"rotate(-7 100 120)\"> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> </g> <use href=\"#lb-arm\" transform=\"translate(64,112) rotate(142)\"></use> <use href=\"#lb-arm\" transform=\"translate(136,112) rotate(-136)\"></use> <path d=\"M26 100l3-9 3 9 9 3-9 3-3 9-3-9-9-3z\" fill=\"#00C897\"></path> <path d=\"M172 78l2.4-7 2.4 7 7 2.4-7 2.4-2.4 7-2.4-7-7-2.4z\" fill=\"#F5B942\"></path> <path d=\"M40 40l2-6 2 6 6 2-6 2-2 6-2-6-6-2z\" fill=\"#FF6B4A\"></path>",
+  "Studying": "<ellipse cx=\"100\" cy=\"182\" rx=\"54\" ry=\"8\" fill=\"#191A19\" opacity=\".07\"></ellipse> <ellipse cx=\"72\" cy=\"170\" rx=\"18\" ry=\"11\" fill=\"#A46A41\"></ellipse> <ellipse cx=\"128\" cy=\"170\" rx=\"18\" ry=\"11\" fill=\"#A46A41\"></ellipse> <ellipse cx=\"66\" cy=\"171\" rx=\"8\" ry=\"5.5\" fill=\"#EFD3B0\"></ellipse> <ellipse cx=\"134\" cy=\"171\" rx=\"8\" ry=\"5.5\" fill=\"#EFD3B0\"></ellipse> <use href=\"#lb-body\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face\"></use> <use href=\"#lb-hat\"></use> <circle cx=\"82\" cy=\"72\" r=\"12.5\" fill=\"none\" stroke=\"#191A19\" stroke-width=\"3\"></circle> <circle cx=\"118\" cy=\"72\" r=\"12.5\" fill=\"none\" stroke=\"#191A19\" stroke-width=\"3\"></circle> <path d=\"M94.5 72h11\" stroke=\"#191A19\" stroke-width=\"3\"></path> <path d=\"M69.5 70l-13-6\" stroke=\"#191A19\" stroke-width=\"3\" stroke-linecap=\"round\"></path> <g transform=\"rotate(24 141 38)\"> <rect x=\"137\" y=\"14\" width=\"8\" height=\"28\" rx=\"2\" fill=\"#F5B942\"></rect> <path d=\"M137 42h8l-4 8z\" fill=\"#191A19\"></path> </g> <path d=\"M100 142l-52 6v28l52-8z\" fill=\"#00C897\"></path> <path d=\"M100 142l52 6v28l-52-8z\" fill=\"#0E7C6B\"></path> <path d=\"M100 142v28\" stroke=\"#F6F4F0\" stroke-width=\"3\"></path> <path d=\"M60 158h28M60 166h28\" stroke=\"#F6F4F0\" stroke-width=\"2.4\" opacity=\".75\"></path> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(20) scale(1,1.22)\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(-20) scale(1,1.22)\"></use>",
+  "Coffee run": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(10)\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(205)\"></use> <path d=\"M150 88h26l-3 32h-20z\" fill=\"#F6F4F0\" stroke=\"#191A19\" stroke-width=\"2.2\" stroke-linejoin=\"round\"></path> <path d=\"M147 78h32v11h-32z\" fill=\"#00C897\" stroke=\"#191A19\" stroke-width=\"2.2\" stroke-linejoin=\"round\"></path> <path d=\"M154 104h17\" stroke=\"#B37A4F\" stroke-width=\"3\" opacity=\".45\"></path> <circle cx=\"150\" cy=\"90\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <path d=\"M156 68q-6-8 0-14t0-8\" stroke=\"#B37A4F\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".45\"></path> <path d=\"M170 66q-6-7 0-12t0-6\" stroke=\"#B37A4F\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".3\"></path>",
+  "Beer cheers": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(14)\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(215)\"></use> <g transform=\"rotate(10 158 94)\"> <rect x=\"145\" y=\"73\" width=\"25\" height=\"35\" rx=\"5\" fill=\"#FFC53D\" stroke=\"#191A19\" stroke-width=\"2.4\"></rect> <path d=\"M170 82h7c6 0 6 17 0 17h-7\" fill=\"none\" stroke=\"#191A19\" stroke-width=\"2.4\"></path> <path d=\"M145 78h25v8h-25z\" fill=\"#F6F4F0\" stroke=\"#191A19\" stroke-width=\"2.4\"></path> <path d=\"M151 91v10M158 89v12M165 91v10\" stroke=\"#B37A4F\" stroke-width=\"2\" opacity=\".45\"></path> </g> <circle cx=\"150\" cy=\"95\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <path d=\"M36 58l2-6 2 6 6 2-6 2-2 6-2-6-6-2z\" fill=\"#FFC53D\"></path> <path d=\"M170 40l1.6-5 1.6 5 5 1.6-5 1.6-1.6 5-1.6-5-5-1.6z\" fill=\"#00C897\"></path>",
+  "Biking": "<ellipse cx=\"100\" cy=\"188\" rx=\"62\" ry=\"6\" fill=\"#191A19\" opacity=\".07\"></ellipse> <circle cx=\"50\" cy=\"164\" r=\"20\" fill=\"none\" stroke=\"#191A19\" stroke-width=\"5\"></circle> <circle cx=\"150\" cy=\"164\" r=\"20\" fill=\"none\" stroke=\"#191A19\" stroke-width=\"5\"></circle> <path d=\"M50 164h50M100 164l30-40M100 164v-38M130 124l20 40\" stroke=\"#00C897\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"></path> <path d=\"M126 106l4 18\" stroke=\"#00C897\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"></path> <circle cx=\"100\" cy=\"164\" r=\"6\" fill=\"#191A19\"></circle> <g transform=\"rotate(-20 92 132)\"><rect x=\"82\" y=\"120\" width=\"22\" height=\"38\" rx=\"11\" fill=\"#A46A41\"></rect></g> <g transform=\"rotate(24 110 130)\"><rect x=\"100\" y=\"118\" width=\"22\" height=\"40\" rx=\"11\" fill=\"#A46A41\"></rect></g> <g transform=\"translate(0,-40)\"> <use href=\"#lb-body\"></use> <g transform=\"rotate(5 100 120)\"> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> </g> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(-17)\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(17)\"></use> </g> <path d=\"M64 101h72\" stroke=\"#191A19\" stroke-width=\"5\" stroke-linecap=\"round\"></path> <circle cx=\"70\" cy=\"101\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <circle cx=\"130\" cy=\"101\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <path d=\"M20 96q11-4 19 4\" stroke=\"#00C897\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".5\"></path> <path d=\"M16 110q11-4 19 4\" stroke=\"#00C897\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".3\"></path>",
+  "Photographing": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face\"></use> <use href=\"#lb-hat\"></use> <rect x=\"72\" y=\"60\" width=\"56\" height=\"38\" rx=\"9\" fill=\"#3A3C39\"></rect> <rect x=\"94\" y=\"52\" width=\"20\" height=\"10\" rx=\"3\" fill=\"#3A3C39\"></rect> <circle cx=\"100\" cy=\"79\" r=\"14\" fill=\"#191A19\"></circle> <circle cx=\"100\" cy=\"79\" r=\"7.5\" fill=\"#00C897\"></circle> <circle cx=\"97\" cy=\"76\" r=\"2.6\" fill=\"#F6F4F0\"></circle> <rect x=\"115\" y=\"66\" width=\"9\" height=\"5\" rx=\"2.5\" fill=\"#FF6B4A\"></rect> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(-156)\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(156)\"></use> <path d=\"M158 42l-5 12M170 54l-12 3M154 28l1 12\" stroke=\"#F5B942\" stroke-width=\"3.4\" stroke-linecap=\"round\"></path>",
+  "Eating": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(14)\"></use> <use href=\"#lb-head\"></use> <path d=\"M75 74q7-9 14 0\" stroke=\"#191A19\" stroke-width=\"3.2\" stroke-linecap=\"round\" fill=\"none\"></path> <path d=\"M111 74q7-9 14 0\" stroke=\"#191A19\" stroke-width=\"3.2\" stroke-linecap=\"round\" fill=\"none\"></path> <ellipse cx=\"100\" cy=\"86\" rx=\"8.5\" ry=\"6\" fill=\"#191A19\"></ellipse> <path d=\"M92 96q8 10 16 0\" stroke=\"#191A19\" stroke-width=\"2.8\" stroke-linecap=\"round\" fill=\"none\"></path> <use href=\"#lb-hat\"></use> <path d=\"M117 100l10 34 10-34z\" fill=\"#F5B942\"></path> <path d=\"M119 108h16M121 116h12\" stroke=\"#B37A4F\" stroke-width=\"2\" opacity=\".35\"></path> <circle cx=\"127\" cy=\"96\" r=\"11\" fill=\"#FF6B4A\"></circle> <circle cx=\"120\" cy=\"87\" r=\"8.5\" fill=\"#F6F4F0\"></circle> <circle cx=\"134\" cy=\"86\" r=\"8\" fill=\"#00C897\"></circle> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(106) scale(1,0.78)\"></use>",
+  "Painting": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face\"></use> <use href=\"#lb-hat\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(56)\"></use> <g> <ellipse cx=\"34\" cy=\"130\" rx=\"26\" ry=\"20\" fill=\"#F6F4F0\" stroke=\"#191A19\" stroke-width=\"2.4\"></ellipse> <circle cx=\"41\" cy=\"130\" r=\"7.5\" fill=\"#EFD3B0\" stroke=\"#191A19\" stroke-width=\"1.6\"></circle> <circle cx=\"20\" cy=\"121\" r=\"5\" fill=\"#FF6B4A\"></circle> <circle cx=\"33\" cy=\"116\" r=\"5\" fill=\"#00C897\"></circle> <circle cx=\"46\" cy=\"121\" r=\"5\" fill=\"#F5B942\"></circle> </g> <g transform=\"rotate(22 151 144)\"> <rect x=\"147\" y=\"126\" width=\"8\" height=\"40\" rx=\"4\" fill=\"#B37A4F\"></rect> <rect x=\"145\" y=\"117\" width=\"12\" height=\"10\" rx=\"2\" fill=\"#8A8C87\"></rect> <path d=\"M146 105h10v13h-10z\" fill=\"#00C897\"></path> </g> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(-28)\"></use> <circle cx=\"149\" cy=\"146\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <circle cx=\"176\" cy=\"76\" r=\"5\" fill=\"#00C897\" opacity=\".65\"></circle> <circle cx=\"184\" cy=\"94\" r=\"3.4\" fill=\"#FF6B4A\" opacity=\".65\"></circle>",
+  "Resting": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <path d=\"M52 150q48-14 96 0v22q0 8-9 8H61q-9 0-9-8z\" fill=\"#00C897\"></path> <path d=\"M52 150q48-14 96 0v8q-48 12-96 0z\" fill=\"#7FE3C8\"></path> <path d=\"M74 166v12M100 169v12M126 166v12\" stroke=\"#0E7C6B\" stroke-width=\"2.4\" opacity=\".3\" stroke-linecap=\"round\"></path> <g transform=\"rotate(-9 100 120)\"> <use href=\"#lb-head\"></use> <use href=\"#lb-face-shut\"></use> <path d=\"M93 98q7 6 14 0\" stroke=\"#191A19\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"></path> <use href=\"#lb-hat\"></use> </g> <use href=\"#lb-arm\" transform=\"translate(62,116) rotate(18)\"></use> <use href=\"#lb-arm\" transform=\"translate(138,116) rotate(-18)\"></use> <text x=\"142\" y=\"54\" font-family=\"Figtree,sans-serif\" font-size=\"21\" font-weight=\"800\" fill=\"#0E7C6B\">z</text> <text x=\"158\" y=\"37\" font-family=\"Figtree,sans-serif\" font-size=\"15\" font-weight=\"800\" fill=\"#0E7C6B\" opacity=\".7\">z</text> <text x=\"170\" y=\"24\" font-family=\"Figtree,sans-serif\" font-size=\"11\" font-weight=\"800\" fill=\"#0E7C6B\" opacity=\".45\">z</text>",
+  "Hello": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(12)\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face\"></use> <use href=\"#lb-hat\"></use> <use href=\"#lb-arm\" transform=\"translate(138,112) rotate(-141)\"></use>",
+  "Performing arts": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <path d=\"M0 0h48q-8 28-48 32z\" fill=\"#FF6B4A\" opacity=\".85\"></path> <path d=\"M200 0h-48q8 28 48 32z\" fill=\"#FF6B4A\" opacity=\".85\"></path> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(140)\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(-34)\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> <g transform=\"rotate(-10 40 84)\"> <rect x=\"35\" y=\"82\" width=\"9\" height=\"40\" rx=\"4.5\" fill=\"#191A19\"></rect> <path d=\"M40 45c10 0 17 7 17 18s-8 22-17 22-17-11-17-22 7-18 17-18z\" fill=\"#F5B942\" stroke=\"#191A19\" stroke-width=\"2.4\"></path> <ellipse cx=\"33\" cy=\"60\" rx=\"4\" ry=\"5.5\" fill=\"#191A19\"></ellipse> <ellipse cx=\"47\" cy=\"60\" rx=\"4\" ry=\"5.5\" fill=\"#191A19\"></ellipse> <path d=\"M31 72q9 12 18 0q-9 4-18 0z\" fill=\"#191A19\"></path> </g> <circle cx=\"42\" cy=\"99\" r=\"9.5\" fill=\"#EFD3B0\"></circle>",
+  "Tennis": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(22)\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(215)\"></use> <g transform=\"rotate(24 160 76)\"> <rect x=\"154\" y=\"66\" width=\"12\" height=\"38\" rx=\"6\" fill=\"#0E7C6B\"></rect> <ellipse cx=\"160\" cy=\"48\" rx=\"18\" ry=\"22\" fill=\"#F6F4F0\" stroke=\"#191A19\" stroke-width=\"3.2\"></ellipse> <path d=\"M147 40h26M145 48h30M147 56h26M152 28v40M160 27v42M168 28v40\" stroke=\"#191A19\" stroke-width=\"1.3\" opacity=\".35\"></path> </g> <circle cx=\"155\" cy=\"88\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <circle cx=\"34\" cy=\"62\" r=\"9\" fill=\"#F5B942\"></circle> <path d=\"M27 58q7 6 14 0\" stroke=\"#F6F4F0\" stroke-width=\"2\" fill=\"none\"></path> <path d=\"M16 44q11-6 21-2\" stroke=\"#00C897\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".55\"></path>",
+  "Trivia": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <use href=\"#lb-legs\"></use> <use href=\"#lb-body\"></use> <path d=\"M18 158h56v11H18z\" fill=\"#0E7C6B\" stroke=\"#191A19\" stroke-width=\"2.2\" stroke-linejoin=\"round\"></path> <path d=\"M25 158q0-21 21-21t21 21z\" fill=\"#FF6B4A\" stroke=\"#191A19\" stroke-width=\"2.2\" stroke-linejoin=\"round\"></path> <use href=\"#lb-arm\" transform=\"translate(62,114) rotate(34)\"></use> <circle cx=\"46\" cy=\"138\" r=\"9.5\" fill=\"#EFD3B0\"></circle> <use href=\"#lb-arm\" transform=\"translate(138,114) rotate(-8)\"></use> <use href=\"#lb-head\"></use> <use href=\"#lb-face\"></use> <use href=\"#lb-hat\"></use> <path d=\"M146 56l-11 12 15-4z\" fill=\"#F6F4F0\" stroke=\"#191A19\" stroke-width=\"2.4\" stroke-linejoin=\"round\"></path> <circle cx=\"160\" cy=\"44\" r=\"19\" fill=\"#F6F4F0\" stroke=\"#191A19\" stroke-width=\"2.4\"></circle> <text x=\"160\" y=\"53\" text-anchor=\"middle\" font-family=\"Figtree,sans-serif\" font-size=\"25\" font-weight=\"800\" fill=\"#191A19\">?</text>",
+  "Nightlife": "<ellipse cx=\"100\" cy=\"184\" rx=\"50\" ry=\"7\" fill=\"#191A19\" opacity=\".07\"></ellipse> <rect x=\"99\" y=\"146\" width=\"25\" height=\"32\" rx=\"12.5\" fill=\"#A46A41\"></rect> <ellipse cx=\"111.5\" cy=\"172\" rx=\"9.5\" ry=\"6.5\" fill=\"#EFD3B0\"></ellipse> <g transform=\"rotate(-40 100 150)\"> <rect x=\"72\" y=\"146\" width=\"25\" height=\"32\" rx=\"12.5\" fill=\"#A46A41\"></rect> <ellipse cx=\"84.5\" cy=\"172\" rx=\"9.5\" ry=\"6.5\" fill=\"#EFD3B0\"></ellipse> </g> <use href=\"#lb-body\"></use> <g transform=\"rotate(-7 100 120)\"> <use href=\"#lb-head\"></use> <use href=\"#lb-face-happy\"></use> <use href=\"#lb-hat\"></use> </g> <use href=\"#lb-arm\" transform=\"translate(64,112) rotate(142)\"></use> <use href=\"#lb-arm\" transform=\"translate(136,112) rotate(-136)\"></use> <path d=\"M26 104l3-9 3 9 9 3-9 3-3 9-3-9-9-3z\" fill=\"#00C897\"></path> <path d=\"M174 84l2.4-7 2.4 7 7 2.4-7 2.4-2.4 7-2.4-7-7-2.4z\" fill=\"#FF6B4A\"></path>",
+};
+
+// Category â†’ pose. Anything unmatched falls back to "Hello".
+const BO_CATEGORY_POSES = [
+  [/happy.?hour|drink|bar|brew|cocktail|wine|beer/i, "Beer cheers"],
+  [/trivia|quiz|game night/i, "Trivia"],
+  [/night|\bdj\b|club|danc|party|karaoke/i, "Nightlife"],
+  [/concert|music|jazz|band|sing|choir|opera/i, "Singing"],
+  [/theat|perform|comedy|improv|ballet/i, "Performing arts"],
+  [/museum|gallery|\barts?\b|exhibit|paint|craft/i, "Painting"],
+  [/market|shop|pop.?up|vendor|fair|bazaar/i, "Shopping"],
+  [/sport|run|race|game|match|tennis|soccer|basketball|baseball|yoga|fitness/i, "Tennis"],
+  [/food|eat|dinner|brunch|taste|restaurant|chef|cook/i, "Eating"],
+  [/bike|cycl|ride|trail|walk|tour|outdoor|park/i, "Biking"],
+  [/class|workshop|lecture|talk|seminar|book|read|learn/i, "Studying"],
+  [/photo|film|screen|cinema|movie/i, "Photographing"],
+  [/festival|community|volunteer|meet|social|club/i, "Hello"],
+  [/spa|wellness|rest|meditat|quiet/i, "Resting"]
+];
+
+function boPoseNameFor(event) {
+  const text = [event && event.cat, event && event.tag, event && event.title, event && event.venue]
+    .filter(Boolean).join(" ");
+  const match = BO_CATEGORY_POSES.find(([pattern]) => pattern.test(text));
+  return match ? match[1] : "Hello";
+}
+
+// Inline SVG markup for a pose, for places that render markup directly.
+function boPoseMarkup(name, attrs = "") {
+  const body = BO_POSES[name] || BO_POSES.Hello;
+  return `<svg viewBox="0 0 200 200" ${attrs}>${BO_SPRITE}${body}</svg>`;
+}
+
+const boDataUriCache = new Map();
+
+// Standalone, self-contained SVG as a data URI, so Bo can stand in anywhere an
+// image src is expected.
+function boPoseDataUri(name) {
+  const key = BO_POSES[name] ? name : "Hello";
+  if (boDataUriCache.has(key)) return boDataUriCache.get(key);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="#FFFFFF"/>${BO_SPRITE}${BO_POSES[key]}</svg>`;
+  const uri = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  boDataUriCache.set(key, uri);
+  return uri;
+}
+
+function boEventImage(event) {
+  return boPoseDataUri(boPoseNameFor(event));
 }
 
 const supabaseConfig = {
@@ -7014,7 +7663,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
+  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "performing-arts", "sports", "community", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -7064,6 +7713,7 @@ function normalizeImportedCategory(row) {
   if (/\b(9:30 club|930 club|the anthem|capital one arena|dar constitution hall|constitution hall|the howard theatre|howard theatre|echostage|nationals park|union stage)\b/.test(venueText)) return "concerts";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
   if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
+  if (directCategory === "expos" || directCategory === "expo") return "community";
   if (importedCategories.has(directCategory)) return directCategory;
   if (/signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera|stage play|pippin|what became of us/.test(text)) return "performing-arts";
   if (/concert/.test(text)) return "concerts";
@@ -7071,7 +7721,7 @@ function normalizeImportedCategory(row) {
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/embassy|ambassador|international|cultural|culture|heritage|foreign soil/.test(text)) return "culture";
   if (/festival|fair/.test(text)) return "festivals";
-  if (/expo|conference|convention/.test(text)) return "expos";
+  if (/expo|conference|convention/.test(text)) return "community";
   if (/showcase/.test(text)) return "performing-arts";
   if (/band|artist|singer|songwriter/.test(text)) return "live-music";
   if (row.source !== "manual" && importedCategories.has(tag) && tag !== "community") return tag;
@@ -7207,8 +7857,7 @@ function normalizeSupabaseTags(row, category) {
     festivals: ["festivals", "festival"],
     culture: ["culture", "cultural"],
     sports: ["sports", "sport"],
-    community: ["community"],
-    expos: ["expos", "expo"],
+    community: ["community", "expos", "expo"],
     nightlife: ["nightlife", "night out"],
     "happy-hours": ["happy hour", "happy hours"],
     "trivia-nights": ["trivia", "trivia night", "trivia nights"],
@@ -7369,17 +8018,27 @@ async function syncSupabaseEvents(showToast = false) {
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
       const normalized = dcRows.map(normalizeSupabaseEvent);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      state.todayStoryEvents = normalized
+        .filter(event => Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER)
+        .filter(event => sameCalendarDate(new Date(event.startSort), today));
       const discoveryWindowEvents = normalized.filter(isEventInDiscoveryWindow);
       events = discoveryWindowEvents;
       state.eventSync = { status: "synced", label: `${events.length} upcoming DC event${events.length === 1 ? "" : "s"}` };
     } else {
       events = [...demoEvents];
+      state.todayStoryEvents = [];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
     }
   } catch {
     events = [...demoEvents];
+    state.todayStoryEvents = [];
     state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
   }
+  // The venue name clusters are derived from the loaded events, so they have to
+  // be rebuilt whenever the event set is replaced.
+  if (typeof venueCanonicalReset === "function") venueCanonicalReset();
   reconcileUserPlans();
   if (state.route === "home") renderHome();
   openSharedEventFromUrl();
@@ -8249,21 +8908,20 @@ function eventFeedPattern(list) {
 
 // Per-category copy + filter chips. The first chip in each list is the
 // "all/clear" option. Categories beyond the original brief (museums, festivals,
-// community, expos, free) are inferred following the same pattern.
+// community, free) are inferred following the same pattern.
 const categoryFeedConfig = {
   concerts: { label: "Concerts", searchPlaceholder: "Search by artist, venue, or dateâ€¦", chips: ["All shows", "This week", "This month", "Pop", "Rock", "Hip-Hop", "Country", "Classical"] },
   "live-music": { label: "Live music", searchPlaceholder: "Search by genre, venue, or artistâ€¦", chips: ["All shows", "Jazz", "Indie", "R&B", "Blues", "Folk", "Electronic", "Soul"] },
   "happy-hours": { label: "Happy hours", searchPlaceholder: "Search by type, vibe, or venueâ€¦", chips: ["All deals", "Cocktails", "Beer", "Wine", "Rooftop", "Patio", "Food deals", "After work"] },
   "trivia-nights": { label: "Trivia nights", searchPlaceholder: "Search by bar, theme, or nightâ€¦", chips: ["All nights", "Free to play", "Pop culture", "Sports", "Music", "Science", "80s", "90s"] },
-  food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or dealâ€¦", chips: ["All", "Happy hour", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails"] },
+  food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or dealâ€¦", chips: ["All", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails", "Food festival"] },
   nightlife: { label: "Nightlife", searchPlaceholder: "Search by venue, vibe, or nightâ€¦", chips: ["All venues", "Clubs", "Bars", "Rooftop", "DJ nights", "Late night", "21+"] },
   culture: { label: "Culture", searchPlaceholder: "Search by embassy, country, heritage, or speakerâ€¦", chips: ["All culture", "Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance"] },
   "performing-arts": { label: "Performing arts", searchPlaceholder: "Search by theater, comedy, dance, film, or showâ€¦", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venueâ€¦", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or showâ€¦", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
   festivals: { label: "Festivals", searchPlaceholder: "Search by festival, neighborhood, or typeâ€¦", chips: ["All festivals", "Food & drink", "Music", "Art", "Cultural", "Outdoor", "Family"] },
-  community: { label: "Community", searchPlaceholder: "Search by cause, group, or neighborhoodâ€¦", chips: ["All events", "Volunteer", "Networking", "Book club", "Outdoor", "Free", "Neighborhood"] },
-  expos: { label: "Expos", searchPlaceholder: "Search by expo, theme, or venueâ€¦", chips: ["All expos", "Convention", "Trade show", "Marketplace", "Workshop", "Networking"] },
+  community: { label: "Community", searchPlaceholder: "Search by cause, group, convention, or neighborhoodâ€¦", chips: ["All events", "Volunteer", "Networking", "Convention", "Workshop", "Book club", "Outdoor", "Free"] },
   free: { label: "Free events", searchPlaceholder: "Search free events by type or venueâ€¦", chips: ["All free", "Comedy", "Museums", "Outdoor", "Live music", "Festivals", "Workshops", "Talks"] }
 };
 
@@ -8308,8 +8966,7 @@ function followingRail() {
     <b>${escapeHtml(story.todayOnly ? "Today" : story.name)}</b>
     <small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small>
   </button>`).join("");
-  return `<div class="top-types-head"><p class="eyebrow">Following</p></div>
-    <div class="top-types top-types-scroll">${venueTiles}${storyTiles}</div>`;
+  return `<div class="top-types top-types-scroll following-stories-row">${venueTiles}${storyTiles}</div>`;
 }
 
 function venueDirectoryMatch(name) {
@@ -8321,9 +8978,12 @@ function venueSearchMatches(query, limit = 8) {
   const terms = String(query || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.length) return [];
   const fromEvents = displayableDcEvents().map(event => ({ name: cleanLocationPart(event.venue), neighborhood: cleanLocationPart(event.area || event.neighborhood), image_url: event.image || "" }));
+  // Collapse the spellings of a venue to one entry â€” "Tryst", "Tryst Bar
+  // Events" and "Tryst Coffee House bar" are one result, not three.
   const merged = [...venueDirectory, ...fromEvents]
     .filter(venue => venue.name)
-    .filter((venue, index, all) => all.findIndex(item => venueImageKeyName(item.name) === venueImageKeyName(venue.name)) === index);
+    .map(venue => ({ ...venue, name: canonicalVenueName(venue.name) }))
+    .filter((venue, index, all) => all.findIndex(item => venueCanonicalKey(item.name) === venueCanonicalKey(venue.name)) === index);
   return merged
     .filter(venue => terms.every(term => `${venue.name} ${venue.neighborhood || ""} ${venue.address || ""}`.toLowerCase().includes(term)))
     .slice(0, limit);
@@ -8486,7 +9146,7 @@ function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
   if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
-  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, community: 1, expos: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
@@ -8774,15 +9434,28 @@ function renderFilterBar() {
     <span class="sc-copy"><b>${label}</b></span>
     <span class="sc-caret">&rsaquo;</span>
   </button>`;
-  const anyActive = what.size || where.size || whenLabels.length;
+  const anyActive = (what.size ? 1 : 0) + (where.size ? 1 : 0) + (whenLabels.length ? 1 : 0);
+  const panelOpen = Boolean(state.filterPanelOpen);
+  // Search field and a round filter button beside it. The three criteria stay
+  // out of the way until the filter button is tapped; each then opens its own
+  // sheet, so When, Where and What all behave identically.
   return `<div class="sub-filters">
-    <div class="filter-intro"><h2>Find events</h2></div>
-    <div class="search-card">
-    ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
-    ${cardRow("data-where-sheet", "Where", where.size, "pin")}
-    ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
-    ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
+    <div class="search-row">
+      <label class="search-field">
+        <span class="search-ic">${icons.search}</span>
+        <input data-discover-search value="${escapeHtml(state.discoverSearch || "")}" placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods">
+      </label>
+      <button class="filter-round-btn${panelOpen ? " open" : ""}${anyActive ? " has-value" : ""}" data-toggle-filter-panel aria-expanded="${panelOpen}" aria-label="Filters">
+        ${icons.sliders}${anyActive ? `<i class="filter-round-count">${anyActive}</i>` : ""}
+      </button>
     </div>
+    <div class="discover-search-results" data-discover-results hidden></div>
+    ${panelOpen ? `<div class="filter-panel-rows">
+      ${cardRow("data-when-sheet", "When", whenLabels.length, "clock")}
+      ${cardRow("data-where-sheet", "Where", where.size, "pin")}
+      ${cardRow("data-what-sheet", "What", what.size, "megaphone")}
+      ${anyActive ? `<button class="search-card-clear" data-clear-all-filters>Clear filters</button>` : ""}
+    </div>` : ""}
   </div>`;
 }
 
@@ -8798,7 +9471,7 @@ function openWhereSheet() {
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet where-sheet" role="dialog" aria-modal="true" aria-label="Where">
     <button class="modal-close" aria-label="Close">&times;</button>
-    <div class="sheet-head"><h3>Where?</h3>${where.size ? `<button class="text-button" data-clear-where>Clear</button>` : ""}</div>
+    <div class="sheet-head"><h3>Where?</h3></div>
     <p class="cal-hint">${where.size ? `${where.size} neighborhood${where.size === 1 ? "" : "s"} selected` : "Pick one or more neighborhoods, or leave it open."}</p>
     <div class="filter-block"><div class="filter-options">${chips}</div></div>
     <div class="filter-footer"><button class="text-button" data-clear-where>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
@@ -8807,13 +9480,32 @@ function openWhereSheet() {
 
 function openWhatSheet() {
   const what = state.whatFilter || new Set();
-  const chips = `<button class="${what.size ? "" : "selected"}" data-clear-what>Anything</button>`
+  const artForWhat = (value, label) => {
+    const aliases = {
+      concerts: "Concerts",
+      "live-music": "Live music",
+      food: "Food & drink",
+      nightlife: "Nightlife",
+      culture: "Culture",
+      "performing-arts": "Performing arts",
+      museums: "Museums",
+      sports: "Sports",
+      festivals: "Markets",
+      community: "Community",
+      "happy-hours": "Happy hours",
+      "trivia-nights": "Trivia",
+      free: "Free events"
+    };
+    return categoryArt[aliases[value] || label] || "";
+  };
+  const optionButton = (value, label) => `<button class="what-option ${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${artForWhat(value, label) ? `<span class="what-option-art" aria-hidden="true">${artForWhat(value, label)}</span>` : ""}<span>${escapeHtml(label)}</span></button>`;
+  const chips = `<button class="what-option ${what.size ? "" : "selected"}" data-clear-what><span class="what-option-art what-option-all" aria-hidden="true">${icons.spark}</span><span>All</span></button>`
     + whatFilterOptions()
-      .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+      .map(([value, label]) => optionButton(value, label))
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
     <button class="modal-close" aria-label="Close">&times;</button>
-    <div class="sheet-head"><h3>What?</h3>${what.size ? `<button class="text-button" data-clear-what>Clear</button>` : ""}</div>
+    <div class="sheet-head"><h3>What?</h3></div>
     <p class="cal-hint">${what.size ? `${what.size} type${what.size === 1 ? "" : "s"} selected` : "Pick the kinds of events you want to see."}</p>
     <div class="filter-block"><div class="filter-options">${chips}</div></div>
     <div class="filter-footer"><button class="text-button" data-clear-what>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
@@ -8924,7 +9616,7 @@ function openTimePickerSheet() {
 function discoverStatusLabel() {
   if (state.eventSync.status === "loading") return "Checking shared events";
   if (state.eventSync.status === "error") return "Event refresh needs attention";
-  return "Events refreshed";
+  return "";
 }
 
 function discoverFiltersActive() {
@@ -8943,12 +9635,12 @@ function renderHome() {
   // All should feel broadly shared; For You is where onboarding interests tailor order.
   const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
+  const syncStatus = discoverStatusLabel();
   app.innerHTML = `<section class="page discover-page">
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
     ${renderFilterBar()}
-    <label class="search-box discover-search-box subtle-search"><span class="search-ic">${icons.search}</span><input data-discover-search placeholder="Search events or venues" aria-label="Search events, venues, or neighborhoods"></label><div class="discover-search-results" data-discover-results hidden></div>
     ${followingRail()}
-    <div class="sync-note ${state.eventSync.status}"><span>${discoverStatusLabel()}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>
+    ${syncStatus ? `<div class="sync-note ${state.eventSync.status}"><span>${syncStatus}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>` : ""}
     <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
@@ -8978,7 +9670,7 @@ function renderDiscoverCategoryPage(category) {
 }
 
 function searchableDiscoverCategory(category) {
-  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "free"].includes(category);
 }
 
 function eventMatchesCategoryFacet(event, query) {
@@ -9002,7 +9694,6 @@ function categoryFacetLabel(category) {
     museums: "museum type",
     festivals: "festival type",
     community: "community type",
-    expos: "expo type",
     free: "type"
   };
   return labels[category] || "type";
@@ -9021,7 +9712,6 @@ function categoryFacetAllLabel(category) {
     museums: "All museum types",
     festivals: "All festival types",
     community: "All community types",
-    expos: "All expos",
     free: "All free events"
   };
   return labels[category] || "All types";
@@ -9039,8 +9729,7 @@ function categoryFacetPriorityList(category) {
     culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
     festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
-    community: ["Volunteer", "Networking", "Book Club", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
-    expos: ["Convention", "Expo", "Trade Show", "Marketplace", "Workshop", "Networking"],
+    community: ["Volunteer", "Networking", "Book Club", "Convention", "Workshop", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
     free: ["Comedy", "Museum", "Outdoor", "Family Friendly", "Live music", "Festival", "Workshop", "Talk", "Community"]
   }[category] || [];
 }
@@ -9080,20 +9769,22 @@ function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
   if (/concert/.test(text)) return "concerts";
   if (/music|jazz|dj|karaoke/.test(text)) return "live-music";
-  if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
+  if (/happy hour/.test(text)) return "happy-hours";
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/embassy|international|culture|cultural|heritage|ambassador|global/.test(text)) return "culture";
   if (/museum/.test(text)) return "museums";
+  if (/visual art|gallery|art/.test(text)) return "performing-arts";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
   if (/sport|pickleball/.test(text)) return "sports";
-  if (/food|restaurant|brunch|festival|street fair|market/.test(text)) return "festivals";
+  if (/food|restaurant|brunch|chef|culinary|tasting|wine|beer|cocktail/.test(text)) return "food";
+  if (/festival|street fair|market/.test(text)) return "festivals";
   if (/community|volunteer|book club|networking|professional/.test(text)) return "community";
   return "";
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
@@ -9274,15 +9965,54 @@ function diverseEventSelection(list, limit = 5) {
   return picked;
 }
 
+function eventDaypart(event) {
+  if (!Number.isFinite(event?.startSort)) return "anytime";
+  const hour = new Date(event.startSort).getHours();
+  if (hour < 12) return "morning";
+  if (hour < 17) return "afternoon";
+  if (hour < 22) return "evening";
+  return "late";
+}
+
+function dailyFeaturedEventSelection(list, limit = 5) {
+  const candidates = list
+    .filter(event => event.image)
+    .filter(event => Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER)
+    .sort((a, b) => eventPopularityScore(b) - eventPopularityScore(a) || sortEventsByStart(a, b));
+  const picked = [];
+  const usedIds = new Set();
+  const usedCategories = new Set();
+  const usedDayparts = new Set();
+  const addBest = (pool, preferNewCategory = true, preferNewDaypart = false) => {
+    const next = pool.find(event =>
+      !usedIds.has(event.id)
+      && (!preferNewCategory || !usedCategories.has(event.cat))
+      && (!preferNewDaypart || !usedDayparts.has(eventDaypart(event)))
+    );
+    if (!next) return false;
+    picked.push(next);
+    usedIds.add(next.id);
+    usedCategories.add(next.cat);
+    usedDayparts.add(eventDaypart(next));
+    return true;
+  };
+  ["morning", "afternoon", "evening", "late"].forEach(daypart => {
+    if (picked.length < limit) addBest(candidates.filter(event => eventDaypart(event) === daypart), true);
+  });
+  while (picked.length < limit && addBest(candidates, true, true)) {}
+  while (picked.length < limit && addBest(candidates, true, false)) {}
+  while (picked.length < limit && addBest(candidates, false, false)) {}
+  return picked.slice(0, limit).sort(sortEventsByStart);
+}
+
 function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dcEvents = displayableDcEvents().sort(sortEventsByStart);
-    const todaysEvents = diverseEventSelection(dcEvents
-      .filter(event => sameCalendarDate(eventDateValue(event), today))
-      .filter(event => event.image), 5);
-    const fallbackEvents = diverseEventSelection(dcEvents.filter(event => event.image), 5);
+    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
+    const todaysEvents = dailyFeaturedEventSelection(dcEvents
+      .filter(event => sameCalendarDate(eventDateValue(event), today)), 5);
+    const fallbackEvents = dailyFeaturedEventSelection(dcEvents, 5);
     return (todaysEvents.length ? todaysEvents : fallbackEvents);
   }
   const venueKeywords = story.venueKeywords || [];
@@ -9306,6 +10036,10 @@ function storyEventPool(story) {
     .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
     .sort(sortEventsByStart)
     .slice(0, 6);
+}
+
+function storyEventAlreadyHappened(event) {
+  return Number.isFinite(event?.startSort) && event.startSort < Date.now();
 }
 
 function activeFollowingStories() {
@@ -9341,7 +10075,7 @@ function openStory(index) {
     <div class="story-progress">${stories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.todayOnly ? "Happening today" : escapeHtml(story.name)}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
-    <div class="event-stack">${storyEvents.map(event => eventListRow(event)).join("")}</div>
+    <div class="event-stack">${storyEvents.map(event => eventListRow(event, { disabled: story.todayOnly && storyEventAlreadyHappened(event), expired: story.todayOnly && storyEventAlreadyHappened(event) })).join("")}</div>
     <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }
@@ -9658,12 +10392,13 @@ function savedEmptyState() {
 function combinedPlannerList(plans) {
   if (!plans.length) return savedEmptyState();
   return `<div class="planner-list">${plans.map(event => {
-    const status = state.rsvps.has(event.id) ? "RSVP" : "Saved";
+    const isCalendarOnly = state.calendarAdds?.has(event.id) && !state.rsvps.has(event.id) && !state.saved.has(event.id);
+    const status = state.rsvps.has(event.id) ? "RSVP" : isCalendarOnly ? "Calendar" : "Saved";
     const attended = state.attended.has(event.id);
     const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
-    return `<article class="planner-card planner-${event.cat}">
+    return `<article class="planner-card planner-${event.cat}${isCalendarOnly ? " planner-calendar-card" : ""}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
+    <div class="planner-actions"><span class="${isCalendarOnly ? "calendar-plan-pill" : ""}">${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`;
   }).join("")}</div>`;
 }
@@ -9722,7 +10457,6 @@ function renderSocial() {
     <section class="section suggested-saved-section"><div class="section-heading"><div><p class="eyebrow">Suggested for you</p><h2>Top 3</h2></div></div>${savedSuggestionRail()}</section>
     <section class="section planner-calendar-section"><div class="section-heading"><div><h2>Calendar</h2></div></div>${plannerCalendar(allPlans)}</section>
     <section class="section saved-plans-section"><div class="section-heading"><div><h2>Your Plans</h2></div></div>${combinedPlannerList(allPlans)}</section>
-    ${pastAttendanceSection()}
     <button class="explore-cta" data-route="home">Explore events &rarr;</button>
   </section>`;
 }
@@ -9730,9 +10464,10 @@ function renderSocial() {
 function savedPlannerEvents(mode = "all") {
   const savedIds = state.saved || new Set();
   const rsvpIds = state.rsvps || new Set();
+  const calendarIds = state.calendarAdds || new Set();
   return events
     .filter(event => !state.removedPlans?.has(event.id))
-    .filter(event => mode === "saved" ? savedIds.has(event.id) : mode === "rsvp" ? rsvpIds.has(event.id) : savedIds.has(event.id) || rsvpIds.has(event.id))
+    .filter(event => mode === "saved" ? savedIds.has(event.id) : mode === "rsvp" ? rsvpIds.has(event.id) : savedIds.has(event.id) || rsvpIds.has(event.id) || calendarIds.has(event.id))
     .sort(sortEventsByStart);
 }
 
@@ -9801,7 +10536,10 @@ function openCalendarPlans(iso) {
     return;
   }
   const date = new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button></article>`).join("")}</div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => {
+    const isCalendarOnly = state.calendarAdds?.has(event.id) && !state.rsvps.has(event.id) && !state.saved.has(event.id);
+    return `<article class="planner-card planner-${event.cat}${isCalendarOnly ? " planner-calendar-card" : ""}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>${isCalendarOnly ? `<div class="planner-actions"><span class="calendar-plan-pill">Calendar</span></div>` : ""}</article>`;
+  }).join("")}</div></section></div>`;
 }
 
 function friendInterestEvents(name, limit = 4) {
@@ -9972,10 +10710,10 @@ function tasteCategoryGrid() {
 }
 
 function userTasteSection(tastePills) {
-  return `<p class="eyebrow">Your top types</p>
+  return `<p class="eyebrow">Your top tastes</p>
     <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
     ${tasteCategoryGrid()}
-    <button class="text-button taste-more-link" data-edit-tastes>More types</button>`;
+    <button class="text-button taste-more-link" data-edit-tastes>More</button>`;
 }
 
 function profileInsightPanel() {
@@ -10087,12 +10825,11 @@ function renderProfile() {
     <div class="profile-id">
       <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
       <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
+      <p class="bio pid-bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
       <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
     </div>
     ${profileSummaryStrip(isVenueProfile)}
-    ${isVenueProfile ? "" : profileListRows()}
-    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? venueVerificationPanel() : ""}
@@ -10219,7 +10956,7 @@ function scoreActivityItems() {
 function openScoreActivitySheet() {
   const score = lokalScore();
   const level = scoreLevel(score);
-  const items = scoreActivityItems();
+  const items = scoreActivityItems().slice(0, 3);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score activity"><button class="modal-close" aria-label="Close score activity">&times;</button>
     <p class="eyebrow">Lokal score</p><h2>Recent score activity</h2>
     <p class="lede">${score} points / ${escapeHtml(level.name)}</p>
@@ -10501,7 +11238,7 @@ function activeFilterSummary() {
 
 function openFilters() {
   const neighborhoodOptions = ["Any neighborhood", ...discoverNeighborhoodOptions(displayableDcEvents())];
-  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community","expos"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filters</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
     ${dateFilterModule()}
@@ -10584,11 +11321,14 @@ function openFollowedVenuesList(query = "") {
 
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
-  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
-  const occurrencesBlock = otherOccurrences.length
-    ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
-    : "";
   const recurrence = eventRecurrence(e);
+  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
+  const occurrenceSummary = eventOccurrenceSummary(e, recurrence, otherOccurrences);
+  const occurrencesBlock = occurrenceSummary
+    ? `<div class="detail-occurrences detail-occurrences-summary"><p class="eyebrow">More dates</p><div class="occurrence-summary"><b>${escapeHtml(occurrenceSummary.title)}</b>${occurrenceSummary.detail ? `<small>${escapeHtml(occurrenceSummary.detail)}</small>` : ""}</div></div>`
+    : otherOccurrences.length
+      ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(eventCardTimeLine(occurrence))}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
+      : "";
   const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
@@ -10596,10 +11336,12 @@ function openDetail(id, opts = {}) {
     : `<button class="primary" data-copy-detail-link="${e.id}">Copy link</button>`;
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
   const heroImage = eventArtImage(e);
-  const heroStyle = e.image
+  const hasUsableHeroPhoto = eventHasUsablePhoto(e);
+  const fallbackHeroImage = eventFallbackImageSrc(e);
+  const heroStyle = hasUsableHeroPhoto
     ? `background-image: linear-gradient(180deg, rgba(13,24,22,.08), rgba(13,24,22,.62)); background-color: #f7fafc;`
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
-  const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
+  const heroImg = hasUsableHeroPhoto ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
   const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
@@ -10610,8 +11352,11 @@ function openDetail(id, opts = {}) {
   const isFollowingVenue = state.follows.has(venueFollowKey);
   const isSaved = state.saved.has(e.id);
   const isGoing = state.rsvps.has(e.id);
+  const websiteUrl = eventWebsiteUrl(e);
+  const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
+  const websiteHelper = e.detailsUrl ? "Opens the event listing" : websiteUrl ? "Opens the venue website" : "Opens the Lokal listing";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-hero cat-${e.cat}${hasUsableHeroPhoto ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
@@ -10626,12 +11371,13 @@ function openDetail(id, opts = {}) {
     </button>
     <button class="detail-info-row" data-ticket="${e.id}">
       <span class="dir-art"></span>
-      <span class="dir-copy"><b>${e.detailsUrl ? "Tickets and details" : "Shareable event page"}</b><small>Opens the ${e.detailsUrl ? "venue" : "Lokal"} listing</small></span>
+      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b><small>${escapeHtml(websiteHelper)}</small></span>
       <span class="dir-action">Open</span>
     </button>
     ${eventInterestSignal(e, true)}
     <p class="eyebrow detail-about-label">About</p>
     ${descriptionBlock}
+    ${eventSourceCredit(e)}
     ${occurrencesBlock}
     <div class="detail-action-row">
       <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
@@ -10670,6 +11416,55 @@ function openGoingConfirmation(id) {
 
 function shareableGroupNames() {
   return userGroupNames().filter(name => !state.leftGroups.has(name));
+}
+
+function eventOccurrenceSummary(event, recurrence, otherOccurrences) {
+  if (!event || !otherOccurrences.length) return null;
+  const allOccurrences = occurrencesForEvent(event);
+  const timeText = String(event.time || "").replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+  const weekdayCodes = occurrenceWeekdayCodes(allOccurrences);
+  if (weekdayCodes.length > 1) {
+    return { title: formatRecurringWeekdays(weekdayCodes), detail: timeText };
+  }
+  if (recurrence?.label) {
+    return { title: recurrence.label.replace(/^every /i, "Every "), detail: timeText };
+  }
+  if (weekdayCodes.length === 1) {
+    return { title: formatRecurringWeekdays(weekdayCodes), detail: timeText };
+  }
+  return null;
+}
+
+function occurrenceWeekdayCodes(occurrences) {
+  return occurrences
+    .map(occurrence => eventDateValue(occurrence))
+    .filter(Boolean)
+    .map(date => ICS_WEEKDAY_CODES[date.getDay()])
+    .filter((code, index, all) => code && all.indexOf(code) === index)
+    .sort((a, b) => ICS_WEEKDAY_CODES.indexOf(a) - ICS_WEEKDAY_CODES.indexOf(b));
+}
+
+function formatRecurringWeekdays(codes) {
+  const key = codes.join(",");
+  if (key === "SU,MO,TU,WE,TH,FR,SA") return "Daily";
+  if (key === "MO,TU,WE,TH,FR") return "Every weekday";
+  if (key === "SU,SA") return "Every weekend";
+  const ranges = [];
+  let start = 0;
+  for (let index = 1; index <= codes.length; index += 1) {
+    const previous = ICS_WEEKDAY_CODES.indexOf(codes[index - 1]);
+    const current = ICS_WEEKDAY_CODES.indexOf(codes[index]);
+    if (index === codes.length || current !== previous + 1) {
+      ranges.push(codes.slice(start, index));
+      start = index;
+    }
+  }
+  const parts = ranges.map(range => {
+    const names = range.map(code => ICS_CODE_LABEL[code]);
+    if (names.length >= 3) return `${names[0]} through ${names[names.length - 1]}`;
+    return names.join(" & ");
+  });
+  return `Every ${parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`}`;
 }
 
 function shareGroupResultsHtml(eventId, query = "") {
@@ -10854,15 +11649,27 @@ function addEventToCalendar(id, provider = "apple") {
   if (provider === "google") {
     const url = googleCalendarUrl(event);
     if (!url) { toast("This event is missing a date to schedule."); return; }
+    addCalendarPlan(event.id);
     window.open(url, "_blank", "noopener,noreferrer") || window.location.assign(url);
+    toast("Added to Your Plans as a calendar item.");
     return;
   }
   const recurrence = eventRecurrence(event);
   const ics = recurrence ? buildEventIcs(event, recurrence) : buildSingleEventIcs(event);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(recurrence ? `Calendar file ready â€” repeats ${recurrence.label}.` : "Calendar file ready.");
+}
+
+function addCalendarPlan(id) {
+  const eventId = Number(id);
+  if (!Number.isFinite(eventId)) return;
+  state.calendarAdds.add(eventId);
+  localStorage.setItem("lokalCalendarAdds", JSON.stringify(Array.from(state.calendarAdds)));
+  setPlanSource("calendar", eventId, true);
+  if (state.route === "social") renderSocial();
 }
 
 function addRecurringEventToCalendar(id) {
@@ -10872,6 +11679,7 @@ function addRecurringEventToCalendar(id) {
   if (!recurrence) { toast("This event doesn't repeat on a set schedule."); return; }
   const ics = buildEventIcs(event, recurrence);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(`Added to your calendar â€” repeats ${recurrence.label}.`);
@@ -11169,6 +11977,13 @@ function showDiscoverHint() {
 function setRoute(route) {
   if (route === "map") route = "home";
   state.route = route;
+  document.body.dataset.route = route;
+  // Bo leans on the wordmark in the topbar; drawn once, then CSS decides which
+  // routes show him.
+  const boSlot = document.querySelector(".topbar-bo");
+  if (boSlot && !boSlot.childElementCount && typeof boPoseMarkup === "function") {
+    boSlot.innerHTML = boPoseMarkup("Leaning on the wordmark");
+  }
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
 }
@@ -11212,6 +12027,33 @@ function showSavedAnimation(button) {
   }, 1500);
 }
 
+let discoverSearchTimer = null;
+
+function queueDiscoverSearch(input) {
+  state.discoverSearch = input.value;
+  window.clearTimeout(discoverSearchTimer);
+  discoverSearchTimer = window.setTimeout(() => {
+    const query = String(state.discoverSearch || "").trim().toLowerCase();
+    const visible = renderDiscoverEventSearch(query);
+    document.querySelectorAll("#app .following-chip").forEach(card => {
+      const match = !query || card.dataset.searchText.includes(query);
+      card.style.display = match ? "" : "none";
+    });
+    const results = document.querySelector("[data-discover-results]");
+    if (results) { results.hidden = true; results.innerHTML = ""; }
+    const feed = document.querySelector(".feed-section");
+    const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
+    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
+    if (!query) {
+      const nextInput = document.querySelector("[data-discover-search]");
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+      }
+    }
+  }, input.value.trim() ? 120 : 40);
+}
+
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
   const clickedDiscoverFilter = Boolean(event.target.closest(".filter-pill-wrap, .filter-dropdown, [data-when-sheet], .when-sheet"));
@@ -11247,13 +12089,14 @@ document.addEventListener("click", async event => {
     });
   }
   // Slide direction follows the tab bar: moving left plays the reverse slide.
-  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; setRoute(t.dataset.route); }
+  if (t.dataset.route) { mark(); const order = ["home", "social", "profile"]; const from = order.indexOf(state.route); const to = order.indexOf(t.dataset.route); document.body.classList.toggle("nav-back", from > -1 && to > -1 && to < from); modalRoot.innerHTML = ""; state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.neighborhoodFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; if (t.dataset.route === "home") state.homeFilter = "all"; setRoute(t.dataset.route); }
   if (t.dataset.homeFilter) { state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.openFilterSheet = ""; state.feedShown = 10; state.homeFilter = t.dataset.homeFilter; state.resetDiscoverScrollAfterRender = t.dataset.homeFilter === "for-you"; if (!["all", "free"].includes(state.homeFilter)) state.filter.category = "All categories"; renderHome(); resetAppScroll(); if (state.resetDiscoverScrollAfterRender) setTimeout(() => { resetAppScroll(); state.resetDiscoverScrollAfterRender = false; }, 1200); }
   if (t.dataset.openFilter !== undefined) { mark(); state.openFilterSheet = state.openFilterSheet === t.dataset.openFilter ? "" : t.dataset.openFilter; renderHome(); }
   if (t.dataset.toggleWhat !== undefined) { mark(); const value = t.dataset.toggleWhat; state.whatFilter.has(value) ? state.whatFilter.delete(value) : state.whatFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".what-sheet")) openWhatSheet(); else renderHome(); }
   if (t.dataset.toggleWhere !== undefined) { mark(); const value = t.dataset.toggleWhere; state.whereFilter.has(value) ? state.whereFilter.delete(value) : state.whereFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".where-sheet")) openWhereSheet(); else renderHome(); }
   // Inside the When sheet these re-render the sheet; elsewhere they redraw the feed.
   if (t.dataset.toggleWhen !== undefined) { mark(); const value = t.dataset.toggleWhen; state.whenFilter.has(value) ? state.whenFilter.delete(value) : state.whenFilter.add(value); state.openFilterSheet = ""; state.feedShown = 10; if (document.querySelector(".when-sheet")) openWhenSheet(); else renderHome(); }
+  if (t.dataset.toggleFilterPanel !== undefined) { mark(); state.filterPanelOpen = !state.filterPanelOpen; renderHome(); }
   if (t.dataset.whenSheet !== undefined) { mark(); state.openFilterSheet = ""; state.filterCalMonth = 0; openWhenSheet(); }
   if (t.dataset.whereSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhereSheet(); }
   if (t.dataset.whatSheet !== undefined) { mark(); state.openFilterSheet = ""; openWhatSheet(); }
@@ -11313,10 +12156,12 @@ document.addEventListener("click", async event => {
     return;
   }
   if (t.dataset.save) {
+    mark();
     const id = Number(t.dataset.save);
     const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
+    document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     setPlanSource("saved", id, isSaved);
     const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
     if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (isSaved) showSavedAnimation(button); }
@@ -11502,6 +12347,7 @@ document.addEventListener("click", async event => {
   // Date is committed live by the calendar, so it is skipped here.
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (key !== "date") state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
+  if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
   if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
   if (t.dataset.tasteChoice) {
@@ -11556,7 +12402,7 @@ document.addEventListener("click", async event => {
       console.warn("[supabase] feedback submission failed", feedbackError);
     }
   }
-  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "score-guide") { openScoreGuideSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
@@ -11581,7 +12427,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.ticket !== undefined) {
     mark();
     const eventToOpen = events.find(item => item.id === Number(t.dataset.ticket));
-    const destination = eventToOpen?.detailsUrl || (eventToOpen ? lokalEventShareUrl(eventToOpen) : "");
+    const destination = eventToOpen ? (eventWebsiteUrl(eventToOpen) || lokalEventShareUrl(eventToOpen)) : "";
     if (!destination) { toast("No event link is available"); return; }
     const opened = window.open(destination, "_blank", "noopener,noreferrer");
     if (!opened) window.location.assign(destination);
@@ -11925,15 +12771,7 @@ document.addEventListener("input", event => {
     if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
   }
   if (input.matches("[data-discover-search]")) {
-    const query = input.value.trim().toLowerCase();
-    const visible = renderDiscoverEventSearch(query);
-    document.querySelectorAll("#app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; });
-    const venueMatches = query ? venueSearchMatches(query, 8) : [];
-    const venuesHtml = venueMatches.map(venue => { const on = state.follows.has(`venue:${venue.name}`); return `<div class="follow-card venue-result"><button class="venue-result-main" data-venue-events="${escapeHtml(venue.name)}"><span class="group-icon">${escapeHtml(venue.name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(venue.name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small></span></button><button class="follow-button ${on ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(venue.name)}">${on ? "Following" : "Follow"}</button></div>`; }).join("");
-    const results = document.querySelector("[data-discover-results]");
-    if (results) { results.hidden = !query || !venueMatches.length; results.innerHTML = venuesHtml; }
-    const feed = document.querySelector(".feed-section");
-    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches.length === 0);
+    queueDiscoverSearch(input);
   }
   if (input.matches("[data-share-group-search]")) {
     const query = input.value.trim();

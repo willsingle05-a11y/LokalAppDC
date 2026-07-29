@@ -737,7 +737,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "performing-arts", "sports", "community", "expos", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
+  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "performing-arts", "sports", "community", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -787,6 +787,7 @@ function normalizeImportedCategory(row) {
   if (/\b(9:30 club|930 club|the anthem|capital one arena|dar constitution hall|constitution hall|the howard theatre|howard theatre|echostage|nationals park|union stage)\b/.test(venueText)) return "concerts";
   if (/9:30 club|echostage|soundcheck|flash nightclub|decades|ultrabar|heist|saint yves|zebbie|madam'?s organ|black cat|dc9|the crown & crow|viceroy rooftop/.test(venueText) || /\b(nightlife|nightclub|dance club|club night|bar crawl|cocktail|speakeasy|lounge|rooftop|dance party|after dark|late night|dj set|pride party)\b/.test(text)) return "nightlife";
   if (/\b(comedy|stand up|stand-up|standup|improv|comic|comedian)\b|room 808|comedy club|comedy cellar|dc improv/.test(text)) return "performing-arts";
+  if (directCategory === "expos" || directCategory === "expo") return "community";
   if (importedCategories.has(directCategory)) return directCategory;
   if (/signature theatre|kennedy center|warner theatre|lincoln theatre|theatre|theater|performance art|performing|arts & theatre|comedy|film|cinema|dance|musical|opera|stage play|pippin|what became of us/.test(text)) return "performing-arts";
   if (/concert/.test(text)) return "concerts";
@@ -794,7 +795,7 @@ function normalizeImportedCategory(row) {
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/embassy|ambassador|international|cultural|culture|heritage|foreign soil/.test(text)) return "culture";
   if (/festival|fair/.test(text)) return "festivals";
-  if (/expo|conference|convention/.test(text)) return "expos";
+  if (/expo|conference|convention/.test(text)) return "community";
   if (/showcase/.test(text)) return "performing-arts";
   if (/band|artist|singer|songwriter/.test(text)) return "live-music";
   if (row.source !== "manual" && importedCategories.has(tag) && tag !== "community") return tag;
@@ -930,8 +931,7 @@ function normalizeSupabaseTags(row, category) {
     festivals: ["festivals", "festival"],
     culture: ["culture", "cultural"],
     sports: ["sports", "sport"],
-    community: ["community"],
-    expos: ["expos", "expo"],
+    community: ["community", "expos", "expo"],
     nightlife: ["nightlife", "night out"],
     "happy-hours": ["happy hour", "happy hours"],
     "trivia-nights": ["trivia", "trivia night", "trivia nights"],
@@ -1092,15 +1092,22 @@ async function syncSupabaseEvents(showToast = false) {
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
       const normalized = dcRows.map(normalizeSupabaseEvent);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      state.todayStoryEvents = normalized
+        .filter(event => Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER)
+        .filter(event => sameCalendarDate(new Date(event.startSort), today));
       const discoveryWindowEvents = normalized.filter(isEventInDiscoveryWindow);
       events = discoveryWindowEvents;
       state.eventSync = { status: "synced", label: `${events.length} upcoming DC event${events.length === 1 ? "" : "s"}` };
     } else {
       events = [...demoEvents];
+      state.todayStoryEvents = [];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
     }
   } catch {
     events = [...demoEvents];
+    state.todayStoryEvents = [];
     state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
   }
   // The venue name clusters are derived from the loaded events, so they have to
