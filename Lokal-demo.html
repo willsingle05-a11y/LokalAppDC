@@ -5522,24 +5522,34 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 
 /* Detail cards should read dense and scannable instead of stretching every
    section vertically. */
-#modal-root .detail-body { padding-top: 14px; }
+#modal-root .detail-hero {
+  min-height: 180px;
+  padding: 16px;
+}
+#modal-root .detail-hero.has-image { min-height: 236px; }
+#modal-root .detail-body { padding: 10px 16px 22px; }
 #modal-root .detail-title-block {
-  gap: 3px;
-  margin-bottom: 8px;
+  gap: 2px;
+  margin-bottom: 5px;
 }
 #modal-root .detail-title-block h1 { line-height: 1; }
+#modal-root .detail-title-block .event-meta { line-height: 1; }
+#modal-root .detail-price { margin-top: 0; }
 #modal-root .detail-tags {
-  gap: 6px;
-  margin: 0 0 10px;
-  padding-top: 8px;
+  gap: 5px;
+  margin: 0 0 6px;
+  padding-top: 6px;
 }
-#modal-root .detail-about-label { margin: 0 0 4px; }
+#modal-root .detail-about-label {
+  margin: 0 0 2px;
+  line-height: 1;
+}
 #modal-root .detail-description {
   margin: 0;
-  line-height: 1.32;
+  line-height: 1.24;
 }
 #modal-root .detail-description-wrap { gap: 2px; }
-#modal-root .detail-schedule { margin: 10px 0 2px; }
+#modal-root .detail-schedule { margin: 7px 0 0; }
 #modal-root .detail-schedule-head {
   gap: 8px;
   margin-bottom: 0;
@@ -5547,24 +5557,27 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 #modal-root .detail-schedule-copy b { line-height: 1.1; }
 #modal-root .detail-info-row {
   min-height: 0;
-  padding: 6px 0;
-  gap: 8px;
+  padding: 4px 0;
+  gap: 7px;
 }
 #modal-root .detail-info-row .dir-art {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
 }
-#modal-root .detail-info-row .dir-copy b { line-height: 1.05; }
+#modal-root .detail-info-row .dir-copy b {
+  font-size: 14px;
+  line-height: 1.02;
+}
 #modal-root .detail-info-row .dir-copy small {
   margin-top: 0;
-  line-height: 1.12;
+  line-height: 1.08;
 }
 #modal-root .detail-action-row {
-  gap: 8px;
-  margin: 8px 0 0;
+  gap: 7px;
+  margin: 6px 0 0;
 }
-#modal-root .detail-action { padding: 10px 10px; }
+#modal-root .detail-action { padding: 8px 10px; }
 
 /* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
    warm cream, so those are overridden here alongside the shell. */
