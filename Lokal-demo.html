@@ -5449,8 +5449,10 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 .detail-schedule-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
 .detail-schedule-head .repeat-strip { margin-top: 0; }
 .detail-schedule-copy { display: flex; flex-direction: column; }
+.detail-schedule-copy.detail-schedule-inline { flex-direction: row; align-items: baseline; gap: 7px; flex-wrap: wrap; }
 .detail-schedule-copy b { font-size: var(--fs-title); font-weight: 700; letter-spacing: -.01em; }
 .detail-schedule-copy small { margin-top: 2px; color: var(--muted); font-size: var(--fs-small); }
+.detail-schedule-copy.detail-schedule-inline small { margin-top: 0; }
 .detail-schedule .cal-hint { margin: 8px 0 12px; }
 .detail-schedule .cal-day.is-off { color: rgba(25, 26, 25, .25); font-weight: 500; }
 .detail-schedule .cal-day.has-plans { color: var(--accent-strong); font-weight: 800; }
@@ -11352,7 +11354,7 @@ function detailScheduleBlock(event) {
   const timeLabel = recurringTimeWindowLabel(event);
   return `<div class="detail-schedule">
     <div class="detail-schedule-head detail-schedule-simple">
-      <span class="detail-schedule-copy"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>${escapeHtml(timeLabel)}</small>` : ""}</span>
+      <span class="detail-schedule-copy detail-schedule-inline"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>| ${escapeHtml(timeLabel)}</small>` : ""}</span>
     </div>
   </div>`;
 }

@@ -23,7 +23,7 @@ function detailScheduleBlock(event) {
   const timeLabel = recurringTimeWindowLabel(event);
   return `<div class="detail-schedule">
     <div class="detail-schedule-head detail-schedule-simple">
-      <span class="detail-schedule-copy"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>${escapeHtml(timeLabel)}</small>` : ""}</span>
+      <span class="detail-schedule-copy detail-schedule-inline"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>| ${escapeHtml(timeLabel)}</small>` : ""}</span>
     </div>
   </div>`;
 }
