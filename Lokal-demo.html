@@ -2565,6 +2565,36 @@ h3 { font-weight: 700; }
 .elr-badge.urgency-free,
 .elr-badge.elr-price { color: var(--accent-strong); background: rgba(0, 201, 167, .12); }
 
+.story-sheet .event-stack {
+  gap: 7px;
+}
+.story-sheet .event-list-row {
+  grid-template-columns: 46px 1fr auto;
+  gap: 9px;
+  padding: 8px 10px;
+}
+.story-sheet .elr-thumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 9px;
+}
+.story-sheet .elr-copy {
+  gap: 2px;
+}
+.story-sheet .elr-venue {
+  font-size: 15px;
+}
+.story-sheet .elr-meta {
+  font-size: 11px;
+}
+.story-sheet .elr-tags {
+  gap: 4px;
+}
+.story-sheet .event-list-row .event-tag {
+  padding: 2px 7px;
+  font-size: 10.5px;
+}
+
 /* ============================================================
    Discover: following stories strip, subtle search, card area
    ============================================================ */
@@ -3246,12 +3276,62 @@ h3 { font-weight: 800; }
   backdrop-filter: blur(5px);
 }
 .venue-page-hero.has-image {
-  min-height: 210px;
+  min-height: 168px;
+  margin-bottom: 10px;
+}
+.venue-page-sheet .venue-page-actions {
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.venue-page-sheet .venue-follow-btn {
+  min-height: 34px;
+  padding: 8px 14px;
+  font-size: 11px;
+}
+.venue-page-sheet .text-button {
+  min-height: 34px;
+  padding: 8px 0;
+}
+.venue-page-sheet .group-divider {
+  margin: 8px 0 6px;
+}
+.venue-event-list {
+  gap: 6px;
+  margin-top: 6px;
 }
 .venue-event-row {
+  min-height: auto;
+  padding: 9px 11px;
+  border-radius: 12px;
   width: 100%;
   text-align: left;
   cursor: pointer;
+}
+.venue-event-row span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.venue-event-row b {
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.venue-event-row small,
+.venue-event-row em {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.18;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.venue-event-row em {
+  color: #7e8780;
 }
 .venue-event-row:hover {
   background: rgba(22, 160, 133, .12);
@@ -9047,7 +9127,7 @@ function openVenueEvents(name) {
     <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
     <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${isVenueAccount() ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="${verified ? "Post event" : "Request approval"} for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
-    <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
+    <div class="interest-list venue-event-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)}</small><em>${escapeHtml(eventLocationLine(event))}</em></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
 }
 
