@@ -632,6 +632,30 @@ h3 { font-weight: 700; }
 .following-chip small { color: var(--accent-strong); font-size: 8px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
 .following-hint { margin: 4px 2px 16px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 
+.discover-page {
+  padding-top: 10px;
+}
+.discover-page .following-stories-row {
+  margin-top: 0;
+  margin-bottom: -8px;
+  padding-bottom: 0;
+}
+.discover-page .top-types-scroll .top-type {
+  min-height: 92px;
+  padding: 9px 8px 8px;
+  gap: 5px;
+}
+.discover-page .top-type .tt-art {
+  width: 26px;
+  height: 26px;
+}
+.discover-page .feed-section {
+  margin-top: 14px;
+}
+.discover-page .feed-section .section-heading {
+  margin-bottom: 8px;
+}
+
 .discover-search-box.subtle-search {
   margin-top: 6px;
   margin-bottom: 14px;
@@ -1196,7 +1220,10 @@ h3 { font-weight: 800; }
 }
 .discover-page .sub-filters {
   gap: 1px;
-  margin: -2px -18px 4px;
+  margin: -8px -18px 0;
+}
+.discover-page .search-row {
+  margin-top: 0;
 }
 .discover-page .sub-filter-row {
   gap: 4px;
@@ -1224,7 +1251,7 @@ h3 { font-weight: 800; }
   font-size: 16px;
 }
 .discover-page .sync-note {
-  margin-bottom: 6px;
+  margin: 2px 2px 4px;
   padding: 4px 7px;
   font-size: 9.5px;
 }
