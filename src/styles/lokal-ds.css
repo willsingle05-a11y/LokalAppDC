@@ -1373,6 +1373,11 @@ body[data-route="profile"] .topbar .account-label { display: none; }
   padding: 12px;
 }
 #modal-root .modal .detail-hero.has-image { min-height: 190px; }
+#modal-root .modal .detail-hero-img.is-fallback-image {
+  object-fit: contain;
+  padding: 10px;
+  background: #f7fafc;
+}
 #modal-root .modal .detail-body { padding: 6px 14px 16px; }
 #modal-root .modal .detail-title-block {
   gap: 0;
