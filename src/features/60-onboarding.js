@@ -293,11 +293,17 @@ function setRoute(route) {
   if (route === "map") route = "home";
   state.route = route;
   document.body.dataset.route = route;
-  // Bo leans on the wordmark in the topbar; drawn once, then CSS decides which
-  // routes show him.
+  // Bo leans on the wordmark in the topbar; give the main pages their own
+  // little posture so Saved and Profile do not feel like cloned headers.
   const boSlot = document.querySelector(".topbar-bo");
-  if (boSlot && !boSlot.childElementCount && typeof boPoseMarkup === "function") {
-    boSlot.innerHTML = boPoseMarkup("Leaning on the wordmark");
+  if (boSlot && typeof boPoseMarkup === "function") {
+    const routePose = route === "social" ? "Studying"
+      : route === "profile" ? "Coffee run"
+        : "Leaning on the wordmark";
+    if (boSlot.dataset.pose !== routePose) {
+      boSlot.dataset.pose = routePose;
+      boSlot.innerHTML = boPoseMarkup(routePose);
+    }
   }
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
   ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
