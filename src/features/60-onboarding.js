@@ -297,8 +297,8 @@ function setRoute(route) {
   // little posture so Saved and Profile do not feel like cloned headers.
   const boSlot = document.querySelector(".topbar-bo");
   if (boSlot && typeof boPoseMarkup === "function") {
-    const routePose = route === "social" ? "Studying"
-      : route === "profile" ? "Coffee run"
+    const routePose = route === "social" ? "Hello"
+      : route === "profile" ? "Dancing"
         : "Leaning on the wordmark";
     if (boSlot.dataset.pose !== routePose) {
       boSlot.dataset.pose = routePose;

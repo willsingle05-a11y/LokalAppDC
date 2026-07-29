@@ -1246,6 +1246,52 @@ body[data-route="home"] .topbar .account-label,
 body[data-route="social"] .topbar .account-label,
 body[data-route="profile"] .topbar .account-label { display: none; }
 
+/* Detail cards should read dense and scannable instead of stretching every
+   section vertically. */
+#modal-root .detail-body { padding-top: 14px; }
+#modal-root .detail-title-block {
+  gap: 3px;
+  margin-bottom: 8px;
+}
+#modal-root .detail-title-block h1 { line-height: 1; }
+#modal-root .detail-tags {
+  gap: 6px;
+  margin: 0 0 10px;
+  padding-top: 8px;
+}
+#modal-root .detail-about-label { margin: 0 0 4px; }
+#modal-root .detail-description {
+  margin: 0;
+  line-height: 1.32;
+}
+#modal-root .detail-description-wrap { gap: 2px; }
+#modal-root .detail-schedule { margin: 10px 0 2px; }
+#modal-root .detail-schedule-head {
+  gap: 8px;
+  margin-bottom: 0;
+}
+#modal-root .detail-schedule-copy b { line-height: 1.1; }
+#modal-root .detail-info-row {
+  min-height: 0;
+  padding: 6px 0;
+  gap: 8px;
+}
+#modal-root .detail-info-row .dir-art {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+}
+#modal-root .detail-info-row .dir-copy b { line-height: 1.05; }
+#modal-root .detail-info-row .dir-copy small {
+  margin-top: 0;
+  line-height: 1.12;
+}
+#modal-root .detail-action-row {
+  gap: 8px;
+  margin: 8px 0 0;
+}
+#modal-root .detail-action { padding: 10px 10px; }
+
 /* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
    warm cream, so those are overridden here alongside the shell. */
 .app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream); }
