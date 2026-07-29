@@ -1061,16 +1061,16 @@ body.nav-back .page { animation-name: page-slide-right; }
    Search row — pill field with a round filter button beside it
    ============================================================ */
 
-.search-row { display: flex; align-items: center; gap: 12px; margin: -2px 4px 0; }
+.search-row { display: flex; align-items: center; gap: 10px; margin: 3px 6px 0; }
 
 .search-field {
   display: flex;
   flex: 1;
   min-width: 0;
   align-items: center;
-  gap: 10px;
-  height: 50px;
-  padding: 0 17px;
+  gap: 9px;
+  height: 46px;
+  padding: 0 15px;
   border: 1px solid rgba(25, 26, 25, .18);
   border-radius: 999px;
   background: var(--paper);
@@ -1096,8 +1096,8 @@ body.nav-back .page { animation-name: page-slide-right; }
   position: relative;
   display: grid;
   flex: none;
-  width: 50px;
-  height: 50px;
+  width: 46px;
+  height: 46px;
   place-items: center;
   border: 1.5px solid rgba(25, 26, 25, .28);
   border-radius: 50%;
@@ -1105,7 +1105,7 @@ body.nav-back .page { animation-name: page-slide-right; }
   color: var(--ink);
   transition: border-color .15s ease, background .15s ease;
 }
-.filter-round-btn svg { width: 22px; height: 22px; stroke-width: 1.9; }
+.filter-round-btn svg { width: 20px; height: 20px; stroke-width: 1.9; }
 .filter-round-btn:hover { border-color: var(--ink); }
 .filter-round-btn.open { border-color: var(--ink); color: #fff; background: var(--ink); }
 .filter-round-count {
