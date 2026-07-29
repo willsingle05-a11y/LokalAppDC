@@ -606,6 +606,25 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 .profile-id .pid-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-id .pid-handle { margin-top: 11px; font-size: 15px; font-weight: 800; }
 .profile-id .pid-bio { max-width: 520px; margin: 5px auto 0; text-align: center; }
+.pid-taste-icons {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 8px;
+}
+.pid-taste-icon {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 1px solid rgba(25, 26, 25, .08);
+  border-radius: 50%;
+  background: #FAF9F6;
+}
+.pid-taste-icon svg {
+  width: 20px;
+  height: 20px;
+}
 .profile-id .pid-since { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
 .profile-id-actions { display: flex; gap: 9px; width: 100%; margin-top: 12px; }
 .profile-id-actions button {

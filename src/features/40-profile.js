@@ -137,6 +137,39 @@ function tasteCategoryGrid() {
   return `<div class="taste-tiles">${tiles}</div>`;
 }
 
+function tasteIconLabel(taste) {
+  if (categoryArt[taste]) return taste;
+  const category = typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "";
+  const byCategory = {
+    concerts: "Concerts",
+    "live-music": "Live music",
+    food: "Food & drink",
+    sports: "Sports",
+    comedy: "Comedy",
+    "visual-arts": "Visual arts",
+    "performing-arts": "Performing arts",
+    museums: "Museums",
+    festivals: "Markets",
+    "happy-hours": "Happy hours",
+    "trivia-nights": "Trivia",
+    kids: "Kids",
+    community: "Community",
+    nightlife: "Nightlife",
+    culture: "Culture"
+  };
+  return byCategory[category] || "";
+}
+
+function profileTasteIconStrip() {
+  const tastes = (state.tastes || [])
+    .map(taste => ({ taste, label: tasteIconLabel(taste) }))
+    .filter(item => item.label && categoryArt[item.label])
+    .filter((item, index, all) => all.findIndex(other => other.label === item.label) === index)
+    .slice(0, 5);
+  if (!tastes.length) return "";
+  return `<div class="pid-taste-icons" aria-label="Selected tastes">${tastes.map(({ taste, label }) => `<span class="pid-taste-icon" title="${escapeHtml(taste)}" aria-label="${escapeHtml(taste)}">${categoryArt[label]}</span>`).join("")}</div>`;
+}
+
 function userTasteSection(tastePills) {
   return `<p class="eyebrow">Your top tastes</p>
     <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
@@ -254,6 +287,7 @@ function renderProfile() {
       <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
       <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
       <p class="bio pid-bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
+      ${isVenueProfile ? "" : profileTasteIconStrip()}
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
     </div>
     ${profileSummaryStrip(isVenueProfile)}
