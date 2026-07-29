@@ -1087,15 +1087,54 @@ function diverseEventSelection(list, limit = 5) {
   return picked;
 }
 
+function eventDaypart(event) {
+  if (!Number.isFinite(event?.startSort)) return "anytime";
+  const hour = new Date(event.startSort).getHours();
+  if (hour < 12) return "morning";
+  if (hour < 17) return "afternoon";
+  if (hour < 22) return "evening";
+  return "late";
+}
+
+function dailyFeaturedEventSelection(list, limit = 5) {
+  const candidates = list
+    .filter(event => event.image)
+    .filter(event => Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER)
+    .sort((a, b) => eventPopularityScore(b) - eventPopularityScore(a) || sortEventsByStart(a, b));
+  const picked = [];
+  const usedIds = new Set();
+  const usedCategories = new Set();
+  const usedDayparts = new Set();
+  const addBest = (pool, preferNewCategory = true, preferNewDaypart = false) => {
+    const next = pool.find(event =>
+      !usedIds.has(event.id)
+      && (!preferNewCategory || !usedCategories.has(event.cat))
+      && (!preferNewDaypart || !usedDayparts.has(eventDaypart(event)))
+    );
+    if (!next) return false;
+    picked.push(next);
+    usedIds.add(next.id);
+    usedCategories.add(next.cat);
+    usedDayparts.add(eventDaypart(next));
+    return true;
+  };
+  ["morning", "afternoon", "evening", "late"].forEach(daypart => {
+    if (picked.length < limit) addBest(candidates.filter(event => eventDaypart(event) === daypart), true);
+  });
+  while (picked.length < limit && addBest(candidates, true, true)) {}
+  while (picked.length < limit && addBest(candidates, true, false)) {}
+  while (picked.length < limit && addBest(candidates, false, false)) {}
+  return picked.slice(0, limit);
+}
+
 function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
-    const todaysEvents = diverseEventSelection(dcEvents
-      .filter(event => sameCalendarDate(eventDateValue(event), today))
-      .filter(event => event.image), 5);
-    const fallbackEvents = diverseEventSelection(dcEvents.filter(event => event.image), 5);
+    const todaysEvents = dailyFeaturedEventSelection(dcEvents
+      .filter(event => sameCalendarDate(eventDateValue(event), today)), 5);
+    const fallbackEvents = dailyFeaturedEventSelection(dcEvents, 5);
     return (todaysEvents.length ? todaysEvents : fallbackEvents);
   }
   const venueKeywords = story.venueKeywords || [];
