@@ -12,10 +12,12 @@ function openDetail(id, opts = {}) {
     : `<button class="primary" data-copy-detail-link="${e.id}">Copy link</button>`;
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
   const heroImage = eventArtImage(e);
-  const heroStyle = e.image
+  const hasUsableHeroPhoto = eventHasUsablePhoto(e);
+  const fallbackHeroImage = eventFallbackImageSrc(e);
+  const heroStyle = hasUsableHeroPhoto
     ? `background-image: linear-gradient(180deg, rgba(13,24,22,.08), rgba(13,24,22,.62)); background-color: #f7fafc;`
     : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
-  const heroImg = e.image ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" alt="" loading="lazy">` : "";
+  const heroImg = hasUsableHeroPhoto ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
   const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
@@ -30,7 +32,7 @@ function openDetail(id, opts = {}) {
   const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
   const websiteHelper = e.detailsUrl ? "Opens the event listing" : websiteUrl ? "Opens the venue website" : "Opens the Lokal listing";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${e.image ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-hero cat-${e.cat}${hasUsableHeroPhoto ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
     <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">

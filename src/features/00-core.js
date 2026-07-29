@@ -244,7 +244,7 @@ function eventArtScene(event) {
 }
 
 function eventArtImage(event) {
-  if (event.image) return `url('${String(event.image).replace(/'/g, "%27")}')`;
+  if (eventHasUsablePhoto(event)) return `url('${String(event.image).replace(/'/g, "%27")}')`;
   // No photo — Bo stands in, posed to match the kind of event.
   if (typeof boEventImage === "function") return `url("${boEventImage(event)}")`;
   return genericEventArt(event);
@@ -253,11 +253,33 @@ function eventArtImage(event) {
 // Bare image URL/data-URI for use in an <img> (so cards size to the image's
 // natural aspect ratio). Falls back to the generated SVG art.
 function eventCardImageSrc(event) {
-  if (event.image) return String(event.image);
+  if (eventHasUsablePhoto(event)) return String(event.image);
+  return eventFallbackImageSrc(event);
+}
+
+function eventFallbackImageSrc(event) {
   if (typeof boEventImage === "function") return boEventImage(event);
   const art = genericEventArt(event);
   const match = art.match(/^url\(['"]?([\s\S]*?)['"]?\)$/);
   return match ? match[1] : art;
+}
+
+function eventImageLooksLogoLike(imageUrl) {
+  const value = String(imageUrl || "").trim();
+  if (!value) return false;
+  let path = value.toLowerCase();
+  try {
+    const parsed = new URL(value);
+    path = `${parsed.pathname} ${parsed.search}`.toLowerCase();
+  } catch (_) {}
+  const fileName = path.split(/[/?#]/).filter(Boolean).pop() || path;
+  return /\b(logo|logos|brand-image|icon|mark)\b/.test(fileName)
+    || /(?:^|[._-])(logo|logos|icon|mark)(?:[._-]|$)/.test(fileName)
+    || /\btr=w-(?:\d{1,2}|1\d\d)\b/.test(path);
+}
+
+function eventHasUsablePhoto(event) {
+  return Boolean(event?.image) && !eventImageLooksLogoLike(event.image);
 }
 
 function seededPerformingArtsFallbackTags(seedText) {
@@ -758,9 +780,10 @@ function eventRow(event, variant = "", opts = {}) {
   const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  ·  ");
   const leftTag = eventTagChips(event, 3);
   const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
-  return `<article class="event-card${variant ? " event-card-" + variant : ""}${event.image ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+  const fallbackImage = eventFallbackImageSrc(event);
+  return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
-      <img class="event-card-img" src="${eventCardImageSrc(event)}" alt="" loading="lazy">
+      <img class="event-card-img" src="${eventCardImageSrc(event)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
       <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>
@@ -783,7 +806,7 @@ function eventRow(event, variant = "", opts = {}) {
 
 function eventThumbStyle(event) {
   const image = eventArtImage(event);
-  return event.image ? cleanEventThumbStyle(image) : `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${image};`;
+  return eventHasUsablePhoto(event) ? cleanEventThumbStyle(image) : `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${image};`;
 }
 
 // Compact horizontal list row used below the hero in the hero-then-list feeds.
