@@ -51,6 +51,7 @@ function openDetail(id, opts = {}) {
     ${eventInterestSignal(e, true)}
     <p class="eyebrow detail-about-label">About</p>
     ${descriptionBlock}
+    ${eventSourceCredit(e)}
     ${occurrencesBlock}
     <div class="detail-action-row">
       <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>

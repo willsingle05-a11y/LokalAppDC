@@ -706,6 +706,9 @@ function eventSourceCredit(event) {
   if (source === "eventsdc") {
     return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://eventsdc.com/events")}" target="_blank" rel="noreferrer">Events DC</a></p>`;
   }
+  if (source === "edibledc") {
+    return `<p class="event-source-credit">Courtesy of <a href="${escapeHtml(sourceUrl || "https://edibledc.com/events/")}" target="_blank" rel="noreferrer">Edible DC</a></p>`;
+  }
   return "";
 }
 
