@@ -1205,9 +1205,9 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (filter === "weekend") return !event.time.startsWith("Tonight");
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
-  // Food & drink is tag-aware: anything tagged/described with food or drink shows
-  // here, so a food-tagged happy hour appears under Food & drink too.
-  if (filter === "food") return /\b(food|drink|dining|restaurant|tasting|brunch|wine|beer|cocktail|happy hour|food deals?)\b/.test(`${event.cat} ${eventTags(event).join(" ")} ${event.title} ${event.desc || ""}`.toLowerCase());
+  // Food & drink is tag-aware for food events, but happy hours stay in their
+  // own category so the two feeds do not duplicate each other.
+  if (filter === "food") return event.cat !== "happy-hours" && /\b(food|drink|dining|restaurant|tasting|brunch|wine|beer|cocktail|food deals?)\b/.test(`${event.cat} ${eventTags(event).join(" ")} ${event.title} ${event.desc || ""}`.toLowerCase());
   return event.cat === filter;
 }
 
