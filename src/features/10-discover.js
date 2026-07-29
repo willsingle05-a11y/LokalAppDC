@@ -55,6 +55,7 @@ const categoryFeedConfig = {
   food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or deal…", chips: ["All", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails", "Food festival"] },
   nightlife: { label: "Nightlife", searchPlaceholder: "Search by venue, vibe, or night…", chips: ["All venues", "Clubs", "Bars", "Rooftop", "DJ nights", "Late night", "21+"] },
   culture: { label: "Culture", searchPlaceholder: "Search by embassy, country, heritage, or speaker…", chips: ["All culture", "Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance"] },
+  kids: { label: "Kids", searchPlaceholder: "Search by family event, age, venue, or activity…", chips: ["All kids", "Family Friendly", "All ages", "Storytime", "Workshop", "Outdoor", "Disney", "Free"] },
   "performing-arts": { label: "Performing arts", searchPlaceholder: "Search by theater, comedy, dance, film, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or show…", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
@@ -195,6 +196,7 @@ function openVenueEventPostSheet(name) {
       <option value="concerts">Concerts</option>
       <option value="live-music">Live music</option>
       <option value="performing-arts">Performing arts</option>
+      <option value="kids">Kids</option>
       <option value="happy-hours">Happy hours</option>
       <option value="trivia-nights">Trivia nights</option>
       <option value="food">Food & drink</option>
@@ -284,7 +286,7 @@ function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
   if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
-  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, community: 1, expos: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, kids: 3, nightlife: 2, community: 1, expos: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
@@ -626,6 +628,7 @@ function openWhatSheet() {
       food: "Food & drink",
       nightlife: "Nightlife",
       culture: "Culture",
+      kids: "Kids",
       "performing-arts": "Performing arts",
       museums: "Museums",
       sports: "Sports",
@@ -814,7 +817,7 @@ function renderDiscoverCategoryPage(category) {
 }
 
 function searchableDiscoverCategory(category) {
-  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "free"].includes(category);
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "kids", "performing-arts", "museums", "sports", "festivals", "community", "free"].includes(category);
 }
 
 function eventMatchesCategoryFacet(event, query) {
@@ -835,6 +838,7 @@ function categoryFacetLabel(category) {
     "trivia-nights": "trivia type",
     nightlife: "nightlife type",
     culture: "culture type",
+    kids: "kids type",
     museums: "museum type",
     festivals: "festival type",
     community: "community type",
@@ -853,6 +857,7 @@ function categoryFacetAllLabel(category) {
     "trivia-nights": "All trivia",
     nightlife: "All nightlife",
     culture: "All culture",
+    kids: "All kids",
     museums: "All museum types",
     festivals: "All festival types",
     community: "All community types",
@@ -871,6 +876,7 @@ function categoryFacetPriorityList(category) {
     "trivia-nights": ["Weekly", "Monthly", "Team Trivia", "Pop Culture", "General Knowledge", "Prizes", "Bar Trivia"],
     nightlife: ["DJ Set", "Dance Floor", "Club Night", "Rooftop", "Late Night", "Pride", "Lounge", "Cocktails"],
     culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
+    kids: ["Family Friendly", "All ages", "Storytime", "Workshop", "Outdoor", "Disney", "Puppet", "Free"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
     festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
     community: ["Volunteer", "Networking", "Book Club", "Convention", "Workshop", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
@@ -886,7 +892,7 @@ function categoryFacetPriority(category, tag) {
 }
 
 function categoryFacetOptions(category, categoryEvents) {
-  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "culture", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
+  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "culture", "kids", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
   const taggedOptions = categoryEvents
     .flatMap(eventTags)
     .map(tag => String(tag || "").trim())
@@ -917,6 +923,7 @@ function categoryFromTaste(taste) {
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/embassy|international|culture|cultural|heritage|ambassador|global/.test(text)) return "culture";
+  if (/kids?|children|family|all ages|storytime|story time|youth|bluey|disney|puppet|toddler/.test(text)) return "kids";
   if (/museum/.test(text)) return "museums";
   if (/visual art|gallery|art/.test(text)) return "performing-arts";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
@@ -928,7 +935,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community"];
+  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "kids", "performing-arts", "museums", "sports", "festivals", "community"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }

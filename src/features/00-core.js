@@ -34,10 +34,11 @@ const categoryArt = {
   "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="18" r="6" fill="#C7F3E8"/><circle cx="31" cy="19" r="5" fill="#FFE3A0"/><path d="M8 38c2-7 16-7 20 0M24 38c1.5-5 11-5 14 0"/></svg>',
   "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 9v6" stroke-width="1.5"/><rect x="20" y="5" width="8" height="6" rx="1.5" fill="#FFE3A0"/><circle cx="24" cy="28" r="13" fill="#D8D4F5"/><path d="M11 28h26M14 20h20M14 36h20" stroke-width="1.5"/><path d="M24 15c4 4.2 6 8.3 6 13s-2 8.8-6 13M24 15c-4 4.2-6 8.3-6 13s2 8.8 6 13" stroke-width="1.5"/><path d="M39 8a5.5 5.5 0 0 1-6.8 6.8A6.8 6.8 0 1 0 39 8z" fill="#FFE3A0" stroke-width="1.5"/><path d="M10 12l1.5 3.2L15 17l-3.5 1.8L10 22l-1.5-3.2L5 17l3.5-1.8z" fill="#C7F3E8" stroke-width="1.3"/><path d="M39 27l1.2 2.6L43 31l-2.8 1.4L39 35l-1.2-2.6L35 31l2.8-1.4z" fill="#FFC53D" stroke-width="1.3"/></svg>',
   "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="12" y="9" width="21" height="30" rx="3" fill="#BFF2E0"/><path d="M17 15h11M17 32h9" stroke-width="1.5"/><circle cx="22.5" cy="23.5" r="5.5" fill="#FFE3A0"/><path d="M17 23.5h11M22.5 18c1.8 1.8 2.6 3.5 2.6 5.5s-.8 3.8-2.6 5.5M22.5 18c-1.8 1.8-2.6 3.5-2.6 5.5s.8 3.8 2.6 5.5" stroke-width="1.2"/><path d="M34 17l7-3v14l-7 3z" fill="#D8D4F5"/><path d="M34 17v14M37.5 15.5v14" stroke-width="1.4"/></svg>',
+  "Kids": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 25c0-8 5-14 11-14s11 6 11 14v9a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3z" fill="#C7F3E8"/><circle cx="19" cy="24" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="24" r="2" fill="#191A19" stroke="none"/><path d="M20 31c2.4 2 5.6 2 8 0"/><path d="M11 16l4 4M37 16l-4 4" stroke="#FFC53D" stroke-width="2.4"/><path d="M18 12c2-5 10-5 12 0" fill="#FFE3A0"/></svg>',
   "Free events": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 12h20a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#FFE3A0"/><path d="M17 22h10M17 28h7"/><path d="M33 17v14"/><path d="M30 20c4-4 8 2 3 5-5-3-1-9 3-5" fill="#C7F3E8"/></svg>'
 };
 
-const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
+const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 
 const demoEvents = [
   { id: 1, title: "Jazz on the Hill", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Tonight, 7:30 PM", price: "$18", cat: "music", tag: "Live music", friends: [], desc: "A warm, unhurried set from DC's new guard of jazz players. The room is small, the sound is close, and you will want to get there before the first pour." },
@@ -56,7 +57,7 @@ let events = [...demoEvents];
 let venueDirectory = [];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
-const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
+const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
 function profileAgeFromBirthdate(birthdate) {
   const birthday = new Date(`${birthdate || ""}T12:00:00`);
@@ -195,7 +196,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "food", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", kids: "kids", sports: "fitness", expos: "food", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -218,6 +219,7 @@ function eventArtKind(event) {
   if (/nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night|dj set/.test(titleText)) key = "nightlife";
   if (/food|market|chef|brunch|wine|beer|cocktail|restaurant/.test(titleText)) key = "food";
   if (/embassy|ambassador|international|cultural|culture|heritage|global|foreign soil/.test(titleText)) key = "culture";
+  if (/\b(family|families|kid|kids|children|childrens|children's|all ages|all-ages|story\s*time|storytime|youth|bluey|disney|puppet|toddler)\b/.test(titleText)) key = "kids";
   return key;
 }
 
@@ -229,6 +231,7 @@ function genericEventArt(event) {
     sports: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<rect x='16' y='22' width='68' height='56' rx='12' fill='rgba(255,255,255,.15)' stroke='white' stroke-width='4'/><path d='M16 50 H84 M50 22 V78' stroke='white' stroke-width='4'/><circle cx='50' cy='50' r='13' fill='none' stroke='white' stroke-width='4'/>" },
     festivals: { a: "#36d676", b: "#00c897", c: "#d8ffe9", shapes: "<path d='M18 42 C33 23 67 23 82 42' fill='none' stroke='white' stroke-width='5'/><path d='M26 46 H74 L68 78 H32 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M36 46 V78 M50 35 V78 M64 46 V78' stroke='white' stroke-width='4'/>" },
     culture: { a: "#40c4ff", b: "#2f80ed", c: "#e3f3ff", shapes: "<path d='M23 76 H77 M29 68 V34 H71 V68' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' stroke='white' stroke-width='4' fill='none'/><circle cx='72' cy='25' r='8' fill='rgba(255,255,255,.65)'/>" },
+    kids: { a: "#8be9b8", b: "#42d87c", c: "#fff4bf", shapes: "<path d='M27 77 V42 C27 29 36 20 50 20 C64 20 73 29 73 42 V77 Z' fill='rgba(255,255,255,.32)' stroke='white' stroke-width='4'/><circle cx='41' cy='46' r='4' fill='white'/><circle cx='59' cy='46' r='4' fill='white'/><path d='M41 59 Q50 67 59 59' fill='none' stroke='white' stroke-width='5'/><path d='M20 28 L29 37 M80 28 L71 37' stroke='white' stroke-width='5' stroke-linecap='round'/>" },
     community: { a: "#5fe18d", b: "#28cf79", c: "#e7fff0", shapes: "<path d='M22 80 V38 H47 V80 M53 80 V24 H78 V80' fill='rgba(255,255,255,.55)' stroke='white' stroke-width='4'/><path d='M30 48 H39 M61 36 H70 M61 50 H70' stroke='white' stroke-width='4'/><circle cx='28' cy='23' r='8' fill='rgba(255,255,255,.75)'/>" },
     expos: { a: "#46dc82", b: "#10c578", c: "#dfffea", shapes: "<rect x='19' y='25' width='62' height='52' rx='7' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><path d='M29 39 H71 M29 52 H71 M29 65 H56' stroke='white' stroke-width='4'/><circle cx='74' cy='22' r='8' fill='rgba(255,255,255,.65)'/>" },
     food: { a: "#50dc82", b: "#18c973", c: "#eafff1", shapes: "<path d='M30 22 V57 M40 22 V57 M30 40 H40 M60 22 V78' stroke='white' stroke-width='5' stroke-linecap='round'/><path d='M22 70 C34 54 66 54 78 70' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><circle cx='50' cy='48' r='10' fill='rgba(255,255,255,.45)'/>" },
@@ -258,6 +261,7 @@ function eventArtScene(event) {
     sports: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31' fill='none'/><path d='M20 50 H80 M50 19 C37 36 37 64 50 81 M50 19 C63 36 63 64 50 81' fill='none'/></svg>",
     festivals: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M18 40 C34 23 66 23 82 40' fill='none'/><path d='M26 47 H74 L68 78 H32 Z'/><path d='M38 47 V78 M50 36 V78 M62 47 V78' fill='none'/></svg>",
     culture: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 76 H77 M29 68 V34 H71 V68'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' fill='none'/><circle cx='72' cy='25' r='8'/></svg>",
+    kids: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M27 77 V42 C27 29 36 20 50 20 C64 20 73 29 73 42 V77 Z'/><circle cx='41' cy='46' r='4'/><circle cx='59' cy='46' r='4'/><path d='M41 59 Q50 67 59 59 M20 28 L29 37 M80 28 L71 37' fill='none'/></svg>",
     community: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 80 V38 H47 V80 M53 80 V25 H77 V80'/><path d='M31 49 H40 M61 37 H70 M61 51 H70' fill='none'/></svg>",
     expos: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='20' y='25' width='60' height='52' rx='7'/><path d='M31 40 H69 M31 53 H69 M31 66 H56' fill='none'/></svg>",
     food: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M30 23 V58 M40 23 V58 M30 41 H40 M61 23 V78' fill='none'/><path d='M22 71 C34 55 66 55 78 71'/><circle cx='50' cy='49' r='10'/></svg>",
@@ -346,6 +350,7 @@ function categoryTagAliases(category) {
     museums: ["museums", "museum"],
     festivals: ["festivals", "festival"],
     culture: ["culture", "cultural"],
+    kids: ["kids", "kid friendly", "family friendly", "family"],
     sports: ["sports", "sport"],
     community: ["community", "expos", "expo"],
     expos: ["expos", "expo"],
@@ -370,7 +375,7 @@ function isCategoryTag(event, tag) {
 function isBroadCategoryTag(tag) {
   return [
     "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
-    "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
+    "museums", "kids", "kid friendly", "family friendly", "family", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
     "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
     "festival", "festivals", "culture", "cultural", "free"
   ].includes(String(tag || "").trim().toLowerCase());
@@ -416,6 +421,7 @@ function fallbackTagForEvent(event) {
   if (/\b(beer|shot|cocktail|margarita|wine|happy hour|drink special)\b/.test(text)) return "Drink Specials";
   if (/\b(trivia|quiz|prizes)\b/.test(text)) return "Prizes";
   if (/\b(embassy|international|ambassador|global|heritage)\b/.test(text)) return "International";
+  if (/\b(family|families|kid|kids|children|all ages|story\s*time|storytime|bluey|disney|puppet|toddler)\b/.test(text)) return "Family Friendly";
   if (/\b(comedy|stand[- ]?up|improv|comic)\b/.test(text)) return "Comedy";
   if (/\b(exhibit|exhibition|gallery|museum)\b/.test(text)) return "Exhibit";
   if (/\b(rooftop|patio|outdoor|park|garden)\b/.test(text)) return "Outdoor";
@@ -426,6 +432,7 @@ function fallbackTagForEvent(event) {
   if (category === "trivia-nights") return "Prizes";
   if (category === "nightlife") return "Late Night";
   if (category === "culture") return "International";
+  if (category === "kids") return "Family Friendly";
   if (category === "food") return "Food tasting";
   return "Local Pick";
 }
@@ -442,7 +449,7 @@ function ensureEventTags(event, tags) {
 }
 
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Community", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia", food: "Food & Drink" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", kids: "Kids", sports: "Sports", community: "Community", expos: "Community", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -610,6 +617,7 @@ function eventArtLabel(event) {
     food: "Food & drink",
     festivals: "Festivals",
     culture: "Culture",
+    kids: "Kids",
     community: "Community",
     expos: "Community",
     nightlife: "Nightlife",
@@ -621,6 +629,7 @@ function eventArtLabel(event) {
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
   if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Nightlife";
   if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concerts";
+  if (/\b(family|families|kid|kids|children|all ages|all-ages|story\s*time|storytime|youth|bluey|disney|puppet|toddler)\b/.test(text)) return "Kids";
   if (/\b(embassy|ambassador|international|cultural|culture|heritage|global|foreign soil)\b/.test(text)) return "Culture";
   if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
   if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Performing arts";
@@ -734,6 +743,7 @@ const CATEGORY_COLORS = {
   "performing-arts": "#B07EDB",
   art: "#B07EDB",
   museums: "#5F9FC3",
+  kids: "#42D87C",
   sports: "#F59E0B",
   fitness: "#27AE60",
   festivals: "#FF6B9D",
@@ -1316,7 +1326,7 @@ function eventMatchesFoodDrinkFocus(event) {
 }
 
 function discoverFilterItems() {
-  const items = [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
+  const items = [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["kids", "Kids"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
   return userIsUnder21() ? items.filter(([value]) => !["happy-hours", "nightlife"].includes(value)) : items;
 }
 
@@ -1324,7 +1334,7 @@ function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
     : (userIsUnder21()
-      ? [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["trivia-nights", "Trivia"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]
-      : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]);
+      ? [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["trivia-nights", "Trivia"], ["culture", "Culture"], ["kids", "Kids"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]
+      : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["kids", "Kids"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]);
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }

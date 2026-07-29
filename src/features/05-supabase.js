@@ -737,7 +737,7 @@ function isEventInDiscoveryWindow(event) {
 }
 
 function normalizeImportedCategory(row) {
-  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "performing-arts", "sports", "community", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
+  const importedCategories = new Set(["concerts", "live-music", "festivals", "culture", "kids", "performing-arts", "sports", "community", "museums", "nightlife", "happy-hours", "trivia-nights", "food"]);
   const tagList = Array.isArray(row.tags) ? row.tags : [];
   const text = `${row.category || ""} ${row.Category || ""} ${row.cat || ""} ${row.tag || ""} ${tagList.map(normalizeTagValue).join(" ")} ${row.title || ""} ${row.description || ""} ${row.venue_name || ""} ${row.venue || ""}`.toLowerCase();
   const venueText = `${row.venue_name || ""} ${row.venue || ""} ${row.location_name || ""}`.toLowerCase();
@@ -760,6 +760,10 @@ function normalizeImportedCategory(row) {
     soccer: "sports",
     museum: "museums",
     museums: "museums",
+    kids: "kids",
+    family: "kids",
+    "family friendly": "kids",
+    "family-friendly": "kids",
     "live music": "live-music",
     "live-music": "live-music",
     rock: "concerts",
@@ -772,10 +776,11 @@ function normalizeImportedCategory(row) {
     "dance/electronic": "concerts",
     religious: text.includes("gospel") || text.includes("music") || text.includes("festival of praise") ? "concerts" : "performing-arts"
   };
+  if (/\b(family|families|family[- ]friendly|kid|kids|children|children's|childrens|all[- ]ages|story\s*time|storytime|youth|bluey|disney|puppet|toddler)\b/.test(text)) return "kids";
   if (row.source === "thingstododc" && /\b(scavenger|hunt|game of clue|interactive)\b/.test(text)) return "community";
   if (/\b(embassy|ambassador|international|cultural|culture|heritage|foreign soil|ukraine house|egyptian cultural|venetian ball)\b/.test(text)) return "culture";
   if (directCategoryMap[directCategory]) return directCategoryMap[directCategory];
-  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "food", "culture"].includes(directCategory)) return directCategory;
+  if (["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "food", "culture", "kids"].includes(directCategory)) return directCategory;
   if (/comedy|comedian|stand[- ]?up|improv/.test(classificationText)) return "performing-arts";
   if (/sports|baseball|basketball|football|hockey|soccer/.test(classificationText)) return "sports";
   if (/music|rock|pop|r&b|hip[- ]?hop|rap|jazz|latin|country|dance|electronic/.test(classificationText)) return "concerts";
@@ -794,6 +799,7 @@ function normalizeImportedCategory(row) {
   if (/music|r&b|hip-hop|rap|jazz|latin|country|rock|pop|dj|band|singer|songwriter/.test(text)) return "live-music";
   if (/baseball|basketball|football|soccer|hockey|sports|mlb|nba|nfl|nhl/.test(text)) return "sports";
   if (/embassy|ambassador|international|cultural|culture|heritage|foreign soil/.test(text)) return "culture";
+  if (/\b(family|families|family[- ]friendly|kid|kids|children|children's|childrens|all[- ]ages|story\s*time|storytime|youth|bluey|disney|puppet|toddler)\b/.test(text)) return "kids";
   if (/festival|fair/.test(text)) return "festivals";
   if (/expo|conference|convention/.test(text)) return "community";
   if (/showcase/.test(text)) return "performing-arts";
@@ -930,6 +936,7 @@ function normalizeSupabaseTags(row, category) {
     museums: ["museums", "museum"],
     festivals: ["festivals", "festival"],
     culture: ["culture", "cultural"],
+    kids: ["kids", "kid friendly", "family friendly", "family"],
     sports: ["sports", "sport"],
     community: ["community", "expos", "expo"],
     nightlife: ["nightlife", "night out"],
@@ -950,7 +957,7 @@ function normalizeSupabaseTags(row, category) {
     .filter(Boolean);
   const broadCategoryAliases = [
     "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
-    "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
+    "museums", "kids", "kid friendly", "family friendly", "family", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
     "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
     "festival", "festivals", "culture", "cultural", "free"
   ];

@@ -35,6 +35,7 @@ const BO_CATEGORY_POSES = [
   [/market|shop|pop.?up|vendor|fair|bazaar/i, "Shopping"],
   [/sport|run|race|game|match|tennis|soccer|basketball|baseball|yoga|fitness/i, "Tennis"],
   [/food|eat|dinner|brunch|taste|restaurant|chef|cook/i, "Eating"],
+  [/kids?|children|family|all.?ages|story.?time|bluey|disney|puppet|toddler/i, "Hello"],
   [/bike|cycl|ride|trail|walk|tour|outdoor|park/i, "Biking"],
   [/class|workshop|lecture|talk|seminar|book|read|learn/i, "Studying"],
   [/photo|film|screen|cinema|movie/i, "Photographing"],
