@@ -15,6 +15,33 @@ function showSavedAnimation(button) {
   }, 1500);
 }
 
+let discoverSearchTimer = null;
+
+function queueDiscoverSearch(input) {
+  state.discoverSearch = input.value;
+  window.clearTimeout(discoverSearchTimer);
+  discoverSearchTimer = window.setTimeout(() => {
+    const query = String(state.discoverSearch || "").trim().toLowerCase();
+    const visible = renderDiscoverEventSearch(query);
+    document.querySelectorAll("#app .following-chip").forEach(card => {
+      const match = !query || card.dataset.searchText.includes(query);
+      card.style.display = match ? "" : "none";
+    });
+    const results = document.querySelector("[data-discover-results]");
+    if (results) { results.hidden = true; results.innerHTML = ""; }
+    const feed = document.querySelector(".feed-section");
+    const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
+    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
+    if (!query) {
+      const nextInput = document.querySelector("[data-discover-search]");
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+      }
+    }
+  }, input.value.trim() ? 120 : 40);
+}
+
 document.addEventListener("click", async event => {
   if (event.target.classList.contains("modal-backdrop")) { modalRoot.innerHTML = ""; return; }
   const clickedDiscoverFilter = Boolean(event.target.closest(".filter-pill-wrap, .filter-dropdown, [data-when-sheet], .when-sheet"));
@@ -732,15 +759,7 @@ document.addEventListener("input", event => {
     if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length); }
   }
   if (input.matches("[data-discover-search]")) {
-    const query = input.value.trim().toLowerCase();
-    const visible = renderDiscoverEventSearch(query);
-    document.querySelectorAll("#app .following-chip").forEach(card => { const match = !query || card.dataset.searchText.includes(query); card.style.display = match ? "" : "none"; });
-    const venueMatches = query ? venueSearchMatches(query, 8) : [];
-    const venuesHtml = venueMatches.map(venue => { const on = state.follows.has(`venue:${venue.name}`); return `<div class="follow-card venue-result"><button class="venue-result-main" data-venue-events="${escapeHtml(venue.name)}"><span class="group-icon">${escapeHtml(venue.name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(venue.name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small></span></button><button class="follow-button ${on ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(venue.name)}">${on ? "Following" : "Follow"}</button></div>`; }).join("");
-    const results = document.querySelector("[data-discover-results]");
-    if (results) { results.hidden = !query || !venueMatches.length; results.innerHTML = venuesHtml; }
-    const feed = document.querySelector(".feed-section");
-    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches.length === 0);
+    queueDiscoverSearch(input);
   }
   if (input.matches("[data-share-group-search]")) {
     const query = input.value.trim();
