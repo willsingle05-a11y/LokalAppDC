@@ -1277,16 +1277,26 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 }
 .repeat-strip i.on { color: var(--accent-strong); background: var(--mint-tint); font-weight: 800; }
 
-/* Discover top stack: keep the hero/search/following/feed flow tighter. */
-body[data-route="home"] .discover-page {
-  padding-top: 4px;
+/* ---- Detail schedule: pattern + month grid for recurring events ------ */
+.detail-schedule { margin: 18px 0 4px; }
+.detail-schedule-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.detail-schedule-head .repeat-strip { margin-top: 0; }
+.detail-schedule-copy { display: flex; flex-direction: column; }
+.detail-schedule-copy b { font-size: var(--fs-title); font-weight: 700; letter-spacing: -.01em; }
+.detail-schedule-copy small { margin-top: 2px; color: var(--muted); font-size: var(--fs-small); }
+.detail-schedule .cal-hint { margin: 8px 0 12px; }
+.detail-schedule .cal-day.is-off { color: rgba(25, 26, 25, .25); font-weight: 500; }
+.detail-schedule .cal-day.has-plans { color: var(--accent-strong); font-weight: 800; }
+.detail-schedule .cal-day.cal-picked { color: var(--accent); background: var(--ink); }
+.detail-schedule .cal-day.cal-picked .cal-plan-dot { background: var(--accent); }
+.detail-schedule .cal-plan-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--accent);
 }
-body[data-route="home"] .discover-page .sub-filters {
-  margin-bottom: 0;
-}
-body[data-route="home"] .discover-page .feed-section {
-  margin-top: 2px;
-}
-body[data-route="home"] .discover-page .feed-section .section-heading {
-  margin-bottom: 4px;
-}
+.detail-schedule .cal-day { position: relative; }

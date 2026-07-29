@@ -1,5 +1,80 @@
+// A run of weekdays reads better as a range than as a list.
+function weekdayRunLabel(days) {
+  if (!days.length) return "";
+  const short = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  if (days.length === 7) return "Every day";
+  const contiguous = days.every((day, index) => index === 0 || day === days[index - 1] + 1);
+  if (contiguous && days.length > 2) return `${short[days[0]]}–${short[days[days.length - 1]]}`;
+  return days.map(day => short[day]).join(", ");
+}
+
+// Recurring events used to print one row per occurrence — dozens of them. This
+// shows the pattern instead: which weekdays it runs, and a month grid of the
+// actual dates, each one tappable.
+function detailScheduleBlock(event) {
+  const all = occurrencesForEvent(event);
+  if (all.length < 2) return "";
+  const dated = all
+    .map(item => ({ item, date: eventDateValue(item) }))
+    .filter(entry => entry.date)
+    .sort((a, b) => a.date - b.date);
+  if (dated.length < 2) return "";
+
+  const byIso = new Map();
+  dated.forEach(entry => { if (!byIso.has(calendarIsoDay(entry.date))) byIso.set(calendarIsoDay(entry.date), entry.item); });
+  const weekdays = [...new Set(dated.map(entry => entry.date.getDay()))].sort((a, b) => a - b);
+  const first = dated[0].date;
+  const last = dated[dated.length - 1].date;
+
+  // Month cursor is clamped to the months the series actually covers.
+  const monthIndex = date => date.getFullYear() * 12 + date.getMonth();
+  const span = monthIndex(last) - monthIndex(first);
+  const offset = Math.min(Math.max(Number(state.detailCalMonth) || 0, 0), span);
+  state.detailCalMonth = offset;
+  const cursor = new Date(first.getFullYear(), first.getMonth() + offset, 1);
+  const total = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const cells = new Array(cursor.getDay()).fill(null);
+  for (let day = 1; day <= total; day += 1) cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), day));
+  while (cells.length % 7) cells.push(null);
+  const grid = cells.map(date => {
+    if (!date) return `<span class="cal-cell"></span>`;
+    const iso = calendarIsoDay(date);
+    const match = byIso.get(iso);
+    const isCurrent = match && match.id === event.id;
+    if (!match) return `<span class="cal-cell"><span class="cal-day is-off">${date.getDate()}</span></span>`;
+    return `<span class="cal-cell"><button class="cal-day has-plans ${isCurrent ? "cal-picked" : ""}" data-event="${match.id}" aria-label="${date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}">${date.getDate()}<i class="cal-plan-dot"></i></button></span>`;
+  }).join("");
+
+  const timeLabel = typeof eventDisplayTime === "function" ? eventDisplayTime(event) : "";
+  const through = last.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return `<div class="detail-schedule">
+    <p class="eyebrow">Repeats</p>
+    <div class="detail-schedule-head">
+      <span class="repeat-strip">${REPEAT_DAY_LETTERS.map((letter, day) => `<i class="${weekdays.includes(day) ? "on" : ""}">${letter}</i>`).join("")}</span>
+      <span class="detail-schedule-copy"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>${escapeHtml(timeLabel)}</small>` : ""}</span>
+    </div>
+    <p class="cal-hint">${dated.length} dates through ${escapeHtml(through)}. Tap one to open it.</p>
+    <div class="cal-head"><b>${escapeHtml(cursor.toLocaleDateString("en-US", { month: "long", year: "numeric" }))}</b><span class="cal-nav"><button data-detail-month="-1" aria-label="Previous month"${offset === 0 ? " disabled" : ""}>&lsaquo;</button><button data-detail-month="1" aria-label="Next month"${offset >= span ? " disabled" : ""}>&rsaquo;</button></span></div>
+    <div class="cal-weekdays" aria-hidden="true">${["S", "M", "T", "W", "T", "F", "S"].map(day => `<span>${day}</span>`).join("")}</div>
+    <div class="cal-grid">${grid}</div>
+  </div>`;
+}
+
 function openDetail(id, opts = {}) {
+  // Opening a different event starts its schedule on the first month again.
+  if (!opts.keepMonth) state.detailCalMonth = 0;
   const e = events.find(event => event.id === Number(id));
+  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
+  // Two or more dates become a schedule; a single extra date stays a plain row.
+  const schedule = detailScheduleBlock(e);
+  const occurrencesBlock = schedule
+    ? schedule
+    : otherOccurrences.length
+      ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
+      : "";
   const recurrence = eventRecurrence(e);
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const occurrenceSummary = eventOccurrenceSummary(e, recurrence, otherOccurrences);

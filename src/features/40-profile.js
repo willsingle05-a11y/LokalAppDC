@@ -258,8 +258,10 @@ function renderProfile() {
       <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
     </div>
     ${profileSummaryStrip(isVenueProfile)}
-    ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
+    ${isVenueProfile ? "" : profileListRows()}
+    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
+    ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${isVenueProfile ? venueVerificationPanel() : ""}
     ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
     ${profileHistorySection(isVenueProfile)}
