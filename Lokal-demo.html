@@ -11351,7 +11351,6 @@ function detailScheduleBlock(event) {
   const weekdays = [...new Set(dated.map(entry => entry.date.getDay()))].sort((a, b) => a - b);
   const timeLabel = recurringTimeWindowLabel(event);
   return `<div class="detail-schedule">
-    <p class="eyebrow">Repeats</p>
     <div class="detail-schedule-head detail-schedule-simple">
       <span class="detail-schedule-copy"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>${escapeHtml(timeLabel)}</small>` : ""}</span>
     </div>
