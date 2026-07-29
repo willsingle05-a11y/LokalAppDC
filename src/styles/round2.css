@@ -583,6 +583,14 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-weight: 900;
   text-transform: uppercase;
 }
+.planner-card.planner-calendar-card {
+  border-style: dashed;
+  background: #fbfdff;
+}
+.planner-actions span.calendar-plan-pill {
+  color: #326f91;
+  background: #eef6fb;
+}
 .planner-legend {
   display: flex;
   flex-wrap: wrap;

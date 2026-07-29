@@ -1095,6 +1095,14 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-weight: 900;
   text-transform: uppercase;
 }
+.planner-card.planner-calendar-card {
+  border-style: dashed;
+  background: #fbfdff;
+}
+.planner-actions span.calendar-plan-pill {
+  color: #326f91;
+  background: #eef6fb;
+}
 .planner-legend {
   display: flex;
   flex-wrap: wrap;
@@ -2405,6 +2413,16 @@ h3 { font-weight: 700; }
 .detail-occurrences { margin: 16px 0 4px; }
 .detail-occurrences .eyebrow { margin-bottom: 8px; }
 .occurrence-list { display: grid; gap: 7px; }
+.occurrence-summary {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border: 1px solid rgba(58, 124, 165, .16);
+  border-radius: 13px;
+  background: #f7fafc;
+}
+.occurrence-summary b { font-size: 13px; }
+.occurrence-summary small { color: var(--muted); font-size: 11px; }
 .occurrence-row {
   display: flex;
   align-items: center;
@@ -4855,6 +4873,36 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .filter-options button:hover { border-color: var(--ink); }
 .filter-options button.selected { border-color: var(--ink); color: #fff; background: var(--ink); font-weight: 800; }
+.what-sheet .filter-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.what-sheet .filter-options .what-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  text-align: left;
+}
+.what-option-art {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(22, 160, 133, .09);
+}
+.what-option-art svg { width: 24px; height: 24px; stroke-width: 2.3; }
+.what-option.selected .what-option-art { background: rgba(255, 255, 255, .18); }
+.what-option span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .active-filter-summary {
   margin: 2px 0 4px;
   padding: 11px;
@@ -5480,14 +5528,18 @@ const icons = {
 // palette. Used for the taste picker on Profile.
 const categoryArt = {
   "Live music": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="8" width="10" height="18" rx="5" fill="#C7F3E8"/><path d="M15 21a9 9 0 0 0 18 0"/><path d="M24 30v7"/><path d="M18 40h12"/><circle cx="37" cy="14" r="3" fill="#FFC53D" stroke-width="1.6"/><path d="M40 14V7" stroke-width="1.6"/></svg>',
-  "Markets": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M7 19h34l-3-8H10z" fill="#00C897"/><path d="M18 11v8M30 11v8" stroke-width="1.5"/><rect x="12" y="25" width="24" height="14" rx="2" fill="#FFE3A0"/><circle cx="19" cy="30" r="3" fill="#FF7B54" stroke-width="1.6"/><circle cx="28" cy="31" r="3.5" fill="#BFF2E0" stroke-width="1.6"/></svg>',
-  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="14" fill="#FFC53D"/><path d="M10 24h28M24 10v28" stroke-width="1.5"/><path d="M14 14c5.5 4 5.5 16 0 20M34 14c-5.5 4-5.5 16 0 20" stroke-width="1.5"/></svg>',
   "Food & drink": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M8 25a9 9 0 0 1 18 0z" fill="#FFE3A0"/><path d="M8 25h18v4H8z" fill="#00C897"/><path d="M8 29h18a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#FFE3A0"/><path d="M31 17h11l-1.5 20h-8z" fill="#BFF2E0"/><path d="M34 12l2 5M40 12l-1.5 5" stroke-width="1.6"/></svg>',
-  "Trivia nights": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H23l-8 6v-6h-5a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z" fill="#D8D4F5"/><path d="M20 19a4.2 4.2 0 0 1 7.4 2.7c0 2.1-3.2 2.5-3.2 4.6" stroke-width="2.2"/><circle cx="24" cy="29" r="1.5" fill="#191A19" stroke="none"/></svg>',
+  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="14" fill="#FFC53D"/><path d="M10 24h28M24 10v28" stroke-width="1.5"/><path d="M14 14c5.5 4 5.5 16 0 20M34 14c-5.5-4-5.5-16 0-20" stroke-width="1.5"/></svg>',
+  "Comedy": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 15h22v13c0 7-5 12-11 12s-11-5-11-12z" fill="#FFE3A0"/><path d="M18 24c2 2 10 2 12 0"/><circle cx="19" cy="21" r="1.8" fill="#191A19" stroke="none"/><circle cx="29" cy="21" r="1.8" fill="#191A19" stroke="none"/><path d="M35 15c-2-4-8-6-11-2-3-4-9-2-11 2" fill="#D8D4F5"/></svg>',
+  "Visual arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="10" y="10" width="28" height="28" rx="3" fill="#D8D4F5"/><circle cx="19" cy="20" r="3" fill="#FFC53D" stroke-width="1.5"/><path d="M14 33l8-8 5 5 3-3 5 6" fill="#BFF2E0"/></svg>',
+  "Performing arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 10h24v12c0 9.5-5.2 17-12 17s-12-7.5-12-17z" fill="#FFE3A0"/><circle cx="19" cy="22" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="22" r="2" fill="#191A19" stroke="none"/><path d="M19 30c3 2.6 7 2.6 10 0"/></svg>',
+  "Museums": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
+  "Markets": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M7 19h34l-3-8H10z" fill="#00C897"/><path d="M18 11v8M30 11v8" stroke-width="1.5"/><rect x="12" y="25" width="24" height="14" rx="2" fill="#FFE3A0"/><circle cx="19" cy="30" r="3" fill="#FF7B54" stroke-width="1.6"/><circle cx="28" cy="31" r="3.5" fill="#BFF2E0" stroke-width="1.6"/></svg>',
+  "Happy hours": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 12h22l-11 14z" fill="#C7F3E8"/><path d="M21 26v10M15 38h12"/><circle cx="27" cy="18" r="2.5" fill="#FFC53D" stroke-width="1.4"/><path d="M35 10h6v20h-6z" fill="#FFE3A0"/><path d="M35 16h6M35 24h6"/><path d="M7 34c5.5-3 10.5-3 16 0" stroke="#00C897" stroke-width="2.2"/></svg>',
+  "Trivia": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H23l-8 6v-6h-5a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z" fill="#D8D4F5"/><path d="M20 19a4.2 4.2 0 0 1 7.4 2.7c0 2.1-3.2 2.5-3.2 4.6" stroke-width="2.2"/><circle cx="24" cy="29" r="1.5" fill="#191A19" stroke="none"/></svg>',
+  "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="18" r="6" fill="#C7F3E8"/><circle cx="31" cy="19" r="5" fill="#FFE3A0"/><path d="M8 38c2-7 16-7 20 0M24 38c1.5-5 11-5 14 0"/></svg>',
   "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 14h26L24 28z" fill="#C7F3E8"/><path d="M24 28v10M17 39h14"/><circle cx="30" cy="19" r="2.6" fill="#FFC53D" stroke-width="1.5"/><path d="M39 6l1.4 3 3 1.4-3 1.4L39 15l-1.4-3.2-3-1.4 3-1.4z" fill="#FFC53D" stroke-width="1.2"/></svg>',
-  "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
-  "Happy Hour": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 12h22l-11 14z" fill="#C7F3E8"/><path d="M21 26v10M15 38h12"/><circle cx="27" cy="18" r="2.5" fill="#FFC53D" stroke-width="1.4"/><path d="M35 10h6v20h-6z" fill="#FFE3A0"/><path d="M35 16h6M35 24h6"/><path d="M7 34c5.5-3 10.5-3 16 0" stroke="#00C897" stroke-width="2.2"/></svg>',
-  "Performing arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 10h24v12c0 9.5-5.2 17-12 17s-12-7.5-12-17z" fill="#FFE3A0"/><circle cx="19" cy="22" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="22" r="2" fill="#191A19" stroke="none"/><path d="M19 30c3 2.6 7 2.6 10 0"/></svg>'
+  "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>'
 };
 
 const categoryArtOptions = Object.keys(categoryArt);
@@ -5509,9 +5561,9 @@ let events = [...demoEvents];
 let venueDirectory = [];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
-const tasteOptions = ["Live music", "Food", "Art", "Patios", "Sports", "Run clubs", "Comedy", "Rooftops", "Museums", "Markets", "Happy Hour", "Outdoor movies", "Theater", "Coffee", "Dancing", "Trivia", "Book clubs", "Community", "Wellness", "Volunteering", "Pop-ups", "Free events", "Low-key hangs", "New in town", "Wine bars", "Cocktail bars", "Jazz", "DJs", "Karaoke", "Festivals", "Street fairs", "Farmers markets", "Classes", "Networking", "Dating-friendly", "Family-friendly", "Dog-friendly", "Brunch", "Late night food", "Speakeasies", "Gallery openings", "History", "Parks", "Pickleball", "Yoga", "Board games", "LGBTQ+ events", "College events", "Professional mixers"];
+const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -5520,6 +5572,7 @@ state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) 
 // shapes what they see.
 state.savedSources = new Set(JSON.parse(localStorage.getItem("lokalSavedSources") || "[]"));
 state.rsvpSources = new Set(JSON.parse(localStorage.getItem("lokalRsvpSources") || "[]"));
+state.calendarSources = new Set(JSON.parse(localStorage.getItem("lokalCalendarSources") || "[]"));
 // Discover filter bar: multi-select What (category), Where (neighborhood), When (day/time).
 state.whatFilter = new Set();
 state.whereFilter = new Set();
@@ -5564,9 +5617,10 @@ function setPlanSource(kind, id, on) {
   const event = events.find(item => item.id === Number(id));
   if (!event) return;
   const sourceId = String(event.sourceId || event.id);
-  const store = kind === "saved" ? state.savedSources : state.rsvpSources;
+  const store = kind === "saved" ? state.savedSources : kind === "rsvp" ? state.rsvpSources : state.calendarSources;
   on ? store.add(sourceId) : store.delete(sourceId);
-  localStorage.setItem(kind === "saved" ? "lokalSavedSources" : "lokalRsvpSources", JSON.stringify(Array.from(store)));
+  const storageKey = kind === "saved" ? "lokalSavedSources" : kind === "rsvp" ? "lokalRsvpSources" : "lokalCalendarSources";
+  localStorage.setItem(storageKey, JSON.stringify(Array.from(store)));
 }
 
 // Re-link persisted saves/RSVPs onto the freshly loaded events (runtime ids change
@@ -5576,6 +5630,7 @@ function reconcileUserPlans() {
     const sourceId = String(event.sourceId || event.id);
     if (state.savedSources.has(sourceId)) state.saved.add(event.id);
     if (state.rsvpSources.has(sourceId)) state.rsvps.add(event.id);
+    if (state.calendarSources.has(sourceId)) state.calendarAdds.add(event.id);
   });
 }
 
@@ -6740,7 +6795,7 @@ function eventMatchesFoodDrinkFocus(event) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
@@ -9423,9 +9478,27 @@ function openWhereSheet() {
 
 function openWhatSheet() {
   const what = state.whatFilter || new Set();
-  const chips = `<button class="${what.size ? "" : "selected"}" data-clear-what>Anything</button>`
+  const artForWhat = (value, label) => {
+    const aliases = {
+      concerts: "Live music",
+      "live-music": "Live music",
+      food: "Food & drink",
+      nightlife: "Nightlife",
+      culture: "Culture",
+      "performing-arts": "Performing arts",
+      museums: "Museums",
+      sports: "Sports",
+      festivals: "Markets",
+      community: "Community",
+      "happy-hours": "Happy hours",
+      "trivia-nights": "Trivia"
+    };
+    return categoryArt[aliases[value] || label] || "";
+  };
+  const optionButton = (value, label) => `<button class="what-option ${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${artForWhat(value, label) ? `<span class="what-option-art" aria-hidden="true">${artForWhat(value, label)}</span>` : ""}<span>${escapeHtml(label)}</span></button>`;
+  const chips = `<button class="what-option ${what.size ? "" : "selected"}" data-clear-what><span class="what-option-art what-option-all" aria-hidden="true">${icons.spark}</span><span>All</span></button>`
     + whatFilterOptions()
-      .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+      .map(([value, label]) => optionButton(value, label))
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
     <button class="modal-close" aria-label="Close">&times;</button>
@@ -9696,11 +9769,12 @@ function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
   if (/concert/.test(text)) return "concerts";
   if (/music|jazz|dj|karaoke/.test(text)) return "live-music";
-  if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
+  if (/happy hour/.test(text)) return "happy-hours";
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/embassy|international|culture|cultural|heritage|ambassador|global/.test(text)) return "culture";
   if (/museum/.test(text)) return "museums";
+  if (/visual art|gallery|art/.test(text)) return "performing-arts";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
   if (/sport|pickleball/.test(text)) return "sports";
   if (/food|restaurant|brunch|chef|culinary|tasting|wine|beer|cocktail/.test(text)) return "food";
@@ -10318,12 +10392,13 @@ function savedEmptyState() {
 function combinedPlannerList(plans) {
   if (!plans.length) return savedEmptyState();
   return `<div class="planner-list">${plans.map(event => {
-    const status = state.rsvps.has(event.id) ? "RSVP" : "Saved";
+    const isCalendarOnly = state.calendarAdds?.has(event.id) && !state.rsvps.has(event.id) && !state.saved.has(event.id);
+    const status = state.rsvps.has(event.id) ? "RSVP" : isCalendarOnly ? "Calendar" : "Saved";
     const attended = state.attended.has(event.id);
     const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
-    return `<article class="planner-card planner-${event.cat}">
+    return `<article class="planner-card planner-${event.cat}${isCalendarOnly ? " planner-calendar-card" : ""}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
+    <div class="planner-actions"><span class="${isCalendarOnly ? "calendar-plan-pill" : ""}">${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`;
   }).join("")}</div>`;
 }
@@ -10390,9 +10465,10 @@ function renderSocial() {
 function savedPlannerEvents(mode = "all") {
   const savedIds = state.saved || new Set();
   const rsvpIds = state.rsvps || new Set();
+  const calendarIds = state.calendarAdds || new Set();
   return events
     .filter(event => !state.removedPlans?.has(event.id))
-    .filter(event => mode === "saved" ? savedIds.has(event.id) : mode === "rsvp" ? rsvpIds.has(event.id) : savedIds.has(event.id) || rsvpIds.has(event.id))
+    .filter(event => mode === "saved" ? savedIds.has(event.id) : mode === "rsvp" ? rsvpIds.has(event.id) : savedIds.has(event.id) || rsvpIds.has(event.id) || calendarIds.has(event.id))
     .sort(sortEventsByStart);
 }
 
@@ -10461,7 +10537,10 @@ function openCalendarPlans(iso) {
     return;
   }
   const date = new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button></article>`).join("")}</div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => {
+    const isCalendarOnly = state.calendarAdds?.has(event.id) && !state.rsvps.has(event.id) && !state.saved.has(event.id);
+    return `<article class="planner-card planner-${event.cat}${isCalendarOnly ? " planner-calendar-card" : ""}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>${isCalendarOnly ? `<div class="planner-actions"><span class="calendar-plan-pill">Calendar</span></div>` : ""}</article>`;
+  }).join("")}</div></section></div>`;
 }
 
 function friendInterestEvents(name, limit = 4) {
@@ -11243,11 +11322,14 @@ function openFollowedVenuesList(query = "") {
 
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
-  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
-  const occurrencesBlock = otherOccurrences.length
-    ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
-    : "";
   const recurrence = eventRecurrence(e);
+  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
+  const occurrenceSummary = eventOccurrenceSummary(e, recurrence, otherOccurrences);
+  const occurrencesBlock = occurrenceSummary
+    ? `<div class="detail-occurrences detail-occurrences-summary"><p class="eyebrow">More dates</p><div class="occurrence-summary"><b>${escapeHtml(occurrenceSummary.title)}</b>${occurrenceSummary.detail ? `<small>${escapeHtml(occurrenceSummary.detail)}</small>` : ""}</div></div>`
+    : otherOccurrences.length
+      ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(eventCardTimeLine(occurrence))}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
+      : "";
   const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
@@ -11335,6 +11417,27 @@ function openGoingConfirmation(id) {
 
 function shareableGroupNames() {
   return userGroupNames().filter(name => !state.leftGroups.has(name));
+}
+
+function eventOccurrenceSummary(event, recurrence, otherOccurrences) {
+  if (!event || !otherOccurrences.length) return null;
+  const allOccurrences = occurrencesForEvent(event);
+  const timeText = String(event.time || "").replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+  if (recurrence?.label) {
+    return { title: recurrence.label.replace(/^every /i, "Every "), detail: timeText };
+  }
+  const weekdays = allOccurrences
+    .map(occurrence => eventDateValue(occurrence))
+    .filter(Boolean)
+    .map(date => date.toLocaleDateString("en-US", { weekday: "long" }))
+    .filter((day, index, all) => all.indexOf(day) === index);
+  if (weekdays.length) {
+    const title = weekdays.length === 1
+      ? `Every ${weekdays[0]}`
+      : `Upcoming ${weekdays.slice(0, -1).join(", ")} & ${weekdays.slice(-1)}`;
+    return { title, detail: timeText };
+  }
+  return null;
 }
 
 function shareGroupResultsHtml(eventId, query = "") {
@@ -11519,15 +11622,27 @@ function addEventToCalendar(id, provider = "apple") {
   if (provider === "google") {
     const url = googleCalendarUrl(event);
     if (!url) { toast("This event is missing a date to schedule."); return; }
+    addCalendarPlan(event.id);
     window.open(url, "_blank", "noopener,noreferrer") || window.location.assign(url);
+    toast("Added to Your Plans as a calendar item.");
     return;
   }
   const recurrence = eventRecurrence(event);
   const ics = recurrence ? buildEventIcs(event, recurrence) : buildSingleEventIcs(event);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(recurrence ? `Calendar file ready â€” repeats ${recurrence.label}.` : "Calendar file ready.");
+}
+
+function addCalendarPlan(id) {
+  const eventId = Number(id);
+  if (!Number.isFinite(eventId)) return;
+  state.calendarAdds.add(eventId);
+  localStorage.setItem("lokalCalendarAdds", JSON.stringify(Array.from(state.calendarAdds)));
+  setPlanSource("calendar", eventId, true);
+  if (state.route === "social") renderSocial();
 }
 
 function addRecurringEventToCalendar(id) {
@@ -11537,6 +11652,7 @@ function addRecurringEventToCalendar(id) {
   if (!recurrence) { toast("This event doesn't repeat on a set schedule."); return; }
   const ics = buildEventIcs(event, recurrence);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(`Added to your calendar â€” repeats ${recurrence.label}.`);

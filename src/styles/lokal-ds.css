@@ -706,6 +706,36 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .filter-options button:hover { border-color: var(--ink); }
 .filter-options button.selected { border-color: var(--ink); color: #fff; background: var(--ink); font-weight: 800; }
+.what-sheet .filter-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.what-sheet .filter-options .what-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  text-align: left;
+}
+.what-option-art {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(22, 160, 133, .09);
+}
+.what-option-art svg { width: 24px; height: 24px; stroke-width: 2.3; }
+.what-option.selected .what-option-art { background: rgba(255, 255, 255, .18); }
+.what-option span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .active-filter-summary {
   margin: 2px 0 4px;
   padding: 11px;

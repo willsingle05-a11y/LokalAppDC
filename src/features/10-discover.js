@@ -619,9 +619,27 @@ function openWhereSheet() {
 
 function openWhatSheet() {
   const what = state.whatFilter || new Set();
-  const chips = `<button class="${what.size ? "" : "selected"}" data-clear-what>Anything</button>`
+  const artForWhat = (value, label) => {
+    const aliases = {
+      concerts: "Live music",
+      "live-music": "Live music",
+      food: "Food & drink",
+      nightlife: "Nightlife",
+      culture: "Culture",
+      "performing-arts": "Performing arts",
+      museums: "Museums",
+      sports: "Sports",
+      festivals: "Markets",
+      community: "Community",
+      "happy-hours": "Happy hours",
+      "trivia-nights": "Trivia"
+    };
+    return categoryArt[aliases[value] || label] || "";
+  };
+  const optionButton = (value, label) => `<button class="what-option ${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${artForWhat(value, label) ? `<span class="what-option-art" aria-hidden="true">${artForWhat(value, label)}</span>` : ""}<span>${escapeHtml(label)}</span></button>`;
+  const chips = `<button class="what-option ${what.size ? "" : "selected"}" data-clear-what><span class="what-option-art what-option-all" aria-hidden="true">${icons.spark}</span><span>All</span></button>`
     + whatFilterOptions()
-      .map(([value, label]) => `<button class="${what.has(value) ? "selected" : ""}" data-toggle-what="${escapeHtml(value)}">${escapeHtml(label)}</button>`)
+      .map(([value, label]) => optionButton(value, label))
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
     <button class="modal-close" aria-label="Close">&times;</button>
@@ -892,11 +910,12 @@ function categoryFromTaste(taste) {
   const text = String(taste || "").toLowerCase();
   if (/concert/.test(text)) return "concerts";
   if (/music|jazz|dj|karaoke/.test(text)) return "live-music";
-  if (/happy hour|wine bar|cocktail bar|beer/.test(text)) return "happy-hours";
+  if (/happy hour/.test(text)) return "happy-hours";
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/embassy|international|culture|cultural|heritage|ambassador|global/.test(text)) return "culture";
   if (/museum/.test(text)) return "museums";
+  if (/visual art|gallery|art/.test(text)) return "performing-arts";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
   if (/sport|pickleball/.test(text)) return "sports";
   if (/food|restaurant|brunch|chef|culinary|tasting|wine|beer|cocktail/.test(text)) return "food";

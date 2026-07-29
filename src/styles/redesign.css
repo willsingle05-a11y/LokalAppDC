@@ -424,6 +424,16 @@ h3 { font-weight: 700; }
 .detail-occurrences { margin: 16px 0 4px; }
 .detail-occurrences .eyebrow { margin-bottom: 8px; }
 .occurrence-list { display: grid; gap: 7px; }
+.occurrence-summary {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border: 1px solid rgba(58, 124, 165, .16);
+  border-radius: 13px;
+  background: #f7fafc;
+}
+.occurrence-summary b { font-size: 13px; }
+.occurrence-summary small { color: var(--muted); font-size: 11px; }
 .occurrence-row {
   display: flex;
   align-items: center;

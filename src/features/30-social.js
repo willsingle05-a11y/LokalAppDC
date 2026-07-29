@@ -310,12 +310,13 @@ function savedEmptyState() {
 function combinedPlannerList(plans) {
   if (!plans.length) return savedEmptyState();
   return `<div class="planner-list">${plans.map(event => {
-    const status = state.rsvps.has(event.id) ? "RSVP" : "Saved";
+    const isCalendarOnly = state.calendarAdds?.has(event.id) && !state.rsvps.has(event.id) && !state.saved.has(event.id);
+    const status = state.rsvps.has(event.id) ? "RSVP" : isCalendarOnly ? "Calendar" : "Saved";
     const attended = state.attended.has(event.id);
     const canMarkAttended = Number.isFinite(event.startSort) && event.startSort <= Date.now();
-    return `<article class="planner-card planner-${event.cat}">
+    return `<article class="planner-card planner-${event.cat}${isCalendarOnly ? " planner-calendar-card" : ""}">
     <button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>
-    <div class="planner-actions"><span>${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
+    <div class="planner-actions"><span class="${isCalendarOnly ? "calendar-plan-pill" : ""}">${attended ? "Attended" : status}</span>${canMarkAttended || attended ? `<button class="text-button attendance-link ${attended ? "selected" : ""}" data-plan-attended="${event.id}">${attended ? "Receipt added" : "I went"}</button>` : ""}<button class="planner-share-btn" data-share="${event.id}" aria-label="Share ${escapeHtml(event.title)}">${cardShareIcon}</button></div>
   </article>`;
   }).join("")}</div>`;
 }
@@ -382,9 +383,10 @@ function renderSocial() {
 function savedPlannerEvents(mode = "all") {
   const savedIds = state.saved || new Set();
   const rsvpIds = state.rsvps || new Set();
+  const calendarIds = state.calendarAdds || new Set();
   return events
     .filter(event => !state.removedPlans?.has(event.id))
-    .filter(event => mode === "saved" ? savedIds.has(event.id) : mode === "rsvp" ? rsvpIds.has(event.id) : savedIds.has(event.id) || rsvpIds.has(event.id))
+    .filter(event => mode === "saved" ? savedIds.has(event.id) : mode === "rsvp" ? rsvpIds.has(event.id) : savedIds.has(event.id) || rsvpIds.has(event.id) || calendarIds.has(event.id))
     .sort(sortEventsByStart);
 }
 
@@ -453,7 +455,10 @@ function openCalendarPlans(iso) {
     return;
   }
   const date = new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => `<article class="planner-card planner-${event.cat}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button></article>`).join("")}</div></section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => {
+    const isCalendarOnly = state.calendarAdds?.has(event.id) && !state.rsvps.has(event.id) && !state.saved.has(event.id);
+    return `<article class="planner-card planner-${event.cat}${isCalendarOnly ? " planner-calendar-card" : ""}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>${isCalendarOnly ? `<div class="planner-actions"><span class="calendar-plan-pill">Calendar</span></div>` : ""}</article>`;
+  }).join("")}</div></section></div>`;
 }
 
 function friendInterestEvents(name, limit = 4) {

@@ -1,10 +1,13 @@
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
-  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
-  const occurrencesBlock = otherOccurrences.length
-    ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
-    : "";
   const recurrence = eventRecurrence(e);
+  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
+  const occurrenceSummary = eventOccurrenceSummary(e, recurrence, otherOccurrences);
+  const occurrencesBlock = occurrenceSummary
+    ? `<div class="detail-occurrences detail-occurrences-summary"><p class="eyebrow">More dates</p><div class="occurrence-summary"><b>${escapeHtml(occurrenceSummary.title)}</b>${occurrenceSummary.detail ? `<small>${escapeHtml(occurrenceSummary.detail)}</small>` : ""}</div></div>`
+    : otherOccurrences.length
+      ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(eventCardTimeLine(occurrence))}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
+      : "";
   const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
@@ -92,6 +95,27 @@ function openGoingConfirmation(id) {
 
 function shareableGroupNames() {
   return userGroupNames().filter(name => !state.leftGroups.has(name));
+}
+
+function eventOccurrenceSummary(event, recurrence, otherOccurrences) {
+  if (!event || !otherOccurrences.length) return null;
+  const allOccurrences = occurrencesForEvent(event);
+  const timeText = String(event.time || "").replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+  if (recurrence?.label) {
+    return { title: recurrence.label.replace(/^every /i, "Every "), detail: timeText };
+  }
+  const weekdays = allOccurrences
+    .map(occurrence => eventDateValue(occurrence))
+    .filter(Boolean)
+    .map(date => date.toLocaleDateString("en-US", { weekday: "long" }))
+    .filter((day, index, all) => all.indexOf(day) === index);
+  if (weekdays.length) {
+    const title = weekdays.length === 1
+      ? `Every ${weekdays[0]}`
+      : `Upcoming ${weekdays.slice(0, -1).join(", ")} & ${weekdays.slice(-1)}`;
+    return { title, detail: timeText };
+  }
+  return null;
 }
 
 function shareGroupResultsHtml(eventId, query = "") {
@@ -276,15 +300,27 @@ function addEventToCalendar(id, provider = "apple") {
   if (provider === "google") {
     const url = googleCalendarUrl(event);
     if (!url) { toast("This event is missing a date to schedule."); return; }
+    addCalendarPlan(event.id);
     window.open(url, "_blank", "noopener,noreferrer") || window.location.assign(url);
+    toast("Added to Your Plans as a calendar item.");
     return;
   }
   const recurrence = eventRecurrence(event);
   const ics = recurrence ? buildEventIcs(event, recurrence) : buildSingleEventIcs(event);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(recurrence ? `Calendar file ready — repeats ${recurrence.label}.` : "Calendar file ready.");
+}
+
+function addCalendarPlan(id) {
+  const eventId = Number(id);
+  if (!Number.isFinite(eventId)) return;
+  state.calendarAdds.add(eventId);
+  localStorage.setItem("lokalCalendarAdds", JSON.stringify(Array.from(state.calendarAdds)));
+  setPlanSource("calendar", eventId, true);
+  if (state.route === "social") renderSocial();
 }
 
 function addRecurringEventToCalendar(id) {
@@ -294,6 +330,7 @@ function addRecurringEventToCalendar(id) {
   if (!recurrence) { toast("This event doesn't repeat on a set schedule."); return; }
   const ics = buildEventIcs(event, recurrence);
   if (!ics) { toast("This event is missing a date to schedule."); return; }
+  addCalendarPlan(event.id);
   const slug = String(event.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "event";
   downloadIcsFile(`${slug}.ics`, ics);
   toast(`Added to your calendar — repeats ${recurrence.label}.`);
