@@ -521,38 +521,38 @@ function primaryEventTag(event) {
 function eventArtLabel(event) {
   const category = String(event.cat || event.category || "").toLowerCase();
   const labels = {
-    music: "Concert",
-    concerts: "Concert",
+    music: "Concerts",
+    concerts: "Concerts",
     "live-music": "Live music",
-    art: "Arts",
-    "performing-arts": "Arts",
+    art: "Performing arts",
+    "performing-arts": "Performing arts",
     museums: "Museums",
-    theatre: "Arts",
-    theater: "Arts",
+    theatre: "Performing arts",
+    theater: "Performing arts",
     sports: "Sports",
-    fitness: "Fitness",
-    food: "Food",
-    festivals: "Festival",
+    fitness: "Sports",
+    food: "Food & drink",
+    festivals: "Festivals",
     culture: "Culture",
     community: "Community",
-    expos: "Expo",
-    nightlife: "Night out",
-    "happy-hours": "Happy hour",
-    "trivia-nights": "Trivia night"
+    expos: "Expos",
+    nightlife: "Nightlife",
+    "happy-hours": "Happy hours",
+    "trivia-nights": "Trivia Nights"
   };
   if (labels[category]) return labels[category];
   const tagText = eventTags(event).join(" ").toLowerCase();
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
-  if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Night out";
-  if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concert";
+  if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Nightlife";
+  if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concerts";
   if (/\b(embassy|ambassador|international|cultural|culture|heritage|global|foreign soil)\b/.test(text)) return "Culture";
   if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
-  if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Arts";
+  if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Performing arts";
   if (/\b(baseball|mlb|nba|nfl|nhl|soccer|sports?|game)\b/.test(text)) return "Sports";
-  if (/\b(food|drink|wine|beer|cocktail|restaurant|brunch|market)\b/.test(text)) return "Food";
-  if (/\b(festival|fair)\b/.test(text)) return "Festival";
-  if (/\b(expo|conference|convention)\b/.test(text)) return "Expo";
-  if (/\b(run|yoga|fitness|wellness|pickleball)\b/.test(text)) return "Fitness";
+  if (/\b(food|drink|wine|beer|cocktail|restaurant|brunch|market)\b/.test(text)) return "Food & drink";
+  if (/\b(festival|fair)\b/.test(text)) return "Festivals";
+  if (/\b(expo|conference|convention)\b/.test(text)) return "Expos";
+  if (/\b(run|yoga|fitness|wellness|pickleball)\b/.test(text)) return "Sports";
   if (/\b(community|volunteer|neighborhood|meetup)\b/.test(text)) return "Community";
   return "Community";
 }
