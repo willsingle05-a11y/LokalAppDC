@@ -23,8 +23,7 @@ function detailScheduleBlock(event) {
   const timeLabel = recurringTimeWindowLabel(event);
   return `<div class="detail-schedule">
     <p class="eyebrow">Repeats</p>
-    <div class="detail-schedule-head">
-      <span class="repeat-strip">${REPEAT_DAY_LETTERS.map((letter, day) => `<i class="${weekdays.includes(day) ? "on" : ""}">${letter}</i>`).join("")}</span>
+    <div class="detail-schedule-head detail-schedule-simple">
       <span class="detail-schedule-copy"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>${escapeHtml(timeLabel)}</small>` : ""}</span>
     </div>
   </div>`;
