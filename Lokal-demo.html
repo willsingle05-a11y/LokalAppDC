@@ -5640,6 +5640,74 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 }
 .detail-schedule .cal-day { position: relative; }
 
+/* Final event-detail density pass. This block intentionally lives after the
+   recurring schedule rules so those rules cannot reopen the vertical gaps. */
+#modal-root .modal .detail-hero {
+  min-height: 168px;
+  padding: 14px;
+}
+#modal-root .modal .detail-hero.has-image { min-height: 218px; }
+#modal-root .modal .detail-body { padding: 8px 16px 18px; }
+#modal-root .modal .detail-title-block {
+  gap: 1px;
+  margin-bottom: 4px;
+}
+#modal-root .modal .detail-title-block h1 {
+  line-height: .96;
+}
+#modal-root .modal .detail-title-block .event-meta {
+  margin: 0 0 2px;
+  line-height: 1;
+}
+#modal-root .modal .detail-tags {
+  gap: 5px;
+  margin: 0 0 5px;
+  padding-top: 5px;
+}
+#modal-root .modal .event-tag { padding: 4px 8px; }
+#modal-root .modal .detail-about-label {
+  margin: 0 0 2px;
+  line-height: 1;
+}
+#modal-root .modal .detail-description {
+  margin: 0;
+  line-height: 1.2;
+}
+#modal-root .modal .detail-schedule {
+  margin: 6px 0 0;
+}
+#modal-root .modal .detail-schedule-head {
+  gap: 6px;
+  margin: 0;
+}
+#modal-root .modal .detail-schedule-copy.detail-schedule-inline {
+  gap: 5px;
+}
+#modal-root .modal .detail-schedule-copy b,
+#modal-root .modal .detail-schedule-copy small {
+  line-height: 1.05;
+}
+#modal-root .modal .detail-info-row {
+  padding: 3px 0;
+  gap: 7px;
+}
+#modal-root .modal .detail-info-row .dir-art {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+}
+#modal-root .modal .detail-info-row .dir-copy b {
+  font-size: 13px;
+  line-height: 1.02;
+}
+#modal-root .modal .detail-info-row .dir-copy small {
+  margin-top: 0;
+  line-height: 1.05;
+}
+#modal-root .modal .detail-info-row .dir-action {
+  font-size: 10.5px;
+}
+
     </style>
   </head>
   <body>
