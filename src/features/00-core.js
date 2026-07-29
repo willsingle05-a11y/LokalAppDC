@@ -546,6 +546,16 @@ function eventCardTimeLine(event) {
   return moreThisWeek ? `${time} + ${moreThisWeek} more this week` : time;
 }
 
+function eventCardTimeHtml(event) {
+  const time = compactEventTimeLabel(event);
+  if (/^ongoing$/i.test(time)) return escapeHtml(time);
+  const moreThisWeek = eventSeriesThisWeekCount(event);
+  if (!time) return moreThisWeek ? `<span class="event-card-more-week">+${moreThisWeek} more this week</span>` : "";
+  return moreThisWeek
+    ? `<strong>${escapeHtml(time)}</strong> <span class="event-card-more-week">+${moreThisWeek} more this week</span>`
+    : `<strong>${escapeHtml(time)}</strong>`;
+}
+
 function primaryEventTag(event) {
   return eventTags(event)[0] || event.tag || event.cat || "Local event";
 }
@@ -805,7 +815,7 @@ function eventRow(event, variant = "", opts = {}) {
   const catLabel = eventArtLabel(event);
   const rawVenue = canonicalVenueName(event.venue);
   const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
-  const timeLine = eventCardTimeLine(event);
+  const timeLine = eventCardTimeHtml(event);
   const leftTag = eventTagChips(event, 3);
   const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
   const fallbackImage = eventFallbackImageSrc(event);
@@ -824,7 +834,7 @@ function eventRow(event, variant = "", opts = {}) {
       </div>
       <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}">
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
-        ${timeLine ? `<span class="event-card-meta event-card-time">${escapeHtml(timeLine)}</span>` : ""}
+        ${timeLine ? `<span class="event-card-meta event-card-time">${timeLine}</span>` : ""}
         ${area ? `<span class="event-card-meta event-card-area">${escapeHtml(area)}</span>` : ""}
       </button>
       ${bottomHtml}

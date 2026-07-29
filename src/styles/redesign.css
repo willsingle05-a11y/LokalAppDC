@@ -2012,6 +2012,11 @@ h3 { font-weight: 800; }
   color: #4f5751;
   font-weight: 650;
 }
+.event-card-info .event-card-time strong { font-weight: 700; }
+.event-card-info .event-card-more-week {
+  color: #8b918b;
+  font-weight: 500;
+}
 .event-card-info .event-card-area {
   color: #9a9f98;
 }
