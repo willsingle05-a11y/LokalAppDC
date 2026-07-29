@@ -1092,15 +1092,22 @@ async function syncSupabaseEvents(showToast = false) {
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
       const normalized = dcRows.map(normalizeSupabaseEvent);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      state.todayStoryEvents = normalized
+        .filter(event => Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER)
+        .filter(event => sameCalendarDate(new Date(event.startSort), today));
       const discoveryWindowEvents = normalized.filter(isEventInDiscoveryWindow);
       events = discoveryWindowEvents;
       state.eventSync = { status: "synced", label: `${events.length} upcoming DC event${events.length === 1 ? "" : "s"}` };
     } else {
       events = [...demoEvents];
+      state.todayStoryEvents = [];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
     }
   } catch {
     events = [...demoEvents];
+    state.todayStoryEvents = [];
     state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
   }
   // The venue name clusters are derived from the loaded events, so they have to

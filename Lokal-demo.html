@@ -2482,6 +2482,18 @@ h3 { font-weight: 700; }
 .event-list-row.is-first { border-top: 1px solid rgba(58, 124, 165, .13); border-radius: 14px 14px 0 0; }
 .event-list-row.is-last { border-radius: 0 0 14px 14px; }
 .event-list-row:hover { background: #fbfdfc; }
+.event-list-row.is-disabled {
+  color: rgba(28, 43, 28, .5);
+  background: #f1f2ef;
+  cursor: default;
+  filter: grayscale(.75);
+}
+.event-list-row.is-disabled:hover { background: #f1f2ef; }
+.event-list-row.is-disabled .elr-thumb { opacity: .45; }
+.event-list-row.is-disabled .elr-venue,
+.event-list-row.is-disabled .elr-meta,
+.event-list-row.is-disabled .event-tag { color: rgba(28, 43, 28, .45); }
+.event-list-row.is-disabled .event-tag { background: rgba(28, 43, 28, .08); }
 .event-list-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
 .elr-thumb { width: 54px; height: 54px; border-radius: 10px; background-position: center; background-size: cover; }
 .elr-copy { display: grid; gap: 3px; min-width: 0; }
@@ -2507,6 +2519,15 @@ h3 { font-weight: 700; }
   font-weight: 700;
 }
 .elr-side { position: relative; z-index: 2; display: grid; gap: 6px; justify-items: end; pointer-events: none; }
+.elr-expired {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(28, 43, 28, .08);
+  color: rgba(28, 43, 28, .55);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
 .elr-save {
   display: grid;
   place-items: center;
@@ -5462,7 +5483,7 @@ const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priy
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
 const tasteOptions = ["Live music", "Food", "Art", "Patios", "Sports", "Run clubs", "Comedy", "Rooftops", "Museums", "Markets", "Outdoor movies", "Theater", "Coffee", "Dancing", "Trivia", "Book clubs", "Wellness", "Volunteering", "Pop-ups", "Free events", "Low-key hangs", "New in town", "Wine bars", "Cocktail bars", "Jazz", "DJs", "Karaoke", "Festivals", "Street fairs", "Farmers markets", "Classes", "Networking", "Dating-friendly", "Family-friendly", "Dog-friendly", "Brunch", "Late night food", "Speakeasies", "Gallery openings", "History", "Parks", "Pickleball", "Yoga", "Board games", "LGBTQ+ events", "College events", "Professional mixers"];
 const defaultReceipts = [];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food", "Art", "Patios"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -6234,8 +6255,10 @@ function eventListRow(event, opts = {}) {
   const tags = eventTags(event);
   const displayTitle = eventDisplayTitle(event);
   const meta = [event.time, eventLocationLine(event)].filter(Boolean).join(" Â· ");
-  return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
+  const disabled = Boolean(opts.disabled);
+  const expiredBadge = opts.expired ? `<span class="elr-expired">Already happened</span>` : "";
+  return `<article class="event-list-row${opts.isFirst ? " is-first" : ""}${opts.isLast ? " is-last" : ""}${disabled ? " is-disabled" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+    ${disabled ? "" : `<button class="event-list-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>`}
     <span class="elr-thumb" style="${eventThumbStyle(event)}"></span>
     <span class="elr-copy">
       <b class="elr-venue">${escapeHtml(displayTitle)}</b>
@@ -6243,8 +6266,8 @@ function eventListRow(event, opts = {}) {
       <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
-      <button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
-      ${eventListSideBadge(event)}
+      ${disabled ? "" : `<button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>`}
+      ${expiredBadge || eventListSideBadge(event)}
     </span>
   </article>`;
 }
@@ -7870,15 +7893,22 @@ async function syncSupabaseEvents(showToast = false) {
     if (rows.length) {
       const dcRows = rows.filter(isSupabaseEventInDc);
       const normalized = dcRows.map(normalizeSupabaseEvent);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      state.todayStoryEvents = normalized
+        .filter(event => Number.isFinite(event.startSort) && event.startSort < Number.MAX_SAFE_INTEGER)
+        .filter(event => sameCalendarDate(new Date(event.startSort), today));
       const discoveryWindowEvents = normalized.filter(isEventInDiscoveryWindow);
       events = discoveryWindowEvents;
       state.eventSync = { status: "synced", label: `${events.length} upcoming DC event${events.length === 1 ? "" : "s"}` };
     } else {
       events = [...demoEvents];
+      state.todayStoryEvents = [];
       state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
     }
   } catch {
     events = [...demoEvents];
+    state.todayStoryEvents = [];
     state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
   }
   // The venue name clusters are derived from the loaded events, so they have to
@@ -9798,7 +9828,7 @@ function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dcEvents = displayableDcEvents().sort(sortEventsByStart);
+    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
     const todaysEvents = diverseEventSelection(dcEvents
       .filter(event => sameCalendarDate(eventDateValue(event), today))
       .filter(event => event.image), 5);
@@ -9826,6 +9856,10 @@ function storyEventPool(story) {
     .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
     .sort(sortEventsByStart)
     .slice(0, 6);
+}
+
+function storyEventAlreadyHappened(event) {
+  return Number.isFinite(event?.startSort) && event.startSort < Date.now();
 }
 
 function activeFollowingStories() {
@@ -9861,7 +9895,7 @@ function openStory(index) {
     <div class="story-progress">${stories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.todayOnly ? "Happening today" : escapeHtml(story.name)}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
-    <div class="event-stack">${storyEvents.map(event => eventListRow(event)).join("")}</div>
+    <div class="event-stack">${storyEvents.map(event => eventListRow(event, { disabled: story.todayOnly && storyEventAlreadyHappened(event), expired: story.todayOnly && storyEventAlreadyHappened(event) })).join("")}</div>
     <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }

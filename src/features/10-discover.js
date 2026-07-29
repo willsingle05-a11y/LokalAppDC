@@ -1091,7 +1091,7 @@ function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dcEvents = displayableDcEvents().sort(sortEventsByStart);
+    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
     const todaysEvents = diverseEventSelection(dcEvents
       .filter(event => sameCalendarDate(eventDateValue(event), today))
       .filter(event => event.image), 5);
@@ -1119,6 +1119,10 @@ function storyEventPool(story) {
     .filter((event, index, all) => all.findIndex(item => item.id === event.id) === index)
     .sort(sortEventsByStart)
     .slice(0, 6);
+}
+
+function storyEventAlreadyHappened(event) {
+  return Number.isFinite(event?.startSort) && event.startSort < Date.now();
 }
 
 function activeFollowingStories() {
@@ -1154,7 +1158,7 @@ function openStory(index) {
     <div class="story-progress">${stories.map((_,dotIndex) => `<span class="${dotIndex === storyIndex ? "active" : ""}"></span>`).join("")}</div>
     <div class="story-heading"><div><p class="eyebrow">${story.type}</p><h2>${story.todayOnly ? "Happening today" : escapeHtml(story.name)}</h2></div><span class="group-icon">${story.icon}</span></div>
     <p class="lede">${story.intro}</p>
-    <div class="event-stack">${storyEvents.map(event => eventListRow(event)).join("")}</div>
+    <div class="event-stack">${storyEvents.map(event => eventListRow(event, { disabled: story.todayOnly && storyEventAlreadyHappened(event), expired: story.todayOnly && storyEventAlreadyHappened(event) })).join("")}</div>
     <div class="story-controls"><button class="secondary" data-story-prev="${storyIndex}" aria-label="Previous following story">&larr; Previous</button><small>${storyIndex + 1} of ${stories.length}</small><button class="secondary" data-story-next="${storyIndex}" aria-label="Next following story">Next &rarr;</button></div>
   </section></div>`;
 }
