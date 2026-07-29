@@ -20,6 +20,7 @@ const icons = {
 // Illustrated category art — flat fills over an ink outline, in the Lokal
 // palette. Used for the taste picker on Profile.
 const categoryArt = {
+  "Concerts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 15h22v20H13z" fill="#C7F3E8"/><path d="M17 20h14M17 26h10"/><circle cx="34" cy="30" r="5" fill="#FFC53D" stroke-width="1.6"/><path d="M37 30V16h5" stroke-width="1.8"/></svg>',
   "Live music": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="8" width="10" height="18" rx="5" fill="#C7F3E8"/><path d="M15 21a9 9 0 0 0 18 0"/><path d="M24 30v7"/><path d="M18 40h12"/><circle cx="37" cy="14" r="3" fill="#FFC53D" stroke-width="1.6"/><path d="M40 14V7" stroke-width="1.6"/></svg>',
   "Food & drink": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M8 25a9 9 0 0 1 18 0z" fill="#FFE3A0"/><path d="M8 25h18v4H8z" fill="#00C897"/><path d="M8 29h18a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#FFE3A0"/><path d="M31 17h11l-1.5 20h-8z" fill="#BFF2E0"/><path d="M34 12l2 5M40 12l-1.5 5" stroke-width="1.6"/></svg>',
   "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="14" fill="#FFC53D"/><path d="M10 24h28M24 10v28" stroke-width="1.5"/><path d="M14 14c5.5 4 5.5 16 0 20M34 14c-5.5-4-5.5-16 0-20" stroke-width="1.5"/></svg>',
@@ -32,10 +33,11 @@ const categoryArt = {
   "Trivia": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H23l-8 6v-6h-5a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z" fill="#D8D4F5"/><path d="M20 19a4.2 4.2 0 0 1 7.4 2.7c0 2.1-3.2 2.5-3.2 4.6" stroke-width="2.2"/><circle cx="24" cy="29" r="1.5" fill="#191A19" stroke="none"/></svg>',
   "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="18" r="6" fill="#C7F3E8"/><circle cx="31" cy="19" r="5" fill="#FFE3A0"/><path d="M8 38c2-7 16-7 20 0M24 38c1.5-5 11-5 14 0"/></svg>',
   "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 14h26L24 28z" fill="#C7F3E8"/><path d="M24 28v10M17 39h14"/><circle cx="30" cy="19" r="2.6" fill="#FFC53D" stroke-width="1.5"/><path d="M39 6l1.4 3 3 1.4-3 1.4L39 15l-1.4-3.2-3-1.4 3-1.4z" fill="#FFC53D" stroke-width="1.2"/></svg>',
-  "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>'
+  "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
+  "Free events": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 12h20a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#FFE3A0"/><path d="M17 22h10M17 28h7"/><path d="M33 17v14"/><path d="M30 20c4-4 8 2 3 5-5-3-1-9 3-5" fill="#C7F3E8"/></svg>'
 };
 
-const categoryArtOptions = Object.keys(categoryArt);
+const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
 
 const demoEvents = [
   { id: 1, title: "Jazz on the Hill", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Tonight, 7:30 PM", price: "$18", cat: "music", tag: "Live music", friends: [], desc: "A warm, unhurried set from DC's new guard of jazz players. The room is small, the sound is close, and you will want to get there before the first pour." },
@@ -168,7 +170,7 @@ function eventInterestSignal(event, detail = false) {
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "art", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "food", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -320,7 +322,7 @@ function categoryTagAliases(category) {
     festivals: ["festivals", "festival"],
     culture: ["culture", "cultural"],
     sports: ["sports", "sport"],
-    community: ["community"],
+    community: ["community", "expos", "expo"],
     expos: ["expos", "expo"],
     nightlife: ["nightlife", "night out"],
     "happy-hours": ["happy hour", "happy hours"],
@@ -415,7 +417,7 @@ function ensureEventTags(event, tags) {
 }
 
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Expos", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia Nights", food: "Food & Drink" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Community", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -584,7 +586,7 @@ function eventArtLabel(event) {
     festivals: "Festivals",
     culture: "Culture",
     community: "Community",
-    expos: "Expos",
+    expos: "Community",
     nightlife: "Nightlife",
     "happy-hours": "Happy hours",
     "trivia-nights": "Trivia Nights"
@@ -600,7 +602,7 @@ function eventArtLabel(event) {
   if (/\b(baseball|mlb|nba|nfl|nhl|soccer|sports?|game)\b/.test(text)) return "Sports";
   if (/\b(food|drink|wine|beer|cocktail|restaurant|brunch|market)\b/.test(text)) return "Food & drink";
   if (/\b(festival|fair)\b/.test(text)) return "Festivals";
-  if (/\b(expo|conference|convention)\b/.test(text)) return "Expos";
+  if (/\b(expo|conference|convention)\b/.test(text)) return "Community";
   if (/\b(run|yoga|fitness|wellness|pickleball)\b/.test(text)) return "Sports";
   if (/\b(community|volunteer|neighborhood|meetup)\b/.test(text)) return "Community";
   return "Community";
@@ -713,7 +715,7 @@ const CATEGORY_COLORS = {
   culture: "#2F80ED",
   food: "#FF7B54",
   community: "#7BC67E",
-  expos: "#64748B"
+  expos: "#7BC67E"
 };
 
 const cardShareIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>';
@@ -1276,6 +1278,7 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
   if (filter === "food") return eventMatchesFoodDrinkFocus(event);
+  if (filter === "community") return event.cat === "community" || event.cat === "expos";
   return event.cat === filter;
 }
 
@@ -1288,12 +1291,12 @@ function eventMatchesFoodDrinkFocus(event) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["expos", "Expos"], ["free", "Free"]];
+  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia Nights"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Festivals"], ["community", "Community"], ["expos", "Expos"]];
+    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]];
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }

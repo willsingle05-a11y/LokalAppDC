@@ -46,7 +46,7 @@ function eventFeedPattern(list) {
 
 // Per-category copy + filter chips. The first chip in each list is the
 // "all/clear" option. Categories beyond the original brief (museums, festivals,
-// community, expos, free) are inferred following the same pattern.
+// community, free) are inferred following the same pattern.
 const categoryFeedConfig = {
   concerts: { label: "Concerts", searchPlaceholder: "Search by artist, venue, or date…", chips: ["All shows", "This week", "This month", "Pop", "Rock", "Hip-Hop", "Country", "Classical"] },
   "live-music": { label: "Live music", searchPlaceholder: "Search by genre, venue, or artist…", chips: ["All shows", "Jazz", "Indie", "R&B", "Blues", "Folk", "Electronic", "Soul"] },
@@ -59,8 +59,7 @@ const categoryFeedConfig = {
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or show…", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
   festivals: { label: "Festivals", searchPlaceholder: "Search by festival, neighborhood, or type…", chips: ["All festivals", "Food & drink", "Music", "Art", "Cultural", "Outdoor", "Family"] },
-  community: { label: "Community", searchPlaceholder: "Search by cause, group, or neighborhood…", chips: ["All events", "Volunteer", "Networking", "Book club", "Outdoor", "Free", "Neighborhood"] },
-  expos: { label: "Expos", searchPlaceholder: "Search by expo, theme, or venue…", chips: ["All expos", "Convention", "Trade show", "Marketplace", "Workshop", "Networking"] },
+  community: { label: "Community", searchPlaceholder: "Search by cause, group, convention, or neighborhood…", chips: ["All events", "Volunteer", "Networking", "Convention", "Workshop", "Book club", "Outdoor", "Free"] },
   free: { label: "Free events", searchPlaceholder: "Search free events by type or venue…", chips: ["All free", "Comedy", "Museums", "Outdoor", "Live music", "Festivals", "Workshops", "Talks"] }
 };
 
@@ -285,7 +284,7 @@ function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
   if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
-  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, expos: 2, community: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, community: 1, expos: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
@@ -621,7 +620,7 @@ function openWhatSheet() {
   const what = state.whatFilter || new Set();
   const artForWhat = (value, label) => {
     const aliases = {
-      concerts: "Live music",
+      concerts: "Concerts",
       "live-music": "Live music",
       food: "Food & drink",
       nightlife: "Nightlife",
@@ -632,7 +631,8 @@ function openWhatSheet() {
       festivals: "Markets",
       community: "Community",
       "happy-hours": "Happy hours",
-      "trivia-nights": "Trivia"
+      "trivia-nights": "Trivia",
+      free: "Free events"
     };
     return categoryArt[aliases[value] || label] || "";
   };
@@ -808,7 +808,7 @@ function renderDiscoverCategoryPage(category) {
 }
 
 function searchableDiscoverCategory(category) {
-  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos", "free"].includes(category);
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "free"].includes(category);
 }
 
 function eventMatchesCategoryFacet(event, query) {
@@ -832,7 +832,6 @@ function categoryFacetLabel(category) {
     museums: "museum type",
     festivals: "festival type",
     community: "community type",
-    expos: "expo type",
     free: "type"
   };
   return labels[category] || "type";
@@ -851,7 +850,6 @@ function categoryFacetAllLabel(category) {
     museums: "All museum types",
     festivals: "All festival types",
     community: "All community types",
-    expos: "All expos",
     free: "All free events"
   };
   return labels[category] || "All types";
@@ -869,8 +867,7 @@ function categoryFacetPriorityList(category) {
     culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
     festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
-    community: ["Volunteer", "Networking", "Book Club", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
-    expos: ["Convention", "Expo", "Trade Show", "Marketplace", "Workshop", "Networking"],
+    community: ["Volunteer", "Networking", "Book Club", "Convention", "Workshop", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
     free: ["Comedy", "Museum", "Outdoor", "Family Friendly", "Live music", "Festival", "Workshop", "Talk", "Community"]
   }[category] || [];
 }
@@ -925,7 +922,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
