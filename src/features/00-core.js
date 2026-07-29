@@ -827,6 +827,11 @@ function eventRow(event, variant = "", opts = {}) {
   const timeLine = eventCardTimeHtml(event);
   const leftTag = eventTagChips(event, 3);
   const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
+  // One card stands for the whole series, so show which days it runs.
+  const repeat = eventSeriesWeekdays(event);
+  const repeatHtml = repeat.count > 1 && repeat.days.length
+    ? `<span class="repeat-strip" aria-label="Repeats on ${repeat.days.map(day => REPEAT_DAY_NAMES[day]).join(", ")}">${REPEAT_DAY_LETTERS.map((letter, day) => `<i class="${repeat.days.includes(day) ? "on" : ""}">${letter}</i>`).join("")}</span>`
+    : "";
   const fallbackImage = eventFallbackImageSrc(event);
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
@@ -845,6 +850,7 @@ function eventRow(event, variant = "", opts = {}) {
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
         ${timeLine ? `<span class="event-card-meta event-card-time">${timeLine}</span>` : ""}
         ${area ? `<span class="event-card-meta event-card-area">${escapeHtml(area)}</span>` : ""}
+        ${repeatHtml}
       </button>
       ${bottomHtml}
     </div>
