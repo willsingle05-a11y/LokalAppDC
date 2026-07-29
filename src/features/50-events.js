@@ -68,21 +68,20 @@ function openDetail(id, opts = {}) {
   if (!opts.keepMonth) state.detailCalMonth = 0;
   const e = events.find(event => event.id === Number(id));
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
-  // Two or more dates become a schedule; a single extra date stays a plain row.
+  const recurrence = eventRecurrence(e);
+  // Three levels, most informative first: the tappable month schedule, then the
+  // text summary, then a short list of the next few dates.
   const schedule = detailScheduleBlock(e);
+  const occurrenceSummary = typeof eventOccurrenceSummary === "function"
+    ? eventOccurrenceSummary(e, recurrence, otherOccurrences)
+    : null;
   const occurrencesBlock = schedule
     ? schedule
-    : otherOccurrences.length
-      ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
-      : "";
-  const recurrence = eventRecurrence(e);
-  const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
-  const occurrenceSummary = eventOccurrenceSummary(e, recurrence, otherOccurrences);
-  const occurrencesBlock = occurrenceSummary
-    ? `<div class="detail-occurrences detail-occurrences-summary"><p class="eyebrow">More dates</p><div class="occurrence-summary"><b>${escapeHtml(occurrenceSummary.title)}</b>${occurrenceSummary.detail ? `<small>${escapeHtml(occurrenceSummary.detail)}</small>` : ""}</div></div>`
-    : otherOccurrences.length
-      ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(eventCardTimeLine(occurrence))}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
-      : "";
+    : occurrenceSummary
+      ? `<div class="detail-occurrences detail-occurrences-summary"><p class="eyebrow">More dates</p><div class="occurrence-summary"><b>${escapeHtml(occurrenceSummary.title)}</b>${occurrenceSummary.detail ? `<small>${escapeHtml(occurrenceSummary.detail)}</small>` : ""}</div></div>`
+      : otherOccurrences.length
+        ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(typeof eventCardTimeLine === "function" ? eventCardTimeLine(occurrence) : occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
+        : "";
   const displayTitle = eventDisplayTitle(e);
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   const shareButton = canNativeShare
