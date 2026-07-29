@@ -398,10 +398,10 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 .discover-page .discover-search-box.subtle-search input { font-size: 16px; font-weight: 500; }
 .discover-page .discover-search-box.subtle-search input::placeholder { color: rgba(25, 26, 25, .5); font-weight: 500; }
 
-.top-types-head { display: flex; align-items: baseline; gap: 8px; margin: 4px 0 8px; }
+.top-types-head { display: flex; align-items: baseline; gap: 8px; margin: 0 0 6px; }
 .top-types-head .eyebrow { margin: 0; }
 .top-types-head .text-button { margin-left: auto; }
-.top-types { display: flex; gap: 8px; margin-bottom: 18px; }
+.top-types { display: flex; gap: 8px; margin-bottom: 12px; }
 .top-type {
   display: flex;
   flex: 1;
@@ -417,7 +417,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 /* Following uses the same tiles but scrolls, since the list is open-ended. */
 .top-types-scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .top-types-scroll::-webkit-scrollbar { display: none; }
-.top-types-scroll .top-type { flex: 0 0 108px; }
+.top-types-scroll .top-type { flex: 0 0 126px; min-height: 112px; padding: 12px 8px; }
 .top-type .tt-initial {
   display: grid;
   place-items: center;
@@ -1060,7 +1060,7 @@ body.nav-back .page { animation-name: page-slide-right; }
    Search row — pill field with a round filter button beside it
    ============================================================ */
 
-.search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
 
 .search-field {
   display: flex;
@@ -1230,3 +1230,17 @@ body[data-route="home"] .topbar .account-label { display: none; }
   line-height: 1;
 }
 .repeat-strip i.on { color: var(--accent-strong); background: var(--mint-tint); font-weight: 800; }
+
+/* Discover top stack: keep the hero/search/following/feed flow tighter. */
+body[data-route="home"] .discover-page {
+  padding-top: 16px;
+}
+body[data-route="home"] .discover-page .sub-filters {
+  margin-bottom: 6px;
+}
+body[data-route="home"] .discover-page .feed-section {
+  margin-top: 10px;
+}
+body[data-route="home"] .discover-page .feed-section .section-heading {
+  margin-bottom: 8px;
+}
