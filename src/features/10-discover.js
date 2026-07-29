@@ -105,8 +105,7 @@ function followingRail() {
     <b>${escapeHtml(story.todayOnly ? "Today" : story.name)}</b>
     <small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small>
   </button>`).join("");
-  return `<div class="top-types-head"><p class="eyebrow">Following</p></div>
-    <div class="top-types top-types-scroll">${venueTiles}${storyTiles}</div>`;
+  return `<div class="top-types top-types-scroll following-stories-row">${venueTiles}${storyTiles}</div>`;
 }
 
 function venueDirectoryMatch(name) {

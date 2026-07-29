@@ -4534,6 +4534,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 .top-types-scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .top-types-scroll::-webkit-scrollbar { display: none; }
 .top-types-scroll .top-type { flex: 0 0 126px; min-height: 112px; padding: 12px 8px; }
+.following-stories-row { margin-top: 0; margin-bottom: 6px; }
 .top-type .tt-initial {
   display: grid;
   place-items: center;
@@ -8811,8 +8812,7 @@ function followingRail() {
     <b>${escapeHtml(story.todayOnly ? "Today" : story.name)}</b>
     <small>${escapeHtml(story.todayOnly ? story.storyEvents[0]?.title || "Today" : story.type)}</small>
   </button>`).join("");
-  return `<div class="top-types-head"><p class="eyebrow">Following</p></div>
-    <div class="top-types top-types-scroll">${venueTiles}${storyTiles}</div>`;
+  return `<div class="top-types top-types-scroll following-stories-row">${venueTiles}${storyTiles}</div>`;
 }
 
 function venueDirectoryMatch(name) {

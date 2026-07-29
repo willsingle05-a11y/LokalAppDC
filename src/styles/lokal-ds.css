@@ -418,6 +418,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 .top-types-scroll { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .top-types-scroll::-webkit-scrollbar { display: none; }
 .top-types-scroll .top-type { flex: 0 0 126px; min-height: 112px; padding: 12px 8px; }
+.following-stories-row { margin-top: 0; margin-bottom: 6px; }
 .top-type .tt-initial {
   display: grid;
   place-items: center;
