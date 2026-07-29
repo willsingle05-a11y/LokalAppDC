@@ -9414,7 +9414,7 @@ function openWhereSheet() {
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet where-sheet" role="dialog" aria-modal="true" aria-label="Where">
     <button class="modal-close" aria-label="Close">&times;</button>
-    <div class="sheet-head"><h3>Where?</h3>${where.size ? `<button class="text-button" data-clear-where>Clear</button>` : ""}</div>
+    <div class="sheet-head"><h3>Where?</h3></div>
     <p class="cal-hint">${where.size ? `${where.size} neighborhood${where.size === 1 ? "" : "s"} selected` : "Pick one or more neighborhoods, or leave it open."}</p>
     <div class="filter-block"><div class="filter-options">${chips}</div></div>
     <div class="filter-footer"><button class="text-button" data-clear-where>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
@@ -9429,7 +9429,7 @@ function openWhatSheet() {
       .join("");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet what-sheet" role="dialog" aria-modal="true" aria-label="What">
     <button class="modal-close" aria-label="Close">&times;</button>
-    <div class="sheet-head"><h3>What?</h3>${what.size ? `<button class="text-button" data-clear-what>Clear</button>` : ""}</div>
+    <div class="sheet-head"><h3>What?</h3></div>
     <p class="cal-hint">${what.size ? `${what.size} type${what.size === 1 ? "" : "s"} selected` : "Pick the kinds of events you want to see."}</p>
     <div class="filter-block"><div class="filter-options">${chips}</div></div>
     <div class="filter-footer"><button class="text-button" data-clear-what>Clear</button><button class="wide-button" data-apply-when>Apply</button></div>
