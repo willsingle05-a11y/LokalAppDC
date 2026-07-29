@@ -384,7 +384,7 @@ function scoreActivityItems() {
 function openScoreActivitySheet() {
   const score = lokalScore();
   const level = scoreLevel(score);
-  const items = scoreActivityItems();
+  const items = scoreActivityItems().slice(0, 3);
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score activity"><button class="modal-close" aria-label="Close score activity">&times;</button>
     <p class="eyebrow">Lokal score</p><h2>Recent score activity</h2>
     <p class="lede">${score} points / ${escapeHtml(level.name)}</p>
