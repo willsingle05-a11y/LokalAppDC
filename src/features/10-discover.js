@@ -414,13 +414,14 @@ function noResultsScreen() {
 function renderEventFeed(list, opts = {}) {
   const uniqueList = dedupeFeedEvents(list);
   if (!uniqueList.length) return noResultsScreen();
-  const shown = Math.max(10, state.feedShown || 10);
+  const shown = Math.max(10, opts.shown || state.feedShown || 10);
   const visible = uniqueList.slice(0, shown);
   // Show the "Because you like ..." reason only in explicitly personalized feeds.
   const weights = (opts.personalized && opts.showBadge !== false) ? userPreferenceWeights() : null;
   const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false, reason: weights ? eventPersonalReason(event, weights) : "" })).join("");
   const remaining = uniqueList.length - shown;
-  const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
+  const moreAttr = opts.moreAttr || "data-feed-more";
+  const more = remaining > 0 ? `<button class="view-more-feed" ${moreAttr}>View ${Math.min(10, remaining)} more</button>` : "";
   // Masonry: cards size to their image so they aren't all identical, packed into
   // multiple columns. The "View more" button sits outside the columns.
   return `<div class="feed-masonry">${cards}</div>${more}`;
@@ -956,6 +957,17 @@ function discoverSearchText(event) {
   return `${event.title || ""} ${event.venue || ""} ${event.venueAddress || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
 }
 
+let discoverSearchIndexCache = { key: "", rows: [] };
+
+function discoverSearchIndex() {
+  const key = `${events.length}:${events[0]?.id || ""}:${events[events.length - 1]?.id || ""}`;
+  if (discoverSearchIndexCache.key === key) return discoverSearchIndexCache.rows;
+  const rows = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart))
+    .map(event => ({ event, text: discoverSearchText(event) }));
+  discoverSearchIndexCache = { key, rows };
+  return rows;
+}
+
 function displayableDcEvents() {
   return events.filter(isDisplayableDcEvent);
 }
@@ -980,16 +992,20 @@ function renderDiscoverEventSearch(query) {
   if (!content) return 0;
   const normalizedQuery = String(query || "").trim().toLowerCase();
   if (!normalizedQuery) {
+    state.searchFeedShown = 20;
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
   document.querySelector(".top-week-section")?.remove();
-  const dcEvents = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
-  const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
-  const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
+  const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+  const matches = discoverSearchIndex()
+    .filter(row => terms.every(term => row.text.includes(term)))
+    .map(row => row.event);
   const venueMatches = venueSearchMatches(normalizedQuery, 8);
   const venueHtml = venueMatches.length ? `<div class="venue-search-section"><p class="section-label">Venues</p><div class="venue-search-list">${venueMatches.map(venueSearchCard).join("")}</div></div>` : "";
-  const eventHtml = matches.length ? renderEventFeed(matches, { showBadge: true }) : `<p class="section-helper">No matching events yet.</p>`;
+  const eventHtml = matches.length
+    ? renderEventFeed(matches, { showBadge: true, shown: state.searchFeedShown || 20, moreAttr: "data-search-feed-more" })
+    : `<p class="section-helper">No matching events yet.</p>`;
   content.innerHTML = `${venueHtml}${eventHtml}`;
   return matches.length + venueMatches.length;
 }

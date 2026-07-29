@@ -16,30 +16,39 @@ function showSavedAnimation(button) {
 }
 
 let discoverSearchTimer = null;
+let discoverSearchFrame = null;
+let lastRenderedDiscoverSearch = "";
 
 function queueDiscoverSearch(input) {
   state.discoverSearch = input.value;
   window.clearTimeout(discoverSearchTimer);
+  if (discoverSearchFrame) window.cancelAnimationFrame(discoverSearchFrame);
   discoverSearchTimer = window.setTimeout(() => {
     const query = String(state.discoverSearch || "").trim().toLowerCase();
-    const visible = renderDiscoverEventSearch(query);
-    document.querySelectorAll("#app .following-chip").forEach(card => {
-      const match = !query || card.dataset.searchText.includes(query);
-      card.style.display = match ? "" : "none";
-    });
-    const results = document.querySelector("[data-discover-results]");
-    if (results) { results.hidden = true; results.innerHTML = ""; }
-    const feed = document.querySelector(".feed-section");
-    const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
-    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
-    if (!query) {
-      const nextInput = document.querySelector("[data-discover-search]");
-      if (nextInput) {
-        nextInput.focus();
-        nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+    if (query === lastRenderedDiscoverSearch) return;
+    discoverSearchFrame = window.requestAnimationFrame(() => {
+      const isNewSearch = query !== lastRenderedDiscoverSearch;
+      lastRenderedDiscoverSearch = query;
+      state.searchFeedShown = query ? (isNewSearch ? 20 : (state.searchFeedShown || 20)) : 20;
+      const visible = renderDiscoverEventSearch(query);
+      document.querySelectorAll("#app .following-chip").forEach(card => {
+        const match = !query || card.dataset.searchText.includes(query);
+        card.style.display = match ? "" : "none";
+      });
+      const results = document.querySelector("[data-discover-results]");
+      if (results) { results.hidden = true; results.innerHTML = ""; }
+      const feed = document.querySelector(".feed-section");
+      const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
+      if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
+      if (!query) {
+        const nextInput = document.querySelector("[data-discover-search]");
+        if (nextInput) {
+          nextInput.focus();
+          nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+        }
       }
-    }
-  }, input.value.trim() ? 120 : 40);
+    });
+  }, input.value.trim() ? 220 : 80);
 }
 
 document.addEventListener("click", async event => {
@@ -103,6 +112,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
+  if (t.dataset.searchFeedMore !== undefined) { mark(); state.searchFeedShown = (state.searchFeedShown || 20) + 20; renderDiscoverEventSearch(state.discoverSearch || ""); }
   if (t.dataset.topWeekEvents !== undefined) { mark(); openTopWeekEvents(); }
   if (t.dataset.feedMode) {
     mark();
