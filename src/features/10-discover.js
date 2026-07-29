@@ -900,13 +900,14 @@ function categoryFromTaste(taste) {
   if (/museum/.test(text)) return "museums";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
   if (/sport|pickleball/.test(text)) return "sports";
-  if (/food|restaurant|brunch|festival|street fair|market/.test(text)) return "festivals";
+  if (/food|restaurant|brunch|chef|culinary|tasting|wine|beer|cocktail/.test(text)) return "food";
+  if (/festival|street fair|market/.test(text)) return "festivals";
   if (/community|volunteer|book club|networking|professional/.test(text)) return "community";
   return "";
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "live-music", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
+  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "expos"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
