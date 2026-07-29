@@ -1124,7 +1124,7 @@ function dailyFeaturedEventSelection(list, limit = 5) {
   while (picked.length < limit && addBest(candidates, true, true)) {}
   while (picked.length < limit && addBest(candidates, true, false)) {}
   while (picked.length < limit && addBest(candidates, false, false)) {}
-  return picked.slice(0, limit);
+  return picked.slice(0, limit).sort(sortEventsByStart);
 }
 
 function storyEventPool(story) {
