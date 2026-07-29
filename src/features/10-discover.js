@@ -768,6 +768,11 @@ function discoverFiltersActive() {
 }
 
 function renderHome() {
+  if (typeof userIsUnder21 === "function" && userIsUnder21()) {
+    ["happy-hours", "nightlife"].forEach(value => state.whatFilter?.delete(value));
+    if (["happy-hours", "nightlife"].includes(state.homeFilter)) state.homeFilter = "all";
+    if (["happy-hours", "nightlife"].includes(state.discoverCategoryView)) state.discoverCategoryView = "";
+  }
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
   const base = dcEvents.filter(eventMatchesFilters);
@@ -960,7 +965,7 @@ function discoverSearchText(event) {
 let discoverSearchIndexCache = { key: "", rows: [] };
 
 function discoverSearchIndex() {
-  const key = `${events.length}:${events[0]?.id || ""}:${events[events.length - 1]?.id || ""}`;
+  const key = `${events.length}:${events[0]?.id || ""}:${events[events.length - 1]?.id || ""}:age-${state.age || state.profile?.age || ""}`;
   if (discoverSearchIndexCache.key === key) return discoverSearchIndexCache.rows;
   const rows = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart))
     .map(event => ({ event, text: discoverSearchText(event) }));
@@ -974,6 +979,7 @@ function displayableDcEvents() {
 
 function isDisplayableDcEvent(event) {
   if (!isMuseumDisplayEvent(event)) return false;
+  if (typeof isAgeAllowedEvent === "function" && !isAgeAllowedEvent(event)) return false;
   const text = `${event.title || ""} ${event.venue || ""} ${event.venueAddress || ""} ${event.area || ""} ${event.desc || ""}`.toLowerCase();
   const outsideDc = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore)\b|,\s*(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy)\b|\bvirginia\b/.test(text);
   if (outsideDc) return false;
@@ -1163,7 +1169,10 @@ function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
+    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents())
+      .filter(event => typeof isAgeAllowedEvent !== "function" || isAgeAllowedEvent(event))
+      .slice()
+      .sort(sortEventsByStart);
     const todaysEvents = dailyFeaturedEventSelection(dcEvents
       .filter(event => sameCalendarDate(eventDateValue(event), today)), 5);
     const fallbackEvents = dailyFeaturedEventSelection(dcEvents, 5);

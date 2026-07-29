@@ -171,6 +171,7 @@ function renderOnboarding() {
   state.signupDraft = state.signupDraft || {};
   const d = state.signupDraft;
   const step = state.onboardStep || 0;
+  const maxBirthdate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   if (step === 0) {
     document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
@@ -214,6 +215,7 @@ function renderOnboarding() {
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <label class="float-field"><span>Birthday</span><input data-onboard-birthdate type="date" max="${maxBirthdate}" value="${escapeHtml(d.birthdate || "")}" autocomplete="bday"></label>
         <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters"></label>
         <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
@@ -231,11 +233,13 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;
   } else {
-    const interests = new Set(d.interests || []);
+    const isUnder21 = typeof calculateAge === "function" && d.birthdate ? calculateAge(d.birthdate) < 21 : false;
+    const interestOptions = isUnder21 ? ONBOARD_INTEREST_OPTIONS.filter(option => !["Happy hours", "Nightlife"].includes(option)) : ONBOARD_INTEREST_OPTIONS;
+    const interests = new Set((d.interests || []).filter(option => interestOptions.includes(option)));
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
       <p class="lede">Pick a few — we'll tune your feed to match.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${interestOptions.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="settings-label">Neighborhoods you explore</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>

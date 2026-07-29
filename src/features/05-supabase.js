@@ -1254,13 +1254,15 @@ function updateProfileShortcut() {
 }
 
 function finalizeLokalProfile(profile) {
+  const age = calculateAge(profile.birthdate);
+  const chosenTastes = profile.eventInterests?.length ? profile.eventInterests : state.tastes;
   const saved = {
     ...profile,
     phone: formatDisplayPhone(profile.phone),
-    age: calculateAge(profile.birthdate),
+    age,
     initials: profileInitials(profile.fullName),
     bio: state.bio,
-    tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
+    tastes: profile.accountType === "venue" || age >= 21 ? chosenTastes : chosenTastes.filter(taste => !["Happy hours", "Nightlife"].includes(taste)),
     areas: profile.areaInterests || [],
     accountType: profile.accountType || "person",
     ownerName: profile.ownerName || "",

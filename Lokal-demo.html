@@ -5688,7 +5688,16 @@ const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priy
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
 const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+function profileAgeFromBirthdate(birthdate) {
+  const birthday = new Date(`${birthdate || ""}T12:00:00`);
+  if (!birthdate || Number.isNaN(birthday.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birthday.getFullYear();
+  if (today < new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate())) age--;
+  return age;
+}
+const savedProfileAge = profileAgeFromBirthdate(savedProfile?.birthdate) || savedProfile?.age || 27;
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -5711,6 +5720,22 @@ function accountVenueName() {
 
 function isVenueAccount() {
   return state.profile?.accountType === "venue";
+}
+
+function userIsUnder21() {
+  return !isVenueAccount() && Number(state.age || state.profile?.age || 0) < 21;
+}
+
+function isAlcoholSpecificEvent(event) {
+  const category = String(event?.cat || "").toLowerCase();
+  if (category === "happy-hours") return true;
+  if (category === "nightlife") return true;
+  const text = `${event?.title || ""} ${event?.venue || ""} ${event?.area || ""} ${event?.desc || ""} ${event?.tag || ""} ${(eventTags(event) || []).join(" ")}`.toLowerCase();
+  return /\b(happy\s*hour|cocktail|cocktails|beer|draft beer|wine|shots?|drink specials?|open bar|bar crawl|boozy|bottomless|brewery|brewing|distillery|distilling|cider|seltzer|margarita|martini|whiskey|whisky|bourbon|vodka|tequila|rum|gin|21\+|adults only|adults-only)\b/.test(text);
+}
+
+function isAgeAllowedEvent(event) {
+  return !userIsUnder21() || !isAlcoholSpecificEvent(event);
 }
 
 function currentAccountDisplayName() {
@@ -6921,13 +6946,16 @@ function eventMatchesFoodDrinkFocus(event) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
+  const items = [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
+  return userIsUnder21() ? items.filter(([value]) => !["happy-hours", "nightlife"].includes(value)) : items;
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]];
+    : (userIsUnder21()
+      ? [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["trivia-nights", "Trivia"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]
+      : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]);
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 
@@ -8303,13 +8331,15 @@ function updateProfileShortcut() {
 }
 
 function finalizeLokalProfile(profile) {
+  const age = calculateAge(profile.birthdate);
+  const chosenTastes = profile.eventInterests?.length ? profile.eventInterests : state.tastes;
   const saved = {
     ...profile,
     phone: formatDisplayPhone(profile.phone),
-    age: calculateAge(profile.birthdate),
+    age,
     initials: profileInitials(profile.fullName),
     bio: state.bio,
-    tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
+    tastes: profile.accountType === "venue" || age >= 21 ? chosenTastes : chosenTastes.filter(taste => !["Happy hours", "Nightlife"].includes(taste)),
     areas: profile.areaInterests || [],
     accountType: profile.accountType || "person",
     ownerName: profile.ownerName || "",
@@ -9753,6 +9783,11 @@ function discoverFiltersActive() {
 }
 
 function renderHome() {
+  if (typeof userIsUnder21 === "function" && userIsUnder21()) {
+    ["happy-hours", "nightlife"].forEach(value => state.whatFilter?.delete(value));
+    if (["happy-hours", "nightlife"].includes(state.homeFilter)) state.homeFilter = "all";
+    if (["happy-hours", "nightlife"].includes(state.discoverCategoryView)) state.discoverCategoryView = "";
+  }
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
   const base = dcEvents.filter(eventMatchesFilters);
@@ -9945,7 +9980,7 @@ function discoverSearchText(event) {
 let discoverSearchIndexCache = { key: "", rows: [] };
 
 function discoverSearchIndex() {
-  const key = `${events.length}:${events[0]?.id || ""}:${events[events.length - 1]?.id || ""}`;
+  const key = `${events.length}:${events[0]?.id || ""}:${events[events.length - 1]?.id || ""}:age-${state.age || state.profile?.age || ""}`;
   if (discoverSearchIndexCache.key === key) return discoverSearchIndexCache.rows;
   const rows = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart))
     .map(event => ({ event, text: discoverSearchText(event) }));
@@ -9959,6 +9994,7 @@ function displayableDcEvents() {
 
 function isDisplayableDcEvent(event) {
   if (!isMuseumDisplayEvent(event)) return false;
+  if (typeof isAgeAllowedEvent === "function" && !isAgeAllowedEvent(event)) return false;
   const text = `${event.title || ""} ${event.venue || ""} ${event.venueAddress || ""} ${event.area || ""} ${event.desc || ""}`.toLowerCase();
   const outsideDc = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore)\b|,\s*(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy)\b|\bvirginia\b/.test(text);
   if (outsideDc) return false;
@@ -10148,7 +10184,10 @@ function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
+    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents())
+      .filter(event => typeof isAgeAllowedEvent !== "function" || isAgeAllowedEvent(event))
+      .slice()
+      .sort(sortEventsByStart);
     const todaysEvents = dailyFeaturedEventSelection(dcEvents
       .filter(event => sameCalendarDate(eventDateValue(event), today)), 5);
     const fallbackEvents = dailyFeaturedEventSelection(dcEvents, 5);
@@ -12039,6 +12078,7 @@ function renderOnboarding() {
   state.signupDraft = state.signupDraft || {};
   const d = state.signupDraft;
   const step = state.onboardStep || 0;
+  const maxBirthdate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   if (step === 0) {
     document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
@@ -12082,6 +12122,7 @@ function renderOnboarding() {
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <label class="float-field"><span>Birthday</span><input data-onboard-birthdate type="date" max="${maxBirthdate}" value="${escapeHtml(d.birthdate || "")}" autocomplete="bday"></label>
         <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters"></label>
         <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
@@ -12099,11 +12140,13 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;
   } else {
-    const interests = new Set(d.interests || []);
+    const isUnder21 = typeof calculateAge === "function" && d.birthdate ? calculateAge(d.birthdate) < 21 : false;
+    const interestOptions = isUnder21 ? ONBOARD_INTEREST_OPTIONS.filter(option => !["Happy hours", "Nightlife"].includes(option)) : ONBOARD_INTEREST_OPTIONS;
+    const interests = new Set((d.interests || []).filter(option => interestOptions.includes(option)));
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
       <p class="lede">Pick a few â€” we'll tune your feed to match.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${interestOptions.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="settings-label">Neighborhoods you explore</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
@@ -12607,6 +12650,10 @@ document.addEventListener("click", async event => {
     if (input) state.age = Math.max(13, Number(input.value) || 27);
     if (bio?.value.trim()) state.bio = bio.value.trim();
     state.privateAccount = Boolean(privateInput?.checked);
+    if (!isVenueAccount() && state.age < 21) {
+      state.tastes = (state.tastes || []).filter(taste => !["Happy hours", "Nightlife"].includes(taste));
+      ["happy-hours", "nightlife"].forEach(value => state.whatFilter?.delete(value));
+    }
     state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueImageUrl: venueImage ? venueImage.value.trim() : state.profile.venueImageUrl || "", venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
     if (isVenueAccount()) registerLocalVenueProfile();
     localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
@@ -12681,13 +12728,14 @@ document.addEventListener("click", async event => {
     const error = card.querySelector("[data-account-error]");
     const email = card.querySelector("[data-onboard-email]").value.trim();
     const phone = card.querySelector("[data-onboard-phone]").value.trim();
+    const birthdate = card.querySelector("[data-onboard-birthdate]")?.value || "";
     const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
     const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
     const password = card.querySelector("[data-onboard-password]")?.value || "";
     const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
     if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
-    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); }
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateBirthday(birthdate); }
     catch (contactError) { error.textContent = contactError.message; return; }
     if (password.length < 8) { error.textContent = "Use a password with at least 8 characters."; return; }
     if (password !== confirmPassword) { error.textContent = "Those passwords don't match."; return; }
@@ -12695,6 +12743,7 @@ document.addEventListener("click", async event => {
     state.signupDraft.lastName = last;
     state.signupDraft.email = email;
     state.signupDraft.phone = formattedPhone;
+    state.signupDraft.birthdate = birthdate;
     state.signupDraft.password = password;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 3;
@@ -12706,10 +12755,11 @@ document.addEventListener("click", async event => {
     const card = t.closest(".onboard-card");
     const error = card.querySelector("[data-account-error]");
     const draft = state.signupDraft || {};
-    const eventInterests = draft.interests || [];
+    const isVenue = draft.accountType === "venue";
+    const age = typeof calculateAge === "function" && draft.birthdate ? calculateAge(draft.birthdate) : 27;
+    const eventInterests = (draft.interests || []).filter(interest => isVenue || age >= 21 || !["Happy hours", "Nightlife"].includes(interest));
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
-    const isVenue = draft.accountType === "venue";
     if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
     const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
     const fullName = ownerName;
@@ -12719,7 +12769,7 @@ document.addEventListener("click", async event => {
       email: draft.email,
       phone: formatSignupPhone(draft.phone),
       username,
-      birthdate: "2000-01-01",
+      birthdate: draft.birthdate,
       eventInterests,
       areaInterests,
       accountType: isVenue ? "venue" : "person",
