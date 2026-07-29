@@ -514,6 +514,38 @@ function eventMetaLine(event) {
   return [eventDisplayTime(event), eventPriceLabel(event)].filter(Boolean).join(" / ");
 }
 
+function compactEventTimeLabel(event) {
+  const text = String(eventDisplayTime(event) || "").trim();
+  if (!text) return "";
+  return text.replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2}),\s+/, "$1 - ");
+}
+
+function currentWeekEndDate() {
+  const now = new Date();
+  const end = new Date(now);
+  end.setDate(now.getDate() + ((7 - now.getDay()) % 7));
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+function eventSeriesThisWeekCount(event) {
+  const start = Number(event?.startSort || 0);
+  if (!Number.isFinite(start) || start <= 0) return 0;
+  const weekEnd = currentWeekEndDate().getTime();
+  return occurrencesForEvent(event)
+    .filter(item => item.id !== event.id)
+    .filter(item => Number.isFinite(item.startSort) && item.startSort > start && item.startSort <= weekEnd)
+    .length;
+}
+
+function eventCardTimeLine(event) {
+  const time = compactEventTimeLabel(event);
+  if (/^ongoing$/i.test(time)) return time;
+  const moreThisWeek = eventSeriesThisWeekCount(event);
+  if (!time) return moreThisWeek ? `+${moreThisWeek} more this week` : "";
+  return moreThisWeek ? `${time} + ${moreThisWeek} more this week` : time;
+}
+
 function primaryEventTag(event) {
   return eventTags(event)[0] || event.tag || event.cat || "Local event";
 }
@@ -764,7 +796,7 @@ function cleanEventThumbStyle(image) {
 
 // Event card, Too Good To Go-inspired: framed rounded photo with a category pill
 // (and optional social-proof pill), then a clean info block — bold title + heart,
-// venue, time / neighborhood, a dashed "receipt" divider, and a price row.
+// venue, a compact date/time line, neighborhood, and lightweight tag row.
 function eventRow(event, variant = "", opts = {}) {
   const showBadge = opts.showBadge !== false;
   const displayTitle = eventDisplayTitle(event);
@@ -773,11 +805,7 @@ function eventRow(event, variant = "", opts = {}) {
   const catLabel = eventArtLabel(event);
   const rawVenue = canonicalVenueName(event.venue);
   const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
-  const repeat = eventSeriesWeekdays(event);
-  const repeatHtml = repeat.count > 1 && repeat.days.length
-    ? `<span class="repeat-strip" aria-label="Repeats on ${repeat.days.map(day => REPEAT_DAY_NAMES[day]).join(", ")}">${REPEAT_DAY_LETTERS.map((letter, day) => `<i class="${repeat.days.includes(day) ? "on" : ""}">${letter}</i>`).join("")}</span>`
-    : "";
-  const metaLine = [eventDisplayTime(event), area].map(part => cleanLocationPart(part)).filter(Boolean).join("  ·  ");
+  const timeLine = eventCardTimeLine(event);
   const leftTag = eventTagChips(event, 3);
   const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
   const fallbackImage = eventFallbackImageSrc(event);
@@ -796,9 +824,9 @@ function eventRow(event, variant = "", opts = {}) {
       </div>
       <button class="event-card-subinfo" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}">
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
-        ${metaLine ? `<span class="event-card-meta">${escapeHtml(metaLine)}</span>` : ""}
+        ${timeLine ? `<span class="event-card-meta event-card-time">${escapeHtml(timeLine)}</span>` : ""}
+        ${area ? `<span class="event-card-meta event-card-area">${escapeHtml(area)}</span>` : ""}
       </button>
-      ${repeatHtml}
       ${bottomHtml}
     </div>
   </article>`;

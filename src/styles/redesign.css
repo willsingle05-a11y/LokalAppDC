@@ -2008,6 +2008,13 @@ h3 { font-weight: 800; }
   text-transform: none;
   overflow-wrap: anywhere;
 }
+.event-card-info .event-card-time {
+  color: #4f5751;
+  font-weight: 650;
+}
+.event-card-info .event-card-area {
+  color: #9a9f98;
+}
 
 /* Dashed "receipt" perforation + price row */
 .event-card-perf { height: 0; margin: 9px 0 7px; border: 0; border-top: 1.5px dashed rgba(23, 28, 26, .16); }
