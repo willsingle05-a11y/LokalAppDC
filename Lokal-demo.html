@@ -11422,21 +11422,49 @@ function eventOccurrenceSummary(event, recurrence, otherOccurrences) {
   if (!event || !otherOccurrences.length) return null;
   const allOccurrences = occurrencesForEvent(event);
   const timeText = String(event.time || "").replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+  const weekdayCodes = occurrenceWeekdayCodes(allOccurrences);
+  if (weekdayCodes.length > 1) {
+    return { title: formatRecurringWeekdays(weekdayCodes), detail: timeText };
+  }
   if (recurrence?.label) {
     return { title: recurrence.label.replace(/^every /i, "Every "), detail: timeText };
   }
-  const weekdays = allOccurrences
-    .map(occurrence => eventDateValue(occurrence))
-    .filter(Boolean)
-    .map(date => date.toLocaleDateString("en-US", { weekday: "long" }))
-    .filter((day, index, all) => all.indexOf(day) === index);
-  if (weekdays.length) {
-    const title = weekdays.length === 1
-      ? `Every ${weekdays[0]}`
-      : `Upcoming ${weekdays.slice(0, -1).join(", ")} & ${weekdays.slice(-1)}`;
-    return { title, detail: timeText };
+  if (weekdayCodes.length === 1) {
+    return { title: formatRecurringWeekdays(weekdayCodes), detail: timeText };
   }
   return null;
+}
+
+function occurrenceWeekdayCodes(occurrences) {
+  return occurrences
+    .map(occurrence => eventDateValue(occurrence))
+    .filter(Boolean)
+    .map(date => ICS_WEEKDAY_CODES[date.getDay()])
+    .filter((code, index, all) => code && all.indexOf(code) === index)
+    .sort((a, b) => ICS_WEEKDAY_CODES.indexOf(a) - ICS_WEEKDAY_CODES.indexOf(b));
+}
+
+function formatRecurringWeekdays(codes) {
+  const key = codes.join(",");
+  if (key === "SU,MO,TU,WE,TH,FR,SA") return "Daily";
+  if (key === "MO,TU,WE,TH,FR") return "Every weekday";
+  if (key === "SU,SA") return "Every weekend";
+  const ranges = [];
+  let start = 0;
+  for (let index = 1; index <= codes.length; index += 1) {
+    const previous = ICS_WEEKDAY_CODES.indexOf(codes[index - 1]);
+    const current = ICS_WEEKDAY_CODES.indexOf(codes[index]);
+    if (index === codes.length || current !== previous + 1) {
+      ranges.push(codes.slice(start, index));
+      start = index;
+    }
+  }
+  const parts = ranges.map(range => {
+    const names = range.map(code => ICS_CODE_LABEL[code]);
+    if (names.length >= 3) return `${names[0]} through ${names[names.length - 1]}`;
+    return names.join(" & ");
+  });
+  return `Every ${parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`}`;
 }
 
 function shareGroupResultsHtml(eventId, query = "") {
