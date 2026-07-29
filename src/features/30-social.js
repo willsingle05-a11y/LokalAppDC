@@ -449,15 +449,11 @@ function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it wil
 
 function openCalendarPlans(iso) {
   const plans = savedPlannerEvents("all").filter(event => eventDateValue(event)?.toISOString().slice(0, 10) === iso);
-  if (plans.length === 1) {
-    openDetail(plans[0].id);
-    return;
-  }
   const date = new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Plans for ${date}"><button class="modal-close" aria-label="Close plans">&times;</button><p class="eyebrow">Your Plans</p><h2>${escapeHtml(date)}</h2><p class="lede">Choose an event to view the details.</p><div class="planner-list">${plans.map(event => {
     const isCalendarOnly = state.calendarAdds?.has(event.id) && !state.rsvps.has(event.id) && !state.saved.has(event.id);
     return `<article class="planner-card planner-${event.cat}${isCalendarOnly ? " planner-calendar-card" : ""}"><button class="planner-main" data-event="${event.id}"><span class="planner-dot ${event.cat}"></span><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>${isCalendarOnly ? `<div class="planner-actions"><span class="calendar-plan-pill">Calendar</span></div>` : ""}</article>`;
-  }).join("")}</div></section></div>`;
+  }).join("") || `<p class="section-helper">No saved events or RSVPs on this day.</p>`}</div></section></div>`;
 }
 
 function friendInterestEvents(name, limit = 4) {
