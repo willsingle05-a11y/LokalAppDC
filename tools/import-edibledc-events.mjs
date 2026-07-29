@@ -147,8 +147,8 @@ function neighborhoodFor(location = "") {
 function categoryFor(event) {
   const text = `${event.title} ${event.description} ${event.venue_name}`.toLowerCase();
   if (/spill fest|nightclub|club night|after party|dance party/.test(text)) return "nightlife";
-  if (/market|cookout|food|culinary|dinner|wine|foraging|restaurant|table|chef|farm/.test(text)) return "food";
   if (/book|author|auditorium|chef patrick|prose|literary/.test(text)) return "culture";
+  if (/market|cookout|food|culinary|dinner|wine|foraging|restaurant|table|chef|farm/.test(text)) return "food";
   if (/dj|music festival|live music|performer|concert|afro-caribbean/.test(text)) return "nightlife";
   if (/walk|outdoor|tour/.test(text)) return "community";
   return "food";

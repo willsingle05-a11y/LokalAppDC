@@ -1205,10 +1205,16 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (filter === "weekend") return !event.time.startsWith("Tonight");
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
-  // Food & drink is tag-aware for food events, but happy hours stay in their
-  // own category so the two feeds do not duplicate each other.
-  if (filter === "food") return event.cat !== "happy-hours" && /\b(food|drink|dining|restaurant|tasting|brunch|wine|beer|cocktail|food deals?)\b/.test(`${event.cat} ${eventTags(event).join(" ")} ${event.title} ${event.desc || ""}`.toLowerCase());
+  if (filter === "food") return eventMatchesFoodDrinkFocus(event);
   return event.cat === filter;
+}
+
+function eventMatchesFoodDrinkFocus(event) {
+  const category = String(event.cat || "").toLowerCase();
+  if (["happy-hours", "trivia-nights"].includes(category)) return false;
+  const text = `${eventTags(event).join(" ")} ${event.title || ""} ${event.desc || ""}`.toLowerCase();
+  return /\b(food festival|farmers? market|food market|culinary|chef dinner|tasting|wine tasting|beer festival|brew fest|cocktail class|restaurant week|cookout|brunch|supper club|pop-up dinner|food truck|food vendors?|local food|food tasting)\b/.test(text)
+    || (category === "food" && /\b(food|culinary|chef|dinner|tasting|wine|beer|cocktail|restaurant week|cookout|brunch|market|farm)\b/.test(text));
 }
 
 function discoverFilterItems() {
