@@ -80,6 +80,10 @@ function openDetail(id, opts = {}) {
     <div class="detail-hero cat-${e.cat}${hasUsableHeroPhoto ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
+    <p class="eyebrow detail-about-label">About</p>
+    ${descriptionBlock}
+    ${eventSourceCredit(e)}
+    ${occurrencesBlock}
     <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
       <span class="dir-art"></span>
       <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b><small>Add to your calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</small></span>
@@ -96,10 +100,6 @@ function openDetail(id, opts = {}) {
       <span class="dir-action">Open</span>
     </button>
     ${eventInterestSignal(e, true)}
-    <p class="eyebrow detail-about-label">About</p>
-    ${descriptionBlock}
-    ${eventSourceCredit(e)}
-    ${occurrencesBlock}
     <div class="detail-action-row">
       <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
       ${canNativeShare

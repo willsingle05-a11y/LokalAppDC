@@ -514,18 +514,18 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 
 .detail-info-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
   width: 100%;
-  padding: 11px 0;
+  padding: 8px 0;
   border-bottom: 1px solid rgba(25, 26, 25, .09);
   background: transparent;
   text-align: left;
 }
-.detail-info-row .dir-art { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--mint-tint); }
+.detail-info-row .dir-art { flex: none; width: 26px; height: 26px; border-radius: 8px; background: var(--mint-tint); }
 .detail-info-row .dir-copy { flex: 1; min-width: 0; }
 .detail-info-row .dir-copy b { display: block; font-size: 13px; font-weight: 800; line-height: 1.2; }
-.detail-info-row .dir-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; font-weight: 500; line-height: 1.3; }
+.detail-info-row .dir-copy small { display: block; margin-top: 1px; color: var(--muted); font-size: 11.5px; font-weight: 500; line-height: 1.2; }
 .detail-info-row .dir-action { flex: none; color: var(--accent-strong); font-size: 11px; font-weight: 800; white-space: nowrap; }
 
 /* Sticky Save / Going bar replaces the ticket row */
@@ -954,6 +954,10 @@ input, textarea, select { font-size: var(--fs-body); }
 #modal-root .modal small,
 #modal-root .detail-info-row .dir-copy small,
 #modal-root .modal .lede { font-size: var(--fs-small); }
+#modal-root .detail-info-row { padding: 8px 0; gap: 10px; }
+#modal-root .detail-info-row .dir-art { width: 26px; height: 26px; border-radius: 8px; }
+#modal-root .detail-info-row .dir-copy b { font-size: 15px; line-height: 1.12; }
+#modal-root .detail-info-row .dir-copy small { margin-top: 1px; line-height: 1.2; }
 #modal-root .modal .lede { font-size: var(--fs-body); }
 #toast, #toast b { font-size: var(--fs-body); }
 .app-shell .saved-empty-icon { font-size: 38px; }
