@@ -605,7 +605,15 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .profile-id .pid-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-id .pid-handle { margin-top: 11px; font-size: 15px; font-weight: 800; }
-.profile-id .pid-bio { max-width: 520px; margin: 5px auto 0; text-align: center; }
+.profile-id .pid-bio {
+  width: min(100%, 640px);
+  max-width: 640px;
+  margin: 5px auto 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pid-taste-icons {
   display: flex;
   justify-content: center;
