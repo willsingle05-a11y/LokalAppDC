@@ -1463,5 +1463,6 @@ body[data-route="profile"] .topbar .account-label { display: none; }
   line-height: 1;
 }
 #modal-root .modal .detail-info-row .dir-action {
-  font-size: 10px;
+  font-size: 10.5px;
+  text-align: right;
 }

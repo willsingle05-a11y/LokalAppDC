@@ -73,7 +73,6 @@ function openDetail(id, opts = {}) {
   const isGoing = state.rsvps.has(e.id);
   const websiteUrl = eventWebsiteUrl(e);
   const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
-  const websiteHelper = e.detailsUrl ? "Opens the event listing" : websiteUrl ? "Opens the venue website" : "Opens the Lokal listing";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
     <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
@@ -84,18 +83,18 @@ function openDetail(id, opts = {}) {
     ${occurrencesBlock}
     <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
       <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b><small>Add to your calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</small></span>
-      <span class="dir-action">Add</span>
+      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b>${recurrence ? `<small>${escapeHtml(recurrence.label)}</small>` : ""}</span>
+      <span class="dir-action">Add to calendar</span>
     </button>
     <button class="detail-info-row ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
       <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b><small>${isFollowingVenue ? "You follow this venue" : "Follow for new events here"}</small></span>
-      <span class="dir-action">${isFollowingVenue ? "Following" : "Follow"}</span>
+      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b></span>
+      <span class="dir-action">${isFollowingVenue ? "Following venue" : "Follow venue"}</span>
     </button>
     <button class="detail-info-row" data-ticket="${e.id}">
       <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b><small>${escapeHtml(websiteHelper)}</small></span>
-      <span class="dir-action">Open</span>
+      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b></span>
+      <span class="dir-action">Open listing</span>
     </button>
     ${eventInterestSignal(e, true)}
     <div class="detail-action-row">
