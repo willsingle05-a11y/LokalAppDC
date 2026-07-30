@@ -6191,10 +6191,14 @@ function isLocationTag(event, tag) {
 function eventSemanticText(event, raw = []) {
   return `${event?.title || ""} ${event?.desc || ""} ${raw.join(" ")}`.toLowerCase();
 }
+function eventEmbassyVenueText(event) {
+  const venue = `${event?.venue || ""} ${event?.venue_name || ""}`.toLowerCase();
+  return /\bembassy\b/.test(venue) ? venue : "";
+}
 function isUnsupportedVenueDerivedTag(event, tag) {
   const normalized = String(tag || "").trim().toLowerCase();
   if (!normalized) return false;
-  const text = eventSemanticText(event);
+  const text = `${eventSemanticText(event)} ${eventEmbassyVenueText(event)}`.trim();
   const needsEventProof = {
     international: /\b(embassy|international|ambassador|global|foreign soil|world culture|cultural exchange)\b/,
     embassy: /\b(embassy|ambassador|diplomatic)\b/,
@@ -6208,7 +6212,7 @@ function isUnsupportedVenueDerivedTag(event, tag) {
   return Boolean(needsEventProof[normalized] && !needsEventProof[normalized].test(text));
 }
 function keywordTagsForEvent(event) {
-  const text = `${event.title || ""} ${event.desc || ""} ${event.tag || ""}`.toLowerCase();
+  const text = `${event.title || ""} ${event.desc || ""} ${event.tag || ""} ${eventEmbassyVenueText(event)}`.toLowerCase();
   const tags = [];
   const add = (label, pattern) => { if (pattern.test(text) && !tags.includes(label)) tags.push(label); };
   add("Drink Specials", /\b(beer|shot|cocktail|margarita|wine|bar|happy hour|drink special|cash bar)\b/);
@@ -6229,7 +6233,7 @@ function keywordTagsForEvent(event) {
 }
 
 function fallbackTagForEvent(event) {
-  const text = `${event?.title || ""} ${event?.desc || ""} ${event?.tag || ""}`.toLowerCase();
+  const text = `${event?.title || ""} ${event?.desc || ""} ${event?.tag || ""} ${eventEmbassyVenueText(event)}`.toLowerCase();
   const category = String(event?.cat || event?.category || "").toLowerCase();
   if (/\b(mlb|nationals|baseball)\b/.test(text)) return "Baseball";
   if (/\b(nba|mystics|wizards|basketball)\b/.test(text)) return "Basketball";
