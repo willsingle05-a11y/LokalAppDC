@@ -37,5 +37,5 @@ function profileToFriendRow(profile) {
   const username = String(profile.username || "").replace(/^@/, "");
   const mutuals = profile.mutuals || `${2 + (fullName.length % 7)} mutual friends`;
   const bio = profile.bio || "Washington, DC";
-  return [initials, fullName, `@${username}`, mutuals, bio];
+  return [initials, fullName, `@${username}`, mutuals, bio, profile.id || profile.user_id || ""];
 }

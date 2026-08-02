@@ -519,6 +519,15 @@ function openCalendarPlans(iso) {
 }
 
 function friendInterestEvents(name, limit = 4) {
+  if (state.friendEventInterestsLoaded) {
+    return events
+      .filter(event => {
+        const friends = state.friendEventInterests?.get(String(event.sourceId || event.id)) || state.friendEventInterests?.get(String(event.id)) || [];
+        return friends.some(friend => friend.name === name);
+      })
+      .sort(sortEventsByStart)
+      .slice(0, limit);
+  }
   const profile = friendDirectory.find(friend => friend[1] === name);
   const seed = `${name} ${profile?.[4] || ""}`.toLowerCase();
   const preferred = events.filter(event => {
@@ -541,7 +550,7 @@ function openFriend(name) {
     <div class="friendship-status ${isFriend ? "" : "pending"}"><b>${isFriend ? "Friends" : "Not friends yet"}</b><p>${isFriend ? `${name} shares event interests with you.` : "Add them to see more profile activity in a full app."}</p></div>
     <div class="friend-profile-actions"><button class="secondary" data-message-friend="${escapeHtml(name)}">Message</button><button class="secondary" data-share-profile="${escapeHtml(name)}">Share profile</button></div>
     <p class="eyebrow">Interested in</p><div class="chips profile-taste-chips">${tastes.map(taste => `<span class="chip active">${escapeHtml(taste)}</span>`).join("")}</div>
-    <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("")}</div>
+    <p class="eyebrow group-divider">Events on their radar</p><div class="interest-list">${theirEvents.length ? theirEvents.map(event => `<div class="interest-event"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span><button class="text-button" data-event="${event.id}">Open</button></div>`).join("") : `<p class="section-helper">No saved or RSVP'd events from this friend yet.</p>`}</div>
   </section></div>`;
 }
 

@@ -181,10 +181,11 @@ async function saveEventInteraction(eventId, kind = "save", active = true) {
   const event = events.find(item => item.id === Number(eventId));
   const supabaseEventId = interactionEventId(event);
   if (!supabaseEventId) return { skipped: "no-supabase-event-id" };
+  const dbType = kind === "rsvp" ? "going" : kind === "remove" ? "unsave" : kind;
   const record = {
     user_id: currentInteractionUserId(),
     event_id: supabaseEventId,
-    kind,
+    kind: dbType,
     active,
     title: event?.title || "",
     category: event?.cat || "",
@@ -196,7 +197,7 @@ async function saveEventInteraction(eventId, kind = "save", active = true) {
       const response = await fetch(`${supabaseConfig.url}/rest/v1/event_interactions`, {
         method: "POST",
         headers: { ...supabaseInteractionHeaders(), Prefer: "return=minimal" },
-        body: JSON.stringify([{ user_id: record.user_id, event_id: record.event_id }])
+        body: JSON.stringify([{ user_id: record.user_id, event_id: record.event_id, type: dbType }])
       });
       if (!response.ok) throw new Error(`Supabase interaction insert returned ${response.status}`);
     }
@@ -1121,6 +1122,7 @@ async function syncSupabaseEvents(showToast = false) {
   // be rebuilt whenever the event set is replaced.
   if (typeof venueCanonicalReset === "function") venueCanonicalReset();
   reconcileUserPlans();
+  await syncSupabaseFriendInterests();
   if (state.route === "home") renderHome();
   openSharedEventFromUrl();
   if (showToast) toast(state.eventSync.label);
@@ -1183,6 +1185,7 @@ async function syncSupabaseGroups() {
 function normalizeSupabaseProfile(row) {
   const fullName = row.full_name || row.fullName || row.display_name || "Lokal Friend";
   return {
+    id: row.id || row.user_id || "",
     initials: row.avatar_initials || profileInitials(fullName || row.username || ""),
     fullName,
     username: row.username || "lokalfriend",
@@ -1199,22 +1202,82 @@ function mergeFriendDirectory(profiles) {
   friendDirectory = merged.filter((friend, index, all) => all.findIndex(item => item[1] === friend[1]) === index);
 }
 
+function currentFriendProfiles() {
+  return friendDirectory
+    .filter(friend => state.friends.has(friend[1]))
+    .map(friend => ({ initials: friend[0], name: friend[1], username: friend[2], id: friend[5] }))
+    .filter(friend => friend.id);
+}
+
+function eventSourceIdMap() {
+  const map = new Map();
+  events.forEach(event => {
+    const sourceId = interactionEventId(event);
+    if (sourceId) map.set(String(sourceId), event);
+  });
+  return map;
+}
+
+async function syncSupabaseFriendInterests() {
+  const friends = currentFriendProfiles();
+  const eventMap = eventSourceIdMap();
+  if (!friends.length || !eventMap.size) {
+    state.friendEventInterests = new Map();
+    state.friendEventInterestsLoaded = true;
+    return;
+  }
+  const friendById = new Map(friends.map(friend => [String(friend.id), friend]));
+  const eventIds = Array.from(eventMap.keys());
+  const friendIds = friends.map(friend => friend.id);
+  const chunks = [];
+  for (let index = 0; index < eventIds.length; index += 80) chunks.push(eventIds.slice(index, index + 80));
+  const next = new Map();
+  try {
+    for (const eventChunk of chunks) {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/rpc/friend_event_interests`, {
+        method: "POST",
+        headers: supabaseJsonHeaders(),
+        body: JSON.stringify({ friend_ids: friendIds, event_ids: eventChunk.map(Number) })
+      });
+      if (!response.ok) throw new Error(`Supabase friend interests returned ${response.status}`);
+      const rows = await response.json();
+      rows.forEach(row => {
+        const friend = friendById.get(String(row.user_id));
+        const event = eventMap.get(String(row.event_id));
+        if (!friend || !event) return;
+        const key = String(event.sourceId || event.id);
+        if (!next.has(key)) next.set(key, []);
+        const list = next.get(key);
+        if (!list.some(item => item.name === friend.name)) list.push(friend);
+      });
+    }
+    state.friendEventInterests = next;
+    state.friendEventInterestsLoaded = true;
+  } catch (error) {
+    console.warn("[supabase] friend event interests unavailable:", error.message);
+    state.friendEventInterestsLoaded = false;
+  }
+}
+
 async function syncSupabaseProfiles() {
   try {
     let response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&is_demo=eq.true&order=full_name.asc`, {
       headers: { apikey: supabaseConfig.publishableKey }
     });
-    if (!response.ok) {
+    let rows = response.ok ? await response.json() : [];
+    if (!response.ok || !rows.length) {
       response = await fetch(`${supabaseConfig.url}/rest/v1/Profiles?select=id,username,display_name,birthdate,bio,avatar_initials,taste_tags,neighborhoods,is_demo&is_demo=eq.true&order=display_name.asc`, {
         headers: { apikey: supabaseConfig.publishableKey }
       });
+      rows = response.ok ? await response.json() : [];
     }
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
-    const rows = await response.json();
     if (rows.length) mergeFriendDirectory(rows.map(normalizeSupabaseProfile));
   } catch {
     mergeFriendDirectory(demoProfileSeeds);
   }
+  await syncSupabaseFriendInterests();
+  if (state.route === "home") renderHome();
   if (state.route === "social") renderSocial();
 }
 

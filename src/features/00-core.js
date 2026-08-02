@@ -72,6 +72,8 @@ const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFil
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
+state.friendEventInterests = new Map();
+state.friendEventInterestsLoaded = false;
 // Persisted saves/RSVPs by stable source id (runtime event ids change each sync),
 // reconciled back onto the loaded events so a user's data survives reloads and
 // shapes what they see.
@@ -183,14 +185,25 @@ function avatarStack(friends) {
 }
 
 function interestedFriendsForEvent(event) {
-  const explicit = (Array.isArray(event.friends) ? event.friends : []).filter(friend => friendNames[friend]);
-  return explicit.filter((friend, index, all) => friend && all.indexOf(friend) === index).slice(0, 2);
+  const sourceKey = String(event?.sourceId || event?.id || "");
+  const live = state.friendEventInterests?.get(sourceKey) || state.friendEventInterests?.get(String(event?.id || "")) || [];
+  const fromLive = live
+    .filter(friend => state.friends.has(friend.name))
+    .map(friend => friend.initials || friendInitials(friend.name));
+  const explicit = state.friendEventInterestsLoaded
+    ? []
+    : (Array.isArray(event.friends) ? event.friends : []).filter(friend => friendNames[friend]);
+  return [...fromLive, ...explicit].filter((friend, index, all) => friend && all.indexOf(friend) === index).slice(0, 2);
 }
 
 function eventInterestSignal(event, detail = false) {
   const friends = interestedFriendsForEvent(event);
   if (!friends.length) return "";
-  const names = friends.map(friend => friendNames[friend]);
+  const live = state.friendEventInterests?.get(String(event?.sourceId || event?.id || "")) || state.friendEventInterests?.get(String(event?.id || "")) || [];
+  const names = friends.map(friend => {
+    const liveFriend = live.find(item => (item.initials || friendInitials(item.name)) === friend);
+    return liveFriend?.name?.split(/\s+/)[0] || friendNames[friend] || friend;
+  });
   const wording = names.length === 1 ? `${names[0]} is interested` : `${names[0]} and ${names[1]} are interested`;
   return `<div class="${detail ? "attendee-line" : "signal"}">${avatarStack(friends)} ${wording}</div>`;
 }
@@ -906,6 +919,7 @@ function eventRow(event, variant = "", opts = {}) {
         ${timeLine ? `<span class="event-card-meta event-card-time">${timeLine}</span>` : ""}
         ${area ? `<span class="event-card-meta event-card-area">${escapeHtml(area)}</span>` : ""}
       </button>
+      ${eventInterestSignal(event)}
       ${bottomHtml}
     </div>
   </article>`;
