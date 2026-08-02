@@ -13,6 +13,7 @@
         "import:happy-hours": "node tools/import-happy-hours.mjs",
         "import:eventsdc": "node tools/import-eventsdc-events.mjs",
         "import:edibledc": "node tools/import-edibledc-events.mjs",
+        "import:runguides": "node tools/import-runguides-races.mjs",
         "mobile:install": "npm.cmd install @capacitor/core @capacitor/cli @capacitor/ios --save-dev",
         "mobile:init": "npx cap add ios",
         "mobile:sync": "npm.cmd run build && npx cap sync ios",

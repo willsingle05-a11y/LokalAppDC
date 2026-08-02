@@ -137,6 +137,39 @@ function tasteCategoryGrid() {
   return `<div class="taste-tiles">${tiles}</div>`;
 }
 
+function tasteIconLabel(taste) {
+  if (categoryArt[taste]) return taste;
+  const category = typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "";
+  const byCategory = {
+    concerts: "Concerts",
+    "live-music": "Live music",
+    food: "Food & drink",
+    sports: "Sports",
+    comedy: "Comedy",
+    "visual-arts": "Visual arts",
+    "performing-arts": "Performing arts",
+    museums: "Museums",
+    festivals: "Markets",
+    "happy-hours": "Happy hours",
+    "trivia-nights": "Trivia",
+    kids: "Kids",
+    community: "Community",
+    nightlife: "Nightlife",
+    culture: "Culture"
+  };
+  return byCategory[category] || "";
+}
+
+function profileTasteIconStrip() {
+  const tastes = (state.tastes || [])
+    .map(taste => ({ taste, label: tasteIconLabel(taste) }))
+    .filter(item => item.label && categoryArt[item.label])
+    .filter((item, index, all) => all.findIndex(other => other.label === item.label) === index)
+    .slice(0, 5);
+  if (!tastes.length) return "";
+  return `<div class="pid-taste-icons" aria-label="Selected tastes">${tastes.map(({ taste, label }) => `<span class="pid-taste-icon" title="${escapeHtml(taste)}" aria-label="${escapeHtml(taste)}">${categoryArt[label]}</span>`).join("")}</div>`;
+}
+
 function userTasteSection(tastePills) {
   return `<p class="eyebrow">Your top tastes</p>
     <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
@@ -249,17 +282,15 @@ function renderProfile() {
   const toNext = level.next ? Math.max(0, level.next - score) : 0;
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
-    <div class="discover-heading"><div><h1>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h1></div><div class="profile-top-actions"><button class="filter-button" data-share-profile="${escapeHtml(state.profile.username)}">Share</button><button class="filter-button" data-settings>Menu</button></div></div>
+    <div class="discover-heading"><div><h1>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h1></div><div class="profile-top-actions"><button class="filter-button" data-share-profile="${escapeHtml(state.profile.username)}">Share</button><button class="filter-button" data-settings>Edit</button></div></div>
     <div class="profile-id">
       <div class="pid-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
       <p class="pid-handle">${isVenueProfile ? escapeHtml(venueName) : `@${escapeHtml(state.profile.username)}`}</p>
       <p class="bio pid-bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
+      ${isVenueProfile ? "" : profileTasteIconStrip()}
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
-      <div class="profile-id-actions"><button data-settings>Edit profile</button><button data-share-profile="${escapeHtml(state.profile.username)}">Share profile</button></div>
     </div>
     ${profileSummaryStrip(isVenueProfile)}
-    ${isVenueProfile ? "" : profileListRows()}
-    <p class="bio">${escapeHtml(isVenueProfile ? venueDescription : state.bio)}</p>
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${isVenueProfile ? venueVerificationPanel() : ""}
@@ -668,7 +699,7 @@ function activeFilterSummary() {
 
 function openFilters() {
   const neighborhoodOptions = ["Any neighborhood", ...discoverNeighborhoodOptions(displayableDcEvents())];
-  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","performing-arts","museums","sports","community"]],["Price",["Any price","Free","Under $20","Under $50"]]];
+  const blocks = [["Time",["Any time","Morning","Afternoon","Evening","Late night"]],["Highlight",["All events","Highlighted only"]],["Neighborhood",neighborhoodOptions],["Category",["All categories","concerts","live-music","happy-hours","trivia-nights","nightlife","festivals","kids","performing-arts","museums","sports","community"]],["Price",["Any price","Free","Under $20","Under $50"]]];
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal filter-sheet" role="dialog" aria-modal="true" aria-label="Discover filters"><button class="modal-close" aria-label="Close filters">&times;</button><p class="eyebrow">Discover</p><h2>Filters</h2>
     <div class="active-filter-summary"><p class="eyebrow">Currently showing</p>${activeFilterSummary().map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
     ${dateFilterModule()}

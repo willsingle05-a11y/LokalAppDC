@@ -20,24 +20,25 @@ const icons = {
 // Illustrated category art — flat fills over an ink outline, in the Lokal
 // palette. Used for the taste picker on Profile.
 const categoryArt = {
-  "Concerts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 15h22v20H13z" fill="#C7F3E8"/><path d="M17 20h14M17 26h10"/><circle cx="34" cy="30" r="5" fill="#FFC53D" stroke-width="1.6"/><path d="M37 30V16h5" stroke-width="1.8"/></svg>',
+  "Concerts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 16h28a3 3 0 0 1 3 3v4a4 4 0 0 0 0 8v4a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3v-4a4 4 0 0 0 0-8v-4a3 3 0 0 1 3-3z" fill="#FFE3A0"/><path d="M17 16v22" stroke-width="1.5"/><path d="M23 25h7"/><path d="M30 25V12h6" stroke-width="2.2"/><circle cx="26" cy="31" r="3.2" fill="#C7F3E8" stroke-width="1.5"/></svg>',
   "Live music": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="8" width="10" height="18" rx="5" fill="#C7F3E8"/><path d="M15 21a9 9 0 0 0 18 0"/><path d="M24 30v7"/><path d="M18 40h12"/><circle cx="37" cy="14" r="3" fill="#FFC53D" stroke-width="1.6"/><path d="M40 14V7" stroke-width="1.6"/></svg>',
   "Food & drink": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M8 25a9 9 0 0 1 18 0z" fill="#FFE3A0"/><path d="M8 25h18v4H8z" fill="#00C897"/><path d="M8 29h18a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#FFE3A0"/><path d="M31 17h11l-1.5 20h-8z" fill="#BFF2E0"/><path d="M34 12l2 5M40 12l-1.5 5" stroke-width="1.6"/></svg>',
-  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="14" fill="#FFC53D"/><path d="M10 24h28M24 10v28" stroke-width="1.5"/><path d="M14 14c5.5 4 5.5 16 0 20M34 14c-5.5-4-5.5-16 0-20" stroke-width="1.5"/></svg>',
-  "Comedy": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 15h22v13c0 7-5 12-11 12s-11-5-11-12z" fill="#FFE3A0"/><path d="M18 24c2 2 10 2 12 0"/><circle cx="19" cy="21" r="1.8" fill="#191A19" stroke="none"/><circle cx="29" cy="21" r="1.8" fill="#191A19" stroke="none"/><path d="M35 15c-2-4-8-6-11-2-3-4-9-2-11 2" fill="#D8D4F5"/></svg>',
+  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="19" r="9" fill="#FFC53D"/><path d="M9 19h18M18 10v18" stroke-width="1.4"/><path d="M12 12.5c3.3 3.2 3.3 9.8 0 13M24 12.5c-3.3 3.2-3.3 9.8 0 13" stroke-width="1.4"/><circle cx="32" cy="16" r="6" fill="#F7FAFC"/><path d="m32 11.5 3 2.2-1.1 3.5h-3.8L29 13.7z" fill="#C7F3E8" stroke-width="1.1"/><path d="M29 13.7 27 13M35 13.7l2-1M33.9 17.2l1.4 2.2M30.1 17.2l-1.4 2.2" stroke-width="1.1"/><path d="M24 33c3.8-5.2 11.8-5.2 15.6 0-3.8 5.2-11.8 5.2-15.6 0z" fill="#D8D4F5"/><path d="M27.5 33h8.6M31.8 29.2v7.6" stroke-width="1.3"/></svg>',
+  "Comedy": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="10" width="10" height="18" rx="5" fill="#FFE3A0"/><path d="M15 23a9 9 0 0 0 18 0"/><path d="M24 32v6M18 40h12"/><path d="M12 15c1.5-2.2 4.4-2.2 5.9 0M30.1 15c1.5-2.2 4.4-2.2 5.9 0" stroke="#00C897" stroke-width="1.8"/><path d="M11 29c2 2.5 5 3.9 8.5 4M37 29c-2 2.5-5 3.9-8.5 4" stroke="#D8D4F5" stroke-width="2.2"/><circle cx="24" cy="18" r="1.5" fill="#191A19" stroke="none"/></svg>',
   "Visual arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="10" y="10" width="28" height="28" rx="3" fill="#D8D4F5"/><circle cx="19" cy="20" r="3" fill="#FFC53D" stroke-width="1.5"/><path d="M14 33l8-8 5 5 3-3 5 6" fill="#BFF2E0"/></svg>',
   "Performing arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 10h24v12c0 9.5-5.2 17-12 17s-12-7.5-12-17z" fill="#FFE3A0"/><circle cx="19" cy="22" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="22" r="2" fill="#191A19" stroke="none"/><path d="M19 30c3 2.6 7 2.6 10 0"/></svg>',
   "Museums": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
   "Markets": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M7 19h34l-3-8H10z" fill="#00C897"/><path d="M18 11v8M30 11v8" stroke-width="1.5"/><rect x="12" y="25" width="24" height="14" rx="2" fill="#FFE3A0"/><circle cx="19" cy="30" r="3" fill="#FF7B54" stroke-width="1.6"/><circle cx="28" cy="31" r="3.5" fill="#BFF2E0" stroke-width="1.6"/></svg>',
   "Happy hours": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 12h22l-11 14z" fill="#C7F3E8"/><path d="M21 26v10M15 38h12"/><circle cx="27" cy="18" r="2.5" fill="#FFC53D" stroke-width="1.4"/><path d="M35 10h6v20h-6z" fill="#FFE3A0"/><path d="M35 16h6M35 24h6"/><path d="M7 34c5.5-3 10.5-3 16 0" stroke="#00C897" stroke-width="2.2"/></svg>',
-  "Trivia": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H23l-8 6v-6h-5a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z" fill="#D8D4F5"/><path d="M20 19a4.2 4.2 0 0 1 7.4 2.7c0 2.1-3.2 2.5-3.2 4.6" stroke-width="2.2"/><circle cx="24" cy="29" r="1.5" fill="#191A19" stroke="none"/></svg>',
+  "Trivia": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="10" y="11" width="23" height="28" rx="4" fill="#D8D4F5"/><path d="M18 20a4 4 0 0 1 7.3 2.3c0 2.2-3.1 2.5-3.1 4.7" stroke-width="2.2"/><circle cx="22" cy="31" r="1.6" fill="#191A19" stroke="none"/><path d="M32 17h6v12h-6z" fill="#FFE3A0"/><path d="M35 29v6M31 35h8"/><circle cx="35" cy="14" r="3" fill="#C7F3E8" stroke-width="1.5"/></svg>',
   "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="18" r="6" fill="#C7F3E8"/><circle cx="31" cy="19" r="5" fill="#FFE3A0"/><path d="M8 38c2-7 16-7 20 0M24 38c1.5-5 11-5 14 0"/></svg>',
-  "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 14h26L24 28z" fill="#C7F3E8"/><path d="M24 28v10M17 39h14"/><circle cx="30" cy="19" r="2.6" fill="#FFC53D" stroke-width="1.5"/><path d="M39 6l1.4 3 3 1.4-3 1.4L39 15l-1.4-3.2-3-1.4 3-1.4z" fill="#FFC53D" stroke-width="1.2"/></svg>',
-  "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
+  "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 9v6" stroke-width="1.5"/><rect x="20" y="5" width="8" height="6" rx="1.5" fill="#FFE3A0"/><circle cx="24" cy="28" r="13" fill="#D8D4F5"/><path d="M11 28h26M14 20h20M14 36h20" stroke-width="1.5"/><path d="M24 15c4 4.2 6 8.3 6 13s-2 8.8-6 13M24 15c-4 4.2-6 8.3-6 13s2 8.8 6 13" stroke-width="1.5"/><path d="M39 8a5.5 5.5 0 0 1-6.8 6.8A6.8 6.8 0 1 0 39 8z" fill="#FFE3A0" stroke-width="1.5"/><path d="M10 12l1.5 3.2L15 17l-3.5 1.8L10 22l-1.5-3.2L5 17l3.5-1.8z" fill="#C7F3E8" stroke-width="1.3"/><path d="M39 27l1.2 2.6L43 31l-2.8 1.4L39 35l-1.2-2.6L35 31l2.8-1.4z" fill="#FFC53D" stroke-width="1.3"/></svg>',
+  "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="12" y="9" width="21" height="30" rx="3" fill="#BFF2E0"/><path d="M17 15h11M17 32h9" stroke-width="1.5"/><circle cx="22.5" cy="23.5" r="5.5" fill="#FFE3A0"/><path d="M17 23.5h11M22.5 18c1.8 1.8 2.6 3.5 2.6 5.5s-.8 3.8-2.6 5.5M22.5 18c-1.8 1.8-2.6 3.5-2.6 5.5s.8 3.8 2.6 5.5" stroke-width="1.2"/><path d="M34 17l7-3v14l-7 3z" fill="#D8D4F5"/><path d="M34 17v14M37.5 15.5v14" stroke-width="1.4"/></svg>',
+  "Kids": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 25c0-8 5-14 11-14s11 6 11 14v9a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3z" fill="#C7F3E8"/><circle cx="19" cy="24" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="24" r="2" fill="#191A19" stroke="none"/><path d="M20 31c2.4 2 5.6 2 8 0"/><path d="M11 16l4 4M37 16l-4 4" stroke="#FFC53D" stroke-width="2.4"/><path d="M18 12c2-5 10-5 12 0" fill="#FFE3A0"/></svg>',
   "Free events": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 12h20a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#FFE3A0"/><path d="M17 22h10M17 28h7"/><path d="M33 17v14"/><path d="M30 20c4-4 8 2 3 5-5-3-1-9 3-5" fill="#C7F3E8"/></svg>'
 };
 
-const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
+const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 
 const demoEvents = [
   { id: 1, title: "Jazz on the Hill", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Tonight, 7:30 PM", price: "$18", cat: "music", tag: "Live music", friends: [], desc: "A warm, unhurried set from DC's new guard of jazz players. The room is small, the sound is close, and you will want to get there before the first pour." },
@@ -56,12 +57,23 @@ let events = [...demoEvents];
 let venueDirectory = [];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
-const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Community", "Nightlife", "Culture"];
+const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfile?.age || 27, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile || { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+function profileAgeFromBirthdate(birthdate) {
+  const birthday = new Date(`${birthdate || ""}T12:00:00`);
+  if (!birthdate || Number.isNaN(birthday.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birthday.getFullYear();
+  if (today < new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate())) age--;
+  return age;
+}
+const savedProfileAge = profileAgeFromBirthdate(savedProfile?.birthdate) || savedProfile?.age || 27;
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
+state.friendEventInterests = new Map();
+state.friendEventInterestsLoaded = false;
 // Persisted saves/RSVPs by stable source id (runtime event ids change each sync),
 // reconciled back onto the loaded events so a user's data survives reloads and
 // shapes what they see.
@@ -81,6 +93,22 @@ function accountVenueName() {
 
 function isVenueAccount() {
   return state.profile?.accountType === "venue";
+}
+
+function userIsUnder21() {
+  return !isVenueAccount() && Number(state.age || state.profile?.age || 0) < 21;
+}
+
+function isAlcoholSpecificEvent(event) {
+  const category = String(event?.cat || "").toLowerCase();
+  if (category === "happy-hours") return true;
+  if (category === "nightlife") return true;
+  const text = `${event?.title || ""} ${event?.venue || ""} ${event?.area || ""} ${event?.desc || ""} ${event?.tag || ""} ${(eventTags(event) || []).join(" ")}`.toLowerCase();
+  return /\b(happy\s*hour|cocktail|cocktails|beer|draft beer|wine|shots?|drink specials?|open bar|bar crawl|boozy|bottomless|brewery|brewing|distillery|distilling|cider|seltzer|margarita|martini|whiskey|whisky|bourbon|vodka|tequila|rum|gin|21\+|adults only|adults-only)\b/.test(text);
+}
+
+function isAgeAllowedEvent(event) {
+  return !userIsUnder21() || !isAlcoholSpecificEvent(event);
 }
 
 function currentAccountDisplayName() {
@@ -157,20 +185,31 @@ function avatarStack(friends) {
 }
 
 function interestedFriendsForEvent(event) {
-  const explicit = (Array.isArray(event.friends) ? event.friends : []).filter(friend => friendNames[friend]);
-  return explicit.filter((friend, index, all) => friend && all.indexOf(friend) === index).slice(0, 2);
+  const sourceKey = String(event?.sourceId || event?.id || "");
+  const live = state.friendEventInterests?.get(sourceKey) || state.friendEventInterests?.get(String(event?.id || "")) || [];
+  const fromLive = live
+    .filter(friend => state.friends.has(friend.name))
+    .map(friend => friend.initials || friendInitials(friend.name));
+  const explicit = state.friendEventInterestsLoaded
+    ? []
+    : (Array.isArray(event.friends) ? event.friends : []).filter(friend => friendNames[friend]);
+  return [...fromLive, ...explicit].filter((friend, index, all) => friend && all.indexOf(friend) === index).slice(0, 2);
 }
 
 function eventInterestSignal(event, detail = false) {
   const friends = interestedFriendsForEvent(event);
   if (!friends.length) return "";
-  const names = friends.map(friend => friendNames[friend]);
+  const live = state.friendEventInterests?.get(String(event?.sourceId || event?.id || "")) || state.friendEventInterests?.get(String(event?.id || "")) || [];
+  const names = friends.map(friend => {
+    const liveFriend = live.find(item => (item.initials || friendInitials(item.name)) === friend);
+    return liveFriend?.name?.split(/\s+/)[0] || friendNames[friend] || friend;
+  });
   const wording = names.length === 1 ? `${names[0]} is interested` : `${names[0]} and ${names[1]} are interested`;
   return `<div class="${detail ? "attendee-line" : "signal"}">${avatarStack(friends)} ${wording}</div>`;
 }
 
 function eventVisualCategory(event) {
-  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", sports: "fitness", expos: "food", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
+  const map = { concerts: "music", "live-music": "music", "performing-arts": "art", museums: "art", festivals: "food", culture: "art", kids: "kids", sports: "fitness", expos: "food", community: "food", nightlife: "nightlife", "happy-hours": "nightlife", "trivia-nights": "nightlife" };
   return map[event.cat] || event.cat;
 }
 
@@ -193,6 +232,7 @@ function eventArtKind(event) {
   if (/nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night|dj set/.test(titleText)) key = "nightlife";
   if (/food|market|chef|brunch|wine|beer|cocktail|restaurant/.test(titleText)) key = "food";
   if (/embassy|ambassador|international|cultural|culture|heritage|global|foreign soil/.test(titleText)) key = "culture";
+  if (/\b(family|families|kid|kids|children|childrens|children's|all ages|all-ages|story\s*time|storytime|youth|bluey|disney|puppet|toddler)\b/.test(titleText)) key = "kids";
   return key;
 }
 
@@ -204,6 +244,7 @@ function genericEventArt(event) {
     sports: { a: "#4ce083", b: "#12c77a", c: "#e5ffef", shapes: "<rect x='16' y='22' width='68' height='56' rx='12' fill='rgba(255,255,255,.15)' stroke='white' stroke-width='4'/><path d='M16 50 H84 M50 22 V78' stroke='white' stroke-width='4'/><circle cx='50' cy='50' r='13' fill='none' stroke='white' stroke-width='4'/>" },
     festivals: { a: "#36d676", b: "#00c897", c: "#d8ffe9", shapes: "<path d='M18 42 C33 23 67 23 82 42' fill='none' stroke='white' stroke-width='5'/><path d='M26 46 H74 L68 78 H32 Z' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M36 46 V78 M50 35 V78 M64 46 V78' stroke='white' stroke-width='4'/>" },
     culture: { a: "#40c4ff", b: "#2f80ed", c: "#e3f3ff", shapes: "<path d='M23 76 H77 M29 68 V34 H71 V68' fill='rgba(255,255,255,.22)' stroke='white' stroke-width='4'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' stroke='white' stroke-width='4' fill='none'/><circle cx='72' cy='25' r='8' fill='rgba(255,255,255,.65)'/>" },
+    kids: { a: "#8be9b8", b: "#42d87c", c: "#fff4bf", shapes: "<path d='M27 77 V42 C27 29 36 20 50 20 C64 20 73 29 73 42 V77 Z' fill='rgba(255,255,255,.32)' stroke='white' stroke-width='4'/><circle cx='41' cy='46' r='4' fill='white'/><circle cx='59' cy='46' r='4' fill='white'/><path d='M41 59 Q50 67 59 59' fill='none' stroke='white' stroke-width='5'/><path d='M20 28 L29 37 M80 28 L71 37' stroke='white' stroke-width='5' stroke-linecap='round'/>" },
     community: { a: "#5fe18d", b: "#28cf79", c: "#e7fff0", shapes: "<path d='M22 80 V38 H47 V80 M53 80 V24 H78 V80' fill='rgba(255,255,255,.55)' stroke='white' stroke-width='4'/><path d='M30 48 H39 M61 36 H70 M61 50 H70' stroke='white' stroke-width='4'/><circle cx='28' cy='23' r='8' fill='rgba(255,255,255,.75)'/>" },
     expos: { a: "#46dc82", b: "#10c578", c: "#dfffea", shapes: "<rect x='19' y='25' width='62' height='52' rx='7' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><path d='M29 39 H71 M29 52 H71 M29 65 H56' stroke='white' stroke-width='4'/><circle cx='74' cy='22' r='8' fill='rgba(255,255,255,.65)'/>" },
     food: { a: "#50dc82", b: "#18c973", c: "#eafff1", shapes: "<path d='M30 22 V57 M40 22 V57 M30 40 H40 M60 22 V78' stroke='white' stroke-width='5' stroke-linecap='round'/><path d='M22 70 C34 54 66 54 78 70' fill='rgba(255,255,255,.35)' stroke='white' stroke-width='4'/><circle cx='50' cy='48' r='10' fill='rgba(255,255,255,.45)'/>" },
@@ -233,6 +274,7 @@ function eventArtScene(event) {
     sports: "<svg viewBox='0 0 100 100' aria-hidden='true'><circle cx='50' cy='50' r='31' fill='none'/><path d='M20 50 H80 M50 19 C37 36 37 64 50 81 M50 19 C63 36 63 64 50 81' fill='none'/></svg>",
     festivals: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M18 40 C34 23 66 23 82 40' fill='none'/><path d='M26 47 H74 L68 78 H32 Z'/><path d='M38 47 V78 M50 36 V78 M62 47 V78' fill='none'/></svg>",
     culture: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 76 H77 M29 68 V34 H71 V68'/><path d='M35 34 L50 22 L65 34 M38 47 H62 M38 58 H62' fill='none'/><circle cx='72' cy='25' r='8'/></svg>",
+    kids: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M27 77 V42 C27 29 36 20 50 20 C64 20 73 29 73 42 V77 Z'/><circle cx='41' cy='46' r='4'/><circle cx='59' cy='46' r='4'/><path d='M41 59 Q50 67 59 59 M20 28 L29 37 M80 28 L71 37' fill='none'/></svg>",
     community: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M23 80 V38 H47 V80 M53 80 V25 H77 V80'/><path d='M31 49 H40 M61 37 H70 M61 51 H70' fill='none'/></svg>",
     expos: "<svg viewBox='0 0 100 100' aria-hidden='true'><rect x='20' y='25' width='60' height='52' rx='7'/><path d='M31 40 H69 M31 53 H69 M31 66 H56' fill='none'/></svg>",
     food: "<svg viewBox='0 0 100 100' aria-hidden='true'><path d='M30 23 V58 M40 23 V58 M30 41 H40 M61 23 V78' fill='none'/><path d='M22 71 C34 55 66 55 78 71'/><circle cx='50' cy='49' r='10'/></svg>",
@@ -321,6 +363,7 @@ function categoryTagAliases(category) {
     museums: ["museums", "museum"],
     festivals: ["festivals", "festival"],
     culture: ["culture", "cultural"],
+    kids: ["kids", "kid friendly", "family friendly", "family"],
     sports: ["sports", "sport"],
     community: ["community", "expos", "expo"],
     expos: ["expos", "expo"],
@@ -345,7 +388,7 @@ function isCategoryTag(event, tag) {
 function isBroadCategoryTag(tag) {
   return [
     "concert", "concerts", "live music", "music", "arts", "art", "performing arts", "performance",
-    "museums", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
+    "museums", "kids", "kid friendly", "family friendly", "family", "sports", "sport", "community", "expos", "expo", "nightlife", "night out",
     "happy hour", "happy hours", "trivia", "trivia night", "trivia nights", "food", "food & drink", "food and drink",
     "festival", "festivals", "culture", "cultural", "free"
   ].includes(String(tag || "").trim().toLowerCase());
@@ -358,8 +401,31 @@ function isLocationTag(event, tag) {
     .filter(Boolean);
   return LOCATION_TAG_ALIASES.includes(normalized) || eventLocations.some(location => location === normalized);
 }
+function eventSemanticText(event, raw = []) {
+  return `${event?.title || ""} ${event?.desc || ""} ${raw.join(" ")}`.toLowerCase();
+}
+function eventEmbassyVenueText(event) {
+  const venue = `${event?.venue || ""} ${event?.venue_name || ""}`.toLowerCase();
+  return /\bembassy\b/.test(venue) ? venue : "";
+}
+function isUnsupportedVenueDerivedTag(event, tag) {
+  const normalized = String(tag || "").trim().toLowerCase();
+  if (!normalized) return false;
+  const text = `${eventSemanticText(event)} ${eventEmbassyVenueText(event)}`.trim();
+  const needsEventProof = {
+    international: /\b(embassy|international|ambassador|global|foreign soil|world culture|cultural exchange)\b/,
+    embassy: /\b(embassy|ambassador|diplomatic)\b/,
+    heritage: /\b(heritage|tradition|traditional|cultural history)\b/,
+    museum: /\b(museum|exhibit|exhibition|gallery|collection|curator)\b/,
+    gallery: /\b(gallery|exhibit|exhibition|installation|visual art)\b/,
+    rooftop: /\b(rooftop|roof deck|skyline)\b/,
+    patio: /\b(patio|outdoor|garden|terrace)\b/,
+    outdoor: /\b(outdoor|outside|patio|garden|park|plaza|cruise|potomac)\b/
+  };
+  return Boolean(needsEventProof[normalized] && !needsEventProof[normalized].test(text));
+}
 function keywordTagsForEvent(event) {
-  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""}`.toLowerCase();
+  const text = `${event.title || ""} ${event.desc || ""} ${event.tag || ""} ${eventEmbassyVenueText(event)}`.toLowerCase();
   const tags = [];
   const add = (label, pattern) => { if (pattern.test(text) && !tags.includes(label)) tags.push(label); };
   add("Drink Specials", /\b(beer|shot|cocktail|margarita|wine|bar|happy hour|drink special|cash bar)\b/);
@@ -380,7 +446,7 @@ function keywordTagsForEvent(event) {
 }
 
 function fallbackTagForEvent(event) {
-  const text = `${event?.title || ""} ${event?.venue || ""} ${event?.desc || ""} ${event?.tag || ""}`.toLowerCase();
+  const text = `${event?.title || ""} ${event?.desc || ""} ${event?.tag || ""} ${eventEmbassyVenueText(event)}`.toLowerCase();
   const category = String(event?.cat || event?.category || "").toLowerCase();
   if (/\b(mlb|nationals|baseball)\b/.test(text)) return "Baseball";
   if (/\b(nba|mystics|wizards|basketball)\b/.test(text)) return "Basketball";
@@ -391,6 +457,7 @@ function fallbackTagForEvent(event) {
   if (/\b(beer|shot|cocktail|margarita|wine|happy hour|drink special)\b/.test(text)) return "Drink Specials";
   if (/\b(trivia|quiz|prizes)\b/.test(text)) return "Prizes";
   if (/\b(embassy|international|ambassador|global|heritage)\b/.test(text)) return "International";
+  if (/\b(family|families|kid|kids|children|all ages|story\s*time|storytime|bluey|disney|puppet|toddler)\b/.test(text)) return "Family Friendly";
   if (/\b(comedy|stand[- ]?up|improv|comic)\b/.test(text)) return "Comedy";
   if (/\b(exhibit|exhibition|gallery|museum)\b/.test(text)) return "Exhibit";
   if (/\b(rooftop|patio|outdoor|park|garden)\b/.test(text)) return "Outdoor";
@@ -401,6 +468,7 @@ function fallbackTagForEvent(event) {
   if (category === "trivia-nights") return "Prizes";
   if (category === "nightlife") return "Late Night";
   if (category === "culture") return "International";
+  if (category === "kids") return "Family Friendly";
   if (category === "food") return "Food tasting";
   return "Local Pick";
 }
@@ -412,12 +480,13 @@ function ensureEventTags(event, tags) {
     .filter(tag => !isCategoryTag(event, tag))
     .filter(tag => !isBroadCategoryTag(tag))
     .filter(tag => !isLocationTag(event, tag))
+    .filter(tag => !isUnsupportedVenueDerivedTag(event, tag))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
   return clean.length ? clean : [fallbackTagForEvent(event)];
 }
 
 function eventTags(event) {
-  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", sports: "Sports", community: "Community", expos: "Community", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia", food: "Food & Drink" };
+  const labels = { concerts: "Concerts", "live-music": "Live music", "performing-arts": "Arts", museums: "Museums", festivals: "Festivals", culture: "Culture", kids: "Kids", sports: "Sports", community: "Community", expos: "Community", nightlife: "Nightlife", "happy-hours": "Happy hours", "trivia-nights": "Trivia", food: "Food & Drink" };
   const raw = Array.isArray(event.tags) ? event.tags : [event.tag, event.cat];
   const tags = raw
     .map(tag => typeof tag === "object" && tag !== null ? (tag.label || tag.name || tag.title || tag.value || "") : tag)
@@ -427,9 +496,10 @@ function eventTags(event) {
     .filter(tag => !isCategoryTag(event, tag))
     .filter(tag => !isBroadCategoryTag(tag))
     .filter(tag => !isLocationTag(event, tag))
+    .filter(tag => !isUnsupportedVenueDerivedTag(event, tag))
     .filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
   if (["concerts", "live-music"].includes(String(event.cat || "").toLowerCase())) {
-    const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
+    const text = `${event.title || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
     const inferred = [];
     const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
     add("Hip-Hop", /\b(hip[- ]?hop|rap|rapper|conway|chris travis)\b/);
@@ -459,21 +529,21 @@ function eventTags(event) {
     add("Free", /free admission|free event|free concert|free show|rsvp free|no cover/);
     add("18+", /\b18\+\b|ages 18/);
     add("21+", /\b21\+\b|ages 21/);
-    add("Club Show", /9:30 club|930 club|the atlantis|union stage|black cat|dc9|songbyrd/);
-    add("Big Room", /the anthem|echostage|arena|stadium|audi field/);
+    add("Club Show", /\b(club show|small room|intimate show)\b/);
+    add("Big Room", /\b(big room|arena show|stadium show)\b/);
     const clean = tags.filter(tag => !["concert", "concerts", "live music", "music", "arts", "art", "free", "nightlife", "night out"].includes(tag.toLowerCase()));
-    const genre = [...clean, ...inferred].find(isMusicGenreTag) || seededMusicGenreTag(`${event.title || ""} ${event.venue || ""} ${event.desc || ""}`);
-    const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(() => clean.length + inferred.length < 2);
+    const genre = [...clean, ...inferred].find(isMusicGenreTag) || seededMusicGenreTag(`${event.title || ""} ${event.desc || ""}`);
+    const fallback = seededConcertFallbackTags(`${event.title || ""} ${event.desc || ""}`).filter(() => clean.length + inferred.length < 2);
     return ensureEventTags(event, [genre, ...clean.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...inferred.filter(tag => tag.toLowerCase() !== genre.toLowerCase()), ...fallback]
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
       .slice(0, Math.max(3, clean.length + inferred.length + fallback.length + 1)));
   }
   if (String(event.cat || "").toLowerCase() !== "performing-arts") {
     return ensureEventTags(event, [...tags, ...keywordTagsForEvent(event)]
-      .filter(tag => !isCategoryTag(event, tag) && !isBroadCategoryTag(tag) && !isLocationTag(event, tag))
+      .filter(tag => !isCategoryTag(event, tag) && !isBroadCategoryTag(tag) && !isLocationTag(event, tag) && !isUnsupportedVenueDerivedTag(event, tag))
       .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index));
   }
-  const text = `${event.title || ""} ${event.venue || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
+  const text = `${event.title || ""} ${event.desc || ""} ${event.tag || ""} ${raw.join(" ")}`.toLowerCase();
   const inferred = [];
   const add = (label, pattern) => { if (pattern.test(text) && !inferred.includes(label)) inferred.push(label); };
   add("Comedy", /comedy|stand[- ]?up|improv|comic|open mic/);
@@ -493,7 +563,7 @@ function eventTags(event) {
   add("Storytelling", /storytelling|story slam|moth/);
   add("Spoken Word", /spoken word|poetry/);
   const clean = tags.filter(tag => !["arts", "art", "performing-arts", "performing arts", "museum", "museums", "smithsonian", "performance", "theater", "theatre", "stage show", "touring show", "family show", "live show", "ticketed", "opera"].includes(tag.toLowerCase()));
-  const fallback = seededPerformingArtsFallbackTags(`${event.title || ""} ${event.venue || ""}`).filter(tag => clean.length + inferred.length < 2 || inferred.length < 2);
+  const fallback = seededPerformingArtsFallbackTags(`${event.title || ""} ${event.desc || ""}`).filter(tag => clean.length + inferred.length < 2 || inferred.length < 2);
   return ensureEventTags(event, [...clean, ...inferred, ...fallback]
     .filter((tag, index, all) => tag && all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index)
     .slice(0, Math.max(3, clean.length + inferred.length + fallback.length)));
@@ -585,6 +655,7 @@ function eventArtLabel(event) {
     food: "Food & drink",
     festivals: "Festivals",
     culture: "Culture",
+    kids: "Kids",
     community: "Community",
     expos: "Community",
     nightlife: "Nightlife",
@@ -596,6 +667,7 @@ function eventArtLabel(event) {
   const text = `${event.cat || ""} ${event.category || ""} ${event.tag || ""} ${tagText} ${event.title || ""}`.toLowerCase();
   if (/\b(nightlife|nightclub|club|bar|lounge|rooftop|cocktail|dance party|after dark|late night)\b/.test(text)) return "Nightlife";
   if (/\b(concert|music|pop|rock|jazz|classical|dj|band|singer|songwriter|vinyl)\b/.test(text)) return "Concerts";
+  if (/\b(family|families|kid|kids|children|all ages|all-ages|story\s*time|storytime|youth|bluey|disney|puppet|toddler)\b/.test(text)) return "Kids";
   if (/\b(embassy|ambassador|international|cultural|culture|heritage|global|foreign soil)\b/.test(text)) return "Culture";
   if (/\b(museum|smithsonian|hirshhorn|renwick|portrait gallery|american art museum|air and space|natural history|american history)\b/.test(text)) return "Museums";
   if (/\b(theatre|theater|performing|arts?|gallery|comedy|film|cinema)\b/.test(text)) return "Performing arts";
@@ -709,6 +781,7 @@ const CATEGORY_COLORS = {
   "performing-arts": "#B07EDB",
   art: "#B07EDB",
   museums: "#5F9FC3",
+  kids: "#42D87C",
   sports: "#F59E0B",
   fitness: "#27AE60",
   festivals: "#FF6B9D",
@@ -827,11 +900,6 @@ function eventRow(event, variant = "", opts = {}) {
   const timeLine = eventCardTimeHtml(event);
   const leftTag = eventTagChips(event, 3);
   const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
-  // One card stands for the whole series, so show which days it runs.
-  const repeat = eventSeriesWeekdays(event);
-  const repeatHtml = repeat.count > 1 && repeat.days.length
-    ? `<span class="repeat-strip" aria-label="Repeats on ${repeat.days.map(day => REPEAT_DAY_NAMES[day]).join(", ")}">${REPEAT_DAY_LETTERS.map((letter, day) => `<i class="${repeat.days.includes(day) ? "on" : ""}">${letter}</i>`).join("")}</span>`
-    : "";
   const fallbackImage = eventFallbackImageSrc(event);
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
@@ -850,8 +918,8 @@ function eventRow(event, variant = "", opts = {}) {
         ${venueName ? `<span class="event-card-venue">${escapeHtml(venueName)}</span>` : ""}
         ${timeLine ? `<span class="event-card-meta event-card-time">${timeLine}</span>` : ""}
         ${area ? `<span class="event-card-meta event-card-area">${escapeHtml(area)}</span>` : ""}
-        ${repeatHtml}
       </button>
+      ${eventInterestSignal(event)}
       ${bottomHtml}
     </div>
   </article>`;
@@ -1344,12 +1412,15 @@ function eventMatchesFoodDrinkFocus(event) {
 }
 
 function discoverFilterItems() {
-  return [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
+  const items = [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["food", "Food & drink"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["kids", "Kids"], ["performing-arts", "Performing arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"], ["free", "Free"]];
+  return userIsUnder21() ? items.filter(([value]) => !["happy-hours", "nightlife"].includes(value)) : items;
 }
 
 function filterChips(active, scope) {
   const items = scope === "home"
     ? discoverFilterItems()
-    : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]];
+    : (userIsUnder21()
+      ? [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["trivia-nights", "Trivia"], ["culture", "Culture"], ["kids", "Kids"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]
+      : [["all", "All"], ["concerts", "Concerts"], ["live-music", "Live music"], ["happy-hours", "Happy hours"], ["trivia-nights", "Trivia"], ["nightlife", "Nightlife"], ["culture", "Culture"], ["kids", "Kids"], ["performing-arts", "Arts"], ["museums", "Museums"], ["sports", "Sports"], ["festivals", "Markets"], ["community", "Community"]]);
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }

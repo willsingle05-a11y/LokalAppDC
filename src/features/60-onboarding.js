@@ -171,6 +171,7 @@ function renderOnboarding() {
   state.signupDraft = state.signupDraft || {};
   const d = state.signupDraft;
   const step = state.onboardStep || 0;
+  const maxBirthdate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   if (step === 0) {
     document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">${welcomeLetterMarkup()}</div>`);
@@ -231,11 +232,13 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;
   } else {
-    const interests = new Set(d.interests || []);
+    const isUnder21 = typeof calculateAge === "function" && d.birthdate ? calculateAge(d.birthdate) < 21 : false;
+    const interestOptions = isUnder21 ? ONBOARD_INTEREST_OPTIONS.filter(option => !["Happy hours", "Nightlife"].includes(option)) : ONBOARD_INTEREST_OPTIONS;
+    const interests = new Set((d.interests || []).filter(option => interestOptions.includes(option)));
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
       <p class="lede">Pick a few — we'll tune your feed to match.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${interestOptions.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="settings-label">Neighborhoods you explore</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
@@ -300,11 +303,17 @@ function setRoute(route) {
   const routeChanged = state.route !== route;
   state.route = route;
   document.body.dataset.route = route;
-  // Bo leans on the wordmark in the topbar; drawn once, then CSS decides which
-  // routes show him.
+  // Bo leans on the wordmark in the topbar; give the main pages their own
+  // little posture so Saved and Profile do not feel like cloned headers.
   const boSlot = document.querySelector(".topbar-bo");
-  if (boSlot && !boSlot.childElementCount && typeof boPoseMarkup === "function") {
-    boSlot.innerHTML = boPoseMarkup("Leaning on the wordmark");
+  if (boSlot && typeof boPoseMarkup === "function") {
+    const routePose = route === "social" ? "Hello"
+      : route === "profile" ? "Dancing"
+        : "Leaning on the wordmark";
+    if (boSlot.dataset.pose !== routePose) {
+      boSlot.dataset.pose = routePose;
+      boSlot.innerHTML = boPoseMarkup(routePose);
+    }
   }
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
 

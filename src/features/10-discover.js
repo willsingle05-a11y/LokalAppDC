@@ -55,6 +55,7 @@ const categoryFeedConfig = {
   food: { label: "Food & drink", searchPlaceholder: "Search by cuisine, restaurant, or deal…", chips: ["All", "Tastings", "Pop-ups", "Brunch", "Wine", "Beer", "Cocktails", "Food festival"] },
   nightlife: { label: "Nightlife", searchPlaceholder: "Search by venue, vibe, or night…", chips: ["All venues", "Clubs", "Bars", "Rooftop", "DJ nights", "Late night", "21+"] },
   culture: { label: "Culture", searchPlaceholder: "Search by embassy, country, heritage, or speaker…", chips: ["All culture", "Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance"] },
+  kids: { label: "Kids", searchPlaceholder: "Search by family event, age, venue, or activity…", chips: ["All kids", "Family Friendly", "All ages", "Storytime", "Workshop", "Outdoor", "Disney", "Free"] },
   "performing-arts": { label: "Performing arts", searchPlaceholder: "Search by theater, comedy, dance, film, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or show…", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
@@ -169,7 +170,7 @@ function openVenueEvents(name) {
     <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
     <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${isVenueAccount() ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="${verified ? "Post event" : "Request approval"} for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
-    <div class="interest-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)} / ${escapeHtml(eventLocationLine(event))}</small></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
+    <div class="interest-list venue-event-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)}</small><em>${escapeHtml(eventLocationLine(event))}</em></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
 }
 
@@ -195,6 +196,7 @@ function openVenueEventPostSheet(name) {
       <option value="concerts">Concerts</option>
       <option value="live-music">Live music</option>
       <option value="performing-arts">Performing arts</option>
+      <option value="kids">Kids</option>
       <option value="happy-hours">Happy hours</option>
       <option value="trivia-nights">Trivia nights</option>
       <option value="food">Food & drink</option>
@@ -284,7 +286,7 @@ function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
   if (MARQUEE_VENUE_RE.test(venueText)) score += 8;
-  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, nightlife: 2, community: 1, expos: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
+  const catTier = { concerts: 4, festivals: 4, culture: 4, sports: 4, "performing-arts": 3, "live-music": 3, kids: 3, nightlife: 2, community: 1, expos: 1, museums: 1, "happy-hours": 0, "trivia-nights": 0 };
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
@@ -414,13 +416,14 @@ function noResultsScreen() {
 function renderEventFeed(list, opts = {}) {
   const uniqueList = dedupeFeedEvents(list);
   if (!uniqueList.length) return noResultsScreen();
-  const shown = Math.max(10, state.feedShown || 10);
+  const shown = Math.max(10, opts.shown || state.feedShown || 10);
   const visible = uniqueList.slice(0, shown);
   // Show the "Because you like ..." reason only in explicitly personalized feeds.
   const weights = (opts.personalized && opts.showBadge !== false) ? userPreferenceWeights() : null;
   const cards = visible.map(event => eventRow(event, "", { showBadge: opts.showBadge !== false, reason: weights ? eventPersonalReason(event, weights) : "" })).join("");
   const remaining = uniqueList.length - shown;
-  const more = remaining > 0 ? `<button class="view-more-feed" data-feed-more>View ${Math.min(10, remaining)} more</button>` : "";
+  const moreAttr = opts.moreAttr || "data-feed-more";
+  const more = remaining > 0 ? `<button class="view-more-feed" ${moreAttr}>View ${Math.min(10, remaining)} more</button>` : "";
   // Masonry: cards size to their image so they aren't all identical, packed into
   // multiple columns. The "View more" button sits outside the columns.
   return `<div class="feed-masonry">${cards}</div>${more}`;
@@ -859,6 +862,7 @@ function openWhatSheet() {
       food: "Food & drink",
       nightlife: "Nightlife",
       culture: "Culture",
+      kids: "Kids",
       "performing-arts": "Performing arts",
       museums: "Museums",
       sports: "Sports",
@@ -1001,6 +1005,11 @@ function discoverFiltersActive() {
 }
 
 function renderHome() {
+  if (typeof userIsUnder21 === "function" && userIsUnder21()) {
+    ["happy-hours", "nightlife"].forEach(value => state.whatFilter?.delete(value));
+    if (["happy-hours", "nightlife"].includes(state.homeFilter)) state.homeFilter = "all";
+    if (["happy-hours", "nightlife"].includes(state.discoverCategoryView)) state.discoverCategoryView = "";
+  }
   if (state.discoverCategoryView) return renderDiscoverCategoryPage(state.discoverCategoryView);
   const dcEvents = displayableDcEvents();
   const base = dcEvents.filter(eventMatchesFilters);
@@ -1047,7 +1056,7 @@ function renderDiscoverCategoryPage(category) {
 }
 
 function searchableDiscoverCategory(category) {
-  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community", "free"].includes(category);
+  return ["concerts", "live-music", "happy-hours", "trivia-nights", "food", "nightlife", "culture", "kids", "performing-arts", "museums", "sports", "festivals", "community", "free"].includes(category);
 }
 
 function eventMatchesCategoryFacet(event, query) {
@@ -1068,6 +1077,7 @@ function categoryFacetLabel(category) {
     "trivia-nights": "trivia type",
     nightlife: "nightlife type",
     culture: "culture type",
+    kids: "kids type",
     museums: "museum type",
     festivals: "market type",
     community: "community type",
@@ -1086,6 +1096,7 @@ function categoryFacetAllLabel(category) {
     "trivia-nights": "All trivia",
     nightlife: "All nightlife",
     culture: "All culture",
+    kids: "All kids",
     museums: "All museum types",
     festivals: "All market types",
     community: "All community types",
@@ -1104,6 +1115,7 @@ function categoryFacetPriorityList(category) {
     "trivia-nights": ["Weekly", "Monthly", "Team Trivia", "Pop Culture", "General Knowledge", "Prizes", "Bar Trivia"],
     nightlife: ["DJ Set", "Dance Floor", "Club Night", "Rooftop", "Late Night", "Pride", "Lounge", "Cocktails"],
     culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
+    kids: ["Family Friendly", "All ages", "Storytime", "Workshop", "Outdoor", "Disney", "Puppet", "Free"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
     festivals: ["Farmers Market", "Flea Market", "Makers", "Craft", "Food & Drink", "Holiday", "Street Fair", "Outdoor", "Vintage", "Pop-up"],
     community: ["Volunteer", "Networking", "Book Club", "Convention", "Workshop", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
@@ -1119,7 +1131,7 @@ function categoryFacetPriority(category, tag) {
 }
 
 function categoryFacetOptions(category, categoryEvents) {
-  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "culture", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
+  const blocked = ["concerts", "live music", "happy hours", "trivia nights", "nightlife", "culture", "kids", "arts", "museums", "sports", "festivals", "community", "expos", "performing arts"];
   const taggedOptions = categoryEvents
     .flatMap(eventTags)
     .map(tag => String(tag || "").trim())
@@ -1150,6 +1162,7 @@ function categoryFromTaste(taste) {
   if (/trivia|quiz/.test(text)) return "trivia-nights";
   if (/bar|cocktail|dance|nightlife|rooftop|patio|late night|speakeasy/.test(text)) return "nightlife";
   if (/embassy|international|culture|cultural|heritage|ambassador|global/.test(text)) return "culture";
+  if (/kids?|children|family|all ages|storytime|story time|youth|bluey|disney|puppet|toddler/.test(text)) return "kids";
   if (/museum/.test(text)) return "museums";
   if (/visual art|gallery|art/.test(text)) return "performing-arts";
   if (/gallery|art|theater|theatre|film|comedy/.test(text)) return "performing-arts";
@@ -1161,7 +1174,7 @@ function categoryFromTaste(taste) {
 }
 
 function orderedDiscoverCategories() {
-  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "performing-arts", "museums", "sports", "festivals", "community"];
+  const defaults = ["concerts", "live-music", "food", "happy-hours", "trivia-nights", "nightlife", "culture", "kids", "performing-arts", "museums", "sports", "festivals", "community"];
   const preferred = (state.tastes || []).map(categoryFromTaste).filter(Boolean);
   return [...preferred, ...defaults].filter((category, index, all) => all.indexOf(category) === index);
 }
@@ -1195,12 +1208,24 @@ function discoverSearchText(event) {
   return `${event.title || ""} ${event.venue || ""} ${event.venueAddress || ""} ${event.area || ""} ${neighborhood} ${event.desc || ""} ${event.cat || ""} ${event.tag || ""} ${eventTags(event).join(" ")}`.toLowerCase();
 }
 
+let discoverSearchIndexCache = { key: "", rows: [] };
+
+function discoverSearchIndex() {
+  const key = `${events.length}:${events[0]?.id || ""}:${events[events.length - 1]?.id || ""}:age-${state.age || state.profile?.age || ""}`;
+  if (discoverSearchIndexCache.key === key) return discoverSearchIndexCache.rows;
+  const rows = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart))
+    .map(event => ({ event, text: discoverSearchText(event) }));
+  discoverSearchIndexCache = { key, rows };
+  return rows;
+}
+
 function displayableDcEvents() {
   return events.filter(isDisplayableDcEvent);
 }
 
 function isDisplayableDcEvent(event) {
   if (!isMuseumDisplayEvent(event)) return false;
+  if (typeof isAgeAllowedEvent === "function" && !isAgeAllowedEvent(event)) return false;
   const text = `${event.title || ""} ${event.venue || ""} ${event.venueAddress || ""} ${event.area || ""} ${event.desc || ""}`.toLowerCase();
   const outsideDc = /\b(arlington|alexandria|bethesda|silver spring|national harbor|vienna|fairfax|falls church|rockville|hyattsville|college park|landover|tysons|mclean|reston|gaithersburg|laurel|bowie|annapolis|baltimore)\b|,\s*(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy)\b|\bvirginia\b/.test(text);
   if (outsideDc) return false;
@@ -1219,16 +1244,20 @@ function renderDiscoverEventSearch(query) {
   if (!content) return 0;
   const normalizedQuery = String(query || "").trim().toLowerCase();
   if (!normalizedQuery) {
+    state.searchFeedShown = 20;
     renderHome();
     return displayableDcEvents().filter(event => matchesFilter(event, state.homeFilter)).length;
   }
   document.querySelector(".top-week-section")?.remove();
-  const dcEvents = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
-  const pool = dcEvents.filter(event => normalizedQuery.split(/\s+/).every(term => discoverSearchText(event).includes(term)));
-  const matches = dedupeFeedEvents(pool.sort(sortEventsByStart));
+  const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+  const matches = discoverSearchIndex()
+    .filter(row => terms.every(term => row.text.includes(term)))
+    .map(row => row.event);
   const venueMatches = venueSearchMatches(normalizedQuery, 8);
   const venueHtml = venueMatches.length ? `<div class="venue-search-section"><p class="section-label">Venues</p><div class="venue-search-list">${venueMatches.map(venueSearchCard).join("")}</div></div>` : "";
-  const eventHtml = matches.length ? renderEventFeed(matches, { showBadge: true }) : `<p class="section-helper">No matching events yet.</p>`;
+  const eventHtml = matches.length
+    ? renderEventFeed(matches, { showBadge: true, shown: state.searchFeedShown || 20, moreAttr: "data-search-feed-more" })
+    : `<p class="section-helper">No matching events yet.</p>`;
   content.innerHTML = `${venueHtml}${eventHtml}`;
   return matches.length + venueMatches.length;
 }
@@ -1388,7 +1417,10 @@ function storyEventPool(story) {
   if (story.todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents()).slice().sort(sortEventsByStart);
+    const dcEvents = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents())
+      .filter(event => typeof isAgeAllowedEvent !== "function" || isAgeAllowedEvent(event))
+      .slice()
+      .sort(sortEventsByStart);
     const todaysEvents = dailyFeaturedEventSelection(dcEvents
       .filter(event => sameCalendarDate(eventDateValue(event), today)), 5);
     const fallbackEvents = dailyFeaturedEventSelection(dcEvents, 5);

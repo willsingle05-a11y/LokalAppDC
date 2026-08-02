@@ -16,30 +16,39 @@ function showSavedAnimation(button) {
 }
 
 let discoverSearchTimer = null;
+let discoverSearchFrame = null;
+let lastRenderedDiscoverSearch = "";
 
 function queueDiscoverSearch(input) {
   state.discoverSearch = input.value;
   window.clearTimeout(discoverSearchTimer);
+  if (discoverSearchFrame) window.cancelAnimationFrame(discoverSearchFrame);
   discoverSearchTimer = window.setTimeout(() => {
     const query = String(state.discoverSearch || "").trim().toLowerCase();
-    const visible = renderDiscoverEventSearch(query);
-    document.querySelectorAll("#app .following-chip").forEach(card => {
-      const match = !query || card.dataset.searchText.includes(query);
-      card.style.display = match ? "" : "none";
-    });
-    const results = document.querySelector("[data-discover-results]");
-    if (results) { results.hidden = true; results.innerHTML = ""; }
-    const feed = document.querySelector(".feed-section");
-    const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
-    if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
-    if (!query) {
-      const nextInput = document.querySelector("[data-discover-search]");
-      if (nextInput) {
-        nextInput.focus();
-        nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+    if (query === lastRenderedDiscoverSearch) return;
+    discoverSearchFrame = window.requestAnimationFrame(() => {
+      const isNewSearch = query !== lastRenderedDiscoverSearch;
+      lastRenderedDiscoverSearch = query;
+      state.searchFeedShown = query ? (isNewSearch ? 20 : (state.searchFeedShown || 20)) : 20;
+      const visible = renderDiscoverEventSearch(query);
+      document.querySelectorAll("#app .following-chip").forEach(card => {
+        const match = !query || card.dataset.searchText.includes(query);
+        card.style.display = match ? "" : "none";
+      });
+      const results = document.querySelector("[data-discover-results]");
+      if (results) { results.hidden = true; results.innerHTML = ""; }
+      const feed = document.querySelector(".feed-section");
+      const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
+      if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
+      if (!query) {
+        const nextInput = document.querySelector("[data-discover-search]");
+        if (nextInput) {
+          nextInput.focus();
+          nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+        }
       }
-    }
-  }, input.value.trim() ? 120 : 40);
+    });
+  }, input.value.trim() ? 220 : 80);
 }
 
 document.addEventListener("click", async event => {
@@ -103,6 +112,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.discoverBack !== undefined) { mark(); state.discoverCategoryView = ""; state.discoverGenreFilter = ""; state.feedShown = 10; renderHome(); }
   if (t.dataset.categoryGenre !== undefined) { mark(); state.discoverGenreFilter = t.dataset.categoryGenre; state.feedShown = 10; renderHome(); }
   if (t.dataset.feedMore !== undefined) { mark(); state.feedShown = (state.feedShown || 10) + 10; renderHome(); }
+  if (t.dataset.searchFeedMore !== undefined) { mark(); state.searchFeedShown = (state.searchFeedShown || 20) + 20; renderDiscoverEventSearch(state.discoverSearch || ""); }
   if (t.dataset.topWeekEvents !== undefined) { mark(); openTopWeekEvents(); }
   if (t.dataset.feedMode) {
     mark();
@@ -406,6 +416,10 @@ document.addEventListener("click", async event => {
     if (input) state.age = Math.max(13, Number(input.value) || 27);
     if (bio?.value.trim()) state.bio = bio.value.trim();
     state.privateAccount = Boolean(privateInput?.checked);
+    if (!isVenueAccount() && state.age < 21) {
+      state.tastes = (state.tastes || []).filter(taste => !["Happy hours", "Nightlife"].includes(taste));
+      ["happy-hours", "nightlife"].forEach(value => state.whatFilter?.delete(value));
+    }
     state.profile = { ...state.profile, age: state.age, bio: state.bio, tastes: state.tastes, privateAccount: state.privateAccount, venueImageUrl: venueImage ? venueImage.value.trim() : state.profile.venueImageUrl || "", venueDescription: venueDescription ? venueDescription.value.trim() : state.profile.venueDescription || "" };
     if (isVenueAccount()) registerLocalVenueProfile();
     localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
@@ -480,6 +494,7 @@ document.addEventListener("click", async event => {
     const error = card.querySelector("[data-account-error]");
     const email = card.querySelector("[data-onboard-email]").value.trim();
     const phone = card.querySelector("[data-onboard-phone]").value.trim();
+    const birthdate = card.querySelector("[data-onboard-birthdate]")?.value || "";
     const first = card.querySelector("[data-onboard-first]")?.value.trim() || state.signupDraft.firstName || "";
     const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
     const password = card.querySelector("[data-onboard-password]")?.value || "";
@@ -504,6 +519,7 @@ document.addEventListener("click", async event => {
     state.signupDraft.lastName = last;
     state.signupDraft.email = email;
     state.signupDraft.phone = formattedPhone;
+    state.signupDraft.birthdate = birthdate;
     state.signupDraft.password = password;
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 3;
@@ -515,10 +531,11 @@ document.addEventListener("click", async event => {
     const card = t.closest(".onboard-card");
     const error = card.querySelector("[data-account-error]");
     const draft = state.signupDraft || {};
-    const eventInterests = draft.interests || [];
+    const isVenue = draft.accountType === "venue";
+    const age = typeof calculateAge === "function" && draft.birthdate ? calculateAge(draft.birthdate) : 27;
+    const eventInterests = (draft.interests || []).filter(interest => isVenue || age >= 21 || !["Happy hours", "Nightlife"].includes(interest));
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
-    const isVenue = draft.accountType === "venue";
     if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
     const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
     const fullName = ownerName;
@@ -528,7 +545,7 @@ document.addEventListener("click", async event => {
       email: draft.email,
       phone: formatSignupPhone(draft.phone),
       username,
-      birthdate: "2000-01-01",
+      birthdate: draft.birthdate,
       eventInterests,
       areaInterests,
       accountType: isVenue ? "venue" : "person",

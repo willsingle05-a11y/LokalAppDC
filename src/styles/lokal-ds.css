@@ -514,18 +514,18 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 
 .detail-info-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
   width: 100%;
-  padding: 11px 0;
+  padding: 8px 0;
   border-bottom: 1px solid rgba(25, 26, 25, .09);
   background: transparent;
   text-align: left;
 }
-.detail-info-row .dir-art { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--mint-tint); }
+.detail-info-row .dir-art { flex: none; width: 26px; height: 26px; border-radius: 8px; background: var(--mint-tint); }
 .detail-info-row .dir-copy { flex: 1; min-width: 0; }
 .detail-info-row .dir-copy b { display: block; font-size: 13px; font-weight: 800; line-height: 1.2; }
-.detail-info-row .dir-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; font-weight: 500; line-height: 1.3; }
+.detail-info-row .dir-copy small { display: block; margin-top: 1px; color: var(--muted); font-size: 11.5px; font-weight: 500; line-height: 1.2; }
 .detail-info-row .dir-action { flex: none; color: var(--accent-strong); font-size: 11px; font-weight: 800; white-space: nowrap; }
 
 /* Sticky Save / Going bar replaces the ticket row */
@@ -605,7 +605,34 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
 }
 .profile-id .pid-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-id .pid-handle { margin-top: 11px; font-size: 15px; font-weight: 800; }
-.profile-id .pid-bio { max-width: 520px; margin: 5px auto 0; text-align: center; }
+.profile-id .pid-bio {
+  width: min(100%, 640px);
+  max-width: 640px;
+  margin: 5px auto 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pid-taste-icons {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 8px;
+}
+.pid-taste-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(25, 26, 25, .08);
+  border-radius: 50%;
+  background: #FAF9F6;
+}
+.pid-taste-icon svg {
+  width: 24px;
+  height: 24px;
+}
 .profile-id .pid-since { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
 .profile-id-actions { display: flex; gap: 9px; width: 100%; margin-top: 12px; }
 .profile-id-actions button {
@@ -954,6 +981,10 @@ input, textarea, select { font-size: var(--fs-body); }
 #modal-root .modal small,
 #modal-root .detail-info-row .dir-copy small,
 #modal-root .modal .lede { font-size: var(--fs-small); }
+#modal-root .detail-info-row { padding: 8px 0; gap: 10px; }
+#modal-root .detail-info-row .dir-art { width: 26px; height: 26px; border-radius: 8px; }
+#modal-root .detail-info-row .dir-copy b { font-size: 15px; line-height: 1.12; }
+#modal-root .detail-info-row .dir-copy small { margin-top: 1px; line-height: 1.2; }
 #modal-root .modal .lede { font-size: var(--fs-body); }
 #toast, #toast b { font-size: var(--fs-body); }
 .app-shell .saved-empty-icon { font-size: 38px; }
@@ -1245,6 +1276,65 @@ body[data-route="home"] .topbar .account-label,
 body[data-route="social"] .topbar .account-label,
 body[data-route="profile"] .topbar .account-label { display: none; }
 
+/* Detail cards should read dense and scannable instead of stretching every
+   section vertically. */
+#modal-root .detail-hero {
+  min-height: 180px;
+  padding: 16px;
+}
+#modal-root .detail-hero.has-image { min-height: 236px; }
+#modal-root .detail-body { padding: 10px 16px 22px; }
+#modal-root .detail-title-block {
+  gap: 2px;
+  margin-bottom: 5px;
+}
+#modal-root .detail-title-block h1 { line-height: 1; }
+#modal-root .detail-title-block .event-meta { line-height: 1; }
+#modal-root .detail-price { margin-top: 0; }
+#modal-root .detail-tags {
+  gap: 5px;
+  margin: 0 0 6px;
+  padding-top: 6px;
+}
+#modal-root .detail-about-label {
+  margin: 0 0 2px;
+  line-height: 1;
+}
+#modal-root .detail-description {
+  margin: 0;
+  line-height: 1.24;
+}
+#modal-root .detail-description-wrap { gap: 2px; }
+#modal-root .detail-schedule { margin: 7px 0 0; }
+#modal-root .detail-schedule-head {
+  gap: 8px;
+  margin-bottom: 0;
+}
+#modal-root .detail-schedule-copy b { line-height: 1.1; }
+#modal-root .detail-info-row {
+  min-height: 0;
+  padding: 4px 0;
+  gap: 7px;
+}
+#modal-root .detail-info-row .dir-art {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+}
+#modal-root .detail-info-row .dir-copy b {
+  font-size: 14px;
+  line-height: 1.02;
+}
+#modal-root .detail-info-row .dir-copy small {
+  margin-top: 0;
+  line-height: 1.08;
+}
+#modal-root .detail-action-row {
+  gap: 7px;
+  margin: 6px 0 0;
+}
+#modal-root .detail-action { padding: 8px 10px; }
+
 /* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
    warm cream, so those are overridden here alongside the shell. */
 .app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream); }
@@ -1285,8 +1375,10 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 .detail-schedule-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
 .detail-schedule-head .repeat-strip { margin-top: 0; }
 .detail-schedule-copy { display: flex; flex-direction: column; }
+.detail-schedule-copy.detail-schedule-inline { flex-direction: row; align-items: baseline; gap: 7px; flex-wrap: wrap; }
 .detail-schedule-copy b { font-size: var(--fs-title); font-weight: 700; letter-spacing: -.01em; }
 .detail-schedule-copy small { margin-top: 2px; color: var(--muted); font-size: var(--fs-small); }
+.detail-schedule-copy.detail-schedule-inline small { margin-top: 0; }
 .detail-schedule .cal-hint { margin: 8px 0 12px; }
 .detail-schedule .cal-day.is-off { color: rgba(25, 26, 25, .25); font-weight: 500; }
 .detail-schedule .cal-day.has-plans { color: var(--accent-strong); font-weight: 800; }

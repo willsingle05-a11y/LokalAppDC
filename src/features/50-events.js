@@ -8,9 +8,8 @@ function weekdayRunLabel(days) {
   return days.map(day => short[day]).join(", ");
 }
 
-// Recurring events used to print one row per occurrence — dozens of them. This
-// shows the pattern instead: which weekdays it runs, and a month grid of the
-// actual dates, each one tappable.
+// Recurring events used to print one row per occurrence — dozens of them. The
+// detail card only needs the readable cadence and time window.
 function detailScheduleBlock(event) {
   const all = occurrencesForEvent(event);
   if (all.length < 2) return "";
@@ -20,57 +19,26 @@ function detailScheduleBlock(event) {
     .sort((a, b) => a.date - b.date);
   if (dated.length < 2) return "";
 
-  const byIso = new Map();
-  dated.forEach(entry => { if (!byIso.has(calendarIsoDay(entry.date))) byIso.set(calendarIsoDay(entry.date), entry.item); });
   const weekdays = [...new Set(dated.map(entry => entry.date.getDay()))].sort((a, b) => a - b);
-  const first = dated[0].date;
-  const last = dated[dated.length - 1].date;
-
-  // Month cursor is clamped to the months the series actually covers.
-  const monthIndex = date => date.getFullYear() * 12 + date.getMonth();
-  const span = monthIndex(last) - monthIndex(first);
-  const offset = Math.min(Math.max(Number(state.detailCalMonth) || 0, 0), span);
-  state.detailCalMonth = offset;
-  const cursor = new Date(first.getFullYear(), first.getMonth() + offset, 1);
-  const total = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const cells = new Array(cursor.getDay()).fill(null);
-  for (let day = 1; day <= total; day += 1) cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), day));
-  while (cells.length % 7) cells.push(null);
-  const grid = cells.map(date => {
-    if (!date) return `<span class="cal-cell"></span>`;
-    const iso = calendarIsoDay(date);
-    const match = byIso.get(iso);
-    const isCurrent = match && match.id === event.id;
-    if (!match) return `<span class="cal-cell"><span class="cal-day is-off">${date.getDate()}</span></span>`;
-    return `<span class="cal-cell"><button class="cal-day has-plans ${isCurrent ? "cal-picked" : ""}" data-event="${match.id}" aria-label="${date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}">${date.getDate()}<i class="cal-plan-dot"></i></button></span>`;
-  }).join("");
-
-  const timeLabel = typeof eventDisplayTime === "function" ? eventDisplayTime(event) : "";
-  const through = last.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const timeLabel = recurringTimeWindowLabel(event);
   return `<div class="detail-schedule">
-    <p class="eyebrow">Repeats</p>
-    <div class="detail-schedule-head">
-      <span class="repeat-strip">${REPEAT_DAY_LETTERS.map((letter, day) => `<i class="${weekdays.includes(day) ? "on" : ""}">${letter}</i>`).join("")}</span>
-      <span class="detail-schedule-copy"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>${escapeHtml(timeLabel)}</small>` : ""}</span>
+    <div class="detail-schedule-head detail-schedule-simple">
+      <span class="detail-schedule-copy detail-schedule-inline"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>| ${escapeHtml(timeLabel)}</small>` : ""}</span>
     </div>
-    <p class="cal-hint">${dated.length} dates through ${escapeHtml(through)}. Tap one to open it.</p>
-    <div class="cal-head"><b>${escapeHtml(cursor.toLocaleDateString("en-US", { month: "long", year: "numeric" }))}</b><span class="cal-nav"><button data-detail-month="-1" aria-label="Previous month"${offset === 0 ? " disabled" : ""}>&lsaquo;</button><button data-detail-month="1" aria-label="Next month"${offset >= span ? " disabled" : ""}>&rsaquo;</button></span></div>
-    <div class="cal-weekdays" aria-hidden="true">${["S", "M", "T", "W", "T", "F", "S"].map(day => `<span>${day}</span>`).join("")}</div>
-    <div class="cal-grid">${grid}</div>
   </div>`;
 }
 
+function recurringTimeWindowLabel(event) {
+  const text = typeof eventDisplayTime === "function" ? String(eventDisplayTime(event) || "") : "";
+  return text.replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+}
+
 function openDetail(id, opts = {}) {
-  // Opening a different event starts its schedule on the first month again.
-  if (!opts.keepMonth) state.detailCalMonth = 0;
   const e = events.find(event => event.id === Number(id));
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const recurrence = eventRecurrence(e);
-  // Three levels, most informative first: the tappable month schedule, then the
-  // text summary, then a short list of the next few dates.
+  // Three levels, most informative first: compact repeat cadence, then the text
+  // summary, then a short list of the next few dates.
   const schedule = detailScheduleBlock(e);
   const occurrenceSummary = typeof eventOccurrenceSummary === "function"
     ? eventOccurrenceSummary(e, recurrence, otherOccurrences)
@@ -88,13 +56,11 @@ function openDetail(id, opts = {}) {
     ? `<button class="primary" data-share="${e.id}">Share event</button>`
     : `<button class="primary" data-copy-detail-link="${e.id}">Copy link</button>`;
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
-  const heroImage = eventArtImage(e);
   const hasUsableHeroPhoto = eventHasUsablePhoto(e);
   const fallbackHeroImage = eventFallbackImageSrc(e);
-  const heroStyle = hasUsableHeroPhoto
-    ? `background-image: linear-gradient(180deg, rgba(13,24,22,.08), rgba(13,24,22,.62)); background-color: #f7fafc;`
-    : `background-image: linear-gradient(180deg, rgba(13,24,22,.18), rgba(13,24,22,.72)), ${heroImage};`;
-  const heroImg = hasUsableHeroPhoto ? `<img class="detail-hero-img" src="${escapeHtml(eventCardImageSrc(e))}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
+  const heroImageSrc = hasUsableHeroPhoto ? eventCardImageSrc(e) : fallbackHeroImage;
+  const heroStyle = `background-color: #f7fafc;`;
+  const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasUsableHeroPhoto ? "" : " is-fallback-image"}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
   const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
@@ -107,31 +73,29 @@ function openDetail(id, opts = {}) {
   const isGoing = state.rsvps.has(e.id);
   const websiteUrl = eventWebsiteUrl(e);
   const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
-  const websiteHelper = e.detailsUrl ? "Opens the event listing" : websiteUrl ? "Opens the venue website" : "Opens the Lokal listing";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${hasUsableHeroPhoto ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
+    <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
     <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
     <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
-    <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b><small>Add to your calendar${recurrence ? ` / ${escapeHtml(recurrence.label)}` : ""}</small></span>
-      <span class="dir-action">Add</span>
-    </button>
-    <button class="detail-info-row ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b><small>${isFollowingVenue ? "You follow this venue" : "Follow for new events here"}</small></span>
-      <span class="dir-action">${isFollowingVenue ? "Following" : "Follow"}</span>
-    </button>
-    <button class="detail-info-row" data-ticket="${e.id}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b><small>${escapeHtml(websiteHelper)}</small></span>
-      <span class="dir-action">Open</span>
-    </button>
-    ${eventInterestSignal(e, true)}
-    <p class="eyebrow detail-about-label">About</p>
     ${descriptionBlock}
     ${eventSourceCredit(e)}
     ${occurrencesBlock}
+    <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b>${recurrence ? `<small>${escapeHtml(recurrence.label)}</small>` : ""}</span>
+      <span class="dir-action">Add to calendar</span>
+    </button>
+    <button class="detail-info-row ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b></span>
+      <span class="dir-action">${isFollowingVenue ? "Following venue" : "Follow venue"}</span>
+    </button>
+    <button class="detail-info-row" data-ticket="${e.id}">
+      <span class="dir-art"></span>
+      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b></span>
+      <span class="dir-action">Open listing</span>
+    </button>
+    ${eventInterestSignal(e, true)}
     <div class="detail-action-row">
       <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
       ${canNativeShare

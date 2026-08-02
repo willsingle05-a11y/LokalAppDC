@@ -587,6 +587,16 @@ h1, h2, h3, .brand b { color: #326f91; }
   border-style: dashed;
   background: #fbfdff;
 }
+.planner-card.planner-attended-history {
+  background: #fbfbfa;
+  box-shadow: none;
+}
+.planner-history-main {
+  cursor: default;
+}
+.planner-attended-history .planner-dot {
+  opacity: .65;
+}
 .planner-actions span.calendar-plan-pill {
   color: #326f91;
   background: #eef6fb;
