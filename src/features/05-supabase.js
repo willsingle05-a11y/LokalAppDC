@@ -1396,6 +1396,43 @@ function validateSignupEmail(email) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
 }
 
+// One rule, applied everywhere a password is set: long enough, and not a bare
+// string of digits — it has to contain letters.
+const SIGNUP_PASSWORD_MIN = 8;
+
+function validateSignupPassword(password) {
+  const value = String(password || "");
+  if (value.length < SIGNUP_PASSWORD_MIN) throw new Error(`Use a password with at least ${SIGNUP_PASSWORD_MIN} characters.`);
+  if (!/[a-zA-Z]/.test(value)) throw new Error("Your password needs to include at least one letter.");
+}
+
+// An email address gets one Lokal account. Checked against the profiles table
+// before signup runs, so the duplicate is caught while the user is still on the
+// form rather than surfacing as a Supabase error three screens later.
+async function emailAlreadyRegistered(email) {
+  const value = String(email || "").trim().toLowerCase();
+  if (!value) return false;
+  const stored = getLokalCredentials();
+  if (stored?.email && stored.email === value && localStorage.getItem("lokalHasAccount") === "true") return true;
+  try {
+    // ilike with no wildcards is a case-insensitive equality, which is what we
+    // want — stored addresses are not normalised to lower case everywhere.
+    const url = `${supabaseConfig.url}/rest/v1/profiles?select=id&email=ilike.${encodeURIComponent(value)}&limit=1`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) return false;
+    const rows = await response.json();
+    return Array.isArray(rows) && rows.length > 0;
+  } catch {
+    // Offline or blocked: don't block a legitimate signup on a failed lookup.
+    // Supabase still rejects a duplicate address at signup time.
+    return false;
+  }
+}
+
+function isDuplicateAccountError(error) {
+  return /already registered|already exists|already been registered|already has a lokal account|duplicate key|user_repeated_signup/i.test(String(error?.message || ""));
+}
+
 async function syncSupabaseSignupProfile(accessToken, profile) {
   const userId = decodeJwtPayload(accessToken).sub;
   if (!userId) return;
@@ -1437,10 +1474,13 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
 
 async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [], accountType = "person", ownerName = "", venueName = "", venueAddress = "", venueWebsite = "", venueImageUrl = "", venueDescription = "" }) {
   if (!fullName || !email || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
-  if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
+  validateSignupPassword(password);
   validateSignupEmail(email);
   validateBirthday(birthdate);
   const formattedPhone = formatSignupPhone(phone);
+  // The single choke point for account creation, so the one-account-per-email
+  // rule holds no matter which signup path got here.
+  if (await emailAlreadyRegistered(email)) throw new Error("That email already has a Lokal account. Log in instead, or use a different address.");
   state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests, accountType, ownerName, venueName, venueAddress, venueWebsite, venueImageUrl, venueDescription };
   state.pendingSignupPhone = formattedPhone;
   if (demoAuthConfig.useMockOtp) return { demoOtp: true };

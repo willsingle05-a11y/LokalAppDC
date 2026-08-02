@@ -1332,6 +1332,51 @@ function isMuseumDisplayEvent(event) {
   if (/time varies|date to be announced/.test(String(event.time || "").toLowerCase())) return false;
   return Boolean(event.startDate) || Number.isFinite(event.startSort) || eventStartHour(event) !== null;
 }
+// --- Cross-listed categories ----------------------------------------------
+// A few kinds of event honestly belong in more than one place. A Saturday
+// farmers market is a market *and* a community event; a band playing a bar is
+// live music even when the listing reads as nightlife, food, or community.
+// The importer has to pick one `cat`, so instead of re-tagging the source data
+// these two signals widen the category filters: the event keeps its home
+// category and also answers to the one it obviously belongs in.
+
+// Venue and neighbourhood names that carry the word "market" without the event
+// itself being one ("Union Market", "Eastern Market"). Stripped before the
+// standalone-word check so a concert at Union Market is not filed as a market.
+const MARKET_PLACE_NAMES = /\b(union market|eastern market|market square|marketplace|market street|marketing)\b/g;
+const MARKET_PHRASES = /\b(farmers'? market|farmer'?s market|flea market|night market|holiday market|winter market|makers'? market|maker'?s market|artisan market|craft market|street market|vendor market|pop-?up market|open-?air market|neighborhood market|community market|christmas market|bazaar|craft fair|street fair|makers'? fair|vendor fair|swap meet)s?\b/;
+
+function eventIsMarketEvent(event) {
+  const title = String(event?.title || "").toLowerCase();
+  const text = `${title} ${eventTags(event).join(" ")} ${String(event?.desc || "")}`.toLowerCase();
+  if (MARKET_PHRASES.test(text)) return true;
+  // Otherwise only trust the word in the event's own title, and only once the
+  // place names that merely contain it have been taken out.
+  return /\bmarkets?\b/.test(title.replace(MARKET_PLACE_NAMES, " "));
+}
+
+// Deliberately narrow: recorded music (DJ sets, karaoke, silent discos) is
+// nightlife, not live music, so those stay out unless a live act is also named.
+// "Ensemble" is deliberately absent: the importer sprays it on performing-arts
+// listings as decorative filler, so it flags film screenings as gigs.
+const LIVE_MUSIC_PHRASES = /\b(live music|live band|live jazz|live blues|live bluegrass|live set|live performance|performs? live|performing live|open mic|open-mic|jam session|acoustic|unplugged|singer[- ]songwriter|songwriter night|jazz night|jazz brunch|blues night|bluegrass|go-?go\b|brass band|cover band|house band|residency|\bband\b|\btrio\b|\bquartet\b|\bquintet\b|\bconcert\b|\bgig\b|\brecital\b)\b/;
+const RECORDED_MUSIC_PHRASES = /\b(dj set|dj night|dj-|karaoke|silent disco|open decks|vinyl night|playlist)\b/;
+
+function eventIsLiveMusicEvent(event) {
+  const text = `${event?.title || ""} ${eventTags(event).join(" ")} ${event?.desc || ""}`.toLowerCase();
+  if (!LIVE_MUSIC_PHRASES.test(text)) return false;
+  // A karaoke or DJ night that only trips the filter on a stray word stays put.
+  return !RECORDED_MUSIC_PHRASES.test(text) || /\b(live music|live band|live set|live performance|open mic)\b/.test(text);
+}
+
+// True when `event` should surface under `filter` in addition to its own `cat`.
+function eventCrossListsInto(event, filter) {
+  const category = String(event?.cat || "").toLowerCase();
+  if (filter === "festivals") return category !== "festivals" && eventIsMarketEvent(event);
+  if (filter === "live-music") return !["live-music", "concerts"].includes(category) && eventIsLiveMusicEvent(event);
+  return false;
+}
+
 function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (!isMuseumDisplayEvent(event)) return false;
   const priceValue = eventNumericPrice(event);
@@ -1352,8 +1397,10 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
   if (filter === "food") return eventMatchesFoodDrinkFocus(event);
-  if (filter === "community") return event.cat === "community" || event.cat === "expos";
-  return event.cat === filter;
+  // Markets and community overlap on purpose — a farmers market answers to both,
+  // whichever side the importer happened to file it under.
+  if (filter === "community") return event.cat === "community" || event.cat === "expos" || eventIsMarketEvent(event);
+  return event.cat === filter || eventCrossListsInto(event, filter);
 }
 
 function eventMatchesFoodDrinkFocus(event) {

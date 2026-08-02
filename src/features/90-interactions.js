@@ -501,10 +501,20 @@ document.addEventListener("click", async event => {
     const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
     if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
-    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateBirthday(birthdate); }
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateSignupPassword(password); }
     catch (contactError) { error.textContent = contactError.message; return; }
-    if (password.length < 8) { error.textContent = "Use a password with at least 8 characters."; return; }
     if (password !== confirmPassword) { error.textContent = "Those passwords don't match."; return; }
+    // One account per email address — checked here so the duplicate is caught on
+    // the form the user is looking at, not after they have picked interests.
+    if (t.disabled) return;
+    t.disabled = true;
+    const continueLabel = t.textContent;
+    t.textContent = "Checking...";
+    let taken = false;
+    try { taken = await emailAlreadyRegistered(email); }
+    finally { t.disabled = false; t.textContent = continueLabel; }
+    if (taken) { error.textContent = "That email already has a Lokal account. Log in instead, or use a different address."; return; }
+    error.textContent = "";
     state.signupDraft.firstName = first;
     state.signupDraft.lastName = last;
     state.signupDraft.email = email;
@@ -571,7 +581,17 @@ document.addEventListener("click", async event => {
           venueImageUrl: onboardingProfile.venueImageUrl,
           venueDescription: onboardingProfile.venueDescription
         });
-      } catch (accountError) { supabaseSynced = false; console.warn("[supabase] account creation failed", accountError); }
+      } catch (accountError) {
+        // A duplicate address is the one failure that must not fall through to a
+        // local-only account: it would leave two profiles on one email.
+        if (isDuplicateAccountError(accountError)) {
+          error.textContent = "That email already has a Lokal account. Go back and use a different address, or log in instead.";
+          t.disabled = false;
+          return;
+        }
+        supabaseSynced = false;
+        console.warn("[supabase] account creation failed", accountError);
+      }
     }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
