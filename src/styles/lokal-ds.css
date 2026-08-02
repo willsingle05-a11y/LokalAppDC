@@ -1053,15 +1053,18 @@ input, textarea, select { font-size: var(--fs-body); }
    direction you travelled along the tab bar.
    ============================================================ */
 
+/* The incoming half of the swipe: the new page arrives from the side you were
+   heading towards, just after the old one has slid off (see setRoute). It comes
+   in from further out than it left, which is what sells it as one gesture. */
 @keyframes page-slide-left {
-  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(38px, 0, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 @keyframes page-slide-right {
-  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(-38px, 0, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-.page { animation: page-slide-left .26s cubic-bezier(.22, .61, .36, 1) both; }
+.page { animation: page-slide-left .24s cubic-bezier(.16, .84, .44, 1) both; }
 body.nav-back .page { animation-name: page-slide-right; }
 @media (prefers-reduced-motion: reduce) {
   .page, body.nav-back .page { animation: none; }
@@ -1300,3 +1303,250 @@ body[data-route="profile"] .topbar .account-label { display: none; }
   background: var(--accent);
 }
 .detail-schedule .cal-day { position: relative; }
+
+/* ============================================================
+   Today's five — the card deck at the top of Discover.
+   Modelled on the Strava "Instant Workouts" and Wabi decks: the
+   card you are on sits square in the middle, the rest fan out
+   behind it on both sides, and you throw the front one away to
+   get to the next. CSS owns what each depth looks like; the JS
+   in initTodayHero owns which card is at which depth.
+   ============================================================ */
+
+.today-hero { margin: 2px 0 22px; }
+.today-hero-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 2px 14px;
+}
+.today-hero-head h2 {
+  margin: 1px 0 0;
+  font-size: var(--fs-section);
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.today-hero-head .eyebrow { margin: 0; }
+.today-hero-live {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--mint-tint);
+  animation: today-live-pulse 2.4s ease-in-out infinite;
+}
+@keyframes today-live-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px var(--mint-tint); }
+  50% { box-shadow: 0 0 0 7px rgba(0, 200, 151, .16); }
+}
+
+/* The deck is the stage. Cards are absolutely centred inside it and the fan
+   spills past the edges, so nothing here may clip. */
+.today-deck {
+  position: relative;
+  height: clamp(392px, 96vw, 476px);
+  /* Room for the fanned corners at either side. */
+  margin: 0 6px;
+  touch-action: pan-y;
+}
+.today-deck:focus-visible { outline: 3px solid var(--accent); outline-offset: 10px; border-radius: 30px; }
+
+.today-card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(83%, 342px);
+  height: 100%;
+  margin-left: min(-41.5%, -171px);
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--ink);
+  box-shadow: 0 18px 38px -12px rgba(9, 12, 10, .42), 0 2px 8px rgba(9, 12, 10, .16);
+  transform-origin: 50% 50%;
+  transition: transform .42s cubic-bezier(.22, .61, .36, 1), opacity .34s ease, filter .34s ease;
+  will-change: transform;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.today-card.is-front { cursor: grab; }
+.today-card.is-dragging { cursor: grabbing; transition: none; }
+/* Used for one frame while a thrown card is restacked at the back, so it
+   doesn't visibly sail back across the screen. */
+.today-card.no-transition { transition: none; }
+
+/* The fan. Depth 0 is the card you are on; 1 and 2 lean out either side of it,
+   3 is the tail of the stack, and "out" is the card being thrown away. */
+.today-card[data-depth="0"] { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 1; }
+.today-card[data-depth="1"] { transform: translate3d(-20px, 0, 0) rotate(-5.5deg) scale(.955); opacity: 1; filter: brightness(.84); }
+.today-card[data-depth="2"] { transform: translate3d(24px, 0, 0) rotate(6deg) scale(.918); opacity: 1; filter: brightness(.74); }
+.today-card[data-depth="3"] { transform: translate3d(36px, 0, 0) rotate(9deg) scale(.886); opacity: .85; filter: brightness(.66); }
+.today-card[data-depth="out"] { opacity: 0; transition: transform .3s cubic-bezier(.4, 0, .8, .3), opacity .3s ease; }
+/* Only the front card takes pointer events, so a fanned corner is never a
+   tap target for the event underneath it. */
+.today-card:not(.is-front) { pointer-events: none; }
+
+.today-card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  /* A slow drift on the live card, so a still photo still feels alive. */
+  transform: scale(1.04);
+  transition: transform 7s ease-out;
+}
+.today-card.is-front .today-card-img { transform: scale(1.11); }
+.today-card-img.is-fallback-image { object-fit: contain; background: #f7fafc; transform: none; }
+.today-card.is-front .today-card-img.is-fallback-image { transform: none; }
+
+.today-card-shade {
+  position: absolute;
+  inset: 0;
+  /* Heavy at both ends: the facts sit on the top scrim and the title on the
+     bottom one, and event photos are as often near-white as they are dark. */
+  background: linear-gradient(to top, rgba(9, 12, 10, .9) 0%, rgba(9, 12, 10, .58) 30%, rgba(9, 12, 10, .1) 56%, rgba(9, 12, 10, .3) 82%, rgba(9, 12, 10, .58) 100%);
+  pointer-events: none;
+}
+/* The glassy diagonal the reference decks all carry. */
+.today-card-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(118deg, rgba(255, 255, 255, .17) 0%, rgba(255, 255, 255, .05) 26%, rgba(255, 255, 255, 0) 46%, rgba(255, 255, 255, .07) 78%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+.today-card-hit { position: absolute; inset: 0; width: 100%; background: transparent; }
+
+.today-card-top {
+  position: absolute;
+  top: 17px;
+  right: 16px;
+  left: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+/* Label over value, the way the reference cards head their stats. */
+.today-card-facts { display: flex; gap: 16px; min-width: 0; }
+.today-fact { display: flex; min-width: 0; flex-direction: column; gap: 1px; color: #fff; }
+.today-fact small {
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  opacity: .72;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .4);
+}
+.today-fact b {
+  overflow: hidden;
+  font-size: var(--fs-body);
+  font-weight: 800;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .45);
+}
+.today-card-tools {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+  pointer-events: auto;
+  transition: opacity .28s ease;
+}
+/* Save and share belong to the card you are on. On the fanned ones they are
+   just floating circles, so they fade out until that card comes forward. */
+.today-card:not(.is-front) .today-card-tools { opacity: 0; }
+.today-card-tool {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(9, 12, 10, .42);
+  color: #fff;
+  backdrop-filter: blur(7px);
+}
+.today-card-tool svg { width: 17px; height: 17px; stroke-width: 2; }
+.today-card-tool.card-save.is-saved { background: var(--accent); color: #fff; }
+.today-card-tool.card-save.is-saved svg { fill: currentColor; }
+
+.today-card-copy {
+  position: absolute;
+  right: 18px;
+  bottom: 20px;
+  left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #fff;
+  pointer-events: none;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, .42);
+}
+.today-card-title {
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -.028em;
+  /* Two lines maximum, so every card in the deck has the same footprint. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.today-card-venue {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  opacity: .95;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.today-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 3px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  opacity: .84;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.today-card-price {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .2);
+  font-size: var(--fs-micro);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.today-hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 26px 18px 0;
+}
+.today-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(25, 26, 25, .18);
+  transition: width .3s cubic-bezier(.22, .61, .36, 1), background .3s ease;
+}
+.today-dot.is-on { width: 20px; background: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .today-hero-live { animation: none; }
+  .today-card { transition: none; }
+  .today-card-img,
+  .today-card.is-front .today-card-img { transform: none; transition: none; }
+  .today-dot { transition: none; }
+}

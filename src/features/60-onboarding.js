@@ -214,7 +214,7 @@ function renderOnboarding() {
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
-        <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters"></label>
+        <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters, including a letter"></label>
         <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
       <p class="account-error" data-account-error></p>
@@ -285,8 +285,19 @@ function showDiscoverHint() {
   setTimeout(dismiss, 6000);
 }
 
+// Discover / Saved / Profile sit left-to-right along the tab bar, so moving
+// between them should read as travelling sideways: the page you are leaving
+// slides off the way you came from, the new one slides in behind it. Short
+// enough (about a fifth of a second, end to end) that it never feels like a wait.
+const ROUTE_EXIT_MS = 130;
+
+function renderRoute(route) {
+  ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
+}
+
 function setRoute(route) {
   if (route === "map") route = "home";
+  const routeChanged = state.route !== route;
   state.route = route;
   document.body.dataset.route = route;
   // Bo leans on the wordmark in the topbar; drawn once, then CSS decides which
@@ -296,7 +307,32 @@ function setRoute(route) {
     boSlot.innerHTML = boPoseMarkup("Leaning on the wordmark");
   }
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
-  ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
+
+  const leaving = routeChanged ? app.querySelector(".page") : null;
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!leaving || reduceMotion || typeof leaving.animate !== "function") {
+    renderRoute(route);
+    return;
+  }
+  // Travelling right along the tab bar pushes the old page left, and vice versa.
+  const back = document.body.classList.contains("nav-back");
+  let rendered = false;
+  const swap = () => {
+    if (rendered) return;
+    rendered = true;
+    renderRoute(route);
+  };
+  try {
+    const animation = leaving.animate([
+      { opacity: 1, transform: "translate3d(0, 0, 0)" },
+      { opacity: 0, transform: `translate3d(${back ? "26px" : "-26px"}, 0, 0)` }
+    ], { duration: ROUTE_EXIT_MS, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+    animation.onfinish = swap;
+    animation.oncancel = swap;
+  } catch { swap(); }
+  // A backstop: an animation on a backgrounded tab may never fire onfinish, and
+  // the route must land either way.
+  setTimeout(swap, ROUTE_EXIT_MS + 60);
 }
 
 function resetAppScroll() {

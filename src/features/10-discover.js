@@ -58,7 +58,7 @@ const categoryFeedConfig = {
   "performing-arts": { label: "Performing arts", searchPlaceholder: "Search by theater, comedy, dance, film, or show…", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venue…", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or show…", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
-  festivals: { label: "Festivals", searchPlaceholder: "Search by festival, neighborhood, or type…", chips: ["All festivals", "Food & drink", "Music", "Art", "Cultural", "Outdoor", "Family"] },
+  festivals: { label: "Markets", searchPlaceholder: "Search by market, neighborhood, or type…", chips: ["All markets", "Farmers market", "Flea market", "Makers & craft", "Food & drink", "Holiday", "Street fair", "Outdoor"] },
   community: { label: "Community", searchPlaceholder: "Search by cause, group, convention, or neighborhood…", chips: ["All events", "Volunteer", "Networking", "Convention", "Workshop", "Book club", "Outdoor", "Free"] },
   free: { label: "Free events", searchPlaceholder: "Search free events by type or venue…", chips: ["All free", "Comedy", "Museums", "Outdoor", "Live music", "Festivals", "Workshops", "Talks"] }
 };
@@ -483,6 +483,240 @@ function openTopWeekEvents() {
   </section></div>`;
 }
 
+// --- Today's five, as a card deck -----------------------------------------
+// The first thing you see on opening the app: today's five picks as a stack of
+// cards you swipe through, rather than a list you read. The card you are on sits
+// square in the middle and the rest fan out behind it, so the whole thing reads
+// as one physical deck. It also advances on its own, so the surface feels alive
+// when it is just sitting there.
+const TODAY_HERO_ROTATE_MS = 6000;
+// How long the deck waits after you touch it before it starts advancing again.
+const TODAY_HERO_RESUME_MS = 9000;
+// Past this much horizontal drag, letting go throws the card instead of
+// springing it back. Roughly a third of a card.
+const TODAY_HERO_THROW_PX = 68;
+// Movement under this is a tap, not a drag, and should open the event.
+const TODAY_HERO_TAP_PX = 8;
+let todayHeroTimer = null;
+let todayHeroResumeTimer = null;
+
+function todayHeroEvents(limit = 5) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const pool = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents())
+    .slice()
+    .filter(event => !storyEventAlreadyHappened(event))
+    .sort(sortEventsByStart);
+  const todays = dailyFeaturedEventSelection(pool.filter(event => sameCalendarDate(eventDateValue(event), today)), limit);
+  return todays.length ? todays : dailyFeaturedEventSelection(pool, limit);
+}
+
+// The deck is all today, so the fact strip only needs the clock — the full
+// "Sun, Aug 2, 2:30 PM" stays on the line under the title.
+function todayHeroClock(event) {
+  const match = String(eventDisplayTime(event) || "").match(/\d{1,2}(?::\d{2})?\s*(?:AM|PM)/i);
+  if (match) return match[0].replace(/\s+/g, " ").toUpperCase();
+  return eventDisplayTime(event) || "Today";
+}
+
+function todayHeroCard(event, index, total) {
+  const displayTitle = eventDisplayTitle(event);
+  const venue = cleanLocationPart(canonicalVenueName(event.venue)) || eventLocationLine(event) || "Washington, DC";
+  const price = typeof eventPriceLabel === "function" ? eventPriceLabel(event) : "";
+  // The neighbourhood only earns its place when it says something the venue line
+  // above it hasn't already ("Audi Field" then "Audi Field / Washington, DC").
+  const area = eventCardArea(event);
+  const areaAddsSomething = area && !`${venue}`.toLowerCase().includes(area.toLowerCase()) && !area.toLowerCase().includes(venue.toLowerCase());
+  const meta = [eventDisplayTime(event), areaAddsSomething ? area : ""].filter(Boolean).join(" · ");
+  // Top-left of the card carries the two facts you sort on — when, and what kind
+  // of thing it is — as label-over-value pairs, the way the reference decks do.
+  return `<article class="today-card" data-today-card="${index}" data-depth="${Math.min(index, 3)}" style="z-index:${total - index}" role="group" aria-roledescription="slide" aria-label="${index + 1} of ${total}: ${escapeHtml(displayTitle)}">
+    <img class="today-card-img" src="${escapeHtml(eventCardImageSrc(event))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(event))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="${index === 0 ? "eager" : "lazy"}">
+    <span class="today-card-shade" aria-hidden="true"></span>
+    <span class="today-card-sheen" aria-hidden="true"></span>
+    <button class="today-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
+    <span class="today-card-top">
+      <span class="today-card-facts">
+        <span class="today-fact"><small>Starts</small><b>${escapeHtml(todayHeroClock(event))}</b></span>
+        <span class="today-fact"><small>Type</small><b>${escapeHtml(eventArtLabel(event))}</b></span>
+      </span>
+      <span class="today-card-tools">
+        <button class="card-icon-btn card-share today-card-tool" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button>
+        <button class="card-icon-btn card-save today-card-tool${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
+      </span>
+    </span>
+    <span class="today-card-copy">
+      <b class="today-card-title">${escapeHtml(displayTitle)}</b>
+      <span class="today-card-venue">${escapeHtml(venue)}</span>
+      ${meta || price ? `<span class="today-card-meta">${escapeHtml(meta)}${price ? `<i class="today-card-price">${escapeHtml(price)}</i>` : ""}</span>` : ""}
+    </span>
+  </article>`;
+}
+
+function renderTodayHero() {
+  const events = todayHeroEvents(5);
+  if (!events.length) return "";
+  const cards = events.map((event, index) => todayHeroCard(event, index, events.length)).join("");
+  const dots = events.map((event, index) => `<button class="today-dot${index === 0 ? " is-on" : ""}" data-today-dot="${index}" aria-label="Show pick ${index + 1}"></button>`).join("");
+  return `<section class="today-hero" data-today-hero aria-roledescription="carousel" aria-label="Today's top picks">
+    <div class="today-hero-head">
+      <span class="today-hero-live" aria-hidden="true"></span>
+      <div><p class="eyebrow">Today in DC</p><h2>Your five for today</h2></div>
+    </div>
+    <div class="today-deck" data-today-deck tabindex="0" role="group" aria-label="Swipe through today's picks">${cards}</div>
+    <div class="today-hero-dots" data-today-dots>${dots}</div>
+  </section>`;
+}
+
+// Wires the deck up after render. Each card's position in the stack is a `depth`
+// (0 is the front card, 1 and 2 fan out behind it, anything deeper is parked out
+// of sight); CSS owns what each depth looks like, this owns which card is at
+// which depth. Dragging the front card throws it off and promotes the next.
+// Any touch or keypress parks the auto-advance for a while, so the deck never
+// pulls a card out from under someone mid-read.
+function initTodayHero() {
+  clearInterval(todayHeroTimer);
+  clearTimeout(todayHeroResumeTimer);
+  todayHeroTimer = null;
+  todayHeroResumeTimer = null;
+  const hero = document.querySelector("[data-today-hero]");
+  const deck = hero?.querySelector("[data-today-deck]");
+  if (!hero || !deck) return;
+  const cards = [...deck.querySelectorAll(".today-card")];
+  const dots = [...hero.querySelectorAll("[data-today-dot]")];
+  if (!cards.length) return;
+  const total = cards.length;
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // A re-render (a sync landing, a filter clearing) shouldn't throw the deck back
+  // to the first card while someone is part-way through it.
+  let index = Math.min(Math.max(Number(state.todayHeroIndex) || 0, 0), total - 1);
+  let busy = false;
+
+  const layout = () => {
+    state.todayHeroIndex = index;
+    cards.forEach((card, position) => {
+      const depth = (position - index + total) % total;
+      card.dataset.depth = String(Math.min(depth, 3));
+      card.style.zIndex = String(total - depth);
+      card.style.transform = "";
+      card.classList.toggle("is-front", depth === 0);
+      // Only the front card is reachable; the fanned ones are decoration.
+      card.querySelectorAll("button").forEach(button => { button.tabIndex = depth === 0 ? 0 : -1; });
+      card.setAttribute("aria-hidden", depth === 0 ? "false" : "true");
+    });
+    dots.forEach((dot, position) => dot.classList.toggle("is-on", position === index));
+  };
+
+  // Throw the front card off in `direction` (1 = forwards/left, -1 = back/right)
+  // and restack. The card that leaves is put back at the bottom of the deck with
+  // transitions suppressed for a frame, so it doesn't visibly fly back across.
+  const advance = direction => {
+    if (busy || total < 2) return;
+    const outgoing = cards[index];
+    busy = true;
+    outgoing.dataset.depth = "out";
+    outgoing.style.transform = `translate3d(${direction > 0 ? "-125%" : "125%"}, 6%, 0) rotate(${direction > 0 ? -16 : 16}deg)`;
+    const settle = () => {
+      index = (index + direction + total) % total;
+      outgoing.classList.add("no-transition");
+      layout();
+      // Two frames: one for the class to apply, one for the new depth to paint.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        outgoing.classList.remove("no-transition");
+        busy = false;
+      }));
+    };
+    reduceMotion ? settle() : setTimeout(settle, 300);
+  };
+
+  const goTo = target => {
+    const next = ((target % total) + total) % total;
+    if (next === index || busy) return;
+    // Shortest way round the deck, so tapping the last dot doesn't walk through
+    // every card in between.
+    const forward = (next - index + total) % total;
+    advance(forward <= total - forward ? 1 : -1);
+    if (forward !== 1 && total - forward !== 1) {
+      // More than one card away: land the rest without the throw animation.
+      setTimeout(() => { index = next; layout(); }, reduceMotion ? 0 : 320);
+    }
+  };
+
+  const start = () => {
+    if (reduceMotion || total < 2) return;
+    clearInterval(todayHeroTimer);
+    todayHeroTimer = setInterval(() => {
+      if (document.hidden || document.querySelector(".modal-backdrop") || !document.body.contains(deck)) return;
+      advance(1);
+    }, TODAY_HERO_ROTATE_MS);
+  };
+  const pause = () => {
+    clearInterval(todayHeroTimer);
+    clearTimeout(todayHeroResumeTimer);
+    todayHeroTimer = null;
+    todayHeroResumeTimer = setTimeout(start, TODAY_HERO_RESUME_MS);
+  };
+
+  // --- Drag ----------------------------------------------------------------
+  let drag = null;
+  deck.addEventListener("pointerdown", event => {
+    if (busy || event.button > 0) return;
+    const front = cards[index];
+    if (!event.target.closest(".today-card") || !front.contains(event.target)) return;
+    // Leave the tool buttons alone — they are targets, not drag handles.
+    if (event.target.closest(".today-card-tool")) return;
+    pause();
+    drag = { x: event.clientX, y: event.clientY, dx: 0, moved: false, id: event.pointerId };
+    front.classList.add("is-dragging");
+  });
+
+  deck.addEventListener("pointermove", event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const dx = event.clientX - drag.x;
+    const dy = event.clientY - drag.y;
+    // Vertical intent belongs to the page scroll, not the deck.
+    if (!drag.moved && Math.abs(dy) > Math.abs(dx) * 1.3 && Math.abs(dy) > TODAY_HERO_TAP_PX) { release(false); return; }
+    if (Math.abs(dx) > TODAY_HERO_TAP_PX) drag.moved = true;
+    drag.dx = dx;
+    if (!drag.moved) return;
+    event.preventDefault();
+    const front = cards[index];
+    front.style.transform = `translate3d(${dx}px, ${Math.abs(dx) * 0.04}px, 0) rotate(${dx / 22}deg)`;
+  });
+
+  function release(allowThrow = true) {
+    if (!drag) return;
+    const front = cards[index];
+    const { dx, moved } = drag;
+    drag = null;
+    front.classList.remove("is-dragging");
+    if (allowThrow && moved && Math.abs(dx) > TODAY_HERO_THROW_PX) advance(dx < 0 ? 1 : -1);
+    else front.style.transform = "";
+    // A drag that ends on the card would otherwise fire a click and open the
+    // event the user was only flicking past.
+    if (moved) {
+      deck.addEventListener("click", swallow, { capture: true, once: true });
+      setTimeout(() => deck.removeEventListener("click", swallow, { capture: true }), 0);
+    }
+  }
+  const swallow = event => { event.stopPropagation(); event.preventDefault(); };
+  deck.addEventListener("pointerup", () => release());
+  deck.addEventListener("pointercancel", () => release(false));
+  deck.addEventListener("pointerleave", () => release());
+
+  deck.addEventListener("keydown", event => {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+    event.preventDefault();
+    pause();
+    advance(event.key === "ArrowRight" ? 1 : -1);
+  });
+  dots.forEach((dot, position) => dot.addEventListener("click", () => { pause(); goTo(position); }));
+
+  layout();
+  start();
+}
+
 function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const withPictures = dc.filter(event => String(event.image || "").trim());
@@ -774,8 +1008,12 @@ function renderHome() {
   const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
   const syncStatus = discoverStatusLabel();
+  // Today's five lead the page — the deck is the first thing on open, above the
+  // search and filters. It steps aside once the user is actively filtering.
+  const heroHtml = discoverFiltersActive() ? "" : renderTodayHero();
   app.innerHTML = `<section class="page discover-page">
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
+    ${heroHtml}
     ${renderFilterBar()}
     ${followingRail()}
     ${syncStatus ? `<div class="sync-note ${state.eventSync.status}"><span>${syncStatus}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>` : ""}
@@ -784,6 +1022,7 @@ function renderHome() {
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
   if (state.resetDiscoverScrollAfterRender && typeof resetAppScroll === "function") resetAppScroll();
+  if (heroHtml) initTodayHero();
 }
 
 function discoverCategoryLabel(category) {
@@ -830,7 +1069,7 @@ function categoryFacetLabel(category) {
     nightlife: "nightlife type",
     culture: "culture type",
     museums: "museum type",
-    festivals: "festival type",
+    festivals: "market type",
     community: "community type",
     free: "type"
   };
@@ -848,7 +1087,7 @@ function categoryFacetAllLabel(category) {
     nightlife: "All nightlife",
     culture: "All culture",
     museums: "All museum types",
-    festivals: "All festival types",
+    festivals: "All market types",
     community: "All community types",
     free: "All free events"
   };
@@ -866,7 +1105,7 @@ function categoryFacetPriorityList(category) {
     nightlife: ["DJ Set", "Dance Floor", "Club Night", "Rooftop", "Late Night", "Pride", "Lounge", "Cocktails"],
     culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
-    festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
+    festivals: ["Farmers Market", "Flea Market", "Makers", "Craft", "Food & Drink", "Holiday", "Street Fair", "Outdoor", "Vintage", "Pop-up"],
     community: ["Volunteer", "Networking", "Book Club", "Convention", "Workshop", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
     free: ["Comedy", "Museum", "Outdoor", "Family Friendly", "Live music", "Festival", "Workshop", "Talk", "Community"]
   }[category] || [];
@@ -1074,8 +1313,10 @@ function renderMap() {
   </section>`;
 }
 
+// Today's five used to live here as a story tile you tapped to open a list.
+// They now lead Discover as the rotating deck (see renderTodayHero), so the rail
+// is back to what it says it is: the venues and curators you follow.
 const followingStories = [
-  { id: "featured-today", icon: "5", name: "5 featured events in DC today", type: "Today", intro: "Five DC events worth knowing about today.", todayOnly: true },
   { id: "songbyrd", icon: "S", name: "Songbyrd", type: "Venue", intro: "What's coming up at Songbyrd over the next few days.", eventIds: [1, 11], venueKeywords: ["songbyrd"] },
   { id: "dcafterdark", icon: "D", name: "@dcafterdark", type: "Curator", intro: "A few things @dcafterdark thinks are worth leaving the house for this week.", eventIds: [4, 6, 7], categories: ["concerts", "performing-arts"], tagKeywords: ["Nightlife", "Comedy", "Live Music", "Late Night", "Evening"] },
   { id: "smithsonian", icon: "M", name: "Smithsonian", type: "Venue", intro: "A Smithsonian event to catch over the next couple of days.", eventIds: [9], venueKeywords: ["smithsonian", "hirshhorn", "national gallery", "saam", "portrait gallery"] },
@@ -1190,10 +1431,9 @@ function activeFollowingStories() {
     intro: "Events you shared with your friends on Lokal.",
     eventIds: userStoryPosts.map(post => post.eventId)
   }] : [];
-  const [featuredStory, ...otherStories] = followingStories;
   const followedVenues = followedVenueNames().map(name => name.toLowerCase());
   const isFollowedStory = story => state.follows.has(story.id) || followedVenues.some(name => String(story.name || "").toLowerCase().includes(name) || (story.venueKeywords || []).some(keyword => name.includes(keyword) || keyword.includes(name)));
-  return [featuredStory, ...ownStory, ...otherStories.filter(isFollowedStory)]
+  return [...ownStory, ...followingStories.filter(isFollowedStory)]
     .filter(Boolean)
     .map(story => ({ ...story, storyEvents: storyEventPool(story) }))
     .filter(story => story.storyEvents.length);
