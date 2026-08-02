@@ -1406,31 +1406,78 @@ body[data-route="profile"] .topbar .account-label { display: none; }
    ============================================================ */
 
 .today-hero { margin: 2px 0 22px; }
+/* The numeral badge deliberately echoes the "10" on Top 10 events this week,
+   so the two ranked surfaces read as one family. */
 .today-hero-head {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 0 2px 14px;
+  gap: 11px;
+  padding: 0 2px 15px;
 }
+.today-hero-badge {
+  display: grid;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--ink);
+  color: var(--accent);
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  box-shadow: 0 6px 16px -6px rgba(9, 12, 10, .5);
+}
+.today-hero-headings { min-width: 0; }
 .today-hero-head h2 {
-  margin: 1px 0 0;
-  font-size: var(--fs-section);
-  font-weight: 800;
-  letter-spacing: -.02em;
+  margin: 2px 0 0;
+  font-size: var(--fs-page);
+  font-weight: 900;
+  letter-spacing: -.035em;
 }
-.today-hero-head .eyebrow { margin: 0; }
+.today-hero-head .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--accent-strong);
+}
 .today-hero-live {
   flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px var(--mint-tint);
+  box-shadow: 0 0 0 3px var(--mint-tint);
   animation: today-live-pulse 2.4s ease-in-out infinite;
 }
 @keyframes today-live-pulse {
-  0%, 100% { box-shadow: 0 0 0 4px var(--mint-tint); }
-  50% { box-shadow: 0 0 0 7px rgba(0, 200, 151, .16); }
+  0%, 100% { box-shadow: 0 0 0 3px var(--mint-tint); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 200, 151, .16); }
+}
+
+/* ---- "What's happening" ---------------------------------------------- */
+/* Same weight and tracking as the deck heading, with a mint rule under it so
+   the feed reads as a section start rather than another row of text. */
+.feed-section .section-heading .feed-heading-copy { min-width: 0; }
+.feed-section .section-heading .eyebrow { margin: 0 0 1px; color: var(--accent-strong); }
+.feed-section .section-heading h2 {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 7px;
+  font-size: var(--fs-page);
+  font-weight: 900;
+  letter-spacing: -.035em;
+}
+.feed-section .section-heading h2::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 46px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  content: "";
 }
 
 /* The deck is the stage. Cards are absolutely centred inside it and the fan
@@ -1447,10 +1494,14 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 .today-card {
   position: absolute;
   top: 0;
-  left: 50%;
+  right: 0;
+  left: 0;
   width: min(83%, 342px);
   height: 100%;
-  margin-left: min(-41.5%, -171px);
+  /* Auto margins against both edges, not a 50% offset — a percentage/pixel
+     min() pair resolves on different branches for width and margin and lands
+     the card off-centre. */
+  margin: 0 auto;
   overflow: hidden;
   border-radius: 28px;
   background: var(--ink);
@@ -1472,9 +1523,9 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 /* The fan. Depth 0 is the card you are on; 1 and 2 lean out either side of it,
    3 is the tail of the stack, and "out" is the card being thrown away. */
 .today-card[data-depth="0"] { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 1; }
-.today-card[data-depth="1"] { transform: translate3d(-20px, 0, 0) rotate(-5.5deg) scale(.955); opacity: 1; filter: brightness(.84); }
-.today-card[data-depth="2"] { transform: translate3d(24px, 0, 0) rotate(6deg) scale(.918); opacity: 1; filter: brightness(.74); }
-.today-card[data-depth="3"] { transform: translate3d(36px, 0, 0) rotate(9deg) scale(.886); opacity: .85; filter: brightness(.66); }
+.today-card[data-depth="1"] { transform: translate3d(-22px, 0, 0) rotate(-5.5deg) scale(.955); opacity: 1; filter: brightness(.84); }
+.today-card[data-depth="2"] { transform: translate3d(22px, 0, 0) rotate(5.5deg) scale(.918); opacity: 1; filter: brightness(.74); }
+.today-card[data-depth="3"] { transform: translate3d(3px, 0, 0) rotate(1.5deg) scale(.884); opacity: .85; filter: brightness(.66); }
 .today-card[data-depth="out"] { opacity: 0; transition: transform .3s cubic-bezier(.4, 0, .8, .3), opacity .3s ease; }
 /* Only the front card takes pointer events, so a fanned corner is never a
    tap target for the event underneath it. */
@@ -1548,9 +1599,13 @@ body[data-route="profile"] .topbar .account-label { display: none; }
   pointer-events: auto;
   transition: opacity .28s ease;
 }
-/* Save and share belong to the card you are on. On the fanned ones they are
-   just floating circles, so they fade out until that card comes forward. */
-.today-card:not(.is-front) .today-card-tools { opacity: 0; }
+/* Only the card you are on carries its copy. On the fanned ones all you see is
+   a sliver, so a truncated "Sta… 4:…" is noise — they read as plain slabs until
+   they come forward, the way the reference decks do. */
+.today-card-top,
+.today-card-copy { transition: opacity .22s ease; }
+.today-card:not(.is-front) .today-card-top,
+.today-card:not(.is-front) .today-card-copy { opacity: 0; }
 .today-card-tool {
   display: grid;
   place-items: center;

@@ -492,7 +492,7 @@ function openTopWeekEvents() {
 // square in the middle and the rest fan out behind it, so the whole thing reads
 // as one physical deck. It also advances on its own, so the surface feels alive
 // when it is just sitting there.
-const TODAY_HERO_ROTATE_MS = 6000;
+const TODAY_HERO_ROTATE_MS = 3800;
 // How long the deck waits after you touch it before it starts advancing again.
 const TODAY_HERO_RESUME_MS = 9000;
 // Past this much horizontal drag, letting go throws the card instead of
@@ -563,8 +563,11 @@ function renderTodayHero() {
   const dots = events.map((event, index) => `<button class="today-dot${index === 0 ? " is-on" : ""}" data-today-dot="${index}" aria-label="Show pick ${index + 1}"></button>`).join("");
   return `<section class="today-hero" data-today-hero aria-roledescription="carousel" aria-label="Today's top picks">
     <div class="today-hero-head">
-      <span class="today-hero-live" aria-hidden="true"></span>
-      <div><p class="eyebrow">Today in DC</p><h2>Your five for today</h2></div>
+      <span class="today-hero-badge" aria-hidden="true">5</span>
+      <div class="today-hero-headings">
+        <p class="eyebrow">Happening today<span class="today-hero-live" aria-hidden="true"></span></p>
+        <h2>Top 5 in DC</h2>
+      </div>
     </div>
     <div class="today-deck" data-today-deck tabindex="0" role="group" aria-label="Swipe through today's picks">${cards}</div>
     <div class="today-hero-dots" data-today-dots>${dots}</div>
@@ -1026,7 +1029,7 @@ function renderHome() {
     ${renderFilterBar()}
     ${followingRail()}
     ${syncStatus ? `<div class="sync-note ${state.eventSync.status}"><span>${syncStatus}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>` : ""}
-    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    <section class="section feed-section"><div class="section-heading"><div class="feed-heading-copy"><p class="eyebrow">Across the city</p><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
