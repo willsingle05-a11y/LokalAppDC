@@ -33,8 +33,22 @@ function recurringTimeWindowLabel(event) {
   return text.replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
 }
 
+/* ============================================================
+   Event detail — a full-height sheet that travels up from the bottom edge.
+   Layout follows the reference screens: hero photo, big title, description,
+   then the facts grouped into cards on a recessed background, with Save/Going
+   pinned to the bottom.
+   ============================================================ */
+
+// Single quotes inside the url() on purpose — this string lands in a double-
+// quoted style="" attribute, and a double quote here would close it early.
+function heroImageSrcBackdrop(src) {
+  return src ? `--detail-hero-backdrop: url('${String(src).replace(/['"\\]/g, encodeURIComponent)}');` : "";
+}
+
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
+  if (!e) return;
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const recurrence = eventRecurrence(e);
   // Three levels, most informative first: compact repeat cadence, then the text
@@ -51,18 +65,17 @@ function openDetail(id, opts = {}) {
         ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(typeof eventCardTimeLine === "function" ? eventCardTimeLine(occurrence) : occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
         : "";
   const displayTitle = eventDisplayTitle(e);
-  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
-  const shareButton = canNativeShare
-    ? `<button class="primary" data-share="${e.id}">Share event</button>`
-    : `<button class="primary" data-copy-detail-link="${e.id}">Copy link</button>`;
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
   const hasUsableHeroPhoto = eventHasUsablePhoto(e);
   const fallbackHeroImage = eventFallbackImageSrc(e);
   const heroImageSrc = hasUsableHeroPhoto ? eventCardImageSrc(e) : fallbackHeroImage;
-  const heroStyle = `background-color: #f7fafc;`;
+  // A blurred copy of the artwork fills the frame behind the image, so photos
+  // read edge-to-edge while venue logos still show whole instead of cropping.
+  const heroStyle = `background-color: #f7fafc;${heroImageSrcBackdrop(hasUsableHeroPhoto ? eventCardImageSrc(e) : fallbackHeroImage)}`;
   const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasUsableHeroPhoto ? "" : " is-fallback-image"}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
-  const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
+  // Price lives in the Date and time card now, so it is not repeated here.
+  const detailDescription = String(e.desc || "");
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
   const descriptionBlock = isThingsToDoEvent
     ? `<div class="detail-description-wrap things-to-do-description collapsed"><p class="detail-description expandable-description" data-expand-description role="button" tabindex="0" aria-expanded="false" aria-label="Show full description">${detailDescription}</p></div>`
@@ -73,40 +86,60 @@ function openDetail(id, opts = {}) {
   const isGoing = state.rsvps.has(e.id);
   const websiteUrl = eventWebsiteUrl(e);
   const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
-    <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
-    ${descriptionBlock}
-    ${eventSourceCredit(e)}
-    ${occurrencesBlock}
-    <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b>${recurrence ? `<small>${escapeHtml(recurrence.label)}</small>` : ""}</span>
-      <span class="dir-action">Add to calendar</span>
-    </button>
-    <button class="detail-info-row ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b></span>
-      <span class="dir-action">${isFollowingVenue ? "Following venue" : "Follow venue"}</span>
-    </button>
-    <button class="detail-info-row" data-ticket="${e.id}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b></span>
-      <span class="dir-action">Open listing</span>
-    </button>
-    ${eventInterestSignal(e, true)}
-    <div class="detail-action-row">
-      <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
-      ${canNativeShare
-        ? `<button class="detail-action" data-share="${e.id}">Share event</button>`
-        : `<button class="detail-action" data-copy-detail-link="${e.id}">Copy link</button>`}
+  const categoryLabel = typeof eventArtLabel === "function" ? eventArtLabel(e) : "";
+  modalRoot.innerHTML = `<div class="modal-backdrop detail-backdrop"><section class="modal event-detail-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-topbar">
+      <span class="detail-grabber" aria-hidden="true"></span>
+      <div class="detail-topbar-row">
+        <button class="detail-topbar-btn modal-close" aria-label="Close detail">&times;</button>
+        <span class="detail-topbar-title">Event</span>
+        <button class="detail-topbar-btn detail-topbar-share" data-share="${e.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button>
+      </div>
     </div>
-    ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
+    <div class="detail-scroll">
+      <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}" style="${heroStyle}">${heroImg}</div>
+      <div class="detail-body">
+        <div class="detail-title-block">
+          ${categoryLabel ? `<p class="event-meta">${escapeHtml(categoryLabel)}</p>` : ""}
+          <h1>${escapeHtml(displayTitle)}</h1>
+        </div>
+        ${descriptionBlock}
+        ${eventSourceCredit(e)}
+
+        <div class="detail-group">
+          <div class="detail-group-row detail-group-static">
+            <span class="detail-group-label">Date and time</span>
+            <b>${escapeHtml(eventMetaLine(e))}</b>
+            ${recurrence ? `<small>${escapeHtml(recurrence.label)}</small>` : ""}
+            <span class="detail-group-links">
+              <button class="detail-group-link" data-add-calendar="apple" data-calendar-event="${e.id}">Add to calendar</button>
+              <button class="detail-group-link" data-add-calendar="google" data-calendar-event="${e.id}">Google Calendar</button>
+            </span>
+          </div>
+          ${occurrencesBlock}
+        </div>
+
+        <div class="detail-group">
+          <button class="detail-group-row${isFollowingVenue ? " selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
+            <span class="detail-group-label">Location</span>
+            <b>${escapeHtml(eventLocationLine(e))}</b>
+            <span class="detail-group-link">${isFollowingVenue ? "Following venue ✓" : "Follow venue"}</span>
+          </button>
+          <button class="detail-group-row" data-ticket="${e.id}">
+            <span class="detail-group-label">${escapeHtml(websiteLabel)}</span>
+            <b>${priceLabel ? escapeHtml(priceLabel) : "Open the full listing"}</b>
+            <span class="detail-group-link">Open listing</span>
+          </button>
+        </div>
+
+        ${eventInterestSignal(e, true)}
+        ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
+      </div>
+    </div>
     <div class="detail-decide-bar">
       <button class="${isSaved ? "selected" : ""}" data-save="${e.id}">${isSaved ? "Saved ✓" : "Save"}</button>
       <button class="decide-going ${isGoing ? "selected" : ""}" data-rsvp="${e.id}">${isGoing ? "Going ✓" : "Going"}</button>
-    </div></div>
+    </div>
   </section></div>`;
 }
 
@@ -191,30 +224,21 @@ function shareGroupResultsHtml(eventId, query = "") {
   return groups.map(name => `<button class="share-group" data-group-share="${escapeHtml(name)}" data-event-id="${eventId}"><span class="group-icon">${escapeHtml(name[0])}</span><span class="share-group-copy"><h3>${escapeHtml(name)}</h3><p>Send event link to group messages</p></span><span class="share-arrow">+</span></button>`).join("");
 }
 
+// One action only: hand someone the Lokal link. The per-network buttons
+// (Snapchat, email, SMS, post-to-story) are gone — the OS share sheet already
+// covers every one of them, and the link is the whole point of sharing.
 function openShareSheet(id) {
   const e = events.find(event => event.id === Number(id));
+  if (!e) return;
   const displayTitle = eventDisplayTitle(e);
-  const shareText = shareMessageForEvent(e);
   const shareUrl = lokalEventShareUrl(e);
-  const smsBody = encodeURIComponent(shareText);
+  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${escapeHtml(displayTitle)}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Send a Lokal event</p><h2>Share ${escapeHtml(displayTitle)}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
-    <div class="share-preview"><b>${escapeHtml(displayTitle)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" · ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
-    <div class="share-channel-grid">
-      <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
-      <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
-      <button class="share-channel" data-post-story="${e.id}">Post to story</button>
-      <a class="share-channel" href="https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(shareUrl)}" target="_blank" rel="noreferrer">Snapchat</a>
-      <a class="share-channel" href="mailto:?subject=${encodeURIComponent(e.title)}&body=${smsBody}">Email</a>
-    </div>
-    <button class="wide-button" data-copy-event-share="${e.id}">Copy Lokal event</button>
+    <p class="eyebrow">Send a Lokal event</p><h2>Share ${escapeHtml(displayTitle)}</h2><p class="lede">Anyone who opens this link lands on the event in Lokal.</p>
+    <div class="share-preview"><b>${escapeHtml(displayTitle)}</b><span>${escapeHtml(eventMetaLine(e))}</span><small>${escapeHtml(eventLocationLine(e))}</small><em>${escapeHtml(shareUrl)}</em></div>
+    <button class="wide-button" data-${canNativeShare ? `native-share="${e.id}"` : `copy-event-share="${e.id}"`}>${canNativeShare ? "Send link" : "Copy link"}</button>
   </section></div>`;
-}
-
-function shareMessageForEvent(event) {
-  const price = eventPriceLabel(event);
-  return `Want to go to ${eventDisplayTitle(event)}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
 }
 
 function lokalEventShareUrl(event) {
@@ -233,7 +257,6 @@ function lokalEventSharePayload(event) {
     eventDisplayTitle(event),
     eventMetaLine(event),
     eventLocationLine(event),
-    eventTags(event).slice(0, 5).join(", "),
     lokalEventShareUrl(event)
   ].filter(Boolean).join("\n");
 }

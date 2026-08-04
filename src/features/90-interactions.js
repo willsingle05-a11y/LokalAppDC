@@ -692,6 +692,8 @@ document.addEventListener("click", async event => {
       toast("Reset link sent");
     } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
   }
+  // Saving, RSVP'ing and answering a request all change what the bell owes you.
+  if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();
   if (!handled && state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
     state.openFilterSheet = "";
     renderHome();

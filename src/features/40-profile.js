@@ -707,31 +707,75 @@ function openFilters() {
     <div class="filter-footer"><button class="text-button" data-clear-filters>Clear all</button><button class="wide-button" data-apply-filters>Show events</button></div></section></div>`;
 }
 
-function openNotifications() {
-  const requests = state.pendingRequests
-    .filter(request => request.type === "friend")
-    .map(request => `<div class="notification-card request-notification"><b>${escapeHtml(request.from)} sent you a friend request</b><p>${escapeHtml(request.detail)}</p><small>${escapeHtml(request.time)}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`)
-    .join("");
-  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted at ${escapeHtml(eventLocationLine(event))}.</p><small>${escapeHtml(eventMetaLine(event))}</small></button>`).join("");
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests || `<p class="section-helper">No new friend requests right now.</p>`}${recommended}</section></div>`;
+/* ============================================================
+   Notifications
+   Only things that actually happened to this account belong here. Nothing is
+   manufactured to fill the sheet: no seeded friend requests, no "just posted"
+   recommendations invented from the feed. If the list is empty, it stays empty.
+   ============================================================ */
+
+const NOTIFICATION_SEEN_KEY = "lokalNotificationsSeen";
+
+// A saved or RSVP'd event that starts today or tomorrow. Earned twice over: the
+// user put it on their list, and the clock is what makes it newsworthy.
+function notificationPlanReminders() {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfWindow = new Date(startOfToday.getTime() + 2 * 86400000);
+  return events
+    .filter(event => state.rsvps.has(event.id) || state.saved.has(event.id))
+    .map(event => ({ event, date: typeof eventDateValue === "function" ? eventDateValue(event) : null }))
+    .filter(entry => entry.date && entry.date >= startOfToday && entry.date < endOfWindow)
+    .sort((a, b) => a.date - b.date)
+    .map(entry => {
+      const isToday = entry.date < new Date(startOfToday.getTime() + 86400000);
+      return {
+        id: `plan-${entry.event.id}`,
+        eventId: entry.event.id,
+        title: state.rsvps.has(entry.event.id)
+          ? `You're going ${isToday ? "today" : "tomorrow"}`
+          : `Saved event ${isToday ? "today" : "tomorrow"}`,
+        body: `${eventDisplayTitle(entry.event)} at ${eventLocationLine(entry.event)}.`,
+        meta: eventMetaLine(entry.event)
+      };
+    })
+    .slice(0, 6);
 }
 
-function notificationEventPicks() {
-  const tasteText = (state.tastes || []).join(" ").toLowerCase();
-  return events
-    .filter(event => typeof isDisplayableDcEvent !== "function" || isDisplayableDcEvent(event))
-    .filter(event => matchesFilter(event, "all", false))
-    .map(event => {
-      const text = `${event.title} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
-      const score = (tasteText.includes("music") && /concert|music|jazz|dj|r&b|rock|pop/.test(text) ? 5 : 0)
-        + (tasteText.includes("food") && /food|market|chef|restaurant|brunch/.test(text) ? 5 : 0)
-        + (tasteText.includes("art") && /museum|arts|gallery|film|comedy|theater/.test(text) ? 5 : 0)
-        + (state.saved.has(event.id) || state.rsvps.has(event.id) ? -10 : 0);
-      return { event, score };
-    })
-    .sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event))
-    .map(item => item.event)
-    .slice(0, 2);
+function notificationItems() {
+  const requests = (state.pendingRequests || [])
+    .filter(request => request.type === "friend")
+    .map(request => ({ id: request.id, request }));
+  return [...requests, ...notificationPlanReminders()];
+}
+
+function notificationSignature() {
+  return notificationItems().map(item => item.id).join("|");
+}
+
+function unreadNotificationCount() {
+  const items = notificationItems();
+  if (!items.length) return 0;
+  return localStorage.getItem(NOTIFICATION_SEEN_KEY) === notificationSignature() ? 0 : items.length;
+}
+
+// The bell dot is markup that ships with index.html, so the only honest way to
+// hide it is to toggle a class from whatever the current list actually holds.
+function refreshNotificationBadge() {
+  document.querySelectorAll("[data-notifications]").forEach(button => {
+    button.classList.toggle("has-unread", unreadNotificationCount() > 0);
+  });
+}
+
+function openNotifications() {
+  const items = notificationItems();
+  const cards = items.map(item => item.request
+    ? `<div class="notification-card request-notification"><b>${escapeHtml(item.request.from)} sent you a friend request</b><p>${escapeHtml(item.request.detail)}</p><small>${escapeHtml(item.request.time)}</small><div class="request-actions"><button data-accept-request="${item.request.id}">Accept</button><button data-decline-request="${item.request.id}">Decline</button></div></div>`
+    : `<button class="notification-card" data-event="${item.eventId}"><b>${escapeHtml(item.title)}</b><p>${escapeHtml(item.body)}</p><small>${escapeHtml(item.meta)}</small></button>`).join("");
+  const empty = `<div class="notification-empty"><b>You're all caught up</b><p>Friend requests and reminders for events you've saved or RSVP'd to will show up here.</p></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${cards || empty}</section></div>`;
+  localStorage.setItem(NOTIFICATION_SEEN_KEY, notificationSignature());
+  refreshNotificationBadge();
 }
 
 function profilePlanIds() {
