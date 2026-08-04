@@ -96,7 +96,7 @@ function followingRail() {
   if (!stories.length && !venues.length) return "";
   // Same tile format as Your top types, so the two rows read as one system.
   const venueTiles = venues.map(name => `<button class="top-type" data-venue-events="${escapeHtml(name)}">
-    <span class="tt-art tt-initial">${escapeHtml(name.slice(0, 1).toUpperCase())}</span>
+    ${venueAvatarHtml(name, "tt-art", "tt-initial")}
     <b>${escapeHtml(name)}</b>
     <small>Following</small>
   </button>`).join("");
@@ -111,6 +111,58 @@ function followingRail() {
 function venueDirectoryMatch(name) {
   const key = venueImageKeyName(name);
   return venueDirectory.find(venue => venueImageKeyName(venue.name) === key) || null;
+}
+
+/* ============================================================
+   Venue avatars
+   Following a venue should look like following a venue, not like following the
+   letter B. venueDirectory carries an image_url for most DC venues; where it
+   doesn't, one of the venue's own listings will. Logo artwork is deliberately
+   rejected for event cards (eventHasUsablePhoto) but it is exactly what an
+   avatar wants, so the venue's own mark is preferred over a photo of one night.
+   ============================================================ */
+
+function venueAvatarImage(name) {
+  const directory = venueDirectoryMatch(name);
+  const fromDirectory = String(directory?.image_url || "").trim();
+  if (fromDirectory) return fromDirectory;
+  const displayName = directory?.name || name;
+  const venueEvents = displayableDcEvents().filter(event => venueEventMatch(event, displayName));
+  const logo = venueEvents.find(event => event.image && eventImageLooksLogoLike(event.image));
+  return String(logo?.image || venueEvents.find(event => event.image)?.image || "").trim();
+}
+
+// Some venues only publish a knockout logo — white artwork on transparency,
+// drawn for a dark header. Dropped on a white disc it is simply invisible, so
+// those get an ink backdrop instead. The filename is the only signal available:
+// the pixels come from another origin, so reading them back off a canvas throws.
+function venueLogoIsKnockout(imageUrl) {
+  const value = String(imageUrl || "").trim();
+  let path = value.toLowerCase();
+  try { path = new URL(value).pathname.toLowerCase(); } catch (_) {}
+  let fileName = path.split(/[/?#]/).filter(Boolean).pop() || path;
+  try { fileName = decodeURIComponent(fileName); } catch (_) {}
+  return /(?:^|[\s._+-])(white|reverse|reversed|inverted|invert|knockout)(?:[\s._+-]|$)/.test(fileName.replace(/\+/g, " "));
+}
+
+// One shape for every list a followed venue appears in, so the Discover rail,
+// the Social following list and the profile sheet stay in step. Falls back to
+// the initial when the venue has no artwork at all — and, via the capture-phase
+// error listener in 90-interactions, when the artwork fails to load.
+function venueAvatarHtml(name, className, initialClassName = "") {
+  const initial = escapeHtml(String(name || "V").trim().slice(0, 1).toUpperCase());
+  // Both classes stay on the span either way, so the initial is still styled
+  // correctly if the image is dropped later.
+  const classes = [className, initialClassName].filter(Boolean).join(" ");
+  const image = venueAvatarImage(name);
+  if (!image) return `<span class="${classes}">${initial}</span>`;
+  // Venue marks are wordmarks as often as they are badges, so a logo is
+  // contained rather than cropped; a photo of the room can fill the circle.
+  // This is the first guess, off the filename — the load listener in
+  // 90-interactions settles it once the real proportions are known.
+  const knockout = venueLogoIsKnockout(image);
+  const fit = knockout || eventImageLooksLogoLike(image) ? " is-logo" : "";
+  return `<span class="${classes} has-venue-image${fit}${knockout ? " is-knockout" : ""}" data-avatar-initial="${initial}"><img src="${escapeHtml(image)}" alt="" loading="lazy"></span>`;
 }
 
 function venueSearchMatches(query, limit = 8) {

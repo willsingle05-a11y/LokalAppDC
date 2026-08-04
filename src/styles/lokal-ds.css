@@ -1954,3 +1954,86 @@ body[data-route="profile"] .topbar {
    Inside the new sheet the clamped text ends where the block ends. */
 #modal-root .event-detail-sheet .detail-description-wrap { gap: 0; }
 #modal-root .event-detail-sheet .things-to-do-description.collapsed::after { bottom: 0; height: 30px; background: linear-gradient(180deg, rgba(252, 252, 250, 0), var(--cream)); }
+
+/* ============================================================
+   Venue avatars
+   A followed venue shows its own artwork. The letter disc is the fallback, not
+   the default. Logos are contained so a wordmark never gets its name cropped;
+   photographs fill the frame.
+   ============================================================ */
+
+.group-icon.has-venue-image,
+.top-type .tt-art.has-venue-image {
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.group-icon.has-venue-image img,
+.top-type .tt-art.has-venue-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.group-icon.has-venue-image.is-logo img,
+.top-type .tt-art.has-venue-image.is-logo img {
+  object-fit: contain;
+  padding: 2px;
+}
+/* White-on-transparent wordmarks need something to be white against. */
+.group-icon.has-venue-image.is-knockout,
+.top-type .tt-art.has-venue-image.is-knockout {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+.followed-venue-card .group-icon,
+.follow-card .group-icon { flex: 0 0 auto; border-radius: 50%; }
+
+/* ============================================================
+   Profile page width
+   .profile-page is a grid, and a grid item's automatic minimum size is its
+   min-content width. The one-line bio is `white-space: nowrap`, so its
+   min-content was the entire un-wrapped sentence — ~557px of it — which sized
+   the single column and pushed every card on the page off the right edge of the
+   phone. min-width: 0 lets the column shrink back to the shell, and the bio
+   ellipsises the way it was always meant to.
+   ============================================================ */
+
+.page > * { min-width: 0; }
+.profile-id { width: 100%; min-width: 0; }
+.profile-id .pid-bio { width: 100%; min-width: 0; max-width: 100%; }
+/* A long display name wraps onto a second line rather than shoving the Share
+   and Edit buttons off the edge. */
+.profile-page .discover-heading { gap: 10px; }
+.profile-page .discover-heading > div:first-child { min-width: 0; }
+.profile-page .discover-heading h1 { overflow-wrap: anywhere; }
+.profile-page .profile-top-actions { flex: 0 0 auto; }
+
+/* ============================================================
+   Tab bar
+   The active tab still turns green; behind it a soft grey oval slides across to
+   whichever tab you are on. It is a single pseudo-element on the bar, moved a
+   column at a time, so the travel is continuous instead of a cross-fade.
+   ============================================================ */
+
+.bottom-nav::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 8px;
+  z-index: 0;
+  width: calc((100% - 16px) / 3);
+  border-radius: 999px;
+  background: rgba(25, 26, 25, .07);
+  transition: transform .34s cubic-bezier(.22, .68, .3, 1);
+  pointer-events: none;
+}
+body[data-route="social"] .bottom-nav::before { transform: translateX(100%); }
+body[data-route="profile"] .bottom-nav::before { transform: translateX(200%); }
+.nav-item { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav::before { transition: none; }
+}

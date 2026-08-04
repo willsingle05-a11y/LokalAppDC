@@ -258,11 +258,12 @@ function openAllFriends() {
 function followingContent() {
   const accounts = [["songbyrd","S","Songbyrd Music House","Venue","Concerts, DJ nights, and neighborhood picks"],["dcafterdark","D","@dcafterdark","Local curator","Late-night lists and weekend roundups"],["smithsonian","M","Smithsonian After Hours","Venue collection","Museum events worth planning around"],["eaterdc","E","@eater_dc","Food curator","Pop-ups, openings, and neighborhood food guides"]];
   const followedAccounts = accounts.filter(account => state.follows.has(account[0]));
-  const followedVenues = followedVenueNames().map(name => ["venue:" + name, String(name).slice(0, 1).toUpperCase(), name, "Venue", "Followed from Discover"]);
-  const visible = [...followedVenues, ...followedAccounts];
+  // The venue's own artwork stands in for the letter disc wherever we have it.
+  const followedVenues = followedVenueNames().map(name => ["venue:" + name, venueAvatarHtml(name, "group-icon"), name, "Venue", "Followed from Discover"]);
+  const visible = [...followedVenues, ...followedAccounts.map(account => [account[0], `<span class="group-icon">${escapeHtml(account[1])}</span>`, account[2], account[3], account[4]])];
   if (!visible.length) return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues from Discover to build this page. Once you follow one, it will show here and shape your feed.</p></div><p class="section-helper">You are not following any venues or curators yet.</p>`;
   return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues, public groups, and curators to shape what shows up in Discover.</p></div>
-  <div class="follow-list">${visible.map(account => `<div class="follow-card"><span class="group-icon">${account[1]}</span><span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button selected" data-follow="${account[0]}">Following</button></div>`).join("")}</div>`;
+  <div class="follow-list">${visible.map(account => `<div class="follow-card">${account[1]}<span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button selected" data-follow="${account[0]}">Following</button></div>`).join("")}</div>`;
 }
 
 function personalizedEvents(limit = 3) {

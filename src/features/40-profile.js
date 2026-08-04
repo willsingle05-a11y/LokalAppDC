@@ -816,7 +816,7 @@ function followedVenueRows(query = "") {
     const searchText = `${venue.name || name} ${venue.neighborhood || ""} ${venue.address || ""} ${venue.venue_type || ""}`.toLowerCase();
     return { name, venue, searchText };
   }).filter(item => !normalized || item.searchText.includes(normalized));
-  return rows.map(({ name, venue, searchText }) => `<div class="follow-card followed-venue-card" data-followed-venue-card data-search-text="${escapeHtml(searchText)}"><button class="followed-venue-main" data-venue-events="${escapeHtml(name)}"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(venue.name || name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small><em>Open venue page</em></span></button><button class="follow-button selected" data-follow-venue="venue:${escapeHtml(name)}">Unfollow venue</button></div>`).join("");
+  return rows.map(({ name, venue, searchText }) => `<div class="follow-card followed-venue-card" data-followed-venue-card data-search-text="${escapeHtml(searchText)}"><button class="followed-venue-main" data-venue-events="${escapeHtml(name)}">${venueAvatarHtml(name, "group-icon")}<span><b>${escapeHtml(venue.name || name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small><em>Open venue page</em></span></button><button class="follow-button selected" data-follow-venue="venue:${escapeHtml(name)}">Unfollow venue</button></div>`).join("");
 }
 
 function openFollowedVenuesList(query = "") {
