@@ -5,7 +5,10 @@ body { font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, A
 .nav-item { min-width: 0; }
 .header-icon { color: var(--blue); }
 .header-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
-.header-icon i { position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--steel); }
+/* Hidden until refreshNotificationBadge() finds something the account actually
+   received. The dot used to be unconditional, which made it meaningless. */
+.header-icon i { display: none; position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--steel); }
+.header-icon.has-unread i { display: block; }
 #profile-shortcut { grid-auto-flow: column; grid-template-columns: auto minmax(0, max-content); gap: 7px; max-width: 174px; }
 #profile-shortcut .account-label { overflow: hidden; max-width: 118px; color: var(--ink); font-size: 11px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
 .following-chip { flex-basis: 190px; min-height: 186px; align-content: center; gap: 10px; }

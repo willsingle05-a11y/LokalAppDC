@@ -1697,3 +1697,260 @@ body[data-route="profile"] .topbar .account-label { display: none; }
   .today-card.is-front .today-card-img { transform: none; transition: none; }
   .today-dot { transition: none; }
 }
+
+/* ============================================================
+   PHONE PROPORTIONS + iOS SAFE AREAS
+   The shell used to be 620px wide with zero top inset, so on device the
+   wordmark sat behind the clock and battery, and in the browser the preview
+   was far wider than any iPhone. Two fixes:
+     - one shell width that matches a real phone (430px = iPhone Pro Max)
+     - every fixed/sticky edge padded by the device's own safe-area insets
+   `viewport-fit=cover` in index.html is what makes env() return real numbers.
+   ============================================================ */
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --shell-max: 430px;
+}
+
+.app-shell {
+  width: min(100%, var(--shell-max));
+  padding-right: var(--safe-right);
+  padding-left: var(--safe-left);
+}
+
+/* Reserve the status bar strip. `max()` keeps the old 4px breathing room on
+   hardware that reports no inset (Android, desktop, older iPhones). */
+body[data-route="home"] .topbar,
+body[data-route="social"] .topbar,
+body[data-route="profile"] .topbar {
+  height: auto;
+  min-height: 66px;
+  padding-top: max(4px, var(--safe-top));
+}
+.topbar { padding-top: max(10px, var(--safe-top)); }
+
+/* Mirror image at the bottom: clear the home indicator. */
+.bottom-nav { bottom: calc(9px + var(--safe-bottom)); }
+#toast { bottom: calc(87px + var(--safe-bottom)); }
+
+/* The desktop preview has no hardware insets to read, so hand it the metrics of
+   a notched iPhone. What you see while testing then matches what ships. */
+@media (min-width: 700px) {
+  .app-shell {
+    --safe-top: 47px;
+    --safe-bottom: 22px;
+    min-height: min(calc(100vh - 32px), 932px);
+    max-height: min(calc(100vh - 32px), 932px);
+  }
+  .app-shell::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 11;
+    height: 47px;
+    background: var(--paper);
+    pointer-events: none;
+  }
+  .bottom-nav { bottom: calc(25px + 22px); }
+}
+@media (min-width: 1040px) {
+  .demo-stage { grid-template-columns: 330px var(--shell-max); }
+  .app-shell { width: var(--shell-max); }
+  .bottom-nav { left: auto; width: calc(var(--shell-max) - 20px); }
+}
+
+/* ============================================================
+   EVENT DETAIL SHEET
+   Travels the full height of the screen on open rather than nudging up 35px,
+   then holds the facts in grouped cards on a recessed background.
+   ============================================================ */
+
+.detail-backdrop { align-items: flex-end; }
+
+.modal.event-detail-sheet {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, var(--shell-max));
+  height: calc(100dvh - max(12px, var(--safe-top)));
+  max-height: calc(100dvh - max(12px, var(--safe-top)));
+  padding-right: var(--safe-right);
+  padding-left: var(--safe-left);
+  overflow: hidden;
+  border-radius: 22px 22px 0 0;
+  background: var(--cream);
+  animation: detail-rise .42s cubic-bezier(.22, .68, .3, 1);
+}
+@supports not (height: 100dvh) {
+  .modal.event-detail-sheet { height: calc(100vh - max(12px, var(--safe-top))); max-height: calc(100vh - max(12px, var(--safe-top))); }
+}
+
+/* The whole point of the redesign: the card rises from off-screen. */
+@keyframes detail-rise {
+  from { transform: translate3d(0, 100%, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+.detail-topbar {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 auto;
+  padding: 7px 10px 8px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.detail-grabber {
+  display: block;
+  width: 38px;
+  height: 4px;
+  margin: 0 auto 9px;
+  border-radius: 999px;
+  background: rgba(25, 26, 25, .18);
+}
+.detail-topbar-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+}
+.detail-topbar-title {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--fs-title);
+  font-weight: 800;
+  text-align: center;
+}
+#modal-root .event-detail-sheet .detail-topbar-btn {
+  position: static;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  background: rgba(25, 26, 25, .06);
+  box-shadow: none;
+  font-size: 19px;
+  line-height: 1;
+}
+.detail-topbar-share svg { width: 16px; height: 16px; stroke-width: 2; }
+
+.detail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+#modal-root .event-detail-sheet .detail-hero { position: relative; min-height: 0; height: 216px; padding: 0; overflow: hidden; }
+#modal-root .event-detail-sheet .detail-hero.has-image { min-height: 0; height: 216px; }
+/* Blurred, scaled copy of the same artwork fills the frame; the sharp image on
+   top stays contained so venue logos are never cropped. */
+.event-detail-sheet .detail-hero.has-image::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: -24px;
+  z-index: 0;
+  background-image: var(--detail-hero-backdrop);
+  background-position: center;
+  background-size: cover;
+  filter: blur(22px) saturate(1.15) brightness(.9);
+  transform: scale(1.08);
+}
+.event-detail-sheet .detail-hero-img { z-index: 1; object-fit: contain; background: transparent; }
+
+#modal-root .event-detail-sheet .detail-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px 16px 26px;
+  background: var(--cream);
+}
+#modal-root .event-detail-sheet .detail-title-block { gap: 4px; margin: 0; }
+/* Sentence case here only. Long event titles set in all caps become a wall. */
+#modal-root .event-detail-sheet .detail-title-block h1 { font-size: 28px; line-height: 1.08; letter-spacing: -.5px; text-transform: none; }
+.event-detail-sheet .detail-title-block .event-meta {
+  color: var(--accent-strong);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: .9px;
+  text-transform: uppercase;
+}
+#modal-root .event-detail-sheet .detail-description { margin: 0; color: var(--muted); font-size: var(--fs-body); line-height: 1.45; }
+
+/* Grouped fact cards, per the reference screens. */
+.detail-group {
+  display: grid;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgba(25, 26, 25, .05), 0 6px 18px -12px rgba(25, 26, 25, .3);
+}
+.detail-group-flat { box-shadow: none; }
+#modal-root .event-detail-sheet .detail-group-row {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 13px 15px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+.detail-group-row + .detail-group-row,
+.detail-group-row + .detail-occurrences { border-top: 1px solid var(--line); }
+.detail-group-label { color: var(--muted); font-size: var(--fs-small); font-weight: 600; }
+.detail-group-row b { color: var(--ink); font-family: var(--display); font-size: var(--fs-body); font-weight: 700; line-height: 1.25; }
+.detail-group-row small { color: var(--muted); font-size: var(--fs-micro); }
+.detail-group-links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 5px; }
+#modal-root .event-detail-sheet .detail-group-link {
+  margin-top: 3px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--accent-strong);
+  background: transparent;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+}
+.detail-group-links .detail-group-link { margin-top: 0; }
+.detail-group-row.selected .detail-group-link { color: var(--muted); }
+.detail-group-static { cursor: default; }
+
+#modal-root .event-detail-sheet .detail-occurrences,
+#modal-root .event-detail-sheet .detail-schedule { margin: 0; padding: 10px 15px 12px; }
+#modal-root .event-detail-sheet .detail-schedule-head { margin: 0; padding: 0; border: 0; background: transparent; }
+.event-detail-sheet .detail-occurrences .eyebrow { margin: 0 0 5px; }
+
+.event-detail-sheet .attendee-line { margin: 0; }
+.event-detail-sheet .event-source-credit { margin: 0; }
+.event-detail-sheet .rsvp-hint { margin: 0; }
+
+/* Pinned to the sheet, not sticky inside a scroller — so it never overhangs. */
+#modal-root .event-detail-sheet .detail-decide-bar {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 11px 16px calc(11px + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal.event-detail-sheet { animation: none; }
+}
+
+/* The collapsed-description fade was offset for the old sheet's action row.
+   Inside the new sheet the clamped text ends where the block ends. */
+#modal-root .event-detail-sheet .detail-description-wrap { gap: 0; }
+#modal-root .event-detail-sheet .things-to-do-description.collapsed::after { bottom: 0; height: 30px; background: linear-gradient(180deg, rgba(252, 252, 250, 0), var(--cream)); }

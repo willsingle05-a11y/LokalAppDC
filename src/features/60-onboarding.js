@@ -303,6 +303,7 @@ function setRoute(route) {
   const routeChanged = state.route !== route;
   state.route = route;
   document.body.dataset.route = route;
+  if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();
   // Bo leans on the wordmark in the topbar; give the main pages their own
   // little posture so Saved and Profile do not feel like cloned headers.
   const boSlot = document.querySelector(".topbar-bo");
