@@ -157,15 +157,27 @@ document.addEventListener("click", async event => {
   if (t.dataset.save) {
     mark();
     const id = Number(t.dataset.save);
-    const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
-    document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     setPlanSource("saved", id, isSaved);
-    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
-    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (isSaved) showSavedAnimation(button); }
-    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) showSavedAnimation(button); });
     saveEventInteraction(id, "save", isSaved);
+    // Every Save control for this event at once: the card hearts, the list rows,
+    // and the detail sheet's decide bar. The detail button carries a written
+    // label as well as a state class, and the old code refreshed it by
+    // re-rendering the whole sheet — which the new sheet cannot afford, since
+    // that replays the rise animation and throws away the reader's scroll
+    // position. It is updated in place instead, so un-saving actually unchecks.
+    document.querySelectorAll(`[data-save="${id}"]`).forEach(button => {
+      button.classList.toggle("is-saved", isSaved);
+      if (button.closest(".detail-decide-bar")) {
+        button.classList.toggle("selected", isSaved);
+        // The bar's own mint state is the confirmation here, so no burst: the
+        // label would end up reading "Saved ✓ ✓ Saved".
+        button.textContent = isSaved ? "Saved ✓" : "Save";
+        return;
+      }
+      if (isSaved) showSavedAnimation(button);
+    });
     // Saving confirms inline (the "Saved ✓" chip); only the removal needs a toast.
     if (!isSaved) toast("Removed from saved");
   }
@@ -256,7 +268,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { const text = input.value.trim(); state.groupMessages[group] = [{ type: "text", text }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "text", text }); openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.manageFollowing !== undefined) { mark(); openFollowingManager(); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
-  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); const inFollowedVenuesSheet = Boolean(t.closest(".followed-venues-sheet")); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : inFollowedVenuesSheet ? "profile_following" : "venue_page"); t.classList.toggle("selected", on); t.textContent = t.classList.contains("detail-follow-venue") ? (on ? "Following venue" : "Follow venue") : inFollowedVenuesSheet ? "Unfollow venue" : (on ? "Following" : "Follow"); if (inFollowedVenuesSheet && typeof openFollowedVenuesList === "function") openFollowedVenuesList(document.querySelector("[data-followed-venue-search]")?.value || ""); if (state.route === "home") renderHome(); if (state.route === "profile") renderProfile(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
+  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); const inFollowedVenuesSheet = Boolean(t.closest(".followed-venues-sheet")); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : inFollowedVenuesSheet ? "profile_following" : "venue_page"); t.classList.toggle("selected", on); const followLabel = t.closest(".event-detail-sheet") || t.classList.contains("detail-follow-venue") ? (on ? "Following venue ✓" : "Follow venue") : inFollowedVenuesSheet ? "Unfollow venue" : (on ? "Following" : "Follow"); /* In the detail sheet the follow control is a whole row — a label, the venue name and a link — so writing textContent onto the button erased the address. Only the link inside it changes; everywhere else the button is its own label. */ (t.querySelector(".detail-group-link") || t).textContent = followLabel; if (inFollowedVenuesSheet && typeof openFollowedVenuesList === "function") openFollowedVenuesList(document.querySelector("[data-followed-venue-search]")?.value || ""); if (state.route === "home") renderHome(); if (state.route === "profile") renderProfile(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
   if (t.dataset.dismissVenueVerification !== undefined) {
     mark();
@@ -701,6 +713,33 @@ document.addEventListener("click", async event => {
   }
   if (!handled && !t.disabled) toast("Action opened");
 });
+
+// A venue avatar whose artwork 404s should fall back to the initial rather than
+// leave a blank disc. Image errors do not bubble, so this listens on the way
+// down instead.
+document.addEventListener("error", event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement)) return;
+  const holder = image.closest(".has-venue-image");
+  if (!holder) return;
+  holder.classList.remove("has-venue-image", "is-logo");
+  holder.textContent = holder.dataset.avatarInitial || "";
+}, true);
+
+// Venue artwork arrives in every shape: square crests, wide wordmarks, tall
+// posters, photographs of the room. A near-square image can safely fill the
+// circle; anything further from square is contained instead, so a wordmark is
+// never cropped down to "pital O". The filename guess made at render time is
+// only a first pass — the real proportions settle it. Also capture-phase,
+// because load doesn't bubble either.
+document.addEventListener("load", event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement)) return;
+  const holder = image.closest(".has-venue-image");
+  if (!holder || !image.naturalWidth || !image.naturalHeight) return;
+  const ratio = image.naturalWidth / image.naturalHeight;
+  holder.classList.toggle("is-logo", ratio < 0.78 || ratio > 1.28);
+}, true);
 
 document.addEventListener("keydown", event => {
   if (!["Enter", " "].includes(event.key)) return;
