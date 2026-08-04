@@ -503,26 +503,60 @@ const TODAY_HERO_TAP_PX = 8;
 let todayHeroTimer = null;
 let todayHeroResumeTimer = null;
 
+// Today's picks first. Once the last of today's events has started, widen to
+// whatever is next on the calendar rather than emptying the deck: the old
+// fallback re-selected from `pool`, which is the very list that had just been
+// emptied by the already-happened filter, so the deck vanished every evening.
 function todayHeroEvents(limit = 5) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const pool = ((state.todayStoryEvents && state.todayStoryEvents.length) ? state.todayStoryEvents : displayableDcEvents())
+  const stillToCome = list => (list || [])
     .slice()
     .filter(event => !storyEventAlreadyHappened(event))
     .sort(sortEventsByStart);
-  const todays = dailyFeaturedEventSelection(pool.filter(event => sameCalendarDate(eventDateValue(event), today)), limit);
-  return todays.length ? todays : dailyFeaturedEventSelection(pool, limit);
+  const storyPool = stillToCome(state.todayStoryEvents);
+  const fullPool = stillToCome(displayableDcEvents());
+  const preferred = storyPool.length ? storyPool : fullPool;
+  const todays = dailyFeaturedEventSelection(preferred.filter(event => sameCalendarDate(eventDateValue(event), today)), limit);
+  if (todays.length) return todays;
+  // dailyFeaturedEventSelection ranks by popularity, so handed the whole
+  // calendar it will happily surface a stadium show three weeks out. Widen the
+  // window a day at a time instead, so "coming up next" stays literally true.
+  for (const days of [1, 2, 3, 7, 14]) {
+    const cutoff = new Date(today.getTime() + (days + 1) * 86400000);
+    const soon = dailyFeaturedEventSelection(fullPool.filter(event => {
+      const date = eventDateValue(event);
+      return date && date < cutoff;
+    }), limit);
+    if (soon.length >= limit) return soon;
+    if (soon.length && days === 14) return soon;
+  }
+  return dailyFeaturedEventSelection(fullPool.length ? fullPool : preferred, limit);
 }
 
-// The deck is all today, so the fact strip only needs the clock — the full
-// "Sun, Aug 2, 2:30 PM" stays on the line under the title.
-function todayHeroClock(event) {
-  const match = String(eventDisplayTime(event) || "").match(/\d{1,2}(?::\d{2})?\s*(?:AM|PM)/i);
-  if (match) return match[0].replace(/\s+/g, " ").toUpperCase();
-  return eventDisplayTime(event) || "Today";
+// The heading has to tell the truth about what is in the deck — "Happening
+// today" over tomorrow morning's events is a small lie the user will catch.
+function todayHeroIsToday(list) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return list.length > 0 && list.every(event => sameCalendarDate(eventDateValue(event), today));
 }
 
-function todayHeroCard(event, index, total) {
+// When the deck is all today the fact strip only needs the clock — the full
+// "Sun, Aug 2, 2:30 PM" stays on the line under the title. On a day where
+// today's events have all started, the deck shows what's next, and then the
+// clock alone would read as though it were tonight, so the weekday comes too.
+function todayHeroClock(event, isToday = true) {
+  const display = String(eventDisplayTime(event) || "");
+  const match = display.match(/\d{1,2}(?::\d{2})?\s*(?:AM|PM)/i);
+  if (!match) return display || "Today";
+  const clock = match[0].replace(/\s+/g, " ").toUpperCase();
+  if (isToday) return clock;
+  const weekday = display.match(/^[A-Za-z]{3}/);
+  return weekday ? `${weekday[0].toUpperCase()} ${clock}` : clock;
+}
+
+function todayHeroCard(event, index, total, isToday = true) {
   const displayTitle = eventDisplayTitle(event);
   const venue = cleanLocationPart(canonicalVenueName(event.venue)) || eventLocationLine(event) || "Washington, DC";
   const price = typeof eventPriceLabel === "function" ? eventPriceLabel(event) : "";
@@ -540,7 +574,7 @@ function todayHeroCard(event, index, total) {
     <button class="today-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
     <span class="today-card-top">
       <span class="today-card-facts">
-        <span class="today-fact"><small>Starts</small><b>${escapeHtml(todayHeroClock(event))}</b></span>
+        <span class="today-fact"><small>Starts</small><b>${escapeHtml(todayHeroClock(event, isToday))}</b></span>
         <span class="today-fact"><small>Type</small><b>${escapeHtml(eventArtLabel(event))}</b></span>
       </span>
       <span class="today-card-tools">
@@ -559,14 +593,15 @@ function todayHeroCard(event, index, total) {
 function renderTodayHero() {
   const events = todayHeroEvents(5);
   if (!events.length) return "";
-  const cards = events.map((event, index) => todayHeroCard(event, index, events.length)).join("");
+  const isToday = todayHeroIsToday(events);
+  const cards = events.map((event, index) => todayHeroCard(event, index, events.length, isToday)).join("");
   const dots = events.map((event, index) => `<button class="today-dot${index === 0 ? " is-on" : ""}" data-today-dot="${index}" aria-label="Show pick ${index + 1}"></button>`).join("");
-  return `<section class="today-hero" data-today-hero aria-roledescription="carousel" aria-label="Today's top picks">
+  return `<section class="today-hero" data-today-hero aria-roledescription="carousel" aria-label="${isToday ? "Today's top picks" : "Coming up next"}">
     <div class="today-hero-head">
-      <span class="today-hero-badge" aria-hidden="true">5</span>
+      <span class="today-hero-badge" aria-hidden="true">${events.length}</span>
       <div class="today-hero-headings">
-        <p class="eyebrow">Happening today<span class="today-hero-live" aria-hidden="true"></span></p>
-        <h2>Top 5 in DC</h2>
+        <p class="eyebrow">${isToday ? "Happening today" : "Coming up next"}<span class="today-hero-live" aria-hidden="true"></span></p>
+        <h2>Top ${events.length} in DC</h2>
       </div>
     </div>
     <div class="today-deck" data-today-deck tabindex="0" role="group" aria-label="Swipe through today's picks">${cards}</div>
