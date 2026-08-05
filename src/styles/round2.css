@@ -1013,7 +1013,7 @@ h1, h2, h3, .brand b { color: #326f91; }
 /* Profile analytics */
 .profile-page {
   display: grid;
-  gap: 14px;
+  gap: 9px;
 }
 .profile-page .profile-card,
 .profile-page .bio,
@@ -1024,14 +1024,14 @@ h1, h2, h3, .brand b { color: #326f91; }
 .profile-summary-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
-  gap: 8px;
+  gap: 7px;
 }
 .profile-summary-strip div,
 .profile-summary-strip button {
   display: grid;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
-  padding: 12px 8px;
+  padding: 10px 7px;
   border: 1px solid rgba(58,124,165,.14);
   border-radius: 14px;
   background: var(--paper);
@@ -1099,7 +1099,7 @@ h1, h2, h3, .brand b { color: #326f91; }
   font-size: 9px;
 }
 .compact-profile-section {
-  padding: 14px;
+  padding: 11px 12px;
   border: 1px solid rgba(58,124,165,.13);
   border-radius: 16px;
   background: rgba(255,255,255,.55);
@@ -1111,10 +1111,10 @@ h1, h2, h3, .brand b { color: #326f91; }
 }
 .compact-score-block {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   margin: 0;
-  padding: 14px;
+  padding: 11px 12px;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -1160,9 +1160,9 @@ h1, h2, h3, .brand b { color: #326f91; }
   background: linear-gradient(90deg, #16A085, #5f9fc3);
 }
 .compact-profile-section .profile-taste-chips { margin-bottom: 0; }
-.compact-profile-section .section-heading { margin-bottom: 10px; }
+.compact-profile-section .section-heading { margin-bottom: 7px; }
 .profile-insights {
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 .profile-pulse {
   display: inline-flex;

@@ -590,7 +590,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
    Profile — identity, lists, goal
    ============================================================ */
 
-.profile-id { display: flex; flex-direction: column; align-items: center; padding: 4px 0 0; }
+.profile-id { display: flex; flex-direction: column; align-items: center; padding: 0; }
 .profile-id .pid-avatar {
   display: grid;
   width: 84px;
@@ -604,11 +604,11 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   font-weight: 900;
 }
 .profile-id .pid-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-id .pid-handle { margin-top: 11px; font-size: 15px; font-weight: 800; }
+.profile-id .pid-handle { margin-top: 8px; font-size: 15px; font-weight: 800; }
 .profile-id .pid-bio {
   width: min(100%, 640px);
   max-width: 640px;
-  margin: 5px auto 0;
+  margin: 3px auto 0;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
@@ -618,7 +618,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   display: flex;
   justify-content: center;
   gap: 7px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 .pid-taste-icon {
   display: grid;
@@ -633,7 +633,7 @@ h3 { font-size: var(--fs-title); font-weight: 700; line-height: 1.25; letter-spa
   width: 24px;
   height: 24px;
 }
-.profile-id .pid-since { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.profile-id .pid-since { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 500; }
 .profile-id-actions { display: flex; gap: 9px; width: 100%; margin-top: 12px; }
 .profile-id-actions button {
   flex: 1;
