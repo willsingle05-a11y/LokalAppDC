@@ -331,6 +331,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .filter-sheet h2, .notification-sheet h2, .list-sheet h2, .invite-sheet h2 { margin-bottom: 6px; font-size: 30px; }
 .filter-block { margin-top: 16px; }.filter-block .eyebrow { margin-bottom: 8px; }
 .filter-options { display: flex; flex-wrap: wrap; gap: 6px; }.filter-options button { padding: 8px 10px; border-radius: 999px; color: var(--blue); background: var(--blue-soft); font-size: 10px; font-weight: 900; }.filter-options button.selected { color: white; background: var(--blue); }
+.notification-empty { padding: 26px 0 34px; text-align: center; }.notification-empty b { display: block; margin-bottom: 6px; font-size: 15px; }.notification-empty p { margin: 0 auto; max-width: 30ch; color: var(--muted); font-size: 12px; line-height: 1.4; }
 .notification-card { padding: 11px 0; border-bottom: 1px solid var(--line); }.notification-card b, .notification-card small { display: block; }.notification-card b { font-size: 12px; }.notification-card p { margin: 4px 0; color: var(--muted); font-size: 11px; line-height: 1.35; }.notification-card small { color: var(--steel); font-size: 9px; font-weight: 900; }
 .map-search { position: absolute; top: 12px; right: 12px; left: 12px; z-index: 5; display: flex; gap: 7px; padding: 9px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,254,250,.96); box-shadow: var(--shadow); }.map-search input { width: 100%; border: 0; background: transparent; font: inherit; font-size: 12px; outline: 0; }
 .bio { margin: -10px 0 17px; color: var(--muted); font-size: 12px; line-height: 1.45; }
@@ -517,7 +518,10 @@ body { font-family: Aptos, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, A
 .nav-item { min-width: 0; }
 .header-icon { color: var(--blue); }
 .header-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
-.header-icon i { position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--steel); }
+/* Hidden until refreshNotificationBadge() finds something the account actually
+   received. The dot used to be unconditional, which made it meaningless. */
+.header-icon i { display: none; position: absolute; top: 3px; right: 2px; width: 7px; height: 7px; border: 1px solid var(--paper); border-radius: 50%; background: var(--steel); }
+.header-icon.has-unread i { display: block; }
 #profile-shortcut { grid-auto-flow: column; grid-template-columns: auto minmax(0, max-content); gap: 7px; max-width: 174px; }
 #profile-shortcut .account-label { overflow: hidden; max-width: 118px; color: var(--ink); font-size: 11px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
 .following-chip { flex-basis: 190px; min-height: 186px; align-content: center; gap: 10px; }
@@ -5368,15 +5372,18 @@ input, textarea, select { font-size: var(--fs-body); }
    direction you travelled along the tab bar.
    ============================================================ */
 
+/* The incoming half of the swipe: the new page arrives from the side you were
+   heading towards, just after the old one has slid off (see setRoute). It comes
+   in from further out than it left, which is what sells it as one gesture. */
 @keyframes page-slide-left {
-  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(38px, 0, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 @keyframes page-slide-right {
-  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(-38px, 0, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-.page { animation: page-slide-left .26s cubic-bezier(.22, .61, .36, 1) both; }
+.page { animation: page-slide-left .24s cubic-bezier(.16, .84, .44, 1) both; }
 body.nav-back .page { animation-name: page-slide-right; }
 @media (prefers-reduced-motion: reduce) {
   .page, body.nav-back .page { animation: none; }
@@ -5677,78 +5684,646 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 }
 .detail-schedule .cal-day { position: relative; }
 
-/* Final event-detail density pass. This block intentionally lives after the
-   recurring schedule rules so those rules cannot reopen the vertical gaps. */
-#modal-root .modal .detail-hero {
-  min-height: 144px;
-  padding: 12px;
+/* ============================================================
+   Today's five â€” the card deck at the top of Discover.
+   Modelled on the Strava "Instant Workouts" and Wabi decks: the
+   card you are on sits square in the middle, the rest fan out
+   behind it on both sides, and you throw the front one away to
+   get to the next. CSS owns what each depth looks like; the JS
+   in initTodayHero owns which card is at which depth.
+   ============================================================ */
+
+.today-hero { margin: 2px 0 22px; }
+/* The numeral badge deliberately echoes the "10" on Top 10 events this week,
+   so the two ranked surfaces read as one family. */
+.today-hero-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 2px 15px;
 }
-#modal-root .modal .detail-hero.has-image { min-height: 190px; }
-#modal-root .modal .detail-hero-img.is-fallback-image {
-  object-fit: contain;
-  padding: 10px;
-  background: #f7fafc;
+.today-hero-badge {
+  display: grid;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--ink);
+  color: var(--accent);
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  box-shadow: 0 6px 16px -6px rgba(9, 12, 10, .5);
 }
-#modal-root .modal .detail-body { padding: 6px 14px 16px; }
-#modal-root .modal .detail-title-block {
-  gap: 0;
-  margin-bottom: 3px;
+.today-hero-headings { min-width: 0; }
+.today-hero-head h2 {
+  margin: 2px 0 0;
+  font-size: var(--fs-page);
+  font-weight: 900;
+  letter-spacing: -.035em;
 }
-#modal-root .modal .detail-title-block h1 {
-  line-height: .92;
-}
-#modal-root .modal .detail-title-block .event-meta {
-  margin: 0 0 1px;
-  line-height: 1;
-}
-#modal-root .modal .detail-tags {
-  gap: 4px;
-  margin: 0 0 4px;
-  padding-top: 4px;
-}
-#modal-root .modal .event-tag { padding: 3px 7px; }
-#modal-root .modal .detail-about-label {
-  margin: 0 0 1px;
-  line-height: 1;
-}
-#modal-root .modal .detail-description {
+.today-hero-head .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   margin: 0;
-  line-height: 1.16;
+  color: var(--accent-strong);
 }
-#modal-root .modal .detail-schedule {
-  margin: 4px 0 0;
+.today-hero-live {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--mint-tint);
+  animation: today-live-pulse 2.4s ease-in-out infinite;
 }
-#modal-root .modal .detail-schedule-head {
-  gap: 5px;
-  margin: 0;
+@keyframes today-live-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--mint-tint); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 200, 151, .16); }
 }
-#modal-root .modal .detail-schedule-copy.detail-schedule-inline {
-  gap: 4px;
+
+/* ---- "What's happening" ---------------------------------------------- */
+/* Same weight and tracking as the deck heading, with a mint rule under it so
+   the feed reads as a section start rather than another row of text. */
+.feed-section .section-heading .feed-heading-copy { min-width: 0; }
+.feed-section .section-heading .eyebrow { margin: 0 0 1px; color: var(--accent-strong); }
+.feed-section .section-heading h2 {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 7px;
+  font-size: var(--fs-page);
+  font-weight: 900;
+  letter-spacing: -.035em;
 }
-#modal-root .modal .detail-schedule-copy b,
-#modal-root .modal .detail-schedule-copy small {
-  line-height: 1;
+.feed-section .section-heading h2::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 46px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  content: "";
 }
-#modal-root .modal .detail-info-row {
-  padding: 8px 0;
+
+/* The deck is the stage. Cards are absolutely centred inside it and the fan
+   spills past the edges, so nothing here may clip. */
+.today-deck {
+  position: relative;
+  height: clamp(392px, 96vw, 476px);
+  /* Room for the fanned corners at either side. */
+  margin: 0 6px;
+  touch-action: pan-y;
+}
+.today-deck:focus-visible { outline: 3px solid var(--accent); outline-offset: 10px; border-radius: 30px; }
+
+.today-card {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  width: min(83%, 342px);
+  height: 100%;
+  /* Auto margins against both edges, not a 50% offset â€” a percentage/pixel
+     min() pair resolves on different branches for width and margin and lands
+     the card off-centre. */
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--ink);
+  box-shadow: 0 18px 38px -12px rgba(9, 12, 10, .42), 0 2px 8px rgba(9, 12, 10, .16);
+  transform-origin: 50% 50%;
+  transition: transform .42s cubic-bezier(.22, .61, .36, 1), opacity .34s ease, filter .34s ease;
+  will-change: transform;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.today-card.is-front { cursor: grab; }
+.today-card.is-dragging { cursor: grabbing; transition: none; }
+/* Used for one frame while a thrown card is restacked at the back, so it
+   doesn't visibly sail back across the screen. */
+.today-card.no-transition { transition: none; }
+
+/* The fan. Depth 0 is the card you are on; 1 and 2 lean out either side of it,
+   3 is the tail of the stack, and "out" is the card being thrown away. */
+.today-card[data-depth="0"] { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 1; }
+.today-card[data-depth="1"] { transform: translate3d(-22px, 0, 0) rotate(-5.5deg) scale(.955); opacity: 1; filter: brightness(.84); }
+.today-card[data-depth="2"] { transform: translate3d(22px, 0, 0) rotate(5.5deg) scale(.918); opacity: 1; filter: brightness(.74); }
+.today-card[data-depth="3"] { transform: translate3d(3px, 0, 0) rotate(1.5deg) scale(.884); opacity: .85; filter: brightness(.66); }
+.today-card[data-depth="out"] { opacity: 0; transition: transform .3s cubic-bezier(.4, 0, .8, .3), opacity .3s ease; }
+/* Only the front card takes pointer events, so a fanned corner is never a
+   tap target for the event underneath it. */
+.today-card:not(.is-front) { pointer-events: none; }
+
+.today-card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  /* A slow drift on the live card, so a still photo still feels alive. */
+  transform: scale(1.04);
+  transition: transform 7s ease-out;
+}
+.today-card.is-front .today-card-img { transform: scale(1.11); }
+.today-card-img.is-fallback-image { object-fit: contain; background: #f7fafc; transform: none; }
+.today-card.is-front .today-card-img.is-fallback-image { transform: none; }
+
+.today-card-shade {
+  position: absolute;
+  inset: 0;
+  /* Heavy at both ends: the facts sit on the top scrim and the title on the
+     bottom one, and event photos are as often near-white as they are dark. */
+  background: linear-gradient(to top, rgba(9, 12, 10, .9) 0%, rgba(9, 12, 10, .58) 30%, rgba(9, 12, 10, .1) 56%, rgba(9, 12, 10, .3) 82%, rgba(9, 12, 10, .58) 100%);
+  pointer-events: none;
+}
+/* The glassy diagonal the reference decks all carry. */
+.today-card-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(118deg, rgba(255, 255, 255, .17) 0%, rgba(255, 255, 255, .05) 26%, rgba(255, 255, 255, 0) 46%, rgba(255, 255, 255, .07) 78%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+.today-card-hit { position: absolute; inset: 0; width: 100%; background: transparent; }
+
+.today-card-top {
+  position: absolute;
+  top: 17px;
+  right: 16px;
+  left: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 10px;
+  pointer-events: none;
 }
-#modal-root .modal .detail-info-row .dir-art {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
+/* Label over value, the way the reference cards head their stats. */
+.today-card-facts { display: flex; gap: 16px; min-width: 0; }
+.today-fact { display: flex; min-width: 0; flex-direction: column; gap: 1px; color: #fff; }
+.today-fact small {
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  opacity: .72;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .4);
 }
-#modal-root .modal .detail-info-row .dir-copy b {
-  font-size: 13.5px;
-  line-height: 1.15;
+.today-fact b {
+  overflow: hidden;
+  font-size: var(--fs-body);
+  font-weight: 800;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .45);
 }
-#modal-root .modal .detail-info-row .dir-copy small {
-  margin-top: 2px;
-  line-height: 1.15;
+.today-card-tools {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+  pointer-events: auto;
+  transition: opacity .28s ease;
 }
-#modal-root .modal .detail-info-row .dir-action {
-  font-size: 11px;
-  text-align: right;
+/* Only the card you are on carries its copy. On the fanned ones all you see is
+   a sliver, so a truncated "Staâ€¦ 4:â€¦" is noise â€” they read as plain slabs until
+   they come forward, the way the reference decks do. */
+.today-card-top,
+.today-card-copy { transition: opacity .22s ease; }
+.today-card:not(.is-front) .today-card-top,
+.today-card:not(.is-front) .today-card-copy { opacity: 0; }
+.today-card-tool {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(9, 12, 10, .42);
+  color: #fff;
+  backdrop-filter: blur(7px);
+}
+.today-card-tool svg { width: 17px; height: 17px; stroke-width: 2; }
+.today-card-tool.card-save.is-saved { background: var(--accent); color: #fff; }
+.today-card-tool.card-save.is-saved svg { fill: currentColor; }
+
+.today-card-copy {
+  position: absolute;
+  right: 18px;
+  bottom: 20px;
+  left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #fff;
+  pointer-events: none;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, .42);
+}
+.today-card-title {
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -.028em;
+  /* Two lines maximum, so every card in the deck has the same footprint. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.today-card-venue {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  opacity: .95;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.today-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 3px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  opacity: .84;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.today-card-price {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .2);
+  font-size: var(--fs-micro);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.today-hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 26px 18px 0;
+}
+.today-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(25, 26, 25, .18);
+  transition: width .3s cubic-bezier(.22, .61, .36, 1), background .3s ease;
+}
+.today-dot.is-on { width: 20px; background: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .today-hero-live { animation: none; }
+  .today-card { transition: none; }
+  .today-card-img,
+  .today-card.is-front .today-card-img { transform: none; transition: none; }
+  .today-dot { transition: none; }
+}
+
+/* ============================================================
+   PHONE PROPORTIONS + iOS SAFE AREAS
+   The shell used to be 620px wide with zero top inset, so on device the
+   wordmark sat behind the clock and battery, and in the browser the preview
+   was far wider than any iPhone. Two fixes:
+     - one shell width that matches a real phone (430px = iPhone Pro Max)
+     - every fixed/sticky edge padded by the device's own safe-area insets
+   `viewport-fit=cover` in index.html is what makes env() return real numbers.
+   ============================================================ */
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --shell-max: 430px;
+}
+
+.app-shell {
+  width: min(100%, var(--shell-max));
+  padding-right: var(--safe-right);
+  padding-left: var(--safe-left);
+}
+
+/* Reserve the status bar strip. `max()` keeps the old 4px breathing room on
+   hardware that reports no inset (Android, desktop, older iPhones). */
+body[data-route="home"] .topbar,
+body[data-route="social"] .topbar,
+body[data-route="profile"] .topbar {
+  height: auto;
+  min-height: 66px;
+  padding-top: max(4px, var(--safe-top));
+}
+.topbar { padding-top: max(10px, var(--safe-top)); }
+
+/* Mirror image at the bottom: clear the home indicator. */
+.bottom-nav { bottom: calc(9px + var(--safe-bottom)); }
+#toast { bottom: calc(87px + var(--safe-bottom)); }
+
+/* The desktop preview has no hardware insets to read, so hand it the metrics of
+   a notched iPhone. What you see while testing then matches what ships. */
+@media (min-width: 700px) {
+  .app-shell {
+    --safe-top: 47px;
+    --safe-bottom: 22px;
+    min-height: min(calc(100vh - 32px), 932px);
+    max-height: min(calc(100vh - 32px), 932px);
+  }
+  .app-shell::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 11;
+    height: 47px;
+    background: var(--paper);
+    pointer-events: none;
+  }
+  .bottom-nav { bottom: calc(25px + 22px); }
+}
+@media (min-width: 1040px) {
+  .demo-stage { grid-template-columns: 330px var(--shell-max); }
+  .app-shell { width: var(--shell-max); }
+  .bottom-nav { left: auto; width: calc(var(--shell-max) - 20px); }
+}
+
+/* ============================================================
+   EVENT DETAIL SHEET
+   Travels the full height of the screen on open rather than nudging up 35px,
+   then holds the facts in grouped cards on a recessed background.
+   ============================================================ */
+
+.detail-backdrop { align-items: flex-end; }
+
+.modal.event-detail-sheet {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, var(--shell-max));
+  height: calc(100dvh - max(12px, var(--safe-top)));
+  max-height: calc(100dvh - max(12px, var(--safe-top)));
+  padding-right: var(--safe-right);
+  padding-left: var(--safe-left);
+  overflow: hidden;
+  border-radius: 22px 22px 0 0;
+  background: var(--cream);
+  animation: detail-rise .42s cubic-bezier(.22, .68, .3, 1);
+}
+@supports not (height: 100dvh) {
+  .modal.event-detail-sheet { height: calc(100vh - max(12px, var(--safe-top))); max-height: calc(100vh - max(12px, var(--safe-top))); }
+}
+
+/* The whole point of the redesign: the card rises from off-screen. */
+@keyframes detail-rise {
+  from { transform: translate3d(0, 100%, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+.detail-topbar {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 auto;
+  padding: 7px 10px 8px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.detail-grabber {
+  display: block;
+  width: 38px;
+  height: 4px;
+  margin: 0 auto 9px;
+  border-radius: 999px;
+  background: rgba(25, 26, 25, .18);
+}
+.detail-topbar-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+}
+.detail-topbar-title {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--fs-title);
+  font-weight: 800;
+  text-align: center;
+}
+#modal-root .event-detail-sheet .detail-topbar-btn {
+  position: static;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  background: rgba(25, 26, 25, .06);
+  box-shadow: none;
+  font-size: 19px;
+  line-height: 1;
+}
+.detail-topbar-share svg { width: 16px; height: 16px; stroke-width: 2; }
+
+.detail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+#modal-root .event-detail-sheet .detail-hero { position: relative; min-height: 0; height: 216px; padding: 0; overflow: hidden; }
+#modal-root .event-detail-sheet .detail-hero.has-image { min-height: 0; height: 216px; }
+/* Blurred, scaled copy of the same artwork fills the frame; the sharp image on
+   top stays contained so venue logos are never cropped. */
+.event-detail-sheet .detail-hero.has-image::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: -24px;
+  z-index: 0;
+  background-image: var(--detail-hero-backdrop);
+  background-position: center;
+  background-size: cover;
+  filter: blur(22px) saturate(1.15) brightness(.9);
+  transform: scale(1.08);
+}
+.event-detail-sheet .detail-hero-img { z-index: 1; object-fit: contain; background: transparent; }
+
+#modal-root .event-detail-sheet .detail-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px 16px 26px;
+  background: var(--cream);
+}
+#modal-root .event-detail-sheet .detail-title-block { gap: 4px; margin: 0; }
+/* Sentence case here only. Long event titles set in all caps become a wall. */
+#modal-root .event-detail-sheet .detail-title-block h1 { font-size: 28px; line-height: 1.08; letter-spacing: -.5px; text-transform: none; }
+.event-detail-sheet .detail-title-block .event-meta {
+  color: var(--accent-strong);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: .9px;
+  text-transform: uppercase;
+}
+#modal-root .event-detail-sheet .detail-description { margin: 0; color: var(--muted); font-size: var(--fs-body); line-height: 1.45; }
+
+/* Grouped fact cards, per the reference screens. */
+.detail-group {
+  display: grid;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgba(25, 26, 25, .05), 0 6px 18px -12px rgba(25, 26, 25, .3);
+}
+.detail-group-flat { box-shadow: none; }
+#modal-root .event-detail-sheet .detail-group-row {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 13px 15px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+.detail-group-row + .detail-group-row,
+.detail-group-row + .detail-occurrences { border-top: 1px solid var(--line); }
+.detail-group-label { color: var(--muted); font-size: var(--fs-small); font-weight: 600; }
+.detail-group-row b { color: var(--ink); font-family: var(--display); font-size: var(--fs-body); font-weight: 700; line-height: 1.25; }
+.detail-group-row small { color: var(--muted); font-size: var(--fs-micro); }
+.detail-group-links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 5px; }
+#modal-root .event-detail-sheet .detail-group-link {
+  margin-top: 3px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--accent-strong);
+  background: transparent;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+}
+.detail-group-links .detail-group-link { margin-top: 0; }
+.detail-group-row.selected .detail-group-link { color: var(--muted); }
+.detail-group-static { cursor: default; }
+
+#modal-root .event-detail-sheet .detail-occurrences,
+#modal-root .event-detail-sheet .detail-schedule { margin: 0; padding: 10px 15px 12px; }
+#modal-root .event-detail-sheet .detail-schedule-head { margin: 0; padding: 0; border: 0; background: transparent; }
+.event-detail-sheet .detail-occurrences .eyebrow { margin: 0 0 5px; }
+
+.event-detail-sheet .attendee-line { margin: 0; }
+.event-detail-sheet .event-source-credit { margin: 0; }
+.event-detail-sheet .rsvp-hint { margin: 0; }
+
+/* Pinned to the sheet, not sticky inside a scroller â€” so it never overhangs. */
+#modal-root .event-detail-sheet .detail-decide-bar {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 11px 16px calc(11px + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal.event-detail-sheet { animation: none; }
+}
+
+/* The collapsed-description fade was offset for the old sheet's action row.
+   Inside the new sheet the clamped text ends where the block ends. */
+#modal-root .event-detail-sheet .detail-description-wrap { gap: 0; }
+#modal-root .event-detail-sheet .things-to-do-description.collapsed::after { bottom: 0; height: 30px; background: linear-gradient(180deg, rgba(252, 252, 250, 0), var(--cream)); }
+
+/* ============================================================
+   Venue avatars
+   A followed venue shows its own artwork. The letter disc is the fallback, not
+   the default. Logos are contained so a wordmark never gets its name cropped;
+   photographs fill the frame.
+   ============================================================ */
+
+.group-icon.has-venue-image,
+.top-type .tt-art.has-venue-image {
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.group-icon.has-venue-image img,
+.top-type .tt-art.has-venue-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.group-icon.has-venue-image.is-logo img,
+.top-type .tt-art.has-venue-image.is-logo img {
+  object-fit: contain;
+  padding: 2px;
+}
+/* White-on-transparent wordmarks need something to be white against. */
+.group-icon.has-venue-image.is-knockout,
+.top-type .tt-art.has-venue-image.is-knockout {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+.followed-venue-card .group-icon,
+.follow-card .group-icon { flex: 0 0 auto; border-radius: 50%; }
+
+/* ============================================================
+   Profile page width
+   .profile-page is a grid, and a grid item's automatic minimum size is its
+   min-content width. The one-line bio is `white-space: nowrap`, so its
+   min-content was the entire un-wrapped sentence â€” ~557px of it â€” which sized
+   the single column and pushed every card on the page off the right edge of the
+   phone. min-width: 0 lets the column shrink back to the shell, and the bio
+   ellipsises the way it was always meant to.
+   ============================================================ */
+
+.page > * { min-width: 0; }
+.profile-id { width: 100%; min-width: 0; }
+.profile-id .pid-bio { width: 100%; min-width: 0; max-width: 100%; }
+/* A long display name wraps onto a second line rather than shoving the Share
+   and Edit buttons off the edge. */
+.profile-page .discover-heading { gap: 10px; }
+.profile-page .discover-heading > div:first-child { min-width: 0; }
+.profile-page .discover-heading h1 { overflow-wrap: anywhere; }
+.profile-page .profile-top-actions { flex: 0 0 auto; }
+
+/* ============================================================
+   Tab bar
+   The active tab still turns green; behind it a soft grey oval slides across to
+   whichever tab you are on. It is a single pseudo-element on the bar, moved a
+   column at a time, so the travel is continuous instead of a cross-fade.
+   ============================================================ */
+
+.bottom-nav::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 8px;
+  z-index: 0;
+  width: calc((100% - 16px) / 3);
+  border-radius: 999px;
+  background: rgba(25, 26, 25, .07);
+  transition: transform .34s cubic-bezier(.22, .68, .3, 1);
+  pointer-events: none;
+}
+body[data-route="social"] .bottom-nav::before { transform: translateX(100%); }
+body[data-route="profile"] .bottom-nav::before { transform: translateX(200%); }
+.nav-item { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav::before { transition: none; }
 }
 
     </style>
@@ -5868,7 +6443,7 @@ function profileAgeFromBirthdate(birthdate) {
   return age;
 }
 const savedProfileAge = profileAgeFromBirthdate(savedProfile?.birthdate) || savedProfile?.age || 27;
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [{ id: "friend-priya", type: "friend", name: "Priya Lee", from: "Priya", detail: "You have 4 mutual friends.", time: "25 minutes ago" }] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [] };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -6698,8 +7273,9 @@ function eventRow(event, variant = "", opts = {}) {
   const rawVenue = canonicalVenueName(event.venue);
   const venueName = rawVenue && !isGenericLocationName(rawVenue) && rawVenue.toLowerCase() !== String(area).toLowerCase() ? rawVenue : "";
   const timeLine = eventCardTimeHtml(event);
-  const leftTag = eventTagChips(event, 3);
-  const bottomHtml = leftTag ? `<span class="event-card-perf"></span><span class="event-card-bottom2"><span class="event-card-tags">${leftTag}</span></span>` : "";
+  // Tag pills removed from the card: most were seeded filler ("Curtain Call",
+  // "Late Set", "Interactive") rather than anything true about the event. The
+  // category pill on the artwork carries the only label worth showing here.
   const fallbackImage = eventFallbackImageSrc(event);
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}">
@@ -6720,7 +7296,6 @@ function eventRow(event, variant = "", opts = {}) {
         ${area ? `<span class="event-card-meta event-card-area">${escapeHtml(area)}</span>` : ""}
       </button>
       ${eventInterestSignal(event)}
-      ${bottomHtml}
     </div>
   </article>`;
 }
@@ -6753,7 +7328,6 @@ function eventListRow(event, opts = {}) {
     <span class="elr-copy">
       <b class="elr-venue">${escapeHtml(displayTitle)}</b>
       <span class="elr-meta">${escapeHtml(meta)}</span>
-      <span class="elr-tags">${eventTagChips(event, 2)}</span>
     </span>
     <span class="elr-side">
       ${disabled ? "" : `<button class="elr-save card-save${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>`}
@@ -7132,6 +7706,51 @@ function isMuseumDisplayEvent(event) {
   if (/time varies|date to be announced/.test(String(event.time || "").toLowerCase())) return false;
   return Boolean(event.startDate) || Number.isFinite(event.startSort) || eventStartHour(event) !== null;
 }
+// --- Cross-listed categories ----------------------------------------------
+// A few kinds of event honestly belong in more than one place. A Saturday
+// farmers market is a market *and* a community event; a band playing a bar is
+// live music even when the listing reads as nightlife, food, or community.
+// The importer has to pick one `cat`, so instead of re-tagging the source data
+// these two signals widen the category filters: the event keeps its home
+// category and also answers to the one it obviously belongs in.
+
+// Venue and neighbourhood names that carry the word "market" without the event
+// itself being one ("Union Market", "Eastern Market"). Stripped before the
+// standalone-word check so a concert at Union Market is not filed as a market.
+const MARKET_PLACE_NAMES = /\b(union market|eastern market|market square|marketplace|market street|marketing)\b/g;
+const MARKET_PHRASES = /\b(farmers'? market|farmer'?s market|flea market|night market|holiday market|winter market|makers'? market|maker'?s market|artisan market|craft market|street market|vendor market|pop-?up market|open-?air market|neighborhood market|community market|christmas market|bazaar|craft fair|street fair|makers'? fair|vendor fair|swap meet)s?\b/;
+
+function eventIsMarketEvent(event) {
+  const title = String(event?.title || "").toLowerCase();
+  const text = `${title} ${eventTags(event).join(" ")} ${String(event?.desc || "")}`.toLowerCase();
+  if (MARKET_PHRASES.test(text)) return true;
+  // Otherwise only trust the word in the event's own title, and only once the
+  // place names that merely contain it have been taken out.
+  return /\bmarkets?\b/.test(title.replace(MARKET_PLACE_NAMES, " "));
+}
+
+// Deliberately narrow: recorded music (DJ sets, karaoke, silent discos) is
+// nightlife, not live music, so those stay out unless a live act is also named.
+// "Ensemble" is deliberately absent: the importer sprays it on performing-arts
+// listings as decorative filler, so it flags film screenings as gigs.
+const LIVE_MUSIC_PHRASES = /\b(live music|live band|live jazz|live blues|live bluegrass|live set|live performance|performs? live|performing live|open mic|open-mic|jam session|acoustic|unplugged|singer[- ]songwriter|songwriter night|jazz night|jazz brunch|blues night|bluegrass|go-?go\b|brass band|cover band|house band|residency|\bband\b|\btrio\b|\bquartet\b|\bquintet\b|\bconcert\b|\bgig\b|\brecital\b)\b/;
+const RECORDED_MUSIC_PHRASES = /\b(dj set|dj night|dj-|karaoke|silent disco|open decks|vinyl night|playlist)\b/;
+
+function eventIsLiveMusicEvent(event) {
+  const text = `${event?.title || ""} ${eventTags(event).join(" ")} ${event?.desc || ""}`.toLowerCase();
+  if (!LIVE_MUSIC_PHRASES.test(text)) return false;
+  // A karaoke or DJ night that only trips the filter on a stray word stays put.
+  return !RECORDED_MUSIC_PHRASES.test(text) || /\b(live music|live band|live set|live performance|open mic)\b/.test(text);
+}
+
+// True when `event` should surface under `filter` in addition to its own `cat`.
+function eventCrossListsInto(event, filter) {
+  const category = String(event?.cat || "").toLowerCase();
+  if (filter === "festivals") return category !== "festivals" && eventIsMarketEvent(event);
+  if (filter === "live-music") return !["live-music", "concerts"].includes(category) && eventIsLiveMusicEvent(event);
+  return false;
+}
+
 function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (!isMuseumDisplayEvent(event)) return false;
   const priceValue = eventNumericPrice(event);
@@ -7152,8 +7771,10 @@ function matchesFilter(event, filter, applyDiscoverFilters = true) {
   if (filter === "tonight") return event.time.startsWith("Tonight");
   if (filter === "free") return event.price === "Free";
   if (filter === "food") return eventMatchesFoodDrinkFocus(event);
-  if (filter === "community") return event.cat === "community" || event.cat === "expos";
-  return event.cat === filter;
+  // Markets and community overlap on purpose â€” a farmers market answers to both,
+  // whichever side the importer happened to file it under.
+  if (filter === "community") return event.cat === "community" || event.cat === "expos" || eventIsMarketEvent(event);
+  return event.cat === filter || eventCrossListsInto(event, filter);
 }
 
 function eventMatchesFoodDrinkFocus(event) {
@@ -8693,6 +9314,43 @@ function validateSignupEmail(email) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
 }
 
+// One rule, applied everywhere a password is set: long enough, and not a bare
+// string of digits â€” it has to contain letters.
+const SIGNUP_PASSWORD_MIN = 8;
+
+function validateSignupPassword(password) {
+  const value = String(password || "");
+  if (value.length < SIGNUP_PASSWORD_MIN) throw new Error(`Use a password with at least ${SIGNUP_PASSWORD_MIN} characters.`);
+  if (!/[a-zA-Z]/.test(value)) throw new Error("Your password needs to include at least one letter.");
+}
+
+// An email address gets one Lokal account. Checked against the profiles table
+// before signup runs, so the duplicate is caught while the user is still on the
+// form rather than surfacing as a Supabase error three screens later.
+async function emailAlreadyRegistered(email) {
+  const value = String(email || "").trim().toLowerCase();
+  if (!value) return false;
+  const stored = getLokalCredentials();
+  if (stored?.email && stored.email === value && localStorage.getItem("lokalHasAccount") === "true") return true;
+  try {
+    // ilike with no wildcards is a case-insensitive equality, which is what we
+    // want â€” stored addresses are not normalised to lower case everywhere.
+    const url = `${supabaseConfig.url}/rest/v1/profiles?select=id&email=ilike.${encodeURIComponent(value)}&limit=1`;
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) return false;
+    const rows = await response.json();
+    return Array.isArray(rows) && rows.length > 0;
+  } catch {
+    // Offline or blocked: don't block a legitimate signup on a failed lookup.
+    // Supabase still rejects a duplicate address at signup time.
+    return false;
+  }
+}
+
+function isDuplicateAccountError(error) {
+  return /already registered|already exists|already been registered|already has a lokal account|duplicate key|user_repeated_signup/i.test(String(error?.message || ""));
+}
+
 async function syncSupabaseSignupProfile(accessToken, profile) {
   const userId = decodeJwtPayload(accessToken).sub;
   if (!userId) return;
@@ -8734,10 +9392,13 @@ async function syncSupabaseSignupProfile(accessToken, profile) {
 
 async function createLokalAccount({ fullName, email, phone, username, birthdate, password, eventInterests = [], areaInterests = [], accountType = "person", ownerName = "", venueName = "", venueAddress = "", venueWebsite = "", venueImageUrl = "", venueDescription = "" }) {
   if (!fullName || !email || !phone || !username || !birthdate || !password) throw new Error("Complete every account field.");
-  if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
+  validateSignupPassword(password);
   validateSignupEmail(email);
   validateBirthday(birthdate);
   const formattedPhone = formatSignupPhone(phone);
+  // The single choke point for account creation, so the one-account-per-email
+  // rule holds no matter which signup path got here.
+  if (await emailAlreadyRegistered(email)) throw new Error("That email already has a Lokal account. Log in instead, or use a different address.");
   state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests, accountType, ownerName, venueName, venueAddress, venueWebsite, venueImageUrl, venueDescription };
   state.pendingSignupPhone = formattedPhone;
   if (demoAuthConfig.useMockOtp) return { demoOtp: true };
@@ -9364,7 +10025,7 @@ const categoryFeedConfig = {
   "performing-arts": { label: "Performing arts", searchPlaceholder: "Search by theater, comedy, dance, film, or showâ€¦", chips: ["All events", "Free", "Theater", "Film", "Gallery", "Dance", "Comedy"] },
   sports: { label: "Sports", searchPlaceholder: "Search by team, sport, or venueâ€¦", chips: ["All sports", "Nationals", "Commanders", "Capitals", "Mystics", "DC United", "College"] },
   museums: { label: "Museums", searchPlaceholder: "Search by museum, exhibit, or showâ€¦", chips: ["All museums", "Free", "After hours", "Exhibits", "Tours", "Family", "Smithsonian"] },
-  festivals: { label: "Festivals", searchPlaceholder: "Search by festival, neighborhood, or typeâ€¦", chips: ["All festivals", "Food & drink", "Music", "Art", "Cultural", "Outdoor", "Family"] },
+  festivals: { label: "Markets", searchPlaceholder: "Search by market, neighborhood, or typeâ€¦", chips: ["All markets", "Farmers market", "Flea market", "Makers & craft", "Food & drink", "Holiday", "Street fair", "Outdoor"] },
   community: { label: "Community", searchPlaceholder: "Search by cause, group, convention, or neighborhoodâ€¦", chips: ["All events", "Volunteer", "Networking", "Convention", "Workshop", "Book club", "Outdoor", "Free"] },
   free: { label: "Free events", searchPlaceholder: "Search free events by type or venueâ€¦", chips: ["All free", "Comedy", "Museums", "Outdoor", "Live music", "Festivals", "Workshops", "Talks"] }
 };
@@ -9401,7 +10062,7 @@ function followingRail() {
   if (!stories.length && !venues.length) return "";
   // Same tile format as Your top types, so the two rows read as one system.
   const venueTiles = venues.map(name => `<button class="top-type" data-venue-events="${escapeHtml(name)}">
-    <span class="tt-art tt-initial">${escapeHtml(name.slice(0, 1).toUpperCase())}</span>
+    ${venueAvatarHtml(name, "tt-art", "tt-initial")}
     <b>${escapeHtml(name)}</b>
     <small>Following</small>
   </button>`).join("");
@@ -9416,6 +10077,58 @@ function followingRail() {
 function venueDirectoryMatch(name) {
   const key = venueImageKeyName(name);
   return venueDirectory.find(venue => venueImageKeyName(venue.name) === key) || null;
+}
+
+/* ============================================================
+   Venue avatars
+   Following a venue should look like following a venue, not like following the
+   letter B. venueDirectory carries an image_url for most DC venues; where it
+   doesn't, one of the venue's own listings will. Logo artwork is deliberately
+   rejected for event cards (eventHasUsablePhoto) but it is exactly what an
+   avatar wants, so the venue's own mark is preferred over a photo of one night.
+   ============================================================ */
+
+function venueAvatarImage(name) {
+  const directory = venueDirectoryMatch(name);
+  const fromDirectory = String(directory?.image_url || "").trim();
+  if (fromDirectory) return fromDirectory;
+  const displayName = directory?.name || name;
+  const venueEvents = displayableDcEvents().filter(event => venueEventMatch(event, displayName));
+  const logo = venueEvents.find(event => event.image && eventImageLooksLogoLike(event.image));
+  return String(logo?.image || venueEvents.find(event => event.image)?.image || "").trim();
+}
+
+// Some venues only publish a knockout logo â€” white artwork on transparency,
+// drawn for a dark header. Dropped on a white disc it is simply invisible, so
+// those get an ink backdrop instead. The filename is the only signal available:
+// the pixels come from another origin, so reading them back off a canvas throws.
+function venueLogoIsKnockout(imageUrl) {
+  const value = String(imageUrl || "").trim();
+  let path = value.toLowerCase();
+  try { path = new URL(value).pathname.toLowerCase(); } catch (_) {}
+  let fileName = path.split(/[/?#]/).filter(Boolean).pop() || path;
+  try { fileName = decodeURIComponent(fileName); } catch (_) {}
+  return /(?:^|[\s._+-])(white|reverse|reversed|inverted|invert|knockout)(?:[\s._+-]|$)/.test(fileName.replace(/\+/g, " "));
+}
+
+// One shape for every list a followed venue appears in, so the Discover rail,
+// the Social following list and the profile sheet stay in step. Falls back to
+// the initial when the venue has no artwork at all â€” and, via the capture-phase
+// error listener in 90-interactions, when the artwork fails to load.
+function venueAvatarHtml(name, className, initialClassName = "") {
+  const initial = escapeHtml(String(name || "V").trim().slice(0, 1).toUpperCase());
+  // Both classes stay on the span either way, so the initial is still styled
+  // correctly if the image is dropped later.
+  const classes = [className, initialClassName].filter(Boolean).join(" ");
+  const image = venueAvatarImage(name);
+  if (!image) return `<span class="${classes}">${initial}</span>`;
+  // Venue marks are wordmarks as often as they are badges, so a logo is
+  // contained rather than cropped; a photo of the room can fill the circle.
+  // This is the first guess, off the filename â€” the load listener in
+  // 90-interactions settles it once the real proportions are known.
+  const knockout = venueLogoIsKnockout(image);
+  const fit = knockout || eventImageLooksLogoLike(image) ? " is-logo" : "";
+  return `<span class="${classes} has-venue-image${fit}${knockout ? " is-knockout" : ""}" data-avatar-initial="${initial}"><img src="${escapeHtml(image)}" alt="" loading="lazy"></span>`;
 }
 
 function venueSearchMatches(query, limit = 8) {
@@ -9791,6 +10504,278 @@ function openTopWeekEvents() {
   </section></div>`;
 }
 
+// --- Today's five, as a card deck -----------------------------------------
+// The first thing you see on opening the app: today's five picks as a stack of
+// cards you swipe through, rather than a list you read. The card you are on sits
+// square in the middle and the rest fan out behind it, so the whole thing reads
+// as one physical deck. It also advances on its own, so the surface feels alive
+// when it is just sitting there.
+const TODAY_HERO_ROTATE_MS = 3800;
+// How long the deck waits after you touch it before it starts advancing again.
+const TODAY_HERO_RESUME_MS = 9000;
+// Past this much horizontal drag, letting go throws the card instead of
+// springing it back. Roughly a third of a card.
+const TODAY_HERO_THROW_PX = 68;
+// Movement under this is a tap, not a drag, and should open the event.
+const TODAY_HERO_TAP_PX = 8;
+let todayHeroTimer = null;
+let todayHeroResumeTimer = null;
+
+// Today's picks first. Once the last of today's events has started, widen to
+// whatever is next on the calendar rather than emptying the deck: the old
+// fallback re-selected from `pool`, which is the very list that had just been
+// emptied by the already-happened filter, so the deck vanished every evening.
+function todayHeroEvents(limit = 5) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const stillToCome = list => (list || [])
+    .slice()
+    .filter(event => !storyEventAlreadyHappened(event))
+    .sort(sortEventsByStart);
+  const storyPool = stillToCome(state.todayStoryEvents);
+  const fullPool = stillToCome(displayableDcEvents());
+  const preferred = storyPool.length ? storyPool : fullPool;
+  const todays = dailyFeaturedEventSelection(preferred.filter(event => sameCalendarDate(eventDateValue(event), today)), limit);
+  if (todays.length) return todays;
+  // dailyFeaturedEventSelection ranks by popularity, so handed the whole
+  // calendar it will happily surface a stadium show three weeks out. Widen the
+  // window a day at a time instead, so "coming up next" stays literally true.
+  for (const days of [1, 2, 3, 7, 14]) {
+    const cutoff = new Date(today.getTime() + (days + 1) * 86400000);
+    const soon = dailyFeaturedEventSelection(fullPool.filter(event => {
+      const date = eventDateValue(event);
+      return date && date < cutoff;
+    }), limit);
+    if (soon.length >= limit) return soon;
+    if (soon.length && days === 14) return soon;
+  }
+  return dailyFeaturedEventSelection(fullPool.length ? fullPool : preferred, limit);
+}
+
+// The heading has to tell the truth about what is in the deck â€” "Happening
+// today" over tomorrow morning's events is a small lie the user will catch.
+function todayHeroIsToday(list) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return list.length > 0 && list.every(event => sameCalendarDate(eventDateValue(event), today));
+}
+
+// When the deck is all today the fact strip only needs the clock â€” the full
+// "Sun, Aug 2, 2:30 PM" stays on the line under the title. On a day where
+// today's events have all started, the deck shows what's next, and then the
+// clock alone would read as though it were tonight, so the weekday comes too.
+function todayHeroClock(event, isToday = true) {
+  const display = String(eventDisplayTime(event) || "");
+  const match = display.match(/\d{1,2}(?::\d{2})?\s*(?:AM|PM)/i);
+  if (!match) return display || "Today";
+  const clock = match[0].replace(/\s+/g, " ").toUpperCase();
+  if (isToday) return clock;
+  const weekday = display.match(/^[A-Za-z]{3}/);
+  return weekday ? `${weekday[0].toUpperCase()} ${clock}` : clock;
+}
+
+function todayHeroCard(event, index, total, isToday = true) {
+  const displayTitle = eventDisplayTitle(event);
+  const venue = cleanLocationPart(canonicalVenueName(event.venue)) || eventLocationLine(event) || "Washington, DC";
+  const price = typeof eventPriceLabel === "function" ? eventPriceLabel(event) : "";
+  // The neighbourhood only earns its place when it says something the venue line
+  // above it hasn't already ("Audi Field" then "Audi Field / Washington, DC").
+  const area = eventCardArea(event);
+  const areaAddsSomething = area && !`${venue}`.toLowerCase().includes(area.toLowerCase()) && !area.toLowerCase().includes(venue.toLowerCase());
+  const meta = [eventDisplayTime(event), areaAddsSomething ? area : ""].filter(Boolean).join(" Â· ");
+  // Top-left of the card carries the two facts you sort on â€” when, and what kind
+  // of thing it is â€” as label-over-value pairs, the way the reference decks do.
+  return `<article class="today-card" data-today-card="${index}" data-depth="${Math.min(index, 3)}" style="z-index:${total - index}" role="group" aria-roledescription="slide" aria-label="${index + 1} of ${total}: ${escapeHtml(displayTitle)}">
+    <img class="today-card-img" src="${escapeHtml(eventCardImageSrc(event))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(event))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="${index === 0 ? "eager" : "lazy"}">
+    <span class="today-card-shade" aria-hidden="true"></span>
+    <span class="today-card-sheen" aria-hidden="true"></span>
+    <button class="today-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
+    <span class="today-card-top">
+      <span class="today-card-facts">
+        <span class="today-fact"><small>Starts</small><b>${escapeHtml(todayHeroClock(event, isToday))}</b></span>
+        <span class="today-fact"><small>Type</small><b>${escapeHtml(eventArtLabel(event))}</b></span>
+      </span>
+      <span class="today-card-tools">
+        <button class="card-icon-btn card-share today-card-tool" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button>
+        <button class="card-icon-btn card-save today-card-tool${state.saved.has(event.id) ? " is-saved" : ""}" data-save="${event.id}" aria-label="Save ${escapeHtml(displayTitle)}">${cardHeartIcon}</button>
+      </span>
+    </span>
+    <span class="today-card-copy">
+      <b class="today-card-title">${escapeHtml(displayTitle)}</b>
+      <span class="today-card-venue">${escapeHtml(venue)}</span>
+      ${meta || price ? `<span class="today-card-meta">${escapeHtml(meta)}${price ? `<i class="today-card-price">${escapeHtml(price)}</i>` : ""}</span>` : ""}
+    </span>
+  </article>`;
+}
+
+function renderTodayHero() {
+  const events = todayHeroEvents(5);
+  if (!events.length) return "";
+  const isToday = todayHeroIsToday(events);
+  const cards = events.map((event, index) => todayHeroCard(event, index, events.length, isToday)).join("");
+  const dots = events.map((event, index) => `<button class="today-dot${index === 0 ? " is-on" : ""}" data-today-dot="${index}" aria-label="Show pick ${index + 1}"></button>`).join("");
+  return `<section class="today-hero" data-today-hero aria-roledescription="carousel" aria-label="${isToday ? "Today's top picks" : "Coming up next"}">
+    <div class="today-hero-head">
+      <span class="today-hero-badge" aria-hidden="true">${events.length}</span>
+      <div class="today-hero-headings">
+        <p class="eyebrow">${isToday ? "Happening today" : "Coming up next"}<span class="today-hero-live" aria-hidden="true"></span></p>
+        <h2>Top ${events.length} in DC</h2>
+      </div>
+    </div>
+    <div class="today-deck" data-today-deck tabindex="0" role="group" aria-label="Swipe through today's picks">${cards}</div>
+    <div class="today-hero-dots" data-today-dots>${dots}</div>
+  </section>`;
+}
+
+// Wires the deck up after render. Each card's position in the stack is a `depth`
+// (0 is the front card, 1 and 2 fan out behind it, anything deeper is parked out
+// of sight); CSS owns what each depth looks like, this owns which card is at
+// which depth. Dragging the front card throws it off and promotes the next.
+// Any touch or keypress parks the auto-advance for a while, so the deck never
+// pulls a card out from under someone mid-read.
+function initTodayHero() {
+  clearInterval(todayHeroTimer);
+  clearTimeout(todayHeroResumeTimer);
+  todayHeroTimer = null;
+  todayHeroResumeTimer = null;
+  const hero = document.querySelector("[data-today-hero]");
+  const deck = hero?.querySelector("[data-today-deck]");
+  if (!hero || !deck) return;
+  const cards = [...deck.querySelectorAll(".today-card")];
+  const dots = [...hero.querySelectorAll("[data-today-dot]")];
+  if (!cards.length) return;
+  const total = cards.length;
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // A re-render (a sync landing, a filter clearing) shouldn't throw the deck back
+  // to the first card while someone is part-way through it.
+  let index = Math.min(Math.max(Number(state.todayHeroIndex) || 0, 0), total - 1);
+  let busy = false;
+
+  const layout = () => {
+    state.todayHeroIndex = index;
+    cards.forEach((card, position) => {
+      const depth = (position - index + total) % total;
+      card.dataset.depth = String(Math.min(depth, 3));
+      card.style.zIndex = String(total - depth);
+      card.style.transform = "";
+      card.classList.toggle("is-front", depth === 0);
+      // Only the front card is reachable; the fanned ones are decoration.
+      card.querySelectorAll("button").forEach(button => { button.tabIndex = depth === 0 ? 0 : -1; });
+      card.setAttribute("aria-hidden", depth === 0 ? "false" : "true");
+    });
+    dots.forEach((dot, position) => dot.classList.toggle("is-on", position === index));
+  };
+
+  // Throw the front card off in `direction` (1 = forwards/left, -1 = back/right)
+  // and restack. The card that leaves is put back at the bottom of the deck with
+  // transitions suppressed for a frame, so it doesn't visibly fly back across.
+  const advance = direction => {
+    if (busy || total < 2) return;
+    const outgoing = cards[index];
+    busy = true;
+    outgoing.dataset.depth = "out";
+    outgoing.style.transform = `translate3d(${direction > 0 ? "-125%" : "125%"}, 6%, 0) rotate(${direction > 0 ? -16 : 16}deg)`;
+    const settle = () => {
+      index = (index + direction + total) % total;
+      outgoing.classList.add("no-transition");
+      layout();
+      // Two frames: one for the class to apply, one for the new depth to paint.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        outgoing.classList.remove("no-transition");
+        busy = false;
+      }));
+    };
+    reduceMotion ? settle() : setTimeout(settle, 300);
+  };
+
+  const goTo = target => {
+    const next = ((target % total) + total) % total;
+    if (next === index || busy) return;
+    // Shortest way round the deck, so tapping the last dot doesn't walk through
+    // every card in between.
+    const forward = (next - index + total) % total;
+    advance(forward <= total - forward ? 1 : -1);
+    if (forward !== 1 && total - forward !== 1) {
+      // More than one card away: land the rest without the throw animation.
+      setTimeout(() => { index = next; layout(); }, reduceMotion ? 0 : 320);
+    }
+  };
+
+  const start = () => {
+    if (reduceMotion || total < 2) return;
+    clearInterval(todayHeroTimer);
+    todayHeroTimer = setInterval(() => {
+      if (document.hidden || document.querySelector(".modal-backdrop") || !document.body.contains(deck)) return;
+      advance(1);
+    }, TODAY_HERO_ROTATE_MS);
+  };
+  const pause = () => {
+    clearInterval(todayHeroTimer);
+    clearTimeout(todayHeroResumeTimer);
+    todayHeroTimer = null;
+    todayHeroResumeTimer = setTimeout(start, TODAY_HERO_RESUME_MS);
+  };
+
+  // --- Drag ----------------------------------------------------------------
+  let drag = null;
+  deck.addEventListener("pointerdown", event => {
+    if (busy || event.button > 0) return;
+    const front = cards[index];
+    if (!event.target.closest(".today-card") || !front.contains(event.target)) return;
+    // Leave the tool buttons alone â€” they are targets, not drag handles.
+    if (event.target.closest(".today-card-tool")) return;
+    pause();
+    drag = { x: event.clientX, y: event.clientY, dx: 0, moved: false, id: event.pointerId };
+    front.classList.add("is-dragging");
+  });
+
+  deck.addEventListener("pointermove", event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const dx = event.clientX - drag.x;
+    const dy = event.clientY - drag.y;
+    // Vertical intent belongs to the page scroll, not the deck.
+    if (!drag.moved && Math.abs(dy) > Math.abs(dx) * 1.3 && Math.abs(dy) > TODAY_HERO_TAP_PX) { release(false); return; }
+    if (Math.abs(dx) > TODAY_HERO_TAP_PX) drag.moved = true;
+    drag.dx = dx;
+    if (!drag.moved) return;
+    event.preventDefault();
+    const front = cards[index];
+    front.style.transform = `translate3d(${dx}px, ${Math.abs(dx) * 0.04}px, 0) rotate(${dx / 22}deg)`;
+  });
+
+  function release(allowThrow = true) {
+    if (!drag) return;
+    const front = cards[index];
+    const { dx, moved } = drag;
+    drag = null;
+    front.classList.remove("is-dragging");
+    if (allowThrow && moved && Math.abs(dx) > TODAY_HERO_THROW_PX) advance(dx < 0 ? 1 : -1);
+    else front.style.transform = "";
+    // A drag that ends on the card would otherwise fire a click and open the
+    // event the user was only flicking past.
+    if (moved) {
+      deck.addEventListener("click", swallow, { capture: true, once: true });
+      setTimeout(() => deck.removeEventListener("click", swallow, { capture: true }), 0);
+    }
+  }
+  const swallow = event => { event.stopPropagation(); event.preventDefault(); };
+  deck.addEventListener("pointerup", () => release());
+  deck.addEventListener("pointercancel", () => release(false));
+  deck.addEventListener("pointerleave", () => release());
+
+  deck.addEventListener("keydown", event => {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+    event.preventDefault();
+    pause();
+    advance(event.key === "ArrowRight" ? 1 : -1);
+  });
+  dots.forEach((dot, position) => dot.addEventListener("click", () => { pause(); goTo(position); }));
+
+  layout();
+  start();
+}
+
 function tonightMapEvents(limit = 5) {
   const dc = dedupeFeedEvents(displayableDcEvents().filter(event => matchesFilter(event, "all")).sort(sortEventsByStart));
   const withPictures = dc.filter(event => String(event.image || "").trim());
@@ -10088,16 +11073,21 @@ function renderHome() {
   const sorted = (state.whatFilter && state.whatFilter.size) ? base.slice().sort(sortEventsByStart) : feedMixedSort(base);
   const deduped = dedupeFeedEvents(sorted);
   const syncStatus = discoverStatusLabel();
+  // Today's five lead the page â€” the deck is the first thing on open, above the
+  // search and filters. It steps aside once the user is actively filtering.
+  const heroHtml = discoverFiltersActive() ? "" : renderTodayHero();
   app.innerHTML = `<section class="page discover-page">
     ${state.age < 21 ? `<p class="age-note">Showing age-appropriate picks for your profile.</p>` : ""}
+    ${heroHtml}
     ${renderFilterBar()}
     ${followingRail()}
     ${syncStatus ? `<div class="sync-note ${state.eventSync.status}"><span>${syncStatus}</span><button class="icon-refresh" data-refresh-events aria-label="Refresh events">${icons.refresh}</button></div>` : ""}
-    <section class="section feed-section"><div class="section-heading"><div><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
+    <section class="section feed-section"><div class="section-heading"><div class="feed-heading-copy"><p class="eyebrow">Across the city</p><h2>What's happening</h2></div>${typeof feedModeToggle === "function" ? feedModeToggle() : ""}</div>
     ${discoverFiltersActive() ? "" : renderTopWeekEvents()}
     <div data-feed-content>${(typeof blendedFeedEnabled === "function" && blendedFeedEnabled()) ? renderBlendedFeedContent(deduped) : renderDiscoverFeedContent(deduped)}</div></section>
   </section>`;
   if (state.resetDiscoverScrollAfterRender && typeof resetAppScroll === "function") resetAppScroll();
+  if (heroHtml) initTodayHero();
 }
 
 function discoverCategoryLabel(category) {
@@ -10145,7 +11135,7 @@ function categoryFacetLabel(category) {
     culture: "culture type",
     kids: "kids type",
     museums: "museum type",
-    festivals: "festival type",
+    festivals: "market type",
     community: "community type",
     free: "type"
   };
@@ -10164,7 +11154,7 @@ function categoryFacetAllLabel(category) {
     culture: "All culture",
     kids: "All kids",
     museums: "All museum types",
-    festivals: "All festival types",
+    festivals: "All market types",
     community: "All community types",
     free: "All free events"
   };
@@ -10183,7 +11173,7 @@ function categoryFacetPriorityList(category) {
     culture: ["Embassy", "International", "Heritage", "Reception", "Speaker", "Food tasting", "Dance", "Tour", "Formal"],
     kids: ["Family Friendly", "All ages", "Storytime", "Workshop", "Outdoor", "Disney", "Puppet", "Free"],
     museums: ["Smithsonian", "After Hours", "Gallery Talk", "Workshop", "Screening", "Family Friendly", "Tour"],
-    festivals: ["Food & Drink", "Market", "Outdoor", "Family Friendly", "Cultural", "Street Fair", "Pop-up"],
+    festivals: ["Farmers Market", "Flea Market", "Makers", "Craft", "Food & Drink", "Holiday", "Street Fair", "Outdoor", "Vintage", "Pop-up"],
     community: ["Volunteer", "Networking", "Book Club", "Convention", "Workshop", "Outdoor", "Family Friendly", "Free", "Neighborhood"],
     free: ["Comedy", "Museum", "Outdoor", "Family Friendly", "Live music", "Festival", "Workshop", "Talk", "Community"]
   }[category] || [];
@@ -10408,8 +11398,10 @@ function renderMap() {
   </section>`;
 }
 
+// Today's five used to live here as a story tile you tapped to open a list.
+// They now lead Discover as the rotating deck (see renderTodayHero), so the rail
+// is back to what it says it is: the venues and curators you follow.
 const followingStories = [
-  { id: "featured-today", icon: "5", name: "5 featured events in DC today", type: "Today", intro: "Five DC events worth knowing about today.", todayOnly: true },
   { id: "songbyrd", icon: "S", name: "Songbyrd", type: "Venue", intro: "What's coming up at Songbyrd over the next few days.", eventIds: [1, 11], venueKeywords: ["songbyrd"] },
   { id: "dcafterdark", icon: "D", name: "@dcafterdark", type: "Curator", intro: "A few things @dcafterdark thinks are worth leaving the house for this week.", eventIds: [4, 6, 7], categories: ["concerts", "performing-arts"], tagKeywords: ["Nightlife", "Comedy", "Live Music", "Late Night", "Evening"] },
   { id: "smithsonian", icon: "M", name: "Smithsonian", type: "Venue", intro: "A Smithsonian event to catch over the next couple of days.", eventIds: [9], venueKeywords: ["smithsonian", "hirshhorn", "national gallery", "saam", "portrait gallery"] },
@@ -10527,10 +11519,9 @@ function activeFollowingStories() {
     intro: "Events you shared with your friends on Lokal.",
     eventIds: userStoryPosts.map(post => post.eventId)
   }] : [];
-  const [featuredStory, ...otherStories] = followingStories;
   const followedVenues = followedVenueNames().map(name => name.toLowerCase());
   const isFollowedStory = story => state.follows.has(story.id) || followedVenues.some(name => String(story.name || "").toLowerCase().includes(name) || (story.venueKeywords || []).some(keyword => name.includes(keyword) || keyword.includes(name)));
-  return [featuredStory, ...ownStory, ...otherStories.filter(isFollowedStory)]
+  return [...ownStory, ...followingStories.filter(isFollowedStory)]
     .filter(Boolean)
     .map(story => ({ ...story, storyEvents: storyEventPool(story) }))
     .filter(story => story.storyEvents.length);
@@ -10815,11 +11806,12 @@ function openAllFriends() {
 function followingContent() {
   const accounts = [["songbyrd","S","Songbyrd Music House","Venue","Concerts, DJ nights, and neighborhood picks"],["dcafterdark","D","@dcafterdark","Local curator","Late-night lists and weekend roundups"],["smithsonian","M","Smithsonian After Hours","Venue collection","Museum events worth planning around"],["eaterdc","E","@eater_dc","Food curator","Pop-ups, openings, and neighborhood food guides"]];
   const followedAccounts = accounts.filter(account => state.follows.has(account[0]));
-  const followedVenues = followedVenueNames().map(name => ["venue:" + name, String(name).slice(0, 1).toUpperCase(), name, "Venue", "Followed from Discover"]);
-  const visible = [...followedVenues, ...followedAccounts];
+  // The venue's own artwork stands in for the letter disc wherever we have it.
+  const followedVenues = followedVenueNames().map(name => ["venue:" + name, venueAvatarHtml(name, "group-icon"), name, "Venue", "Followed from Discover"]);
+  const visible = [...followedVenues, ...followedAccounts.map(account => [account[0], `<span class="group-icon">${escapeHtml(account[1])}</span>`, account[2], account[3], account[4]])];
   if (!visible.length) return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues from Discover to build this page. Once you follow one, it will show here and shape your feed.</p></div><p class="section-helper">You are not following any venues or curators yet.</p>`;
   return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues, public groups, and curators to shape what shows up in Discover.</p></div>
-  <div class="follow-list">${visible.map(account => `<div class="follow-card"><span class="group-icon">${account[1]}</span><span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button selected" data-follow="${account[0]}">Following</button></div>`).join("")}</div>`;
+  <div class="follow-list">${visible.map(account => `<div class="follow-card">${account[1]}<span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button selected" data-follow="${account[0]}">Following</button></div>`).join("")}</div>`;
 }
 
 function personalizedEvents(limit = 3) {
@@ -11404,9 +12396,9 @@ function renderProfile() {
       ${isVenueProfile ? "" : profileTasteIconStrip()}
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
     </div>
+    ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileSummaryStrip(isVenueProfile)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
-    ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${isVenueProfile ? venueVerificationPanel() : ""}
     ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
     ${profileHistorySection(isVenueProfile)}
@@ -11821,31 +12813,75 @@ function openFilters() {
     <div class="filter-footer"><button class="text-button" data-clear-filters>Clear all</button><button class="wide-button" data-apply-filters>Show events</button></div></section></div>`;
 }
 
-function openNotifications() {
-  const requests = state.pendingRequests
-    .filter(request => request.type === "friend")
-    .map(request => `<div class="notification-card request-notification"><b>${escapeHtml(request.from)} sent you a friend request</b><p>${escapeHtml(request.detail)}</p><small>${escapeHtml(request.time)}</small><div class="request-actions"><button data-accept-request="${request.id}">Accept</button><button data-decline-request="${request.id}">Decline</button></div></div>`)
-    .join("");
-  const recommended = notificationEventPicks().map((event, index) => `<button class="notification-card" data-event="${event.id}"><b>${index === 0 ? "New event you might like" : "Fresh pick for you"}</b><p>${escapeHtml(event.title)} was just posted at ${escapeHtml(eventLocationLine(event))}.</p><small>${escapeHtml(eventMetaLine(event))}</small></button>`).join("");
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${requests || `<p class="section-helper">No new friend requests right now.</p>`}${recommended}</section></div>`;
+/* ============================================================
+   Notifications
+   Only things that actually happened to this account belong here. Nothing is
+   manufactured to fill the sheet: no seeded friend requests, no "just posted"
+   recommendations invented from the feed. If the list is empty, it stays empty.
+   ============================================================ */
+
+const NOTIFICATION_SEEN_KEY = "lokalNotificationsSeen";
+
+// A saved or RSVP'd event that starts today or tomorrow. Earned twice over: the
+// user put it on their list, and the clock is what makes it newsworthy.
+function notificationPlanReminders() {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfWindow = new Date(startOfToday.getTime() + 2 * 86400000);
+  return events
+    .filter(event => state.rsvps.has(event.id) || state.saved.has(event.id))
+    .map(event => ({ event, date: typeof eventDateValue === "function" ? eventDateValue(event) : null }))
+    .filter(entry => entry.date && entry.date >= startOfToday && entry.date < endOfWindow)
+    .sort((a, b) => a.date - b.date)
+    .map(entry => {
+      const isToday = entry.date < new Date(startOfToday.getTime() + 86400000);
+      return {
+        id: `plan-${entry.event.id}`,
+        eventId: entry.event.id,
+        title: state.rsvps.has(entry.event.id)
+          ? `You're going ${isToday ? "today" : "tomorrow"}`
+          : `Saved event ${isToday ? "today" : "tomorrow"}`,
+        body: `${eventDisplayTitle(entry.event)} at ${eventLocationLine(entry.event)}.`,
+        meta: eventMetaLine(entry.event)
+      };
+    })
+    .slice(0, 6);
 }
 
-function notificationEventPicks() {
-  const tasteText = (state.tastes || []).join(" ").toLowerCase();
-  return events
-    .filter(event => typeof isDisplayableDcEvent !== "function" || isDisplayableDcEvent(event))
-    .filter(event => matchesFilter(event, "all", false))
-    .map(event => {
-      const text = `${event.title} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
-      const score = (tasteText.includes("music") && /concert|music|jazz|dj|r&b|rock|pop/.test(text) ? 5 : 0)
-        + (tasteText.includes("food") && /food|market|chef|restaurant|brunch/.test(text) ? 5 : 0)
-        + (tasteText.includes("art") && /museum|arts|gallery|film|comedy|theater/.test(text) ? 5 : 0)
-        + (state.saved.has(event.id) || state.rsvps.has(event.id) ? -10 : 0);
-      return { event, score };
-    })
-    .sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event))
-    .map(item => item.event)
-    .slice(0, 2);
+function notificationItems() {
+  const requests = (state.pendingRequests || [])
+    .filter(request => request.type === "friend")
+    .map(request => ({ id: request.id, request }));
+  return [...requests, ...notificationPlanReminders()];
+}
+
+function notificationSignature() {
+  return notificationItems().map(item => item.id).join("|");
+}
+
+function unreadNotificationCount() {
+  const items = notificationItems();
+  if (!items.length) return 0;
+  return localStorage.getItem(NOTIFICATION_SEEN_KEY) === notificationSignature() ? 0 : items.length;
+}
+
+// The bell dot is markup that ships with index.html, so the only honest way to
+// hide it is to toggle a class from whatever the current list actually holds.
+function refreshNotificationBadge() {
+  document.querySelectorAll("[data-notifications]").forEach(button => {
+    button.classList.toggle("has-unread", unreadNotificationCount() > 0);
+  });
+}
+
+function openNotifications() {
+  const items = notificationItems();
+  const cards = items.map(item => item.request
+    ? `<div class="notification-card request-notification"><b>${escapeHtml(item.request.from)} sent you a friend request</b><p>${escapeHtml(item.request.detail)}</p><small>${escapeHtml(item.request.time)}</small><div class="request-actions"><button data-accept-request="${item.request.id}">Accept</button><button data-decline-request="${item.request.id}">Decline</button></div></div>`
+    : `<button class="notification-card" data-event="${item.eventId}"><b>${escapeHtml(item.title)}</b><p>${escapeHtml(item.body)}</p><small>${escapeHtml(item.meta)}</small></button>`).join("");
+  const empty = `<div class="notification-empty"><b>You're all caught up</b><p>Friend requests and reminders for events you've saved or RSVP'd to will show up here.</p></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${cards || empty}</section></div>`;
+  localStorage.setItem(NOTIFICATION_SEEN_KEY, notificationSignature());
+  refreshNotificationBadge();
 }
 
 function profilePlanIds() {
@@ -11886,7 +12922,7 @@ function followedVenueRows(query = "") {
     const searchText = `${venue.name || name} ${venue.neighborhood || ""} ${venue.address || ""} ${venue.venue_type || ""}`.toLowerCase();
     return { name, venue, searchText };
   }).filter(item => !normalized || item.searchText.includes(normalized));
-  return rows.map(({ name, venue, searchText }) => `<div class="follow-card followed-venue-card" data-followed-venue-card data-search-text="${escapeHtml(searchText)}"><button class="followed-venue-main" data-venue-events="${escapeHtml(name)}"><span class="group-icon">${escapeHtml(name.slice(0, 1).toUpperCase())}</span><span><b>${escapeHtml(venue.name || name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small><em>Open venue page</em></span></button><button class="follow-button selected" data-follow-venue="venue:${escapeHtml(name)}">Unfollow venue</button></div>`).join("");
+  return rows.map(({ name, venue, searchText }) => `<div class="follow-card followed-venue-card" data-followed-venue-card data-search-text="${escapeHtml(searchText)}"><button class="followed-venue-main" data-venue-events="${escapeHtml(name)}">${venueAvatarHtml(name, "group-icon")}<span><b>${escapeHtml(venue.name || name)}</b><small>${escapeHtml([venue.neighborhood, venue.address].filter(Boolean).join(" / ") || "Venue")}</small><em>Open venue page</em></span></button><button class="follow-button selected" data-follow-venue="venue:${escapeHtml(name)}">Unfollow venue</button></div>`).join("");
 }
 
 function openFollowedVenuesList(query = "") {
@@ -11929,8 +12965,22 @@ function recurringTimeWindowLabel(event) {
   return text.replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
 }
 
+/* ============================================================
+   Event detail â€” a full-height sheet that travels up from the bottom edge.
+   Layout follows the reference screens: hero photo, big title, description,
+   then the facts grouped into cards on a recessed background, with Save/Going
+   pinned to the bottom.
+   ============================================================ */
+
+// Single quotes inside the url() on purpose â€” this string lands in a double-
+// quoted style="" attribute, and a double quote here would close it early.
+function heroImageSrcBackdrop(src) {
+  return src ? `--detail-hero-backdrop: url('${String(src).replace(/['"\\]/g, encodeURIComponent)}');` : "";
+}
+
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
+  if (!e) return;
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const recurrence = eventRecurrence(e);
   // Three levels, most informative first: compact repeat cadence, then the text
@@ -11947,18 +12997,17 @@ function openDetail(id, opts = {}) {
         ? `<div class="detail-occurrences"><p class="eyebrow">More dates</p><div class="occurrence-list">${otherOccurrences.slice(0, 5).map(occurrence => `<button class="occurrence-row" data-event="${occurrence.id}"><span>${escapeHtml(typeof eventCardTimeLine === "function" ? eventCardTimeLine(occurrence) : occurrence.time)}</span><small>${escapeHtml(eventLocationLine(occurrence))}</small></button>`).join("")}</div></div>`
         : "";
   const displayTitle = eventDisplayTitle(e);
-  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
-  const shareButton = canNativeShare
-    ? `<button class="primary" data-share="${e.id}">Share event</button>`
-    : `<button class="primary" data-copy-detail-link="${e.id}">Copy link</button>`;
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
   const hasUsableHeroPhoto = eventHasUsablePhoto(e);
   const fallbackHeroImage = eventFallbackImageSrc(e);
   const heroImageSrc = hasUsableHeroPhoto ? eventCardImageSrc(e) : fallbackHeroImage;
-  const heroStyle = `background-color: #f7fafc;`;
+  // A blurred copy of the artwork fills the frame behind the image, so photos
+  // read edge-to-edge while venue logos still show whole instead of cropping.
+  const heroStyle = `background-color: #f7fafc;${heroImageSrcBackdrop(hasUsableHeroPhoto ? eventCardImageSrc(e) : fallbackHeroImage)}`;
   const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasUsableHeroPhoto ? "" : " is-fallback-image"}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
-  const detailDescription = `${priceLabel ? `<span class="detail-description-price">Price: ${escapeHtml(priceLabel)}</span>` : ""}${e.desc}`;
+  // Price lives in the Date and time card now, so it is not repeated here.
+  const detailDescription = String(e.desc || "");
   const isThingsToDoEvent = String(e.source || "").toLowerCase() === "thingstododc";
   const descriptionBlock = isThingsToDoEvent
     ? `<div class="detail-description-wrap things-to-do-description collapsed"><p class="detail-description expandable-description" data-expand-description role="button" tabindex="0" aria-expanded="false" aria-label="Show full description">${detailDescription}</p></div>`
@@ -11969,40 +13018,60 @@ function openDetail(id, opts = {}) {
   const isGoing = state.rsvps.has(e.id);
   const websiteUrl = eventWebsiteUrl(e);
   const websiteLabel = e.detailsUrl ? "Tickets and details" : websiteUrl ? "Venue website" : "Lokal event page";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
-    <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}" style="${heroStyle}">${heroImg}<button class="modal-close" aria-label="Close detail">&times;</button></div>
-    <div class="detail-body"><div class="detail-title-block"><p class="event-meta">${escapeHtml(primaryEventTag(e))}</p><h1>${escapeHtml(displayTitle)}</h1>${priceLabel ? `<p class="detail-price">${escapeHtml(priceLabel)}</p>` : ""}</div>
-    <div class="event-tags detail-tags">${eventTagChips(e, 6)}</div>
-    ${descriptionBlock}
-    ${eventSourceCredit(e)}
-    ${occurrencesBlock}
-    <button class="detail-info-row" data-add-calendar="apple" data-calendar-event="${e.id}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventMetaLine(e))}</b>${recurrence ? `<small>${escapeHtml(recurrence.label)}</small>` : ""}</span>
-      <span class="dir-action">Add to calendar</span>
-    </button>
-    <button class="detail-info-row ${isFollowingVenue ? "selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(eventLocationLine(e))}</b></span>
-      <span class="dir-action">${isFollowingVenue ? "Following venue" : "Follow venue"}</span>
-    </button>
-    <button class="detail-info-row" data-ticket="${e.id}">
-      <span class="dir-art"></span>
-      <span class="dir-copy"><b>${escapeHtml(websiteLabel)}</b></span>
-      <span class="dir-action">Open listing</span>
-    </button>
-    ${eventInterestSignal(e, true)}
-    <div class="detail-action-row">
-      <button class="detail-action" data-add-calendar="google" data-calendar-event="${e.id}"><span class="cal-ic">${icons.calendar}</span>Google Calendar</button>
-      ${canNativeShare
-        ? `<button class="detail-action" data-share="${e.id}">Share event</button>`
-        : `<button class="detail-action" data-copy-detail-link="${e.id}">Copy link</button>`}
+  const categoryLabel = typeof eventArtLabel === "function" ? eventArtLabel(e) : "";
+  modalRoot.innerHTML = `<div class="modal-backdrop detail-backdrop"><section class="modal event-detail-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(e.title)}">
+    <div class="detail-topbar">
+      <span class="detail-grabber" aria-hidden="true"></span>
+      <div class="detail-topbar-row">
+        <button class="detail-topbar-btn modal-close" aria-label="Close detail">&times;</button>
+        <span class="detail-topbar-title">Event</span>
+        <button class="detail-topbar-btn detail-topbar-share" data-share="${e.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button>
+      </div>
     </div>
-    ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
+    <div class="detail-scroll">
+      <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}" style="${heroStyle}">${heroImg}</div>
+      <div class="detail-body">
+        <div class="detail-title-block">
+          ${categoryLabel ? `<p class="event-meta">${escapeHtml(categoryLabel)}</p>` : ""}
+          <h1>${escapeHtml(displayTitle)}</h1>
+        </div>
+        ${descriptionBlock}
+        ${eventSourceCredit(e)}
+
+        <div class="detail-group">
+          <div class="detail-group-row detail-group-static">
+            <span class="detail-group-label">Date and time</span>
+            <b>${escapeHtml(eventMetaLine(e))}</b>
+            ${recurrence ? `<small>${escapeHtml(recurrence.label)}</small>` : ""}
+            <span class="detail-group-links">
+              <button class="detail-group-link" data-add-calendar="apple" data-calendar-event="${e.id}">Add to calendar</button>
+              <button class="detail-group-link" data-add-calendar="google" data-calendar-event="${e.id}">Google Calendar</button>
+            </span>
+          </div>
+          ${occurrencesBlock}
+        </div>
+
+        <div class="detail-group">
+          <button class="detail-group-row${isFollowingVenue ? " selected" : ""}" data-follow-venue="${escapeHtml(venueFollowKey)}">
+            <span class="detail-group-label">Location</span>
+            <b>${escapeHtml(eventLocationLine(e))}</b>
+            <span class="detail-group-link">${isFollowingVenue ? "Following venue âœ“" : "Follow venue"}</span>
+          </button>
+          <button class="detail-group-row" data-ticket="${e.id}">
+            <span class="detail-group-label">${escapeHtml(websiteLabel)}</span>
+            <b>${priceLabel ? escapeHtml(priceLabel) : "Open the full listing"}</b>
+            <span class="detail-group-link">Open listing</span>
+          </button>
+        </div>
+
+        ${eventInterestSignal(e, true)}
+        ${showRsvpHint ? `<p class="rsvp-hint">Save = bookmark for later. Going = you're planning to go.</p>` : ""}
+      </div>
+    </div>
     <div class="detail-decide-bar">
       <button class="${isSaved ? "selected" : ""}" data-save="${e.id}">${isSaved ? "Saved âœ“" : "Save"}</button>
       <button class="decide-going ${isGoing ? "selected" : ""}" data-rsvp="${e.id}">${isGoing ? "Going âœ“" : "Going"}</button>
-    </div></div>
+    </div>
   </section></div>`;
 }
 
@@ -12087,30 +13156,21 @@ function shareGroupResultsHtml(eventId, query = "") {
   return groups.map(name => `<button class="share-group" data-group-share="${escapeHtml(name)}" data-event-id="${eventId}"><span class="group-icon">${escapeHtml(name[0])}</span><span class="share-group-copy"><h3>${escapeHtml(name)}</h3><p>Send event link to group messages</p></span><span class="share-arrow">+</span></button>`).join("");
 }
 
+// One action only: hand someone the Lokal link. The per-network buttons
+// (Snapchat, email, SMS, post-to-story) are gone â€” the OS share sheet already
+// covers every one of them, and the link is the whole point of sharing.
 function openShareSheet(id) {
   const e = events.find(event => event.id === Number(id));
+  if (!e) return;
   const displayTitle = eventDisplayTitle(e);
-  const shareText = shareMessageForEvent(e);
   const shareUrl = lokalEventShareUrl(e);
-  const smsBody = encodeURIComponent(shareText);
+  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal share-sheet" role="dialog" aria-modal="true" aria-label="Share ${escapeHtml(displayTitle)}">
     <button class="modal-close" aria-label="Close sharing">&times;</button>
-    <p class="eyebrow">Send a Lokal event</p><h2>Share ${escapeHtml(displayTitle)}</h2><p class="lede">Copy the event card or send it through your favorite app.</p>
-    <div class="share-preview"><b>${escapeHtml(displayTitle)}</b><span>${escapeHtml(e.time)} / ${escapeHtml(eventLocationLine(e))}</span><small>${escapeHtml([eventPriceLabel(e), eventTags(e).slice(0, 3).join(" Â· ")].filter(Boolean).join(" / "))}</small><em>${escapeHtml(shareUrl)}</em></div>
-    <div class="share-channel-grid">
-      <a class="share-channel" href="sms:?&body=${smsBody}">Text</a>
-      <button class="share-channel" data-native-share="${e.id}">Share sheet</button>
-      <button class="share-channel" data-post-story="${e.id}">Post to story</button>
-      <a class="share-channel" href="https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(shareUrl)}" target="_blank" rel="noreferrer">Snapchat</a>
-      <a class="share-channel" href="mailto:?subject=${encodeURIComponent(e.title)}&body=${smsBody}">Email</a>
-    </div>
-    <button class="wide-button" data-copy-event-share="${e.id}">Copy Lokal event</button>
+    <p class="eyebrow">Send a Lokal event</p><h2>Share ${escapeHtml(displayTitle)}</h2><p class="lede">Anyone who opens this link lands on the event in Lokal.</p>
+    <div class="share-preview"><b>${escapeHtml(displayTitle)}</b><span>${escapeHtml(eventMetaLine(e))}</span><small>${escapeHtml(eventLocationLine(e))}</small><em>${escapeHtml(shareUrl)}</em></div>
+    <button class="wide-button" data-${canNativeShare ? `native-share="${e.id}"` : `copy-event-share="${e.id}"`}>${canNativeShare ? "Send link" : "Copy link"}</button>
   </section></div>`;
-}
-
-function shareMessageForEvent(event) {
-  const price = eventPriceLabel(event);
-  return `Want to go to ${eventDisplayTitle(event)}? ${event.time} at ${eventLocationLine(event)}.${price ? ` ${price}.` : ""} Open it in Lokal: ${lokalEventShareUrl(event)}`;
 }
 
 function lokalEventShareUrl(event) {
@@ -12129,7 +13189,6 @@ function lokalEventSharePayload(event) {
     eventDisplayTitle(event),
     eventMetaLine(event),
     eventLocationLine(event),
-    eventTags(event).slice(0, 5).join(", "),
     lokalEventShareUrl(event)
   ].filter(Boolean).join("\n");
 }
@@ -12517,8 +13576,7 @@ function renderOnboarding() {
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
-        <label class="float-field"><span>Birthday</span><input data-onboard-birthdate type="date" max="${maxBirthdate}" value="${escapeHtml(d.birthdate || "")}" autocomplete="bday"></label>
-        <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters"></label>
+        <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters, including a letter"></label>
         <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
       <p class="account-error" data-account-error></p>
@@ -12591,10 +13649,22 @@ function showDiscoverHint() {
   setTimeout(dismiss, 6000);
 }
 
+// Discover / Saved / Profile sit left-to-right along the tab bar, so moving
+// between them should read as travelling sideways: the page you are leaving
+// slides off the way you came from, the new one slides in behind it. Short
+// enough (about a fifth of a second, end to end) that it never feels like a wait.
+const ROUTE_EXIT_MS = 130;
+
+function renderRoute(route) {
+  ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
+}
+
 function setRoute(route) {
   if (route === "map") route = "home";
+  const routeChanged = state.route !== route;
   state.route = route;
   document.body.dataset.route = route;
+  if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();
   // Bo leans on the wordmark in the topbar; give the main pages their own
   // little posture so Saved and Profile do not feel like cloned headers.
   const boSlot = document.querySelector(".topbar-bo");
@@ -12608,7 +13678,32 @@ function setRoute(route) {
     }
   }
   document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.route === route));
-  ({ home: renderHome, social: renderSocial, profile: renderProfile }[route] || renderHome)();
+
+  const leaving = routeChanged ? app.querySelector(".page") : null;
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!leaving || reduceMotion || typeof leaving.animate !== "function") {
+    renderRoute(route);
+    return;
+  }
+  // Travelling right along the tab bar pushes the old page left, and vice versa.
+  const back = document.body.classList.contains("nav-back");
+  let rendered = false;
+  const swap = () => {
+    if (rendered) return;
+    rendered = true;
+    renderRoute(route);
+  };
+  try {
+    const animation = leaving.animate([
+      { opacity: 1, transform: "translate3d(0, 0, 0)" },
+      { opacity: 0, transform: `translate3d(${back ? "26px" : "-26px"}, 0, 0)` }
+    ], { duration: ROUTE_EXIT_MS, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+    animation.onfinish = swap;
+    animation.oncancel = swap;
+  } catch { swap(); }
+  // A backstop: an animation on a backgrounded tab may never fire onfinish, and
+  // the route must land either way.
+  setTimeout(swap, ROUTE_EXIT_MS + 60);
 }
 
 function resetAppScroll() {
@@ -12792,15 +13887,27 @@ document.addEventListener("click", async event => {
   if (t.dataset.save) {
     mark();
     const id = Number(t.dataset.save);
-    const inDetail = Boolean(t.closest(".detail-actions"));
     state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
     const isSaved = state.saved.has(id);
-    document.querySelectorAll(`[data-save="${id}"]`).forEach(button => button.classList.toggle("is-saved", isSaved));
     setPlanSource("saved", id, isSaved);
-    const backToTopWeek = t.closest("[data-detail-context]")?.dataset.detailContext === "top-week";
-    if (inDetail) { openDetail(id, { backToTopWeek }); const button = document.querySelector(`[data-save="${id}"]`); if (isSaved) showSavedAnimation(button); }
-    else document.querySelectorAll(`[data-save="${id}"]`).forEach(button => { button.classList.toggle("is-saved", isSaved); if (isSaved) showSavedAnimation(button); });
     saveEventInteraction(id, "save", isSaved);
+    // Every Save control for this event at once: the card hearts, the list rows,
+    // and the detail sheet's decide bar. The detail button carries a written
+    // label as well as a state class, and the old code refreshed it by
+    // re-rendering the whole sheet â€” which the new sheet cannot afford, since
+    // that replays the rise animation and throws away the reader's scroll
+    // position. It is updated in place instead, so un-saving actually unchecks.
+    document.querySelectorAll(`[data-save="${id}"]`).forEach(button => {
+      button.classList.toggle("is-saved", isSaved);
+      if (button.closest(".detail-decide-bar")) {
+        button.classList.toggle("selected", isSaved);
+        // The bar's own mint state is the confirmation here, so no burst: the
+        // label would end up reading "Saved âœ“ âœ“ Saved".
+        button.textContent = isSaved ? "Saved âœ“" : "Save";
+        return;
+      }
+      if (isSaved) showSavedAnimation(button);
+    });
     // Saving confirms inline (the "Saved âœ“" chip); only the removal needs a toast.
     if (!isSaved) toast("Removed from saved");
   }
@@ -12891,7 +13998,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { const text = input.value.trim(); state.groupMessages[group] = [{ type: "text", text }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "text", text }); openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.manageFollowing !== undefined) { mark(); openFollowingManager(); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
-  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); const inFollowedVenuesSheet = Boolean(t.closest(".followed-venues-sheet")); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : inFollowedVenuesSheet ? "profile_following" : "venue_page"); t.classList.toggle("selected", on); t.textContent = t.classList.contains("detail-follow-venue") ? (on ? "Following venue" : "Follow venue") : inFollowedVenuesSheet ? "Unfollow venue" : (on ? "Following" : "Follow"); if (inFollowedVenuesSheet && typeof openFollowedVenuesList === "function") openFollowedVenuesList(document.querySelector("[data-followed-venue-search]")?.value || ""); if (state.route === "home") renderHome(); if (state.route === "profile") renderProfile(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
+  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); const inFollowedVenuesSheet = Boolean(t.closest(".followed-venues-sheet")); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : inFollowedVenuesSheet ? "profile_following" : "venue_page"); t.classList.toggle("selected", on); const followLabel = t.closest(".event-detail-sheet") || t.classList.contains("detail-follow-venue") ? (on ? "Following venue âœ“" : "Follow venue") : inFollowedVenuesSheet ? "Unfollow venue" : (on ? "Following" : "Follow"); /* In the detail sheet the follow control is a whole row â€” a label, the venue name and a link â€” so writing textContent onto the button erased the address. Only the link inside it changes; everywhere else the button is its own label. */ (t.querySelector(".detail-group-link") || t).textContent = followLabel; if (inFollowedVenuesSheet && typeof openFollowedVenuesList === "function") openFollowedVenuesList(document.querySelector("[data-followed-venue-search]")?.value || ""); if (state.route === "home") renderHome(); if (state.route === "profile") renderProfile(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
   if (t.dataset.dismissVenueVerification !== undefined) {
     mark();
@@ -13136,10 +14243,20 @@ document.addEventListener("click", async event => {
     const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
     if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
-    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateBirthday(birthdate); }
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateSignupPassword(password); }
     catch (contactError) { error.textContent = contactError.message; return; }
-    if (password.length < 8) { error.textContent = "Use a password with at least 8 characters."; return; }
     if (password !== confirmPassword) { error.textContent = "Those passwords don't match."; return; }
+    // One account per email address â€” checked here so the duplicate is caught on
+    // the form the user is looking at, not after they have picked interests.
+    if (t.disabled) return;
+    t.disabled = true;
+    const continueLabel = t.textContent;
+    t.textContent = "Checking...";
+    let taken = false;
+    try { taken = await emailAlreadyRegistered(email); }
+    finally { t.disabled = false; t.textContent = continueLabel; }
+    if (taken) { error.textContent = "That email already has a Lokal account. Log in instead, or use a different address."; return; }
+    error.textContent = "";
     state.signupDraft.firstName = first;
     state.signupDraft.lastName = last;
     state.signupDraft.email = email;
@@ -13206,7 +14323,17 @@ document.addEventListener("click", async event => {
           venueImageUrl: onboardingProfile.venueImageUrl,
           venueDescription: onboardingProfile.venueDescription
         });
-      } catch (accountError) { supabaseSynced = false; console.warn("[supabase] account creation failed", accountError); }
+      } catch (accountError) {
+        // A duplicate address is the one failure that must not fall through to a
+        // local-only account: it would leave two profiles on one email.
+        if (isDuplicateAccountError(accountError)) {
+          error.textContent = "That email already has a Lokal account. Go back and use a different address, or log in instead.";
+          t.disabled = false;
+          return;
+        }
+        supabaseSynced = false;
+        console.warn("[supabase] account creation failed", accountError);
+      }
     }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
@@ -13307,6 +14434,8 @@ document.addEventListener("click", async event => {
       toast("Reset link sent");
     } catch (resetError) { error.textContent = resetError.message; t.disabled = false; }
   }
+  // Saving, RSVP'ing and answering a request all change what the bell owes you.
+  if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();
   if (!handled && state.route === "home" && state.openFilterSheet && !clickedDiscoverFilter) {
     state.openFilterSheet = "";
     renderHome();
@@ -13314,6 +14443,33 @@ document.addEventListener("click", async event => {
   }
   if (!handled && !t.disabled) toast("Action opened");
 });
+
+// A venue avatar whose artwork 404s should fall back to the initial rather than
+// leave a blank disc. Image errors do not bubble, so this listens on the way
+// down instead.
+document.addEventListener("error", event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement)) return;
+  const holder = image.closest(".has-venue-image");
+  if (!holder) return;
+  holder.classList.remove("has-venue-image", "is-logo");
+  holder.textContent = holder.dataset.avatarInitial || "";
+}, true);
+
+// Venue artwork arrives in every shape: square crests, wide wordmarks, tall
+// posters, photographs of the room. A near-square image can safely fill the
+// circle; anything further from square is contained instead, so a wordmark is
+// never cropped down to "pital O". The filename guess made at render time is
+// only a first pass â€” the real proportions settle it. Also capture-phase,
+// because load doesn't bubble either.
+document.addEventListener("load", event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement)) return;
+  const holder = image.closest(".has-venue-image");
+  if (!holder || !image.naturalWidth || !image.naturalHeight) return;
+  const ratio = image.naturalWidth / image.naturalHeight;
+  holder.classList.toggle("is-logo", ratio < 0.78 || ratio > 1.28);
+}, true);
 
 document.addEventListener("keydown", event => {
   if (!["Enter", " "].includes(event.key)) return;

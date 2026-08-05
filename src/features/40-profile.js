@@ -290,9 +290,9 @@ function renderProfile() {
       ${isVenueProfile ? "" : profileTasteIconStrip()}
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
     </div>
+    ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileSummaryStrip(isVenueProfile)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
-    ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${isVenueProfile ? venueVerificationPanel() : ""}
     ${!isVenueProfile && state.friends.size < 3 ? `<div class="invite-banner"><div class="invite-banner-copy"><b>Lokal is better with friends.</b><p>Invite people you know and see what they're saving.</p></div><button class="invite-banner-btn" data-add-friends-link>Invite friends</button></div>` : ""}
     ${profileHistorySection(isVenueProfile)}
