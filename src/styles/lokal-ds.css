@@ -2092,3 +2092,10 @@ main { padding-bottom: calc(var(--nav-row) + var(--safe-bottom) + 22px); }
   /* Production drops the sidebar, so the handset is centred again. */
   .production-app .bottom-nav { right: 0; left: 0; margin: 0 auto; }
 }
+
+/* The signup interest picker is the profile's taste picker, so it inherits the
+   circles, the labels and the mint selection ring. It only needs the spacing the
+   text grid it replaced used to provide. */
+.onboard-taste-tiles { margin-bottom: 22px; }
+.onboarding .taste-tile-art { border: 1px solid var(--line); }
+.onboarding .taste-tile.selected .taste-tile-art { border-color: var(--accent); }
