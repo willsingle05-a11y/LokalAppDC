@@ -826,6 +826,38 @@ function normalizedTitlePart(value) {
     .trim();
 }
 
+const WEEKDAY_TITLE_PATTERN = "(?:sunday|monday|tuesday|wednesday|thursday|friday|saturday)";
+
+function weekdayStrippedSeriesTitle(title) {
+  const clean = String(title || "").trim().replace(/\s+/g, " ");
+  return clean
+    .replace(new RegExp(`^${WEEKDAY_TITLE_PATTERN}\\s+`, "i"), "")
+    .replace(new RegExp(`\\s+${WEEKDAY_TITLE_PATTERN}$`, "i"), "")
+    .trim();
+}
+
+function isWeekdayNamedRecurringSeries(event, strippedTitle) {
+  const title = String(event?.title || "").trim();
+  if (!title || !strippedTitle || strippedTitle.toLowerCase() === title.toLowerCase()) return false;
+  const category = String(event?.cat || event?.category || "").toLowerCase();
+  const tags = Array.isArray(event?.tags) ? event.tags.join(" ") : "";
+  const text = `${title} ${event?.desc || ""} ${event?.description || ""} ${event?.tag || ""} ${tags}`.toLowerCase();
+  return ["happy-hours", "trivia-nights", "farmers-markets"].includes(category)
+    || /\b(weekly|every|recurring|league|series)\b/.test(text);
+}
+
+function recurringSeriesDisplayTitle(event) {
+  const stripped = weekdayStrippedSeriesTitle(event?.title);
+  if (!isWeekdayNamedRecurringSeries(event, stripped)) return "";
+  return stripped;
+}
+
+function recurringSeriesTitleKey(event) {
+  const displayTitle = recurringSeriesDisplayTitle(event);
+  const title = displayTitle || event?.title || "";
+  return normalizedTitlePart(title);
+}
+
 function eventDisplayTitle(event) {
   const title = String(event?.title || "").trim();
   if (!title) return "";
@@ -840,6 +872,8 @@ function eventDisplayTitle(event) {
   );
   if (venueLedTitle && String(event?.cat || "").toLowerCase() === "trivia-nights") return "Trivia Night";
   if (venueLedTitle && String(event?.cat || "").toLowerCase() === "happy-hours") return "Happy Hour";
+  const seriesTitle = recurringSeriesDisplayTitle(event);
+  if (seriesTitle && occurrencesForEvent(event).length > 1) return seriesTitle;
   return title;
 }
 
@@ -1102,7 +1136,7 @@ function eventSeriesWeekdays(event) {
 }
 
 function eventDedupeKey(event) {
-  return `${String(event.title || "").trim().toLowerCase().replace(/\s+/g, " ")}|${venueImageKeyName(event.venue || eventLocationLine(event))}`;
+  return `${recurringSeriesTitleKey(event)}|${venueImageKeyName(event.venue || eventLocationLine(event))}`;
 }
 
 function normalizedFeedDedupeTitle(event) {
