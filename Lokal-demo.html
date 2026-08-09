@@ -6992,7 +6992,50 @@ function eventSeriesThisWeekCount(event) {
     .length;
 }
 
+function weekdayListLabel(days) {
+  const short = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  if (!days.length) return "";
+  if (days.length === 7) return "Every day";
+  const contiguous = days.every((day, index) => index === 0 || day === days[index - 1] + 1);
+  if (contiguous && days.length > 2) return `${short[days[0]]}-${short[days[days.length - 1]]}`;
+  return days.map(day => short[day]).join(", ");
+}
+
+function recurringCardScheduleParts(event) {
+  const all = occurrencesForEvent(event)
+    .map(item => ({ item, date: eventDateValue(item) }))
+    .filter(entry => entry.date)
+    .sort((a, b) => a.date - b.date);
+  if (all.length < 2) return null;
+  const days = [...new Set(all.map(entry => entry.date.getDay()))].sort((a, b) => a - b);
+  if (days.length < 2) return null;
+
+  const byTime = new Map();
+  all.forEach(({ item, date }) => {
+    const time = compactEventTimeLabel(item)
+      .replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2})\s+-\s+/i, "")
+      .trim();
+    const key = time || "Time varies";
+    if (!byTime.has(key)) byTime.set(key, new Set());
+    byTime.get(key).add(date.getDay());
+  });
+
+  if (byTime.size === 1) {
+    const [[time]] = byTime;
+    return { days: weekdayListLabel(days), detail: time };
+  }
+
+  const detail = [...byTime.entries()]
+    .map(([time, timeDays]) => ({ time, days: [...timeDays].sort((a, b) => a - b) }))
+    .sort((a, b) => a.days[0] - b.days[0])
+    .map(group => `${weekdayListLabel(group.days)} ${group.time}`)
+    .join(" / ");
+  return { days: weekdayListLabel(days), detail };
+}
+
 function eventCardTimeLine(event) {
+  const recurring = recurringCardScheduleParts(event);
+  if (recurring) return recurring.detail ? `${recurring.days} | ${recurring.detail}` : recurring.days;
   const time = compactEventTimeLabel(event);
   if (/^ongoing$/i.test(time)) return time;
   const moreThisWeek = eventSeriesThisWeekCount(event);
@@ -7001,6 +7044,12 @@ function eventCardTimeLine(event) {
 }
 
 function eventCardTimeHtml(event) {
+  const recurring = recurringCardScheduleParts(event);
+  if (recurring) {
+    return recurring.detail
+      ? `<strong>${escapeHtml(recurring.days)}</strong> <span class="event-card-more-week">| ${escapeHtml(recurring.detail)}</span>`
+      : `<strong>${escapeHtml(recurring.days)}</strong>`;
+  }
   const time = compactEventTimeLabel(event);
   if (/^ongoing$/i.test(time)) return escapeHtml(time);
   const moreThisWeek = eventSeriesThisWeekCount(event);
@@ -12986,7 +13035,8 @@ function detailScheduleBlock(event) {
   if (dated.length < 2) return "";
 
   const weekdays = [...new Set(dated.map(entry => entry.date.getDay()))].sort((a, b) => a - b);
-  const timeLabel = recurringTimeWindowLabel(event);
+  const cardSchedule = typeof recurringCardScheduleParts === "function" ? recurringCardScheduleParts(event) : null;
+  const timeLabel = cardSchedule?.detail || recurringTimeWindowLabel(event);
   return `<div class="detail-schedule">
     <div class="detail-schedule-head detail-schedule-simple">
       <span class="detail-schedule-copy detail-schedule-inline"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>| ${escapeHtml(timeLabel)}</small>` : ""}</span>

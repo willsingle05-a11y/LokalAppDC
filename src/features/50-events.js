@@ -20,7 +20,8 @@ function detailScheduleBlock(event) {
   if (dated.length < 2) return "";
 
   const weekdays = [...new Set(dated.map(entry => entry.date.getDay()))].sort((a, b) => a - b);
-  const timeLabel = recurringTimeWindowLabel(event);
+  const cardSchedule = typeof recurringCardScheduleParts === "function" ? recurringCardScheduleParts(event) : null;
+  const timeLabel = cardSchedule?.detail || recurringTimeWindowLabel(event);
   return `<div class="detail-schedule">
     <div class="detail-schedule-head detail-schedule-simple">
       <span class="detail-schedule-copy detail-schedule-inline"><b>${escapeHtml(weekdayRunLabel(weekdays))}</b>${timeLabel ? `<small>| ${escapeHtml(timeLabel)}</small>` : ""}</span>
