@@ -1,0 +1,271 @@
+import { readFile, writeFile } from "node:fs/promises";
+
+const args = new Map(process.argv.slice(2).map((arg, index, all) => arg.startsWith("--") ? [arg, all[index + 1]] : null).filter(Boolean));
+const inputFile = args.get("--csv") || "C:/Users/willi/Downloads/nuandroids_events.csv";
+const outputFile = args.get("--sql") || "supabase/sql/import-nuandroids-events.sql";
+const SOURCE = "nuandroids";
+const SOURCE_NAME = "Nü Androids";
+const SOURCE_URL = "https://www.nuandroids.com/events";
+const TIMEZONE = "America/New_York";
+const DEFAULT_TIME = "9:00 PM";
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+    if (inQuotes) {
+      if (char === '"' && next === '"') {
+        cell += '"';
+        index += 1;
+      } else if (char === '"') {
+        inQuotes = false;
+      } else {
+        cell += char;
+      }
+      continue;
+    }
+    if (char === '"') {
+      inQuotes = true;
+    } else if (char === ",") {
+      row.push(cell);
+      cell = "";
+    } else if (char === "\n") {
+      row.push(cell);
+      rows.push(row.map(value => value.trim()));
+      row = [];
+      cell = "";
+    } else if (char !== "\r") {
+      cell += char;
+    }
+  }
+  if (cell || row.length) {
+    row.push(cell);
+    rows.push(row.map(value => value.trim()));
+  }
+  return rows.filter(item => item.some(Boolean));
+}
+
+function slug(value = "") {
+  return String(value)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 90);
+}
+
+function addDays(date, days) {
+  const parsed = new Date(`${date}T00:00:00Z`);
+  parsed.setUTCDate(parsed.getUTCDate() + days);
+  return parsed.toISOString().slice(0, 10);
+}
+
+function localIso(date, time = DEFAULT_TIME, dayOffset = 0) {
+  const match = String(time || DEFAULT_TIME).match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+  let hour = 21;
+  let minute = 0;
+  if (match) {
+    hour = Number(match[1]) % 12;
+    if (match[3].toUpperCase() === "PM") hour += 12;
+    minute = Number(match[2] || 0);
+  }
+  return `${addDays(date, dayOffset)}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00-04:00`;
+}
+
+function dcProperAddress(address = "") {
+  return /washington,\s*dc\b|washington,\s*d\.?c\.?\b/i.test(address);
+}
+
+function neighborhoodFor(venue, address) {
+  const text = `${venue} ${address}`.toLowerCase();
+  if (/fenwick|morse|penn st ne|union market|culture|tigres|vera|warehouse/.test(text)) return "NoMa / Union Market Area";
+  return "Washington DC";
+}
+
+function tagsFor(row) {
+  const text = `${row.title} ${row.description}`.toLowerCase();
+  const tags = ["DJ Set", "Dance party"];
+  const add = (label, pattern) => { if (pattern.test(text)) tags.push(label); };
+  add("Moombahton", /moombahton/);
+  add("House", /\bhouse\b|cafe grooves|tom & collins|mel[eé]|dave nada|tittsworth/);
+  add("Techno", /techno|ilario alicante|township rebellion|hidden empire|carlita|aerea|mph/);
+  add("Afrohouse", /afro|bipolar sunshine|s[üu]ndown|ajamu|nomas/);
+  add("Latin", /agustina azul|ratalina|helang|tom & collins/);
+  add("Club night", /nightlife|club|b2b|warehouse/);
+  if (row.venue === "A.I. Warehouse") tags.push("Warehouse party");
+  if (row.venue === "Tigres de la Noche") tags.push("Late night");
+  return tags.filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index).slice(0, 6);
+}
+
+function normalizeRow(raw) {
+  const title = raw.event_name || "";
+  const venue = raw.venue || "";
+  const address = raw.venue_location || "";
+  const date = String(raw.timing || "").slice(0, 10);
+  const tags = tagsFor({ title, description: raw.description || "", venue });
+  return {
+    title,
+    description: raw.description || `Nightlife event listed by ${SOURCE_NAME}.`,
+    category: "nightlife",
+    tag: tags[0] || "DJ Set",
+    tags,
+    venue_name: venue,
+    venue_address: address,
+    venue_type: venue === "A.I. Warehouse" ? "Warehouse / Nightlife Venue" : "Nightclub / Lounge",
+    neighborhood: neighborhoodFor(venue, address),
+    date,
+    time: DEFAULT_TIME,
+    starts_at: localIso(date),
+    ends_at: localIso(date, "2:00 AM", 1),
+    timezone: TIMEZONE,
+    price: "",
+    price_min: "",
+    price_max: "",
+    is_free: false,
+    source: SOURCE,
+    external_id: `${slug(title)}-${slug(venue)}-${date}`,
+    ticket_url: raw.link || SOURCE_URL,
+    external_url: raw.link || SOURCE_URL,
+    image_url: "",
+    raw_json: { ...raw, imported_from: inputFile, source_name: SOURCE_NAME, inferred_time: true, inferred_time_label: DEFAULT_TIME },
+    status: "published"
+  };
+}
+
+function buildSql(rows) {
+  const json = JSON.stringify(rows).replace(/'/g, "''");
+  return `-- Nü Androids nightlife import. Generated by tools/import-nuandroids-events.mjs.
+-- Safe to re-run: upserts by source + external_id.
+
+insert into public.venues (
+  name, address, venue_type, neighborhood, source_name, source_key, website_url, raw_data, imported_at, created_at, updated_at
+)
+select distinct
+  item->>'venue_name',
+  item->>'venue_address',
+  item->>'venue_type',
+  item->>'neighborhood',
+  '${SOURCE_NAME}',
+  '${SOURCE}:' || (item->>'venue_name'),
+  item->>'external_url',
+  jsonb_build_object('source', '${SOURCE}', 'imported_from', '${inputFile.replace(/'/g, "''")}'),
+  now(), now(), now()
+from jsonb_array_elements('${json}'::jsonb) item
+where nullif(item->>'venue_name', '') is not null
+  and nullif(item->>'venue_address', '') is not null
+on conflict (name, address) do update
+set venue_type = coalesce(nullif(public.venues.venue_type, ''), excluded.venue_type),
+    neighborhood = coalesce(nullif(public.venues.neighborhood, ''), excluded.neighborhood),
+    source_name = coalesce(public.venues.source_name, excluded.source_name),
+    source_key = coalesce(public.venues.source_key, excluded.source_key),
+    website_url = coalesce(nullif(public.venues.website_url, ''), excluded.website_url),
+    raw_data = coalesce(public.venues.raw_data, '{}'::jsonb) || excluded.raw_data,
+    updated_at = now();
+
+insert into public.events (
+  title, description, category, tag, tags, venue_name, venue, neighborhood, venue_address,
+  date, time, starts_at, ends_at, timezone, price, price_min, price_max, is_free,
+  source, external_id, ticket_url, external_url, url, image_url, raw_json, status,
+  last_seen_at, created_at, updated_at
+)
+select
+  item->>'title',
+  item->>'description',
+  item->>'category',
+  item->>'tag',
+  array(select jsonb_array_elements_text(item->'tags')),
+  item->>'venue_name',
+  item->>'venue_name',
+  item->>'neighborhood',
+  item->>'venue_address',
+  nullif(item->>'date', '')::date,
+  nullif(item->>'time', ''),
+  nullif(item->>'starts_at', '')::timestamptz,
+  nullif(item->>'ends_at', '')::timestamptz,
+  item->>'timezone',
+  nullif(item->>'price', ''),
+  nullif(item->>'price_min', '')::numeric,
+  nullif(item->>'price_max', '')::numeric,
+  coalesce((item->>'is_free')::boolean, false),
+  item->>'source',
+  item->>'external_id',
+  nullif(item->>'ticket_url', ''),
+  item->>'external_url',
+  item->>'external_url',
+  nullif(item->>'image_url', ''),
+  item->'raw_json',
+  item->>'status',
+  now(), now(), now()
+from jsonb_array_elements('${json}'::jsonb) item
+on conflict (external_id) do update set
+  source = excluded.source,
+  title = excluded.title,
+  description = excluded.description,
+  category = excluded.category,
+  tag = excluded.tag,
+  tags = excluded.tags,
+  venue_name = excluded.venue_name,
+  venue = excluded.venue,
+  neighborhood = excluded.neighborhood,
+  venue_address = excluded.venue_address,
+  date = excluded.date,
+  time = excluded.time,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  timezone = excluded.timezone,
+  price = excluded.price,
+  price_min = excluded.price_min,
+  price_max = excluded.price_max,
+  is_free = excluded.is_free,
+  ticket_url = excluded.ticket_url,
+  external_url = excluded.external_url,
+  url = excluded.url,
+  image_url = excluded.image_url,
+  raw_json = excluded.raw_json,
+  status = excluded.status,
+  last_seen_at = now(),
+  updated_at = now();
+
+update public.events
+set status = 'archived',
+    last_seen_at = now(),
+    updated_at = now()
+where source in ('${SOURCE}', 'nuandroids-events-2026-08')
+  and external_id not in (
+    select item->>'external_id'
+    from jsonb_array_elements('${json}'::jsonb) item
+  );
+`;
+}
+
+const text = await readFile(inputFile, "utf8");
+const [header, ...records] = parseCsv(text);
+const columns = header.map(value => value.trim());
+const rawRows = records.map(record => Object.fromEntries(columns.map((column, index) => [column, record[index] || ""])));
+const included = [];
+const excluded = [];
+
+for (const raw of rawRows) {
+  const row = normalizeRow(raw);
+  if (!row.title || !row.date || !row.venue_name || !dcProperAddress(row.venue_address)) {
+    excluded.push({ title: raw.event_name, venue: raw.venue, address: raw.venue_location, reason: "missing DC proper venue/address" });
+    continue;
+  }
+  included.push(row);
+}
+
+const unique = [...new Map(included.map(row => [row.external_id, row])).values()];
+await writeFile(outputFile, buildSql(unique), "utf8");
+console.log(JSON.stringify({
+  csvRows: rawRows.length,
+  includedRows: unique.length,
+  excludedRows: excluded.length,
+  outputFile,
+  included: unique.map(row => ({ title: row.title, date: row.date, time: row.time, venue: row.venue_name, neighborhood: row.neighborhood, tags: row.tags })),
+  excluded
+}, null, 2));
