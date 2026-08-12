@@ -456,9 +456,18 @@ document.addEventListener("click", async event => {
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    if (key === "areas" && draft.accountType === "venue") {
-      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.toggle("selected", button === t));
-      draft.areas = [value];
+    if (key === "areas") {
+      // Single-select: one neighborhood (venue location, or person's work
+      // neighborhood) rather than a multi-pick list. Tapping the selected tile
+      // again clears it — for a person account this field is optional.
+      const wasSelected = t.classList.contains("selected");
+      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.remove("selected"));
+      if (wasSelected) {
+        draft.areas = [];
+      } else {
+        t.classList.add("selected");
+        draft.areas = [value];
+      }
     } else {
       t.classList.toggle("selected");
       // The tile carries aria-pressed, so a screen reader needs it kept in step

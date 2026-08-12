@@ -254,7 +254,8 @@ function renderOnboarding() {
     inner = `<h1 class="onboard-title">What are you into?</h1>
       <p class="lede">Pick a few — we'll tune your feed to match.</p>
       ${onboardInterestTiles(interestOptions, interests)}
-      <p class="settings-label">Neighborhoods you explore</p>
+      <p class="settings-label">Where do you work (optional)</p>
+      <p class="section-subnote">So we can also surface events close to your job, not just home.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
