@@ -342,13 +342,24 @@ function eventPopularityScore(event) {
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
+  // A one-time show is a bigger deal than a weekly standby (trivia, happy
+  // hour) even at the same venue/category, so it earns its own bump here
+  // rather than relying on catTier alone to carry that distinction.
+  if (typeof eventRecurrence === "function" && !eventRecurrence(event)) score += 3;
   return score;
+}
+
+// Taste match + a popularity/one-off boost, kept as one function so every
+// "for you" ranking (blended sections, the personalized sort) weighs size and
+// one-off-ness the same way instead of drifting out of sync with each other.
+function feedPersonalRankScore(event, weights) {
+  return eventPersonalScore(event, weights) + eventPopularityScore(event);
 }
 
 // Personalized ordering for the For You feed: taste match + a popularity boost.
 function feedPersonalSort(list) {
   const weights = userPreferenceWeights();
-  const key = event => eventPersonalScore(event, weights) + eventPopularityScore(event);
+  const key = event => feedPersonalRankScore(event, weights);
   return list.slice().sort((a, b) => key(b) - key(a) || sortEventsByStart(a, b));
 }
 

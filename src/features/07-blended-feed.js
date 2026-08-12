@@ -109,7 +109,10 @@ function localBlendedSections(list) {
   const used = new Set();
   const personal = event => eventPersonalScore(event, weights);
   const popular = event => eventPopularityScore(event);
+  const rank = event => feedPersonalRankScore(event, weights);
   const hoodKey = event => String(cleanLocationPart(event.area || event.neighborhood) || "").toLowerCase().trim();
+  const soonMs = Date.now() + 5 * 24 * 60 * 60 * 1000;
+  const isSoon = event => Number.isFinite(event.startSort) && event.startSort <= soonMs;
   const take = (pool, limit) => {
     const picks = [];
     for (const event of pool) {
@@ -121,10 +124,19 @@ function localBlendedSections(list) {
     }
     return picks;
   };
-  const byPersonal = list.filter(event => personal(event) > 0).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
+  // Within each taste/location-matched pool, rank by taste fit plus size/
+  // one-off-ness (feedPersonalRankScore) rather than taste fit alone, so a
+  // stronger one-off or marquee pick can outrank a slightly-better-matched
+  // recurring standby (weekly trivia, a standing happy hour).
+  const byPersonal = list.filter(event => personal(event) > 0).sort((a, b) => rank(b) - rank(a) || sortEventsByStart(a, b));
   const byBig = list.filter(event => popular(event) >= 4).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
-  const byHood = list.filter(event => homeKeys.has(hoodKey(event))).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
-  const byTrending = list.filter(event => popular(event) >= 4).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
+  const byHood = list.filter(event => homeKeys.has(hoodKey(event))).sort((a, b) => rank(b) - rank(a) || sortEventsByStart(a, b));
+  // "Trending" used to be the exact same pool/order as "Big in DC" (same
+  // filter, same sort) — the two sections just split one ranked list instead
+  // of carrying distinct meaning. Trending is now specifically popular events
+  // happening soon, so it reads as "what's hot this week" rather than a
+  // leftover slice of "Big in DC".
+  const byTrending = list.filter(event => popular(event) >= 4 && isSoon(event)).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
   const byDiscovery = list.filter(event => personal(event) === 0).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
   // Order of take() calls = bucket priority; the `used` set prevents duplicates.
   return {

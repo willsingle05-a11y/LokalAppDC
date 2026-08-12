@@ -42,6 +42,30 @@
 --      but also 'Theatre', 'Rock', 'Miscellaneous'). Matching is literal string
 --      equality, which is self-consistent (we always compare events.category to
 --      events.category), so buckets work regardless of the vocabulary.
+-- ----------------------------------------------------------------------------
+-- UPDATE 2026-08-12: closed the personalization gap 2b actually points at.
+-- public.user_interests turned out to hold only synthetic demo-user rows
+-- (tag_slug, not category — the spec's assumption was wrong on both counts).
+-- The real, actively-written signal is public.profiles.event_interests — the
+-- taste labels ("Live music", "Trivia", ...) picked at signup, confirmed
+-- populated on real accounts. Until now blended_feed() never read it, so a
+-- new user got ZERO personalization — not even their own stated tastes —
+-- until they had saved something. Added:
+--   - `stated` CTE: profiles.event_interests mapped to events.category via
+--     the same table categoryFromTaste() uses client-side (10-discover.js),
+--     OR'd into is_affinity alongside the existing behavioral signal.
+--   - `stated_home` CTE: profiles.area_interests (onboarding's "neighborhoods
+--     you explore" / now "where do you work") OR'd into is_home the same way.
+--   - One-off boost: events.is_recurring is a real column (81% of published
+--     upcoming events are recurring happy hours/trivia standbys as of this
+--     writing) — a one-off event now earns +10 via a new sc_oneoff component
+--     so it can outrank a marginally-better-matched weekly regular.
+--   - is_big fallback: highlighted/lokal_score are still both universally
+--     unset on real data (point 4 above), so "Big in DC" was 100% dependent
+--     on Edge Function backfill. price_min >= 30 (roughly the top half of the
+--     ~3% of events that carry a real ticket price) now also qualifies, so
+--     genuinely bigger/ticketed shows can land in Big in DC on their own
+--     signal instead of only by backfill.
 -- ============================================================================
 
 
@@ -77,7 +101,10 @@ create or replace function public.blended_event_score(
   p_created_at    timestamptz,
   p_has_image     boolean,      -- events.image_url is not null
   p_now           timestamptz,
-  p_big_threshold int default 75
+  p_big_threshold int default 75,
+  p_is_recurring  boolean default true  -- events.is_recurring; default true (no bonus) so
+                                         -- callers written before this param existed don't
+                                         -- silently pick up a score bump.
 )
 returns table (score int, breakdown jsonb)
 language sql
@@ -100,11 +127,15 @@ as $$
          else 0 end)                                                             as sc_recency,
       (case when p_has_image then 5 else 0 end)                                   as sc_image,
       (case when p_is_free is true then 10 else 0 end)                            as sc_free,
-      (case when p_created_at >= p_now - interval '7 days' then 8 else 0 end)     as sc_new
+      (case when p_created_at >= p_now - interval '7 days' then 8 else 0 end)     as sc_new,
+      -- A one-time show is a bigger deal than a weekly standby (trivia, happy
+      -- hour) even at the same venue/category, so it earns its own bump
+      -- rather than relying on category/venue signals alone to carry it.
+      (case when p_is_recurring is false then 10 else 0 end)                      as sc_oneoff
   )
   select
     (sc_saved + sc_highlight + sc_lokal + sc_hood + sc_wild + sc_wildfree
-       + sc_trend + sc_recency + sc_image + sc_free + sc_new) as score,
+       + sc_trend + sc_recency + sc_image + sc_free + sc_new + sc_oneoff) as score,
     jsonb_strip_nulls(jsonb_build_object(
       'saved_category', nullif(sc_saved, 0),
       'highlighted',    nullif(sc_highlight, 0),
@@ -116,13 +147,14 @@ as $$
       'recency',        nullif(sc_recency, 0),
       'image',          nullif(sc_image, 0),
       'free',           nullif(sc_free, 0),
-      'new_to_db',      nullif(sc_new, 0)
+      'new_to_db',      nullif(sc_new, 0),
+      'one_off',        nullif(sc_oneoff, 0)
     )) as breakdown
   from c;
 $$;
 
 grant execute on function public.blended_event_score(
-  boolean, boolean, int, boolean, boolean, int, timestamptz, timestamptz, boolean, timestamptz, int
+  boolean, boolean, int, boolean, boolean, int, timestamptz, timestamptz, boolean, timestamptz, int, boolean
 ) to authenticated, service_role;
 
 
@@ -178,16 +210,48 @@ affinity as (
   from me_saves
   where category is not null
 ),
--- OPTIONAL literal-spec Bucket 1 (+30). Requires user_interests.category — see
--- migration at the bottom. Un-comment this CTE and the `sc_interest` lines.
--- interest_categories as (
---   select distinct category
---   from public.user_interests
---   where user_id = p_user_id and weight > 0 and category is not null
--- ),
+-- Taste label -> events.category mapping, mirroring categoryFromTaste() in
+-- src/features/10-discover.js so a signup pick ("Live music") lines up with
+-- the same category vocabulary events actually use ("live-music"). "Free
+-- events" has no category analogue client-side either, so it's omitted here.
+taste_category_map(taste, category) as (
+  values
+    ('Live music', 'live-music'),
+    ('Concerts', 'concerts'),
+    ('Nightlife', 'nightlife'),
+    ('Happy hours', 'happy-hours'),
+    ('Trivia', 'trivia-nights'),
+    ('Museums', 'museums'),
+    ('Performing arts', 'performing-arts'),
+    ('Comedy', 'performing-arts'),
+    ('Sports', 'sports'),
+    ('Festivals', 'festivals'),
+    ('Food & drink', 'food'),
+    ('Markets', 'festivals'),
+    ('Community', 'community')
+),
+-- Categories implied by this user's onboarding picks (profiles.event_interests).
+-- Unlike `affinity`, this is available from the moment someone signs up, not
+-- only after they've saved something.
+stated as (
+  select distinct m.category
+  from public.profiles p
+  cross join lateral unnest(coalesce(p.event_interests, '{}')) as t(taste)
+  join taste_category_map m on m.taste = t.taste
+  where p.id = p_user_id
+),
+-- profiles.area_interests (onboarding's neighborhood picker) folded in the
+-- same way as `stated`: a signal available before any save/RSVP exists.
+-- Matched with ilike, not `=` — the onboarding picker uses short labels
+-- ("Dupont", "The Wharf") while events.neighborhood carries fuller, messier
+-- names ("Dupont Circle", "Wharf", "Petworth / Columbia Heights"); exact
+-- equality would silently match nothing for exactly these common picks.
+stated_home as (
+  select unnest(coalesce(area_interests, '{}')) as neighborhood
+  from public.profiles
+  where id = p_user_id
+),
 -- Derived home neighborhood = the neighborhood this user saves most often.
--- If you add profiles.neighborhood, replace this body with:
---   select neighborhood from public.profiles where id = p_user_id
 home as (
   select neighborhood
   from me_saves
@@ -217,28 +281,42 @@ scored as (
     e.id, e.title, e.category, e.neighborhood, e.venue_name, e.starts_at,
     e.is_free, e.price_min, e.image_url, e.lokal_score, e.highlighted,
     coalesce(t.c, 0)                                                    as save_7d,
-    (e.category in (select category from affinity))                    as is_affinity,
+    (e.category in (select category from affinity)
+       or e.category in (select category from stated))                as is_affinity,
     (e.neighborhood is not null
-       and e.neighborhood = (select neighborhood from home))           as is_home,
+       and (e.neighborhood = (select neighborhood from home)
+            or exists (
+              select 1 from stated_home sh
+              where e.neighborhood ilike sh.neighborhood || '%'
+                 or e.neighborhood ilike '%' || regexp_replace(sh.neighborhood, '^the\s+', '', 'i') || '%'
+            )))                                                        as is_home,
     (e.highlighted is true
-       or coalesce(e.lokal_score, 0) >= p_big_threshold)               as is_big,
+       or coalesce(e.lokal_score, 0) >= p_big_threshold
+       or coalesce(e.price_min, 0) >= 30)                              as is_big,
     s.score,
     s.breakdown
   from elig e
   left join trend t on t.event_id = e.id
   cross join lateral public.blended_event_score(
-    (e.category in (select category from affinity)),   -- p_is_affinity
+    (e.category in (select category from affinity)
+       or e.category in (select category from stated)),   -- p_is_affinity
     e.highlighted,                                     -- p_highlighted
     e.lokal_score,                                     -- p_lokal
     (e.neighborhood is not null
-       and e.neighborhood = (select neighborhood from home)),  -- p_is_home
+       and (e.neighborhood = (select neighborhood from home)
+            or exists (
+              select 1 from stated_home sh
+              where e.neighborhood ilike sh.neighborhood || '%'
+                 or e.neighborhood ilike '%' || regexp_replace(sh.neighborhood, '^the\s+', '', 'i') || '%'
+            ))),                                                       -- p_is_home
     e.is_free,                                         -- p_is_free
     coalesce(t.c, 0),                                  -- p_save_7d
     e.starts_at,                                       -- p_starts_at
     e.created_at,                                      -- p_created_at
     (e.image_url is not null),                         -- p_has_image
     p_now,                                             -- p_now
-    p_big_threshold                                    -- p_big_threshold
+    p_big_threshold,                                   -- p_big_threshold
+    coalesce(e.is_recurring, true)                      -- p_is_recurring
   ) s
 )
 select
@@ -301,13 +379,11 @@ where e.status = 'published'
 
 
 -- ---------------------------------------------------------------------------
--- 5. OPTIONAL migrations — run these to unlock the literal-spec behavior for
---    Bucket 1 (interest categories) and Bucket 3 (explicit home neighborhood).
---    They are additive and non-destructive. After running #1, un-comment the
---    interest_categories CTE + sc_interest lines in blended_feed above.
+-- 5. Superseded (2026-08-12): Bucket 1 / Bucket 3 personalization now reads
+--    profiles.event_interests / profiles.area_interests directly (see the
+--    `stated` / `stated_home` CTEs above) — both columns already exist and
+--    are populated by real signups, so no schema migration was needed.
 -- ---------------------------------------------------------------------------
--- alter table public.user_interests add column if not exists category text;
--- alter table public.profiles       add column if not exists neighborhood text;
 
 
 -- ---------------------------------------------------------------------------
