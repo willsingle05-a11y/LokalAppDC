@@ -151,6 +151,17 @@ function renderForgotPassword() {
   </div>`);
 }
 const ONBOARD_INTEREST_OPTIONS = ["Live music", "Concerts", "Nightlife", "Happy hours", "Trivia", "Museums", "Performing arts", "Comedy", "Sports", "Festivals", "Food & drink", "Markets", "Community", "Free events"];
+
+// The interest picker is the same component the profile uses for "Your top
+// tastes" — same illustrated icons from categoryArt, same circle-and-ring
+// treatment. Someone who picks "Live music" during signup then finds the exact
+// same tile waiting for them on their profile.
+function onboardInterestTiles(options, selected) {
+  return `<div class="taste-tiles onboard-taste-tiles">${options.map(option => `<button class="taste-tile${selected.has(option) ? " selected" : ""}" data-signup-interest="${escapeHtml(option)}" aria-pressed="${selected.has(option)}">
+    <span class="taste-tile-art">${categoryArt[option] || categoryArt.Community}</span>
+    <b>${escapeHtml(option)}</b>
+  </button>`).join("")}</div>`;
+}
 const ONBOARD_AREA_OPTIONS = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia", "Columbia Heights", "Petworth", "The Wharf", "Downtown"];
 
 function onboardProgressDots(active) {
@@ -215,6 +226,10 @@ function renderOnboarding() {
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <!-- Required, not optional. createLokalAccount refuses to create the
+             Supabase account without a birthday, and the 21+ filter on Happy
+             hours and Nightlife has nothing to work from without it. -->
+        <label class="float-field"><span>Date of birth</span><input data-onboard-birthdate type="date" max="${maxBirthdate}" value="${escapeHtml(d.birthdate || "")}" autocomplete="bday"></label>
         <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters, including a letter"></label>
         <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
@@ -225,7 +240,7 @@ function renderOnboarding() {
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What do you host?</h1>
       <p class="lede">Choose the event types and neighborhood that fit your venue.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      ${onboardInterestTiles(ONBOARD_INTEREST_OPTIONS, interests)}
       <p class="settings-label">Venue neighborhood</p>
       <p class="section-subnote">Choose one primary location.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
@@ -238,8 +253,9 @@ function renderOnboarding() {
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
       <p class="lede">Pick a few — we'll tune your feed to match.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${interestOptions.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
-      <p class="settings-label">Neighborhoods you explore</p>
+      ${onboardInterestTiles(interestOptions, interests)}
+      <p class="settings-label">Where do you work (optional)</p>
+      <p class="section-subnote">So we can also surface events close to your job, not just home.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;

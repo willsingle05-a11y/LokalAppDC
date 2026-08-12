@@ -1508,6 +1508,21 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
   if (data.access_token) {
     persistSupabaseSession(data.access_token);
     await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+    return data;
+  }
+  // Supabase returns no session when the project requires email confirmation.
+  // Try a password grant anyway: if confirmation is off, the account is signed in
+  // for real, which is what lets someone's plans follow them to a second phone.
+  // If it is on, the local session carries them and the confirmation mail does
+  // the rest — either way signup does not stall on it.
+  try {
+    const session = await supabaseAuthRequest("token?grant_type=password", { email, password });
+    if (session.access_token) {
+      persistSupabaseSession(session.access_token);
+      await syncSupabaseSignupProfile(session.access_token, state.pendingSignupProfile);
+    }
+  } catch (sessionError) {
+    console.warn("[supabase] signup did not return a session", sessionError);
   }
   return data;
 }

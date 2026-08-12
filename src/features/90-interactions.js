@@ -456,11 +456,23 @@ document.addEventListener("click", async event => {
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    if (key === "areas" && draft.accountType === "venue") {
-      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.toggle("selected", button === t));
-      draft.areas = [value];
+    if (key === "areas") {
+      // Single-select: one neighborhood (venue location, or person's work
+      // neighborhood) rather than a multi-pick list. Tapping the selected tile
+      // again clears it — for a person account this field is optional.
+      const wasSelected = t.classList.contains("selected");
+      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.remove("selected"));
+      if (wasSelected) {
+        draft.areas = [];
+      } else {
+        t.classList.add("selected");
+        draft.areas = [value];
+      }
     } else {
       t.classList.toggle("selected");
+      // The tile carries aria-pressed, so a screen reader needs it kept in step
+      // with the class — the markup only sets it on the initial render.
+      if (t.hasAttribute("aria-pressed")) t.setAttribute("aria-pressed", String(t.classList.contains("selected")));
       const chosen = new Set(draft[key] || []);
       chosen.has(value) ? chosen.delete(value) : chosen.add(value);
       draft[key] = [...chosen];
@@ -513,7 +525,7 @@ document.addEventListener("click", async event => {
     const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
     if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
-    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateSignupPassword(password); }
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateBirthday(birthdate); validateSignupPassword(password); }
     catch (contactError) { error.textContent = contactError.message; return; }
     if (password !== confirmPassword) { error.textContent = "Those passwords don't match."; return; }
     // One account per email address — checked here so the duplicate is caught on

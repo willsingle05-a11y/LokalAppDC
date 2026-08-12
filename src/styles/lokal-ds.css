@@ -2037,3 +2037,65 @@ body[data-route="profile"] .bottom-nav::before { transform: translateX(200%); }
 @media (prefers-reduced-motion: reduce) {
   .bottom-nav::before { transition: none; }
 }
+
+/* ============================================================
+   Tab bar — docked to the bottom of the phone
+   The bar is the floor of the screen, not a pill floating above it. It used to
+   sit 9px up with 10px of air either side and a translucent background, so event
+   cards showed through below and beside it while the feed scrolled. It is now
+   flush to the bottom edge, full width and opaque: nothing passes underneath.
+   The home-indicator inset is paid as padding inside the bar rather than as an
+   offset beneath it, which is what left the gap in the first place.
+   ============================================================ */
+
+:root { --nav-row: 58px; }
+
+.bottom-nav {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: min(100%, var(--shell-max));
+  height: calc(var(--nav-row) + var(--safe-bottom));
+  margin: 0 auto;
+  padding: 8px 8px calc(8px + var(--safe-bottom));
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: 0 -8px 20px -14px rgba(25, 26, 25, .3);
+  backdrop-filter: none;
+}
+/* The sliding oval sits in the row, not in the home-indicator strip below it. */
+.bottom-nav::before { bottom: calc(6px + var(--safe-bottom)); }
+
+/* Content has to end above the bar rather than behind it — the feed keeps its
+   own breathing room on top of the bar's height. */
+main { padding-bottom: calc(var(--nav-row) + var(--safe-bottom) + 22px); }
+#toast { bottom: calc(var(--nav-row) + var(--safe-bottom) + 14px); }
+
+/* In the desktop preview "the bottom of the phone" is the bottom of the fake
+   handset, which is shorter than the window. Same expressions that size the
+   frame, so the bar cannot drift away from it. */
+@media (min-width: 700px) {
+  .bottom-nav { bottom: calc(100vh - 16px - min(100vh - 32px, 932px)); }
+}
+@media (min-width: 1040px) {
+  /* The stage centres a 330px sidebar + 44px gap + the handset, so the handset's
+     left edge is a fixed distance from the middle of the window. */
+  .bottom-nav {
+    right: auto;
+    bottom: calc(100vh - 24px - min(100vh - 32px, 932px));
+    left: calc(50vw - (374px + var(--shell-max)) / 2 + 374px);
+    width: var(--shell-max);
+    margin: 0;
+  }
+  /* Production drops the sidebar, so the handset is centred again. */
+  .production-app .bottom-nav { right: 0; left: 0; margin: 0 auto; }
+}
+
+/* The signup interest picker is the profile's taste picker, so it inherits the
+   circles, the labels and the mint selection ring. It only needs the spacing the
+   text grid it replaced used to provide. */
+.onboard-taste-tiles { margin-bottom: 22px; }
+.onboarding .taste-tile-art { border: 1px solid var(--line); }
+.onboarding .taste-tile.selected .taste-tile-art { border-color: var(--accent); }
