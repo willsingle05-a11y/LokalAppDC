@@ -31,7 +31,8 @@ function detailScheduleBlock(event) {
 
 function recurringTimeWindowLabel(event) {
   const text = typeof eventDisplayTime === "function" ? String(eventDisplayTime(event) || "") : "";
-  return text.replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+  const clean = text.replace(/^[A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2},\s*/i, "").trim();
+  return typeof normalizeClockLabel === "function" ? normalizeClockLabel(clean) : clean;
 }
 
 /* ============================================================

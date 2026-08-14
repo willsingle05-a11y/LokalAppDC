@@ -594,10 +594,30 @@ function eventMetaLine(event) {
   return [eventDisplayTime(event), eventPriceLabel(event)].filter(Boolean).join(" / ");
 }
 
+function normalizeClockLabel(value) {
+  return String(value || "")
+    .replace(/\b(1[3-9]|2[0-3]):([0-5]\d)\s*(AM|PM)\b/gi, (_, hour, minute) => {
+      const numericHour = Number(hour);
+      const suffix = numericHour >= 12 ? "PM" : "AM";
+      const displayHour = numericHour % 12 || 12;
+      return `${displayHour}:${minute} ${suffix}`;
+    })
+    .replace(/\b0([1-9]):([0-5]\d)\s*(AM|PM)\b/gi, "$1:$2 $3")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function compactEventTimeLabel(event) {
   const text = String(eventDisplayTime(event) || "").trim();
   if (!text) return "";
-  return text.replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2}),\s+/, "$1 - ");
+  return normalizeClockLabel(text.replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2}),\s+/, "$1 - "));
+}
+
+function recurringOccurrenceTimeLabel(event) {
+  return compactEventTimeLabel(event)
+    .replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2})\s+-\s+/i, "")
+    .replace(/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+/i, "")
+    .trim();
 }
 
 function currentWeekEndDate() {
@@ -638,9 +658,7 @@ function recurringCardScheduleParts(event) {
 
   const byTime = new Map();
   all.forEach(({ item, date }) => {
-    const time = compactEventTimeLabel(item)
-      .replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2})\s+-\s+/i, "")
-      .trim();
+    const time = recurringOccurrenceTimeLabel(item);
     const key = time || "Time varies";
     if (!byTime.has(key)) byTime.set(key, new Set());
     byTime.get(key).add(date.getDay());
