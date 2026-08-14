@@ -334,6 +334,13 @@ const MARQUEE_VENUE_RE = /\b(the anthem|9:?30 club|capital one arena|nationals p
 // A rough "how big / popular is this" signal so marquee shows and buzzy events
 // surface in the mixed feed alongside personalized picks. Deliberately small
 // relative to strong personal-tag matches so real tastes still win.
+function eventLooksRecurringForRanking(event) {
+  const category = String(event.cat || "").toLowerCase();
+  if (event.isRecurring || ["happy-hours", "trivia-nights", "farmers-markets"].includes(category)) return true;
+  const text = `${event.title || ""} ${event.desc || ""} ${(event.tags || []).join(" ")}`.toLowerCase();
+  return /\b(weekly|every\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday|week)|recurring)\b/.test(text);
+}
+
 function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
@@ -345,7 +352,7 @@ function eventPopularityScore(event) {
   // A one-time show is a bigger deal than a weekly standby (trivia, happy
   // hour) even at the same venue/category, so it earns its own bump here
   // rather than relying on catTier alone to carry that distinction.
-  if (typeof eventRecurrence === "function" && !eventRecurrence(event)) score += 3;
+  if (!eventLooksRecurringForRanking(event)) score += 3;
   return score;
 }
 

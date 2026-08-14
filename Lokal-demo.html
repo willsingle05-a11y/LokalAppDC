@@ -6326,6 +6326,68 @@ body[data-route="profile"] .bottom-nav::before { transform: translateX(200%); }
   .bottom-nav::before { transition: none; }
 }
 
+/* ============================================================
+   Tab bar â€” docked to the bottom of the phone
+   The bar is the floor of the screen, not a pill floating above it. It used to
+   sit 9px up with 10px of air either side and a translucent background, so event
+   cards showed through below and beside it while the feed scrolled. It is now
+   flush to the bottom edge, full width and opaque: nothing passes underneath.
+   The home-indicator inset is paid as padding inside the bar rather than as an
+   offset beneath it, which is what left the gap in the first place.
+   ============================================================ */
+
+:root { --nav-row: 58px; }
+
+.bottom-nav {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: min(100%, var(--shell-max));
+  height: calc(var(--nav-row) + var(--safe-bottom));
+  margin: 0 auto;
+  padding: 8px 8px calc(8px + var(--safe-bottom));
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: 0 -8px 20px -14px rgba(25, 26, 25, .3);
+  backdrop-filter: none;
+}
+/* The sliding oval sits in the row, not in the home-indicator strip below it. */
+.bottom-nav::before { bottom: calc(6px + var(--safe-bottom)); }
+
+/* Content has to end above the bar rather than behind it â€” the feed keeps its
+   own breathing room on top of the bar's height. */
+main { padding-bottom: calc(var(--nav-row) + var(--safe-bottom) + 22px); }
+#toast { bottom: calc(var(--nav-row) + var(--safe-bottom) + 14px); }
+
+/* In the desktop preview "the bottom of the phone" is the bottom of the fake
+   handset, which is shorter than the window. Same expressions that size the
+   frame, so the bar cannot drift away from it. */
+@media (min-width: 700px) {
+  .bottom-nav { bottom: calc(100vh - 16px - min(100vh - 32px, 932px)); }
+}
+@media (min-width: 1040px) {
+  /* The stage centres a 330px sidebar + 44px gap + the handset, so the handset's
+     left edge is a fixed distance from the middle of the window. */
+  .bottom-nav {
+    right: auto;
+    bottom: calc(100vh - 24px - min(100vh - 32px, 932px));
+    left: calc(50vw - (374px + var(--shell-max)) / 2 + 374px);
+    width: var(--shell-max);
+    margin: 0;
+  }
+  /* Production drops the sidebar, so the handset is centred again. */
+  .production-app .bottom-nav { right: 0; left: 0; margin: 0 auto; }
+}
+
+/* The signup interest picker is the profile's taste picker, so it inherits the
+   circles, the labels and the mint selection ring. It only needs the spacing the
+   text grid it replaced used to provide. */
+.onboard-taste-tiles { margin-bottom: 22px; }
+.onboarding .taste-tile-art { border: 1px solid var(--line); }
+.onboarding .taste-tile.selected .taste-tile-art { border-color: var(--accent); }
+
     </style>
   </head>
   <body>
@@ -6410,6 +6472,7 @@ const categoryArt = {
   "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 9v6" stroke-width="1.5"/><rect x="20" y="5" width="8" height="6" rx="1.5" fill="#FFE3A0"/><circle cx="24" cy="28" r="13" fill="#D8D4F5"/><path d="M11 28h26M14 20h20M14 36h20" stroke-width="1.5"/><path d="M24 15c4 4.2 6 8.3 6 13s-2 8.8-6 13M24 15c-4 4.2-6 8.3-6 13s2 8.8 6 13" stroke-width="1.5"/><path d="M39 8a5.5 5.5 0 0 1-6.8 6.8A6.8 6.8 0 1 0 39 8z" fill="#FFE3A0" stroke-width="1.5"/><path d="M10 12l1.5 3.2L15 17l-3.5 1.8L10 22l-1.5-3.2L5 17l3.5-1.8z" fill="#C7F3E8" stroke-width="1.3"/><path d="M39 27l1.2 2.6L43 31l-2.8 1.4L39 35l-1.2-2.6L35 31l2.8-1.4z" fill="#FFC53D" stroke-width="1.3"/></svg>',
   "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="12" y="9" width="21" height="30" rx="3" fill="#BFF2E0"/><path d="M17 15h11M17 32h9" stroke-width="1.5"/><circle cx="22.5" cy="23.5" r="5.5" fill="#FFE3A0"/><path d="M17 23.5h11M22.5 18c1.8 1.8 2.6 3.5 2.6 5.5s-.8 3.8-2.6 5.5M22.5 18c-1.8 1.8-2.6 3.5-2.6 5.5s.8 3.8 2.6 5.5" stroke-width="1.2"/><path d="M34 17l7-3v14l-7 3z" fill="#D8D4F5"/><path d="M34 17v14M37.5 15.5v14" stroke-width="1.4"/></svg>',
   "Kids": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 25c0-8 5-14 11-14s11 6 11 14v9a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3z" fill="#C7F3E8"/><circle cx="19" cy="24" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="24" r="2" fill="#191A19" stroke="none"/><path d="M20 31c2.4 2 5.6 2 8 0"/><path d="M11 16l4 4M37 16l-4 4" stroke="#FFC53D" stroke-width="2.4"/><path d="M18 12c2-5 10-5 12 0" fill="#FFE3A0"/></svg>',
+  "Festivals": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 5v6" stroke-width="1.5"/><path d="M25 5h7l-2.5 3L32 11h-7z" fill="#FF7B54" stroke-width="1.4"/><path d="M9 21 24 10l15 11z" fill="#00C897"/><path d="M11 21h26v17a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2z" fill="#FFE3A0"/><path d="M19 21v19M29 21v19" stroke-width="1.4"/><path d="M19 40v-8a5 5 0 0 1 10 0v8z" fill="#C7F3E8"/><path d="M4 27l5 2M44 27l-5 2" stroke="#FFC53D" stroke-width="1.8"/></svg>',
   "Free events": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 12h20a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#FFE3A0"/><path d="M17 22h10M17 28h7"/><path d="M33 17v14"/><path d="M30 20c4-4 8 2 3 5-5-3-1-9 3-5" fill="#C7F3E8"/></svg>'
 };
 
@@ -9051,6 +9114,7 @@ function normalizeSupabaseEvent(row, index) {
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
     hasPreciseStart: hasReliableSupabaseStart(row) && Boolean(row.starts_at || row.start_time || row.start_at),
+    isRecurring: Boolean(row.is_recurring),
     price: ["happy-hours", "trivia-nights", "museums"].includes(category) ? "" : normalizeSupabasePriceFromRow(row),
     cat: category,
     tag: tags[0] || row.tag || row.category || "Local event",
@@ -9509,6 +9573,21 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
   if (data.access_token) {
     persistSupabaseSession(data.access_token);
     await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+    return data;
+  }
+  // Supabase returns no session when the project requires email confirmation.
+  // Try a password grant anyway: if confirmation is off, the account is signed in
+  // for real, which is what lets someone's plans follow them to a second phone.
+  // If it is on, the local session carries them and the confirmation mail does
+  // the rest â€” either way signup does not stall on it.
+  try {
+    const session = await supabaseAuthRequest("token?grant_type=password", { email, password });
+    if (session.access_token) {
+      persistSupabaseSession(session.access_token);
+      await syncSupabaseSignupProfile(session.access_token, state.pendingSignupProfile);
+    }
+  } catch (sessionError) {
+    console.warn("[supabase] signup did not return a session", sessionError);
   }
   return data;
 }
@@ -9983,7 +10062,10 @@ function localBlendedSections(list) {
   const used = new Set();
   const personal = event => eventPersonalScore(event, weights);
   const popular = event => eventPopularityScore(event);
+  const rank = event => feedPersonalRankScore(event, weights);
   const hoodKey = event => String(cleanLocationPart(event.area || event.neighborhood) || "").toLowerCase().trim();
+  const soonMs = Date.now() + 5 * 24 * 60 * 60 * 1000;
+  const isSoon = event => Number.isFinite(event.startSort) && event.startSort <= soonMs;
   const take = (pool, limit) => {
     const picks = [];
     for (const event of pool) {
@@ -9995,10 +10077,19 @@ function localBlendedSections(list) {
     }
     return picks;
   };
-  const byPersonal = list.filter(event => personal(event) > 0).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
+  // Within each taste/location-matched pool, rank by taste fit plus size/
+  // one-off-ness (feedPersonalRankScore) rather than taste fit alone, so a
+  // stronger one-off or marquee pick can outrank a slightly-better-matched
+  // recurring standby (weekly trivia, a standing happy hour).
+  const byPersonal = list.filter(event => personal(event) > 0).sort((a, b) => rank(b) - rank(a) || sortEventsByStart(a, b));
   const byBig = list.filter(event => popular(event) >= 4).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
-  const byHood = list.filter(event => homeKeys.has(hoodKey(event))).sort((a, b) => personal(b) - personal(a) || sortEventsByStart(a, b));
-  const byTrending = list.filter(event => popular(event) >= 4).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
+  const byHood = list.filter(event => homeKeys.has(hoodKey(event))).sort((a, b) => rank(b) - rank(a) || sortEventsByStart(a, b));
+  // "Trending" used to be the exact same pool/order as "Big in DC" (same
+  // filter, same sort) â€” the two sections just split one ranked list instead
+  // of carrying distinct meaning. Trending is now specifically popular events
+  // happening soon, so it reads as "what's hot this week" rather than a
+  // leftover slice of "Big in DC".
+  const byTrending = list.filter(event => popular(event) >= 4 && isSoon(event)).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
   const byDiscovery = list.filter(event => personal(event) === 0).sort((a, b) => popular(b) - popular(a) || sortEventsByStart(a, b));
   // Order of take() calls = bucket priority; the `used` set prevents duplicates.
   return {
@@ -10383,6 +10474,13 @@ const MARQUEE_VENUE_RE = /\b(the anthem|9:?30 club|capital one arena|nationals p
 // A rough "how big / popular is this" signal so marquee shows and buzzy events
 // surface in the mixed feed alongside personalized picks. Deliberately small
 // relative to strong personal-tag matches so real tastes still win.
+function eventLooksRecurringForRanking(event) {
+  const category = String(event.cat || "").toLowerCase();
+  if (event.isRecurring || ["happy-hours", "trivia-nights", "farmers-markets"].includes(category)) return true;
+  const text = `${event.title || ""} ${event.desc || ""} ${(event.tags || []).join(" ")}`.toLowerCase();
+  return /\b(weekly|every\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday|week)|recurring)\b/.test(text);
+}
+
 function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
@@ -10391,13 +10489,24 @@ function eventPopularityScore(event) {
   score += catTier[String(event.cat || "").toLowerCase()] ?? 1;
   // Ticketed events with a real start time skew toward marquee programming.
   if (event.hasPreciseStart && eventPriceLabel(event)) score += 2;
+  // A one-time show is a bigger deal than a weekly standby (trivia, happy
+  // hour) even at the same venue/category, so it earns its own bump here
+  // rather than relying on catTier alone to carry that distinction.
+  if (!eventLooksRecurringForRanking(event)) score += 3;
   return score;
+}
+
+// Taste match + a popularity/one-off boost, kept as one function so every
+// "for you" ranking (blended sections, the personalized sort) weighs size and
+// one-off-ness the same way instead of drifting out of sync with each other.
+function feedPersonalRankScore(event, weights) {
+  return eventPersonalScore(event, weights) + eventPopularityScore(event);
 }
 
 // Personalized ordering for the For You feed: taste match + a popularity boost.
 function feedPersonalSort(list) {
   const weights = userPreferenceWeights();
-  const key = event => eventPersonalScore(event, weights) + eventPopularityScore(event);
+  const key = event => feedPersonalRankScore(event, weights);
   return list.slice().sort((a, b) => key(b) - key(a) || sortEventsByStart(a, b));
 }
 
@@ -13596,6 +13705,17 @@ function renderForgotPassword() {
   </div>`);
 }
 const ONBOARD_INTEREST_OPTIONS = ["Live music", "Concerts", "Nightlife", "Happy hours", "Trivia", "Museums", "Performing arts", "Comedy", "Sports", "Festivals", "Food & drink", "Markets", "Community", "Free events"];
+
+// The interest picker is the same component the profile uses for "Your top
+// tastes" â€” same illustrated icons from categoryArt, same circle-and-ring
+// treatment. Someone who picks "Live music" during signup then finds the exact
+// same tile waiting for them on their profile.
+function onboardInterestTiles(options, selected) {
+  return `<div class="taste-tiles onboard-taste-tiles">${options.map(option => `<button class="taste-tile${selected.has(option) ? " selected" : ""}" data-signup-interest="${escapeHtml(option)}" aria-pressed="${selected.has(option)}">
+    <span class="taste-tile-art">${categoryArt[option] || categoryArt.Community}</span>
+    <b>${escapeHtml(option)}</b>
+  </button>`).join("")}</div>`;
+}
 const ONBOARD_AREA_OPTIONS = ["Adams Morgan", "U Street", "Shaw", "Navy Yard", "Penn Quarter", "H Street", "Logan Circle", "Dupont", "Georgetown", "NoMa", "Capitol Hill", "Anacostia", "Columbia Heights", "Petworth", "The Wharf", "Downtown"];
 
 function onboardProgressDots(active) {
@@ -13660,6 +13780,10 @@ function renderOnboarding() {
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
+        <!-- Required, not optional. createLokalAccount refuses to create the
+             Supabase account without a birthday, and the 21+ filter on Happy
+             hours and Nightlife has nothing to work from without it. -->
+        <label class="float-field"><span>Date of birth</span><input data-onboard-birthdate type="date" max="${maxBirthdate}" value="${escapeHtml(d.birthdate || "")}" autocomplete="bday"></label>
         <label class="float-field"><span>Password</span><input data-onboard-password type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="At least 8 characters, including a letter"></label>
         <label class="float-field"><span>Confirm password</span><input data-onboard-password-confirm type="password" value="${escapeHtml(d.password || "")}" autocomplete="new-password" placeholder="Re-enter your password"></label>
       </div>
@@ -13670,7 +13794,7 @@ function renderOnboarding() {
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What do you host?</h1>
       <p class="lede">Choose the event types and neighborhood that fit your venue.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_INTEREST_OPTIONS.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      ${onboardInterestTiles(ONBOARD_INTEREST_OPTIONS, interests)}
       <p class="settings-label">Venue neighborhood</p>
       <p class="section-subnote">Choose one primary location.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
@@ -13683,8 +13807,9 @@ function renderOnboarding() {
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
       <p class="lede">Pick a few â€” we'll tune your feed to match.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${interestOptions.map(o => `<button class="select-tile${interests.has(o) ? " selected" : ""}" data-signup-interest="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
-      <p class="settings-label">Neighborhoods you explore</p>
+      ${onboardInterestTiles(interestOptions, interests)}
+      <p class="settings-label">Where do you work (optional)</p>
+      <p class="section-subnote">So we can also surface events close to your job, not just home.</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
@@ -14270,11 +14395,23 @@ document.addEventListener("click", async event => {
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    if (key === "areas" && draft.accountType === "venue") {
-      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.toggle("selected", button === t));
-      draft.areas = [value];
+    if (key === "areas") {
+      // Single-select: one neighborhood (venue location, or person's work
+      // neighborhood) rather than a multi-pick list. Tapping the selected tile
+      // again clears it â€” for a person account this field is optional.
+      const wasSelected = t.classList.contains("selected");
+      t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.remove("selected"));
+      if (wasSelected) {
+        draft.areas = [];
+      } else {
+        t.classList.add("selected");
+        draft.areas = [value];
+      }
     } else {
       t.classList.toggle("selected");
+      // The tile carries aria-pressed, so a screen reader needs it kept in step
+      // with the class â€” the markup only sets it on the initial render.
+      if (t.hasAttribute("aria-pressed")) t.setAttribute("aria-pressed", String(t.classList.contains("selected")));
       const chosen = new Set(draft[key] || []);
       chosen.has(value) ? chosen.delete(value) : chosen.add(value);
       draft[key] = [...chosen];
@@ -14327,7 +14464,7 @@ document.addEventListener("click", async event => {
     const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
     if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
-    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateSignupPassword(password); }
+    try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateBirthday(birthdate); validateSignupPassword(password); }
     catch (contactError) { error.textContent = contactError.message; return; }
     if (password !== confirmPassword) { error.textContent = "Those passwords don't match."; return; }
     // One account per email address â€” checked here so the duplicate is caught on
