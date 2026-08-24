@@ -753,11 +753,11 @@ h1, h2, h3, .brand b { color: #326f91; }
   align-items: center;
   justify-content: space-between;
   gap: 13px;
-  margin: 14px 0 2px;
+  margin-top: 8px;
   padding: 12px;
-  border: 1px solid rgba(58, 124, 165, .16);
-  border-radius: 13px;
-  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--paper);
 }
 .privacy-toggle span { display: grid; gap: 3px; }
 .privacy-toggle b { font-size: 12px; }
