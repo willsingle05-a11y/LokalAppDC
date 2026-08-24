@@ -58,7 +58,6 @@ let events = [...demoEvents];
 let venueDirectory = [];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
-const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
 function profileAgeFromBirthdate(birthdate) {
   const birthday = new Date(`${birthdate || ""}T12:00:00`);

@@ -158,8 +158,7 @@ function profileTasteIconStrip() {
 function userTasteSection(tastePills) {
   return `<p class="eyebrow">Your top tastes</p>
     <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
-    ${tasteCategoryGrid()}
-    <button class="text-button taste-more-link" data-edit-tastes>More</button>`;
+    ${tasteCategoryGrid()}`;
 }
 
 function profileInsightPanel() {
@@ -469,16 +468,6 @@ function openReceipt(id) {
   const people = receipt?.friends?.length ? receipt.friends.map(fullFriendName).join(", ") : "Just you";
   const eventButton = events.some(item => item.id === Number(id)) ? `<button class="wide-button" data-event="${event.id}">Open event details</button>` : "";
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(eventMetaLine(event))}</p><h3>${escapeHtml(eventLocationLine(event))}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
-}
-
-function openTasteEditor() {
-  const selected = new Set(state.tastes);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Edit tastes"><button class="modal-close" aria-label="Close tastes">&times;</button>
-    <p class="eyebrow">Profile</p><h2>Edit tastes</h2><p class="lede">Pick up to 5 so Lokal can shape your feed without making it feel boxed in.</p>
-    <div class="taste-limit" data-taste-count>${selected.size}/5 selected</div>
-    <div class="taste-choice-grid">${tasteOptions.map(taste => `<button class="taste-choice ${selected.has(taste) ? "selected" : ""}" data-taste-choice="${escapeHtml(taste)}">${escapeHtml(taste)}</button>`).join("")}</div>
-    <button class="wide-button" data-save-tastes>Save tastes</button>
-  </section></div>`;
 }
 
 function openSettings() {

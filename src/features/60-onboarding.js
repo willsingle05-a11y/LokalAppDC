@@ -168,6 +168,27 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
+// "Restart walkthrough" (demo sidebar) replays the welcome-letter animation for
+// show, without touching the visitor's saved account/session. Unlike a real
+// first run, closing it (via the × or either CTA) just returns to wherever they
+// were — it never wipes localStorage or starts real onboarding.
+function replayWelcomeLetter() {
+  document.querySelector(".onboarding")?.remove();
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">
+    <button class="modal-close" aria-label="Close walkthrough" data-close-replay>&times;</button>
+    ${welcomeLetterMarkup()}
+  </div>`);
+  const screen = document.querySelector(".onboard-letter-screen");
+  const close = () => screen.remove();
+  screen.querySelector("[data-close-replay]")?.addEventListener("click", close, { once: true });
+  screen.querySelectorAll("[data-onboard-start]").forEach(button => button.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    close();
+  }, { once: true }));
+  playWelcomeLetter();
+}
+
 function startOnboardingFlow() {
   state.signupDraft = { accountType: "person" };
   state.onboardStep = 1;
@@ -198,7 +219,6 @@ function renderOnboarding() {
   let inner = "";
   if (step === 1) {
     inner = `<h1 class="onboard-title">First, what should we call you?</h1>
-      <p class="lede">So your friends know it's really you.</p>
       <div class="onboard-fields">
         <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
@@ -207,7 +227,6 @@ function renderOnboarding() {
       <button class="wide-button" data-onboard-name>Continue</button>`;
   } else if (step === 2) {
     inner = `<h1 class="onboard-title">Let's set up your login.</h1>
-      <p class="lede">This is how you'll get back in and keep your plans in sync — even on a new phone.</p>
       <div class="onboard-fields">
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
@@ -226,11 +245,10 @@ function renderOnboarding() {
     const interests = new Set((d.interests || []).filter(option => interestOptions.includes(option)));
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
-      <p class="lede">Pick a few — we'll tune your feed to match.</p>
       ${onboardInterestTiles(interestOptions, interests)}
-      <p class="settings-label">Where do you work (optional)</p>
-      <p class="section-subnote">So we can also surface events close to your job, not just home.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Which neighborhoods do you want to explore?</p>
+      <p class="section-subnote">Pick as many as you like — we'll use these to surface events beyond just your home area.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}" data-area-multi>${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
   }
