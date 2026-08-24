@@ -495,6 +495,10 @@ function openSettings() {
     ${isVenueProfile ? `<button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>` : ""}
     <button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button>
+        <hr class="settings-divider">
+    <p class="settings-group-label">Legal</p>
+    <a class="share-group" href="https://willsingle05-a11y.github.io/LokalAppDC/legal/terms.html" target="_blank" rel="noreferrer"><span class="share-group-copy"><h3>Terms of Service</h3><p>The rules for using Lokal</p></span></a>
+    <a class="share-group" href="https://willsingle05-a11y.github.io/LokalAppDC/legal/privacy.html" target="_blank" rel="noreferrer"><span class="share-group-copy"><h3>Privacy Policy</h3><p>How we handle your information</p></span></a>
     <div class="settings-danger"><button class="settings-minor" data-signout>Sign out</button><button class="settings-minor danger" data-deactivate>Delete account</button></div>
   </section></div>`;
 }
