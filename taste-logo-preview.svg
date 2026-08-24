@@ -66,7 +66,7 @@
         <circle cx="17" cy="31.5" r="8.5" fill="#F7FAFC"/>
         <path d="M12.2 25.4c3 3.8 3 8.4 0 12.2M21.8 25.4c-3 3.8-3 8.4 0 12.2" stroke="#E85D45" stroke-width="1.55"/>
         <path d="M25 32.5C30 22.5 42 24 44 32.5C40 42.5 28 41 25 32.5Z" fill="#C7824A"/>
-        <path d="M28.8 32.6h10.7M34.1 29.5v6.2M31.9 31.1v3M36.3 31.1v3" stroke="#F7FAFC" stroke-width="1.55"/>
+        <path d="M28.8 32.6h10.7M34.1 29.5v6.2M31.9 30.5v4.2M36.3 30.5v4.2" stroke="#F7FAFC" stroke-width="1.55"/>
       </svg>
     </g>
     <text class="label" x="85" y="135" text-anchor="middle">Sports</text>
