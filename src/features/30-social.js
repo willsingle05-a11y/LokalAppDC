@@ -329,7 +329,7 @@ function pastAttendanceSection() {
   const receipts = typeof profileReceipts === "function" ? profileReceipts() : [];
   const rows = receipts.slice(0, 6).map((receipt, index) => attendanceRow(receipt, index)).join("");
   const helper = receipts.length
-    ? `<p class="section-helper">These are events you marked as attended. They also appear on your Profile and count toward Lokal score.</p>`
+    ? `<p class="section-helper">These are events you marked as attended. They also appear on your Profile.</p>`
     : `<p class="section-helper">When you mark a past saved event as "I went," it will show up here and on your Profile.</p>`;
   const more = receipts.length > 6 ? `<button class="text-button view-all-receipts" data-profile-list="attended">View all ${receipts.length}</button>` : "";
   return `<section class="section saved-plans-section past-events-section"><div class="section-heading"><div><p class="eyebrow">Previous events</p><h2>Actually attended</h2></div></div>${helper}${rows ? `<div class="attend-list">${rows}</div>${more}` : ""}</section>`;

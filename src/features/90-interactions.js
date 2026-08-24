@@ -75,7 +75,7 @@ document.addEventListener("click", async event => {
   }
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveNotificationPrefs", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -358,7 +358,6 @@ document.addEventListener("click", async event => {
   // Date is committed live by the calendar, so it is skipped here.
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (key !== "date") state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
-  if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
   if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); submitGroupMembership(request.name, "You", "active", "request"); openGroup(request.name); } else if (request?.type === "friend") { acceptFriendship(request.name); if (state.route === "social") renderSocial(); openFriend(request.name); } toast(request?.type === "friend" ? `${request.name} is now your friend` : "Request accepted"); }
   if (t.dataset.declineRequest) { state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.declineRequest); openNotifications(); toast("Request declined"); }
@@ -391,7 +390,15 @@ document.addEventListener("click", async event => {
       console.warn("[supabase] feedback submission failed", feedbackError);
     }
   }
-  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "score-guide") { openScoreGuideSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "notifications") { openNotificationSettingsSheet(); } else { const pages = { verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.saveNotificationPrefs !== undefined) {
+    mark();
+    const prefs = {};
+    document.querySelectorAll("[data-notification-pref]").forEach(input => { prefs[input.dataset.notificationPref] = input.checked; });
+    localStorage.setItem("lokalNotificationPrefs", JSON.stringify(prefs));
+    modalRoot.innerHTML = "";
+    toast("Notification settings updated");
+  }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
