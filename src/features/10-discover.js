@@ -199,11 +199,9 @@ function isVerifiedVenueName(name) {
 
 function openVenueApprovalRequiredSheet(name) {
   const displayName = cleanLocationPart(name) || accountVenueName() || "your venue";
-  const pending = (state.pendingVenueRequests || []).some(request => venueImageKeyName(request.venue_name || request.venueName) === venueImageKeyName(displayName));
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-approval-sheet" role="dialog" aria-modal="true" aria-label="Venue approval required"><button class="modal-close" aria-label="Close venue approval">&times;</button>
-    <p class="eyebrow">Venue approval</p><h2>Approval required before posting.</h2>
-    <p class="lede">${escapeHtml(displayName)} needs Lokal approval before event posts can be uploaded. ${pending ? "Your request is already pending review." : "Submit a verification request from Profile and we will review it."}</p>
-    ${pending ? `<button class="wide-button" data-route="profile">View profile status</button>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
+    <p class="eyebrow">Venue page</p><h2>Posting is unavailable.</h2>
+    <p class="lede">${escapeHtml(displayName)} can still be followed and browsed, but Lokal is currently focused on personal accounts and curated event discovery.</p>
   </section></div>`;
 }
 
@@ -220,7 +218,7 @@ function openVenueEvents(name) {
   const meta = [directoryVenue.neighborhood, directoryVenue.address].filter(Boolean).join(" / ");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet venue-page-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close venue">&times;</button>
     <div class="venue-page-hero${venueImage ? " has-image" : ""}">${venueImg}<p class="eyebrow">Venue${verified ? " / Verified" : ""}</p><h2>${escapeHtml(displayName)}</h2>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
-    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${isVenueAccount() ? `<button class="venue-add-button" data-post-venue-event="${escapeHtml(displayName)}" aria-label="${verified ? "Post event" : "Request approval"} for ${escapeHtml(displayName)}">+</button>` : ""}${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
+    <div class="venue-page-actions"><button class="follow-button venue-follow-btn ${following ? "selected" : ""}" data-follow-venue="venue:${escapeHtml(displayName)}">${following ? "Following" : "Follow"}</button>${directoryVenue.website_url ? `<a class="text-button" href="${escapeHtml(directoryVenue.website_url)}" target="_blank" rel="noreferrer">Website</a>` : ""}</div>
     <p class="eyebrow group-divider">Upcoming events</p>
     <div class="interest-list venue-event-list">${venueEvents.map(event => `<button class="interest-event venue-event-row" data-event="${event.id}" aria-label="Open ${escapeHtml(event.title)}"><span><b>${escapeHtml(event.title)}</b><small>${escapeHtml(event.time)}</small><em>${escapeHtml(eventLocationLine(event))}</em></span></button>`).join("") || `<p class="section-helper">No upcoming events listed for this venue yet.</p>`}</div>
   </section></div>`;
@@ -228,47 +226,7 @@ function openVenueEvents(name) {
 
 function openVenueEventPostSheet(name) {
   const directoryVenue = venueDirectoryMatch(name) || { name };
-  const displayName = directoryVenue.name || name;
-  if (!isVerifiedVenueName(displayName)) {
-    openVenueApprovalRequiredSheet(displayName);
-    return;
-  }
-  const address = directoryVenue.address || "";
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Post an event for ${escapeHtml(displayName)}"><button class="modal-close" aria-label="Close post event">&times;</button>
-    <p class="eyebrow">Verified venue</p><h2>Post an event</h2>
-    <p class="lede">Create an event for ${escapeHtml(displayName)}. Submissions go to Lokal for review before publishing.</p>
-    <input type="hidden" data-post-venue-name value="${escapeHtml(displayName)}">
-    <label class="settings-field">Event name<input data-post-event-title placeholder="Summer patio DJ night"></label>
-    <label class="settings-field">When starts<input data-post-starts-at type="datetime-local"></label>
-    <label class="settings-field">When ends (optional)<input data-post-ends-at type="datetime-local"></label>
-    <label class="settings-field">Where<input data-post-venue-address value="${escapeHtml(address)}" placeholder="Venue address or room"></label>
-    <label class="settings-field">Category<select data-post-category>
-      <option value="nightlife">Nightlife</option>
-      <option value="culture">Culture</option>
-      <option value="concerts">Concerts</option>
-      <option value="live-music">Live music</option>
-      <option value="performing-arts">Performing arts</option>
-      <option value="kids">Kids</option>
-      <option value="happy-hours">Happy hours</option>
-      <option value="trivia-nights">Trivia nights</option>
-      <option value="food">Food & drink</option>
-      <option value="community">Community</option>
-      <option value="sports">Sports</option>
-      <option value="festivals">Festivals</option>
-    </select></label>
-    <label class="settings-field">Tags<input data-post-tags placeholder="DJ set, rooftop, 21+"></label>
-    <label class="settings-field">Ticket or RSVP link<input data-post-ticket-url type="url" placeholder="https://..."></label>
-    <label class="settings-field">Price (optional)<input data-post-price placeholder="Free, $10, From $25"></label>
-    <label class="settings-field">Picture URL (optional)<input data-post-image-url type="url" placeholder="https://..."></label>
-    <label class="settings-field">Description<textarea data-post-description placeholder="What should people know before they go?"></textarea></label>
-    <label class="privacy-toggle recurring-toggle"><span><b>Recurring event</b><small>Use this for weekly trivia, monthly parties, classes, or repeat happy hours.</small></span><input data-post-recurring type="checkbox"></label>
-    <div class="recurring-fields">
-      <label class="settings-field">Repeats<select data-post-recurrence-frequency><option value="">Not recurring</option><option value="weekly">Weekly</option><option value="biweekly">Every other week</option><option value="monthly">Monthly</option></select></label>
-      <label class="settings-field">Repeat until<input data-post-recurrence-until type="date"></label>
-    </div>
-    <p class="account-error" data-post-event-error></p>
-    <button class="wide-button" data-submit-venue-event>Submit event</button>
-  </section></div>`;
+  openVenueApprovalRequiredSheet(directoryVenue.name || name);
 }
 
 // Category weights built from the user's own data: tastes, saves, RSVPs, and
@@ -334,6 +292,13 @@ const MARQUEE_VENUE_RE = /\b(the anthem|9:?30 club|capital one arena|nationals p
 // A rough "how big / popular is this" signal so marquee shows and buzzy events
 // surface in the mixed feed alongside personalized picks. Deliberately small
 // relative to strong personal-tag matches so real tastes still win.
+function eventLooksRecurringForRanking(event) {
+  const category = String(event.cat || "").toLowerCase();
+  if (event.isRecurring || ["happy-hours", "trivia-nights", "farmers-markets"].includes(category)) return true;
+  const text = `${event.title || ""} ${event.desc || ""} ${(event.tags || []).join(" ")}`.toLowerCase();
+  return /\b(weekly|every\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday|week)|recurring)\b/.test(text);
+}
+
 function eventPopularityScore(event) {
   let score = 0;
   const venueText = `${event.venue || ""} ${event.area || ""}`.toLowerCase();
@@ -345,7 +310,7 @@ function eventPopularityScore(event) {
   // A one-time show is a bigger deal than a weekly standby (trivia, happy
   // hour) even at the same venue/category, so it earns its own bump here
   // rather than relying on catTier alone to carry that distinction.
-  if (typeof eventRecurrence === "function" && !eventRecurrence(event)) score += 3;
+  if (!eventLooksRecurringForRanking(event)) score += 3;
   return score;
 }
 

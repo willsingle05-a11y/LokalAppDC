@@ -20,23 +20,23 @@ const icons = {
 // Illustrated category art — flat fills over an ink outline, in the Lokal
 // palette. Used for the taste picker on Profile.
 const categoryArt = {
-  "Concerts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 16h28a3 3 0 0 1 3 3v4a4 4 0 0 0 0 8v4a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3v-4a4 4 0 0 0 0-8v-4a3 3 0 0 1 3-3z" fill="#FFE3A0"/><path d="M17 16v22" stroke-width="1.5"/><path d="M23 25h7"/><path d="M30 25V12h6" stroke-width="2.2"/><circle cx="26" cy="31" r="3.2" fill="#C7F3E8" stroke-width="1.5"/></svg>',
+  "Concerts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 15h28a3 3 0 0 1 3 3v4a4 4 0 0 0 0 8v4a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3v-4a4 4 0 0 0 0-8v-4a3 3 0 0 1 3-3z" fill="#FFE3A0"/><path d="M17 15v22M31 15v22" stroke-width="1.5"/><path d="M21 23h6M21 29h6" stroke-width="1.8"/></svg>',
   "Live music": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="8" width="10" height="18" rx="5" fill="#C7F3E8"/><path d="M15 21a9 9 0 0 0 18 0"/><path d="M24 30v7"/><path d="M18 40h12"/><circle cx="37" cy="14" r="3" fill="#FFC53D" stroke-width="1.6"/><path d="M40 14V7" stroke-width="1.6"/></svg>',
   "Food & drink": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M8 25a9 9 0 0 1 18 0z" fill="#FFE3A0"/><path d="M8 25h18v4H8z" fill="#00C897"/><path d="M8 29h18a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#FFE3A0"/><path d="M31 17h11l-1.5 20h-8z" fill="#BFF2E0"/><path d="M34 12l2 5M40 12l-1.5 5" stroke-width="1.6"/></svg>',
-  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="19" r="9" fill="#FFC53D"/><path d="M9 19h18M18 10v18" stroke-width="1.4"/><path d="M12 12.5c3.3 3.2 3.3 9.8 0 13M24 12.5c-3.3 3.2-3.3 9.8 0 13" stroke-width="1.4"/><circle cx="32" cy="16" r="6" fill="#F7FAFC"/><path d="m32 11.5 3 2.2-1.1 3.5h-3.8L29 13.7z" fill="#C7F3E8" stroke-width="1.1"/><path d="M29 13.7 27 13M35 13.7l2-1M33.9 17.2l1.4 2.2M30.1 17.2l-1.4 2.2" stroke-width="1.1"/><path d="M24 33c3.8-5.2 11.8-5.2 15.6 0-3.8 5.2-11.8 5.2-15.6 0z" fill="#D8D4F5"/><path d="M27.5 33h8.6M31.8 29.2v7.6" stroke-width="1.3"/></svg>',
+  "Sports": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="16" cy="18" r="8.5" fill="#FFC53D"/><path d="M7.5 18h17M16 9.5v17" stroke-width="1.25"/><path d="M10.5 11.8c3.1 3.4 3.1 9 0 12.4M21.5 11.8c-3.1 3.4-3.1 9 0 12.4" stroke-width="1.15"/><circle cx="30.5" cy="18" r="8.5" fill="#F7FAFC"/><path d="m30.5 12.3 4.1 3-1.6 4.8h-5l-1.6-4.8z" fill="#C7F3E8" stroke-width="1.1"/><path d="M26.4 15.3 23.6 14M34.6 15.3l2.8-1.3M33 20.1l2 3M28 20.1l-2 3" stroke-width="1"/><circle cx="17" cy="31.5" r="8.5" fill="#F7FAFC"/><path d="M12.2 25.4c3 3.8 3 8.4 0 12.2M21.8 25.4c-3 3.8-3 8.4 0 12.2" stroke="#E85D45" stroke-width="1.55"/><path d="M25 32.5C30 22.5 42 24 44 32.5C40 42.5 28 41 25 32.5Z" fill="#C7824A"/><path d="M28.8 32.6h10.7M31.9 30.5v4.2M34.1 30.5v4.2M36.3 30.5v4.2" stroke="#F7FAFC" stroke-width="1.55"/></svg>',
   "Comedy": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="19" y="10" width="10" height="18" rx="5" fill="#FFE3A0"/><path d="M15 23a9 9 0 0 0 18 0"/><path d="M24 32v6M18 40h12"/><path d="M12 15c1.5-2.2 4.4-2.2 5.9 0M30.1 15c1.5-2.2 4.4-2.2 5.9 0" stroke="#00C897" stroke-width="1.8"/><path d="M11 29c2 2.5 5 3.9 8.5 4M37 29c-2 2.5-5 3.9-8.5 4" stroke="#D8D4F5" stroke-width="2.2"/><circle cx="24" cy="18" r="1.5" fill="#191A19" stroke="none"/></svg>',
   "Visual arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="10" y="10" width="28" height="28" rx="3" fill="#D8D4F5"/><circle cx="19" cy="20" r="3" fill="#FFC53D" stroke-width="1.5"/><path d="M14 33l8-8 5 5 3-3 5 6" fill="#BFF2E0"/></svg>',
   "Performing arts": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 10h24v12c0 9.5-5.2 17-12 17s-12-7.5-12-17z" fill="#FFE3A0"/><circle cx="19" cy="22" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="22" r="2" fill="#191A19" stroke="none"/><path d="M19 30c3 2.6 7 2.6 10 0"/></svg>',
   "Museums": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 8l17 9H7z" fill="#BFF2E0"/><path d="M13 17v17M20 17v17M28 17v17M35 17v17"/><rect x="6" y="34" width="36" height="6" rx="2" fill="#E4E0D8"/></svg>',
   "Markets": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M7 19h34l-3-8H10z" fill="#00C897"/><path d="M18 11v8M30 11v8" stroke-width="1.5"/><rect x="12" y="25" width="24" height="14" rx="2" fill="#FFE3A0"/><circle cx="19" cy="30" r="3" fill="#FF7B54" stroke-width="1.6"/><circle cx="28" cy="31" r="3.5" fill="#BFF2E0" stroke-width="1.6"/></svg>',
-  "Happy hours": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 12h22l-11 14z" fill="#C7F3E8"/><path d="M21 26v10M15 38h12"/><circle cx="27" cy="18" r="2.5" fill="#FFC53D" stroke-width="1.4"/><path d="M35 10h6v20h-6z" fill="#FFE3A0"/><path d="M35 16h6M35 24h6"/><path d="M7 34c5.5-3 10.5-3 16 0" stroke="#00C897" stroke-width="2.2"/></svg>',
+  "Happy hours": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 12h28L24 29z" fill="#C7F3E8"/><path d="M24 29v9M16 40h16"/><circle cx="30" cy="18" r="3" fill="#FFC53D" stroke-width="1.4"/><path d="M14 17h20" stroke="#00C897" stroke-width="1.8"/></svg>',
   "Trivia": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="10" y="11" width="23" height="28" rx="4" fill="#D8D4F5"/><path d="M18 20a4 4 0 0 1 7.3 2.3c0 2.2-3.1 2.5-3.1 4.7" stroke-width="2.2"/><circle cx="22" cy="31" r="1.6" fill="#191A19" stroke="none"/><path d="M32 17h6v12h-6z" fill="#FFE3A0"/><path d="M35 29v6M31 35h8"/><circle cx="35" cy="14" r="3" fill="#C7F3E8" stroke-width="1.5"/></svg>',
   "Community": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="18" cy="18" r="6" fill="#C7F3E8"/><circle cx="31" cy="19" r="5" fill="#FFE3A0"/><path d="M8 38c2-7 16-7 20 0M24 38c1.5-5 11-5 14 0"/></svg>',
-  "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 9v6" stroke-width="1.5"/><rect x="20" y="5" width="8" height="6" rx="1.5" fill="#FFE3A0"/><circle cx="24" cy="28" r="13" fill="#D8D4F5"/><path d="M11 28h26M14 20h20M14 36h20" stroke-width="1.5"/><path d="M24 15c4 4.2 6 8.3 6 13s-2 8.8-6 13M24 15c-4 4.2-6 8.3-6 13s2 8.8 6 13" stroke-width="1.5"/><path d="M39 8a5.5 5.5 0 0 1-6.8 6.8A6.8 6.8 0 1 0 39 8z" fill="#FFE3A0" stroke-width="1.5"/><path d="M10 12l1.5 3.2L15 17l-3.5 1.8L10 22l-1.5-3.2L5 17l3.5-1.8z" fill="#C7F3E8" stroke-width="1.3"/><path d="M39 27l1.2 2.6L43 31l-2.8 1.4L39 35l-1.2-2.6L35 31l2.8-1.4z" fill="#FFC53D" stroke-width="1.3"/></svg>',
+  "Nightlife": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 9v6" stroke-width="1.5"/><rect x="20" y="5" width="8" height="6" rx="1.5" fill="#FFE3A0"/><circle cx="24" cy="28" r="14" fill="#D8D4F5"/><path d="M10 28h28M13 20h22M13 36h22" stroke-width="1.5"/><path d="M24 14c4.2 4.5 6.4 9 6.4 14S28.2 37.5 24 42M24 14c-4.2 4.5-6.4 9-6.4 14S19.8 37.5 24 42" stroke-width="1.5"/></svg>',
   "Culture": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="12" y="9" width="21" height="30" rx="3" fill="#BFF2E0"/><path d="M17 15h11M17 32h9" stroke-width="1.5"/><circle cx="22.5" cy="23.5" r="5.5" fill="#FFE3A0"/><path d="M17 23.5h11M22.5 18c1.8 1.8 2.6 3.5 2.6 5.5s-.8 3.8-2.6 5.5M22.5 18c-1.8 1.8-2.6 3.5-2.6 5.5s.8 3.8 2.6 5.5" stroke-width="1.2"/><path d="M34 17l7-3v14l-7 3z" fill="#D8D4F5"/><path d="M34 17v14M37.5 15.5v14" stroke-width="1.4"/></svg>',
   "Kids": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 25c0-8 5-14 11-14s11 6 11 14v9a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3z" fill="#C7F3E8"/><circle cx="19" cy="24" r="2" fill="#191A19" stroke="none"/><circle cx="29" cy="24" r="2" fill="#191A19" stroke="none"/><path d="M20 31c2.4 2 5.6 2 8 0"/><path d="M11 16l4 4M37 16l-4 4" stroke="#FFC53D" stroke-width="2.4"/><path d="M18 12c2-5 10-5 12 0" fill="#FFE3A0"/></svg>',
   "Festivals": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M24 5v6" stroke-width="1.5"/><path d="M25 5h7l-2.5 3L32 11h-7z" fill="#FF7B54" stroke-width="1.4"/><path d="M9 21 24 10l15 11z" fill="#00C897"/><path d="M11 21h26v17a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2z" fill="#FFE3A0"/><path d="M19 21v19M29 21v19" stroke-width="1.4"/><path d="M19 40v-8a5 5 0 0 1 10 0v8z" fill="#C7F3E8"/><path d="M4 27l5 2M44 27l-5 2" stroke="#FFC53D" stroke-width="1.8"/></svg>',
-  "Free events": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 12h20a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#FFE3A0"/><path d="M17 22h10M17 28h7"/><path d="M33 17v14"/><path d="M30 20c4-4 8 2 3 5-5-3-1-9 3-5" fill="#C7F3E8"/></svg>'
+  "Free events": '<svg viewBox="0 0 48 48" fill="none" stroke="#191A19" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="24" cy="24" r="16" fill="#C7F3E8"/><path d="M24 12v24" stroke="#00A878" stroke-width="2.8"/><path d="M31 17.5c-2-2.1-12-2.5-12 2.7 0 5.8 12 2.9 12 8.5 0 5.1-9.8 4.9-13 2" stroke="#00A878" stroke-width="2.8"/><path d="M13 36 36 13" stroke="#E53935" stroke-width="4"/></svg>'
 };
 
 const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
@@ -58,7 +58,6 @@ let events = [...demoEvents];
 let venueDirectory = [];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
-const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
 function profileAgeFromBirthdate(birthdate) {
   const birthday = new Date(`${birthdate || ""}T12:00:00`);
@@ -70,6 +69,7 @@ function profileAgeFromBirthdate(birthdate) {
 }
 const savedProfileAge = profileAgeFromBirthdate(savedProfile?.birthdate) || savedProfile?.age || 27;
 const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [] };
+state.profile = { ...state.profile, accountType: "person", ownerName: "", venueName: "", venueAddress: "", venueWebsite: "", venueImageUrl: "", venueDescription: "" };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
@@ -87,13 +87,11 @@ state.whereFilter = new Set();
 state.whenFilter = new Set();
 
 function accountVenueName() {
-  if (state.profile?.accountType !== "venue") return "";
-  const approved = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames[0] : "";
-  return state.profile?.venueName || approved || "";
+  return "";
 }
 
 function isVenueAccount() {
-  return state.profile?.accountType === "venue";
+  return false;
 }
 
 function userIsUnder21() {
@@ -594,10 +592,30 @@ function eventMetaLine(event) {
   return [eventDisplayTime(event), eventPriceLabel(event)].filter(Boolean).join(" / ");
 }
 
+function normalizeClockLabel(value) {
+  return String(value || "")
+    .replace(/\b(1[3-9]|2[0-3]):([0-5]\d)\s*(AM|PM)\b/gi, (_, hour, minute) => {
+      const numericHour = Number(hour);
+      const suffix = numericHour >= 12 ? "PM" : "AM";
+      const displayHour = numericHour % 12 || 12;
+      return `${displayHour}:${minute} ${suffix}`;
+    })
+    .replace(/\b0([1-9]):([0-5]\d)\s*(AM|PM)\b/gi, "$1:$2 $3")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function compactEventTimeLabel(event) {
   const text = String(eventDisplayTime(event) || "").trim();
   if (!text) return "";
-  return text.replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2}),\s+/, "$1 - ");
+  return normalizeClockLabel(text.replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2}),\s+/, "$1 - "));
+}
+
+function recurringOccurrenceTimeLabel(event) {
+  return compactEventTimeLabel(event)
+    .replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2})\s+-\s+/i, "")
+    .replace(/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+/i, "")
+    .trim();
 }
 
 function currentWeekEndDate() {
@@ -638,9 +656,7 @@ function recurringCardScheduleParts(event) {
 
   const byTime = new Map();
   all.forEach(({ item, date }) => {
-    const time = compactEventTimeLabel(item)
-      .replace(/^([A-Za-z]{3,9},\s+[A-Za-z]{3,9}\s+\d{1,2})\s+-\s+/i, "")
-      .trim();
+    const time = recurringOccurrenceTimeLabel(item);
     const key = time || "Time varies";
     if (!byTime.has(key)) byTime.set(key, new Set());
     byTime.get(key).add(date.getDay());

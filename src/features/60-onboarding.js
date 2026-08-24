@@ -45,7 +45,7 @@ function welcomeLetterMarkup() {
         <div class="letter-foot">
           ${footHtml}
           <button class="letter-btn letter-cta show" data-onboard-start data-account-type="person">get started</button>
-          <button class="letter-venue-link letter-cta show" data-onboard-start data-account-type="venue">have a venue? join here</button>
+          <p class="auth-swap letter-signin letter-cta">Already have an account? <button class="letter-inline-link" data-show-login>Sign in</button></p>
         </div>
       </div>`;
 }
@@ -168,8 +168,29 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
-function startOnboardingFlow(accountType = "person") {
-  state.signupDraft = { accountType: accountType || "person" };
+// "Restart walkthrough" (demo sidebar) replays the welcome-letter animation for
+// show, without touching the visitor's saved account/session. Unlike a real
+// first run, closing it (via the × or either CTA) just returns to wherever they
+// were — it never wipes localStorage or starts real onboarding.
+function replayWelcomeLetter() {
+  document.querySelector(".onboarding")?.remove();
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">
+    <button class="modal-close" aria-label="Close walkthrough" data-close-replay>&times;</button>
+    ${welcomeLetterMarkup()}
+  </div>`);
+  const screen = document.querySelector(".onboard-letter-screen");
+  const close = () => screen.remove();
+  screen.querySelector("[data-close-replay]")?.addEventListener("click", close, { once: true });
+  screen.querySelectorAll("[data-onboard-start]").forEach(button => button.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    close();
+  }, { once: true }));
+  playWelcomeLetter();
+}
+
+function startOnboardingFlow() {
+  state.signupDraft = { accountType: "person" };
   state.onboardStep = 1;
   document.querySelector(".onboarding")?.remove();
   requestAnimationFrame(() => renderOnboarding());
@@ -189,28 +210,15 @@ function renderOnboarding() {
     document.querySelectorAll("[data-onboard-start]").forEach(button => button.addEventListener("click", event => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      startOnboardingFlow(button.dataset.accountType || "person");
+      startOnboardingFlow();
     }, { once: true }));
     playWelcomeLetter();
     return;
   }
 
   let inner = "";
-  if (step === 1 && d.accountType === "venue") {
-    inner = `<h1 class="onboard-title">Tell us about your venue.</h1>
-      <p class="lede">This starts your venue profile and sends verification to Lokal for review.</p>
-      <div class="onboard-fields">
-        <label class="float-field"><span>Venue name</span><input data-onboard-venue-name value="${escapeHtml(d.venueName || "")}" autocomplete="organization" placeholder="Dacha Beer Garden"></label>
-        <label class="float-field"><span>Venue address</span><input data-onboard-venue-address value="${escapeHtml(d.venueAddress || "")}" autocomplete="street-address" placeholder="1600 7th St NW"></label>
-        <label class="float-field"><span>Website</span><input data-onboard-venue-website type="url" value="${escapeHtml(d.website || "")}" placeholder="https://..."></label>
-        <label class="float-field"><span>Venue image URL</span><input data-onboard-venue-image type="url" value="${escapeHtml(d.venueImageUrl || "")}" placeholder="https://..."></label>
-        <label class="float-field"><span>Venue description</span><textarea data-onboard-venue-description placeholder="Beer garden, patio crowd, trivia, watch parties...">${escapeHtml(d.venueDescription || "")}</textarea></label>
-      </div>
-      <p class="account-error" data-account-error></p>
-      <button class="wide-button" data-onboard-venue>Continue</button>`;
-  } else if (step === 1) {
+  if (step === 1) {
     inner = `<h1 class="onboard-title">First, what should we call you?</h1>
-      <p class="lede">So your friends know it's really you.</p>
       <div class="onboard-fields">
         <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
@@ -218,12 +226,8 @@ function renderOnboarding() {
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-name>Continue</button>`;
   } else if (step === 2) {
-    const isVenueContact = d.accountType === "venue";
-    inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "Let's set up your login."}</h1>
-      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "This is how you'll get back in and keep your plans in sync — even on a new phone."}</p>
+    inner = `<h1 class="onboard-title">Let's set up your login.</h1>
       <div class="onboard-fields">
-        ${isVenueContact ? `<label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
-        <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
         <!-- Required, not optional. createLokalAccount refuses to create the
@@ -235,28 +239,16 @@ function renderOnboarding() {
       </div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-contact>Continue</button>`;
-  } else if (d.accountType === "venue") {
-    const interests = new Set(d.interests || []);
-    const areas = new Set(d.areas || []);
-    inner = `<h1 class="onboard-title">What do you host?</h1>
-      <p class="lede">Choose the event types and neighborhood that fit your venue.</p>
-      ${onboardInterestTiles(ONBOARD_INTEREST_OPTIONS, interests)}
-      <p class="settings-label">Venue neighborhood</p>
-      <p class="section-subnote">Choose one primary location.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
-      <p class="account-error" data-account-error></p>
-      <button class="wide-button" data-onboard-finish>Enter venue dashboard</button>`;
   } else {
     const isUnder21 = typeof calculateAge === "function" && d.birthdate ? calculateAge(d.birthdate) < 21 : false;
     const interestOptions = isUnder21 ? ONBOARD_INTEREST_OPTIONS.filter(option => !["Happy hours", "Nightlife"].includes(option)) : ONBOARD_INTEREST_OPTIONS;
     const interests = new Set((d.interests || []).filter(option => interestOptions.includes(option)));
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
-      <p class="lede">Pick a few — we'll tune your feed to match.</p>
       ${onboardInterestTiles(interestOptions, interests)}
-      <p class="settings-label">Where do you work (optional)</p>
-      <p class="section-subnote">So we can also surface events close to your job, not just home.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Which neighborhoods do you want to explore?</p>
+      <p class="section-subnote">Pick as many as you like — we'll use these to surface events beyond just your home area.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}" data-area-multi>${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
   }

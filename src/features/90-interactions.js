@@ -75,7 +75,7 @@ document.addEventListener("click", async event => {
   }
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -224,7 +224,7 @@ document.addEventListener("click", async event => {
     openSimpleSheet("Add friends", "Share your Lokal invite link, search your current friends, or find new people to add.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><div class="friend-search-columns"><section class="friend-search-column"><p class="eyebrow group-divider">Search your friends</p><label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Search friends you already have" aria-label="Search friends you already have"></label><div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div><p class="search-empty" data-existing-friend-empty>No current friends match that search.</p></section><section class="friend-search-column"><p class="eyebrow group-divider">Find new friends</p><label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="Search people to add" aria-label="Search people to add"></label><div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-new-friend-empty>No new people match that search.</p></section></div>`);
   }
   if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1; localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent)); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
-  if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
+  if (t.dataset.restart !== undefined) { replayWelcomeLetter(); }
   if (t.dataset.notifications !== undefined) openNotifications();
   if (t.dataset.moreFilters !== undefined) openFilters();
   if (t.dataset.refreshEvents !== undefined) syncSupabaseEvents(true);
@@ -275,7 +275,7 @@ document.addEventListener("click", async event => {
     state.venueVerificationDismissed = true;
     localStorage.setItem("lokalVenueVerificationDismissed", "1");
     renderProfile();
-    toast("Venue tools hidden");
+    toast("Hidden");
   }
   if (t.dataset.venueVerify !== undefined) { mark(); openVenueVerificationSheet(); }
   if (t.dataset.submitVenueVerification !== undefined) {
@@ -360,26 +360,6 @@ document.addEventListener("click", async event => {
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
   if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
-  if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
-  if (t.dataset.tasteChoice) {
-    mark();
-    const selected = [...document.querySelectorAll("[data-taste-choice].selected")];
-    if (!t.classList.contains("selected") && selected.length >= 5) { toast("Choose up to 5 tastes"); return; }
-    t.classList.toggle("selected");
-    const count = document.querySelector("[data-taste-count]");
-    if (count) count.textContent = `${document.querySelectorAll("[data-taste-choice].selected").length}/5 selected`;
-  }
-  if (t.dataset.saveTastes !== undefined) {
-    mark();
-    const choices = [...document.querySelectorAll("[data-taste-choice].selected")].map(button => button.dataset.tasteChoice);
-    if (!choices.length) { toast("Pick at least one taste"); return; }
-    state.tastes = choices;
-    state.profile = { ...state.profile, tastes: choices };
-    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
-    modalRoot.innerHTML = "";
-    renderProfile();
-    toast("Tastes updated");
-  }
   if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); submitGroupMembership(request.name, "You", "active", "request"); openGroup(request.name); } else if (request?.type === "friend") { acceptFriendship(request.name); if (state.route === "social") renderSocial(); openFriend(request.name); } toast(request?.type === "friend" ? `${request.name} is now your friend` : "Request accepted"); }
   if (t.dataset.declineRequest) { state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.declineRequest); openNotifications(); toast("Request declined"); }
   if (t.dataset.notificationProfile !== undefined) { modalRoot.innerHTML = ""; setRoute("profile"); toast("Profile activity opened"); }
@@ -393,8 +373,6 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { const text = input.value.trim(); state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text }]; submitDirectMessage(name, text); openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>&#8981;</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
-  if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
-  if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
   if (t.dataset.feedback !== undefined) { mark(); openFeedbackSheet(); }
   if (t.dataset.submitFeedback !== undefined) {
     mark();
@@ -456,10 +434,16 @@ document.addEventListener("click", async event => {
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    if (key === "areas") {
-      // Single-select: one neighborhood (venue location, or person's work
-      // neighborhood) rather than a multi-pick list. Tapping the selected tile
-      // again clears it — for a person account this field is optional.
+    if (key === "areas" && t.dataset.areaMulti !== undefined) {
+      // Multi-select: person's "neighborhoods to explore" step.
+      t.classList.toggle("selected");
+      if (t.hasAttribute("aria-pressed")) t.setAttribute("aria-pressed", String(t.classList.contains("selected")));
+      const chosen = new Set(draft.areas || []);
+      chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+      draft.areas = [...chosen];
+    } else if (key === "areas") {
+      // Single-select: venue's one primary neighborhood. Tapping the selected
+      // tile again clears it.
       const wasSelected = t.classList.contains("selected");
       t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.remove("selected"));
       if (wasSelected) {
@@ -478,7 +462,7 @@ document.addEventListener("click", async event => {
       draft[key] = [...chosen];
     }
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); startOnboardingFlow(t.dataset.accountType || "person"); }
+  if (t.dataset.onboardStart !== undefined) { mark(); startOnboardingFlow("person"); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
   if (t.dataset.onboardVenue !== undefined) {
     mark();
@@ -523,7 +507,6 @@ document.addEventListener("click", async event => {
     const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
     const password = card.querySelector("[data-onboard-password]")?.value || "";
     const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
-    if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
     try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateBirthday(birthdate); validateSignupPassword(password); }
     catch (contactError) { error.textContent = contactError.message; return; }
@@ -555,15 +538,14 @@ document.addEventListener("click", async event => {
     const card = t.closest(".onboard-card");
     const error = card.querySelector("[data-account-error]");
     const draft = state.signupDraft || {};
-    const isVenue = draft.accountType === "venue";
+    const isVenue = false;
     const age = typeof calculateAge === "function" && draft.birthdate ? calculateAge(draft.birthdate) : 27;
     const eventInterests = (draft.interests || []).filter(interest => isVenue || age >= 21 || !["Happy hours", "Nightlife"].includes(interest));
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
-    if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
     const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
     const fullName = ownerName;
-    const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const username = ((draft.firstName || "lokal") + (draft.lastName || "")).toLowerCase().replace(/[^a-z0-9]+/g, "");
     const onboardingProfile = {
       fullName,
       email: draft.email,
@@ -572,17 +554,16 @@ document.addEventListener("click", async event => {
       birthdate: draft.birthdate,
       eventInterests,
       areaInterests,
-      accountType: isVenue ? "venue" : "person",
-      ownerName: isVenue ? ownerName : "",
-      venueName: isVenue ? draft.venueName : "",
-      venueAddress: isVenue ? draft.venueAddress : "",
-      venueWebsite: isVenue ? draft.website : "",
-      venueImageUrl: isVenue ? draft.venueImageUrl : "",
-      venueDescription: isVenue ? draft.venueDescription : ""
+      accountType: "person",
+      ownerName: "",
+      venueName: "",
+      venueAddress: "",
+      venueWebsite: "",
+      venueImageUrl: "",
+      venueDescription: ""
     };
     t.disabled = true;
     finalizeLokalProfile(onboardingProfile);
-    if (isVenue) registerLocalVenueProfile();
     let supabaseSynced = true;
     // Create the real Supabase auth account (email + password) so the user can log
     // back in and reset their password later. Failures don't block local entry.
@@ -619,23 +600,6 @@ document.addEventListener("click", async event => {
     }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
-    if (isVenue) {
-      try {
-        await submitVenueVerificationRequest({
-          venueName: draft.venueName,
-          venueAddress: draft.venueAddress,
-          website: draft.website,
-          venueImageUrl: draft.venueImageUrl,
-          venueDescription: draft.venueDescription,
-          eventInterests,
-          areaInterests,
-          role: "Venue owner or manager",
-          email: draft.email,
-          phone: draft.phone,
-          notes: "Submitted during venue onboarding."
-        });
-      } catch (error) { supabaseSynced = false; console.warn("[supabase] venue verification request failed", error); }
-    }
     localStorage.setItem("lokalAccountCreated", "true");
     // Mark that an account now exists on this device, so a later logout returns the
     // user to the login screen (not the first-run welcome letter).
@@ -648,9 +612,9 @@ document.addEventListener("click", async event => {
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     state.signupDraft = {};
-    isVenue ? renderProfile() : renderHome();
-    toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
-    if (!isVenue) showDiscoverHint();
+    renderHome();
+    toast(supabaseSynced ? "Welcome to Lokal" : "Profile saved locally. Supabase sync needs attention.");
+    showDiscoverHint();
   }
   if (t.dataset.createAccount !== undefined) {
     mark();
@@ -697,7 +661,7 @@ document.addEventListener("click", async event => {
       await loginLokalUser({ identifier, password });
       document.querySelector(".onboarding")?.remove();
       state.onboardStep = 0;
-      setRoute(isVenueAccount() ? "profile" : "home");
+      setRoute("home");
       updateProfileShortcut();
       syncSupabaseEvents(); syncSupabaseProfiles(); syncSupabaseGroups();
       toast("Welcome back to Lokal");
@@ -950,8 +914,8 @@ const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalCredentials", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
-  state.signupDraft = startupAccountType === "venue" && !forceOnboarding ? { accountType: "venue" } : {};
-  state.onboardStep = startupAccountType === "venue" && !forceOnboarding ? 1 : 0;
+  state.signupDraft = {};
+  state.onboardStep = 0;
   state.verifiedVenues = new Set();
   state.verifiedVenueNames = [];
   state.pendingVenueRequests = [];
