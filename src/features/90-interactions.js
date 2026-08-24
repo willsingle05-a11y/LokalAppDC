@@ -75,7 +75,7 @@ document.addEventListener("click", async event => {
   }
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "changePhoto", "confirmPhoto", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -393,8 +393,6 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendDirectMessage) { mark(); const name = t.dataset.sendDirectMessage; const input = document.querySelector("[data-direct-message]"); if (input?.value.trim()) { const text = input.value.trim(); state.directMessages[name] = [...(state.directMessages[name] || []), { from: "You", text }]; submitDirectMessage(name, text); openDirectChat(name); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.inviteFriend) { mark(); openSimpleSheet("Invite to a group", `Search for the group you want to add ${t.dataset.inviteFriend} to.`, `<label class="search-box social-search"><span>&#8981;</span><input data-friend-group-search data-friend-name="${t.dataset.inviteFriend}" placeholder="Search your groups" aria-label="Search your groups for ${t.dataset.inviteFriend}"></label><div class="share-group-results" data-friend-group-results><p class="section-helper">Start typing to find a group.</p></div>`); }
   if (t.dataset.confirmInviteGroup !== undefined) { mark(); addFriendToPrivateGroup(t.dataset.confirmInviteGroup, t.dataset.friendName); if (state.route === "social") renderSocial(); modalRoot.innerHTML = ""; toast(`${t.dataset.friendName} added to ${t.dataset.confirmInviteGroup}`); }
-  if (t.dataset.changePhoto !== undefined) { mark(); openSimpleSheet("Change photo", "Choose a profile photo from your device.", `<button class="wide-button" data-confirm-photo>Choose photo</button>`); }
-  if (t.dataset.confirmPhoto !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Photo chooser opened"); }
   if (t.dataset.feedback !== undefined) { mark(); openFeedbackSheet(); }
   if (t.dataset.submitFeedback !== undefined) {
     mark();

@@ -523,7 +523,7 @@ function openSettings() {
   const venueImage = currentVenueImage();
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Profile settings"><button class="modal-close" aria-label="Close settings">&times;</button>
     <p class="eyebrow">Profile and account</p><h2>Settings</h2>
-    <div class="settings-avatar"><div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div><button class="text-button" data-change-photo>Change photo</button></div>
+    <div class="settings-avatar"><div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div></div>
     <p class="settings-group-label">Account</p>
     <label class="settings-field">${isVenueProfile ? "Venue name" : "Name"}<input value="${escapeHtml(isVenueProfile ? currentAccountDisplayName() : state.profile.fullName)}" readonly></label>
     <label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label>
