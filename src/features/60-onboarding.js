@@ -45,6 +45,7 @@ function welcomeLetterMarkup() {
         <div class="letter-foot">
           ${footHtml}
           <button class="letter-btn letter-cta show" data-onboard-start data-account-type="person">get started</button>
+          <p class="auth-swap letter-signin letter-cta">Already have an account? <button class="letter-inline-link" data-show-login>Sign in</button></p>
         </div>
       </div>`;
 }
