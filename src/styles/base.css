@@ -436,6 +436,9 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .settings-sheet { padding: 21px 18px 25px; }
 .settings-sheet h2 { margin-bottom: 12px; font-size: 31px; }
 .settings-avatar { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+.settings-avatar-id { display: grid; gap: 2px; }
+.settings-avatar-id b { font-size: 16px; }
+.settings-avatar-id span { color: var(--muted); font-size: 12px; }
 .settings-field { display: grid; gap: 5px; margin-top: 9px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
 .settings-field input, .account-fields input { padding: 11px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: var(--paper); font: inherit; font-size: 12px; }
 .settings-label { margin: 20px 0 0; color: var(--steel); font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
