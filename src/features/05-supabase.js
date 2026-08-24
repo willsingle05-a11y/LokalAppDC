@@ -1333,39 +1333,36 @@ function finalizeLokalProfile(profile) {
     age,
     initials: profileInitials(profile.fullName),
     bio: state.bio,
-    tastes: profile.accountType === "venue" || age >= 21 ? chosenTastes : chosenTastes.filter(taste => !["Happy hours", "Nightlife"].includes(taste)),
+    tastes: age >= 21 ? chosenTastes : chosenTastes.filter(taste => !["Happy hours", "Nightlife"].includes(taste)),
     areas: profile.areaInterests || [],
-    accountType: profile.accountType || "person",
-    ownerName: profile.ownerName || "",
-    venueName: profile.venueName || "",
-    venueAddress: profile.venueAddress || "",
-    venueWebsite: profile.venueWebsite || "",
-    venueImageUrl: profile.venueImageUrl || "",
-    venueDescription: profile.venueDescription || "",
+    accountType: "person",
+    ownerName: "",
+    venueName: "",
+    venueAddress: "",
+    venueWebsite: "",
+    venueImageUrl: "",
+    venueDescription: "",
     lokalScore: 100
   };
   state.profile = saved;
   state.age = saved.age;
   state.tastes = saved.tastes;
-  if (saved.accountType !== "venue") {
-    state.friends = new Set();
-    state.receipts = [];
-    state.attended = new Set();
-    state.saved = new Set();
-    state.rsvps = new Set();
-    state.savedSources = new Set();
-    state.rsvpSources = new Set();
-    localStorage.setItem("lokalReceipts", "[]");
-    localStorage.setItem("lokalAttended", "[]");
-    localStorage.setItem("lokalSavedSources", "[]");
-    localStorage.setItem("lokalRsvpSources", "[]");
-    state.verifiedVenues = new Set();
-    state.verifiedVenueNames = [];
-    state.pendingVenueRequests = [];
-    state.venueVerificationDismissed = false;
-    ["lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
-  }
-  if (saved.accountType === "venue") registerLocalVenueProfile();
+  state.friends = new Set();
+  state.receipts = [];
+  state.attended = new Set();
+  state.saved = new Set();
+  state.rsvps = new Set();
+  state.savedSources = new Set();
+  state.rsvpSources = new Set();
+  localStorage.setItem("lokalReceipts", "[]");
+  localStorage.setItem("lokalAttended", "[]");
+  localStorage.setItem("lokalSavedSources", "[]");
+  localStorage.setItem("lokalRsvpSources", "[]");
+  state.verifiedVenues = new Set();
+  state.verifiedVenueNames = [];
+  state.pendingVenueRequests = [];
+  state.venueVerificationDismissed = false;
+  ["lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
   updateProfileShortcut();
 }
@@ -1565,19 +1562,18 @@ function setActiveProfile(profile) {
     bio: state.bio,
     tastes: profile.eventInterests?.length ? profile.eventInterests : state.tastes,
     areas: profile.areaInterests || [],
-    accountType: profile.accountType || "person",
-    ownerName: profile.ownerName || "",
-    venueName: profile.venueName || "",
-    venueAddress: profile.venueAddress || "",
-    venueWebsite: profile.venueWebsite || "",
-    venueImageUrl: profile.venueImageUrl || "",
-    venueDescription: profile.venueDescription || "",
+    accountType: "person",
+    ownerName: "",
+    venueName: "",
+    venueAddress: "",
+    venueWebsite: "",
+    venueImageUrl: "",
+    venueDescription: "",
     lokalScore: profile.lokalScore || 100
   };
   state.profile = saved;
   state.age = saved.age;
   state.tastes = saved.tastes;
-  if (saved.accountType === "venue") registerLocalVenueProfile();
   localStorage.setItem("lokalProfile", JSON.stringify(saved));
   updateProfileShortcut();
   return saved;

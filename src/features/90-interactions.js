@@ -275,7 +275,7 @@ document.addEventListener("click", async event => {
     state.venueVerificationDismissed = true;
     localStorage.setItem("lokalVenueVerificationDismissed", "1");
     renderProfile();
-    toast("Venue tools hidden");
+    toast("Hidden");
   }
   if (t.dataset.venueVerify !== undefined) { mark(); openVenueVerificationSheet(); }
   if (t.dataset.submitVenueVerification !== undefined) {
@@ -476,7 +476,7 @@ document.addEventListener("click", async event => {
       draft[key] = [...chosen];
     }
   }
-  if (t.dataset.onboardStart !== undefined) { mark(); startOnboardingFlow(t.dataset.accountType || "person"); }
+  if (t.dataset.onboardStart !== undefined) { mark(); startOnboardingFlow("person"); }
   if (t.dataset.onboardBack !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.onboardStep = Math.max(0, (state.onboardStep || 1) - 1); renderOnboarding(); }
   if (t.dataset.onboardVenue !== undefined) {
     mark();
@@ -521,7 +521,6 @@ document.addEventListener("click", async event => {
     const last = card.querySelector("[data-onboard-last]")?.value.trim() || state.signupDraft.lastName || "";
     const password = card.querySelector("[data-onboard-password]")?.value || "";
     const confirmPassword = card.querySelector("[data-onboard-password-confirm]")?.value || "";
-    if (state.signupDraft.accountType === "venue" && (!first || !last)) { error.textContent = "Enter your first and last name."; return; }
     let formattedPhone = "";
     try { validateSignupEmail(email); formattedPhone = formatSignupPhone(phone); validateBirthday(birthdate); validateSignupPassword(password); }
     catch (contactError) { error.textContent = contactError.message; return; }
@@ -553,15 +552,14 @@ document.addEventListener("click", async event => {
     const card = t.closest(".onboard-card");
     const error = card.querySelector("[data-account-error]");
     const draft = state.signupDraft || {};
-    const isVenue = draft.accountType === "venue";
+    const isVenue = false;
     const age = typeof calculateAge === "function" && draft.birthdate ? calculateAge(draft.birthdate) : 27;
     const eventInterests = (draft.interests || []).filter(interest => isVenue || age >= 21 || !["Happy hours", "Nightlife"].includes(interest));
     const areaInterests = draft.areas || [];
     if (!eventInterests.length) { error.textContent = "Pick at least one interest so we can tune your feed."; return; }
-    if (isVenue && areaInterests.length !== 1) { error.textContent = "Choose one primary venue neighborhood."; return; }
     const ownerName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
     const fullName = ownerName;
-    const username = (isVenue ? draft.venueName : ((draft.firstName || "lokal") + (draft.lastName || ""))).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const username = ((draft.firstName || "lokal") + (draft.lastName || "")).toLowerCase().replace(/[^a-z0-9]+/g, "");
     const onboardingProfile = {
       fullName,
       email: draft.email,
@@ -570,17 +568,16 @@ document.addEventListener("click", async event => {
       birthdate: draft.birthdate,
       eventInterests,
       areaInterests,
-      accountType: isVenue ? "venue" : "person",
-      ownerName: isVenue ? ownerName : "",
-      venueName: isVenue ? draft.venueName : "",
-      venueAddress: isVenue ? draft.venueAddress : "",
-      venueWebsite: isVenue ? draft.website : "",
-      venueImageUrl: isVenue ? draft.venueImageUrl : "",
-      venueDescription: isVenue ? draft.venueDescription : ""
+      accountType: "person",
+      ownerName: "",
+      venueName: "",
+      venueAddress: "",
+      venueWebsite: "",
+      venueImageUrl: "",
+      venueDescription: ""
     };
     t.disabled = true;
     finalizeLokalProfile(onboardingProfile);
-    if (isVenue) registerLocalVenueProfile();
     let supabaseSynced = true;
     // Create the real Supabase auth account (email + password) so the user can log
     // back in and reset their password later. Failures don't block local entry.
@@ -617,23 +614,6 @@ document.addEventListener("click", async event => {
     }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
-    if (isVenue) {
-      try {
-        await submitVenueVerificationRequest({
-          venueName: draft.venueName,
-          venueAddress: draft.venueAddress,
-          website: draft.website,
-          venueImageUrl: draft.venueImageUrl,
-          venueDescription: draft.venueDescription,
-          eventInterests,
-          areaInterests,
-          role: "Venue owner or manager",
-          email: draft.email,
-          phone: draft.phone,
-          notes: "Submitted during venue onboarding."
-        });
-      } catch (error) { supabaseSynced = false; console.warn("[supabase] venue verification request failed", error); }
-    }
     localStorage.setItem("lokalAccountCreated", "true");
     // Mark that an account now exists on this device, so a later logout returns the
     // user to the login screen (not the first-run welcome letter).
@@ -646,9 +626,9 @@ document.addEventListener("click", async event => {
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     state.signupDraft = {};
-    isVenue ? renderProfile() : renderHome();
-    toast(supabaseSynced ? (isVenue ? "Venue profile created. Verification pending." : "Welcome to Lokal") : "Profile saved locally. Supabase sync needs attention.");
-    if (!isVenue) showDiscoverHint();
+    renderHome();
+    toast(supabaseSynced ? "Welcome to Lokal" : "Profile saved locally. Supabase sync needs attention.");
+    showDiscoverHint();
   }
   if (t.dataset.createAccount !== undefined) {
     mark();
@@ -695,7 +675,7 @@ document.addEventListener("click", async event => {
       await loginLokalUser({ identifier, password });
       document.querySelector(".onboarding")?.remove();
       state.onboardStep = 0;
-      setRoute(isVenueAccount() ? "profile" : "home");
+      setRoute("home");
       updateProfileShortcut();
       syncSupabaseEvents(); syncSupabaseProfiles(); syncSupabaseGroups();
       toast("Welcome back to Lokal");
@@ -948,8 +928,8 @@ const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalCredentials", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
   state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
-  state.signupDraft = startupAccountType === "venue" && !forceOnboarding ? { accountType: "venue" } : {};
-  state.onboardStep = startupAccountType === "venue" && !forceOnboarding ? 1 : 0;
+  state.signupDraft = {};
+  state.onboardStep = 0;
   state.verifiedVenues = new Set();
   state.verifiedVenueNames = [];
   state.pendingVenueRequests = [];

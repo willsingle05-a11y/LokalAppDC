@@ -99,22 +99,7 @@ function venueHostedSection() {
 }
 
 function venueInsightPanel() {
-  const hosted = hostedEventsForVenue();
-  const venueName = accountVenueName();
-  const categories = hosted.reduce((totals, event) => {
-    const label = discoverCategoryLabel(event.cat || "community");
-    totals[label] = (totals[label] || 0) + 1;
-    return totals;
-  }, {});
-  const categoryRows = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 4);
-  const topCount = Math.max(1, ...categoryRows.map(row => row[1]));
-  const localFollow = state.follows.has(`venue:${venueName}`) ? 1 : 0;
-  const followers = Math.max(localFollow, hosted.reduce((total, event) => total + (Array.isArray(event.friends) ? event.friends.length : 0), 0));
-  const upcoming = hosted.filter(event => !event.start || event.start >= Date.now() - 86400000).length;
-  return `<section class="section profile-insights"><div class="section-heading"><div><p class="eyebrow">Venue stats</p><h2>Hosting pulse</h2></div><span class="profile-pulse">Live</span></div>
-    <div class="insight-grid"><div class="insight-card"><b>${hosted.length}</b><small>Events hosted</small></div><div class="insight-card"><b>${upcoming}</b><small>Upcoming</small></div><div class="insight-card"><b>${followers}</b><small>Followers</small></div></div>
-    <div class="category-bars">${categoryRows.map(([label, count], index) => `<div class="category-bar" style="--level:${Math.max(18, Math.round((count / topCount) * 100))}%; --delay:${index * 80}ms"><span><b>${escapeHtml(label)}</b><small>${count} event${count === 1 ? "" : "s"}</small></span><i></i></div>`).join("") || `<p class="section-helper">Post events to build your venue dashboard.</p>`}</div>
-  </section>`;
+  return "";
 }
 
 function venueFocusSection() {
@@ -246,28 +231,7 @@ function profileHistorySection(isVenueProfile) {
 }
 
 function venueVerificationPanel() {
-  const pending = state.pendingVenueRequests || [];
-  const approvedNames = Array.isArray(state.verifiedVenueNames) ? state.verifiedVenueNames : [];
-  const venueName = accountVenueName();
-  const approvedName = approvedNames.find(name => venueImageKeyName(name) === venueImageKeyName(venueName)) || approvedNames[0] || "";
-  const hasApprovedVenue = Boolean(approvedName || (venueName && state.verifiedVenues?.has(venueImageKeyName(venueName))));
-  const pendingForVenue = pending.some(request => venueImageKeyName(request.venue_name || request.venueName) === venueImageKeyName(venueName || approvedName));
-  if (!hasApprovedVenue && state.venueVerificationDismissed) return "";
-  const status = hasApprovedVenue
-    ? "Venue approved"
-    : pendingForVenue || pending.length
-      ? "Request pending"
-      : venueName
-        ? "Approval needed"
-        : "No venue attached";
-  const displayName = approvedName || venueName;
-  const approvedRow = displayName ? `<div class="venue-owner-row"><span><b>${escapeHtml(displayName)}</b><small>${hasApprovedVenue ? "Approved to submit event posts" : "Verification required before posting"}</small></span><button class="venue-add-button small" data-post-venue-event="${escapeHtml(displayName)}" aria-label="${hasApprovedVenue ? "Post event" : "Request approval"} for ${escapeHtml(displayName)}">+</button></div>` : "";
-  return `<section class="section venue-owner-panel">
-    ${!hasApprovedVenue ? `<button class="venue-owner-dismiss" data-dismiss-venue-verification aria-label="Hide venue verification">&times;</button>` : ""}
-    <div class="section-heading"><div><p class="eyebrow">Venue tools</p><h2>For venue owners</h2></div><span class="profile-pulse">${escapeHtml(status)}</span></div>
-    <p class="section-helper">Venue onboarding creates your profile. Lokal approval is required before you can upload event posts.</p>
-    ${approvedRow ? `<div class="venue-owner-list">${approvedRow}</div>` : `<button class="wide-button" data-venue-verify>Request venue verification</button>`}
-  </section>`;
+  return "";
 }
 
 function renderProfile() {
@@ -547,21 +511,7 @@ function openSettings() {
 }
 
 function openVenueVerificationSheet() {
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet venue-form-sheet" role="dialog" aria-modal="true" aria-label="Request venue verification"><button class="modal-close" aria-label="Close venue verification">&times;</button>
-    <p class="eyebrow">Venue access</p><h2>Request verification</h2>
-    <p class="lede">Tell us which venue you manage. Lokal can review this on the owner side, then approve posting access for that venue page.</p>
-    <label class="settings-field">Venue name<input data-verify-venue-name placeholder="The Anthem"></label>
-    <label class="settings-field">Venue address<input data-verify-venue-address placeholder="901 Wharf St SW, Washington, DC"></label>
-    <label class="settings-field">Website<input data-verify-venue-website type="url" placeholder="https://..."></label>
-    <label class="settings-field">Venue image URL<input data-verify-venue-image type="url" placeholder="https://..."></label>
-    <label class="settings-field">Venue description<textarea data-verify-venue-description placeholder="What should locals know about the venue?"></textarea></label>
-    <label class="settings-field">Your role<input data-verify-role placeholder="Owner, GM, marketing manager"></label>
-    <label class="settings-field">Contact email<input data-verify-email type="email" value="${escapeHtml(state.profile.email || "")}" placeholder="you@venue.com"></label>
-    <label class="settings-field">Contact phone<input data-verify-phone value="${escapeHtml(formatDisplayPhone(state.profile.phone || ""))}" placeholder="(202) 555-0123"></label>
-    <label class="settings-field">Anything we should know<textarea data-verify-notes placeholder="Best way to confirm ownership, booking contact, social handles, etc."></textarea></label>
-    <p class="account-error" data-venue-verify-error></p>
-    <button class="wide-button" data-submit-venue-verification>Submit for review</button>
-  </section></div>`;
+  openSimpleSheet("Venue accounts unavailable", "Lokal is currently focused on personal accounts and event discovery.");
 }
 
 function openSimpleSheet(title, body, action = "") {
