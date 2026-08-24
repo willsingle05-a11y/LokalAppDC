@@ -210,7 +210,7 @@ function renderOnboarding() {
       <button class="wide-button" data-onboard-venue>Continue</button>`;
   } else if (step === 1) {
     inner = `<h1 class="onboard-title">First, what should we call you?</h1>
-      <p class="lede">So your friends know it's really you.</p>
+      <p class="lede"></p>
       <div class="onboard-fields">
         <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
@@ -220,7 +220,7 @@ function renderOnboarding() {
   } else if (step === 2) {
     const isVenueContact = d.accountType === "venue";
     inner = `<h1 class="onboard-title">${isVenueContact ? "Who manages this venue?" : "Let's set up your login."}</h1>
-      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." : "This is how you'll get back in and keep your plans in sync — even on a new phone."}</p>
+      <p class="lede">${isVenueContact ? "Add the owner or manager contact attached to this venue account." }</p>
       <div class="onboard-fields">
         ${isVenueContact ? `<label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>` : ""}
@@ -252,10 +252,9 @@ function renderOnboarding() {
     const interests = new Set((d.interests || []).filter(option => interestOptions.includes(option)));
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
-      <p class="lede">Pick a few — we'll tune your feed to match.</p>
+      <p class="lede"></p>
       ${onboardInterestTiles(interestOptions, interests)}
-      <p class="settings-label">Where do you work (optional)</p>
-      <p class="section-subnote">So we can also surface events close to your job, not just home.</p>
+      <p class="settings-label">What are some neighborhoods you like to explore)</p>
       <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
