@@ -16,7 +16,6 @@
       </svg>
     </g>
     <text class="label" x="85" y="135" text-anchor="middle">Happy hours</text>
-    <text class="sub" x="85" y="158" text-anchor="middle">COCKTAIL ONLY</text>
   </g>
   <g transform="translate(218 24)">
     <rect class="card" width="170" height="180" rx="20"/>
@@ -30,7 +29,6 @@
       </svg>
     </g>
     <text class="label" x="85" y="135" text-anchor="middle">Nightlife</text>
-    <text class="sub" x="85" y="158" text-anchor="middle">DISCO BALL ONLY</text>
   </g>
   <g transform="translate(408 24)">
     <rect class="card" width="170" height="180" rx="20"/>
@@ -42,7 +40,6 @@
       </svg>
     </g>
     <text class="label" x="85" y="135" text-anchor="middle">Concerts</text>
-    <text class="sub" x="85" y="158" text-anchor="middle">TICKET ONLY</text>
   </g>
   <g transform="translate(598 24)">
     <rect class="card" width="170" height="180" rx="20"/>
@@ -55,7 +52,6 @@
       </svg>
     </g>
     <text class="label" x="85" y="135" text-anchor="middle">Free events</text>
-    <text class="sub" x="85" y="158" text-anchor="middle">NO DOLLAR</text>
   </g>
   <g transform="translate(788 24)">
     <rect class="card" width="170" height="180" rx="20"/>
@@ -75,6 +71,5 @@
       </svg>
     </g>
     <text class="label" x="85" y="135" text-anchor="middle">Sports</text>
-    <text class="sub" x="85" y="158" text-anchor="middle">BALL CLUSTER</text>
   </g>
 </svg>
