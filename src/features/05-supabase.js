@@ -1059,6 +1059,8 @@ function normalizeSupabaseEvent(row, index) {
   row = normalizeSupabaseEventCorrections(row);
   const category = normalizeImportedCategory(row);
   const tags = normalizeSupabaseTags(row, category);
+  const eventImage = rawEventApiImage(row);
+  const venueImage = venueImageForRow(row);
   return {
     id: 1000 + index,
     sourceId: row.id,
@@ -1078,7 +1080,9 @@ function normalizeSupabaseEvent(row, index) {
     cat: category,
     tag: tags[0] || row.tag || row.category || "Local event",
     tags,
-    image: rawEventApiImage(row) || venueImageForRow(row),
+    image: eventImage || venueImage,
+    imageFit: eventImage ? "" : venueImage ? "contain" : "",
+    imageKind: eventImage ? "" : venueImage ? "venue" : "",
     friends: Array.isArray(row.friends) ? row.friends : [],
     desc: normalizeSupabaseDescription(row)
   };

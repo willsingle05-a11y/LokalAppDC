@@ -294,7 +294,7 @@ function eventArtScene(event) {
 }
 
 function eventArtImage(event) {
-  if (eventHasUsablePhoto(event)) return `url('${String(event.image).replace(/'/g, "%27")}')`;
+  if (eventHasDisplayImage(event)) return `url('${String(event.image).replace(/'/g, "%27")}')`;
   // No photo — Bo stands in, posed to match the kind of event.
   if (typeof boEventImage === "function") return `url("${boEventImage(event)}")`;
   return genericEventArt(event);
@@ -303,7 +303,7 @@ function eventArtImage(event) {
 // Bare image URL/data-URI for use in an <img> (so cards size to the image's
 // natural aspect ratio). Falls back to the generated SVG art.
 function eventCardImageSrc(event) {
-  if (eventHasUsablePhoto(event)) return String(event.image);
+  if (eventHasDisplayImage(event)) return String(event.image);
   return eventFallbackImageSrc(event);
 }
 
@@ -336,8 +336,18 @@ function eventImageLooksLogoLike(imageUrl) {
     || /\btr=w-(?:\d{1,2}|1\d\d)\b/.test(path);
 }
 
+function eventHasDisplayImage(event) {
+  const image = String(event?.image || "").trim();
+  return Boolean(image) && /^(https?:|data:image\/)/i.test(image);
+}
+
+function eventImageShouldContain(event) {
+  return eventHasDisplayImage(event)
+    && (event.imageFit === "contain" || event.imageKind === "logo" || eventImageLooksLogoLike(event.image));
+}
+
 function eventHasUsablePhoto(event) {
-  return Boolean(event?.image) && !eventImageLooksLogoLike(event.image);
+  return eventHasDisplayImage(event) && !eventImageShouldContain(event);
 }
 
 function seededPerformingArtsFallbackTags(seedText) {
@@ -1011,10 +1021,13 @@ function eventRow(event, variant = "", opts = {}) {
   // category pill on the artwork carries the only label worth showing here.
   const fallbackImage = eventFallbackImageSrc(event);
   const imageSrc = eventCardImageSrc(event);
-  const fallbackStyle = eventImageFallbackStyle(fallbackImage);
-  return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+  const hasDisplayImage = eventHasDisplayImage(event);
+  const containImage = eventImageShouldContain(event);
+  const imageClass = `event-card-img${hasDisplayImage ? "" : " is-fallback-image"}${containImage ? " is-logo-image" : ""}`;
+  const fallbackStyle = hasDisplayImage ? "" : eventImageFallbackStyle(fallbackImage);
+  return `<article class="event-card${variant ? " event-card-" + variant : ""}${hasDisplayImage ? " has-image" : ""}${containImage ? " has-logo-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}" style="${escapeHtml(fallbackStyle)}">
-      <img class="event-card-img" src="${escapeHtml(imageSrc)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" onload="if(!this.classList.contains('is-fallback-image')&&(this.naturalWidth<24||this.naturalHeight<24)){this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');}" alt="" loading="lazy">
+      <img class="${imageClass}" src="${escapeHtml(imageSrc)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image');this.classList.add('is-fallback-image');this.closest('.event-card')?.classList.remove('has-logo-image');this.closest('.event-card-media')?.style.setProperty('background-image','url('+this.dataset.fallbackSrc+')');" onload="if(!this.classList.contains('is-fallback-image')&&(this.naturalWidth<24||this.naturalHeight<24)){this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image');this.classList.add('is-fallback-image');this.closest('.event-card')?.classList.remove('has-logo-image');this.closest('.event-card-media')?.style.setProperty('background-image','url('+this.dataset.fallbackSrc+')');}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
       <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>
@@ -1037,7 +1050,7 @@ function eventRow(event, variant = "", opts = {}) {
 
 function eventThumbStyle(event) {
   const image = eventArtImage(event);
-  return eventHasUsablePhoto(event) ? cleanEventThumbStyle(image) : `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${image};`;
+  return eventHasDisplayImage(event) ? cleanEventThumbStyle(image) : `background-image: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.32)), ${image};`;
 }
 
 // Compact horizontal list row used below the hero in the hero-then-list feeds.

@@ -78,13 +78,14 @@ function openDetail(id, opts = {}) {
         : "";
   const displayTitle = eventDisplayTitle(e);
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
-  const hasUsableHeroPhoto = eventHasUsablePhoto(e);
+  const hasDisplayHeroImage = eventHasDisplayImage(e);
+  const containHeroImage = eventImageShouldContain(e);
   const fallbackHeroImage = eventFallbackImageSrc(e);
-  const heroImageSrc = hasUsableHeroPhoto ? eventCardImageSrc(e) : fallbackHeroImage;
+  const heroImageSrc = hasDisplayHeroImage ? eventCardImageSrc(e) : fallbackHeroImage;
   // A blurred copy of the artwork fills the frame behind the image, so photos
   // read edge-to-edge while venue logos still show whole instead of cropping.
-  const heroStyle = `background-color: #f7fafc;${heroImageSrcBackdrop(hasUsableHeroPhoto ? eventCardImageSrc(e) : fallbackHeroImage)}`;
-  const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasUsableHeroPhoto ? "" : " is-fallback-image"}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
+  const heroStyle = `background-color: #f7fafc;${containHeroImage ? "" : heroImageSrcBackdrop(hasDisplayHeroImage ? eventCardImageSrc(e) : fallbackHeroImage)}`;
+  const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasDisplayHeroImage ? "" : " is-fallback-image"}${containHeroImage ? " is-logo-image" : ""}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image');this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
   // Price lives in the Date and time card now, so it is not repeated here.
   const detailDescription = String(e.desc || "");
