@@ -4207,7 +4207,7 @@ h3 { font-weight: 800; }
 }
 .add-friends-invite {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 10px;
   align-items: center;
   margin: 0 0 14px;
@@ -4259,6 +4259,27 @@ h3 { font-weight: 800; }
   padding: 11px 14px;
   border-radius: 999px;
   font-size: 11px;
+}
+.send-invite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 39px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #171C1A;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.send-invite-button svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.4;
 }
 .add-friends-sheet .friend-search-columns {
   grid-template-columns: 1fr;
@@ -4362,7 +4383,8 @@ h3 { font-weight: 800; }
   .add-friends-invite {
     grid-template-columns: 1fr;
   }
-  .add-friends-invite .wide-button {
+  .add-friends-invite .wide-button,
+  .send-invite-button {
     width: 100%;
   }
   .add-friends-sheet .friend-search-columns {
@@ -14437,6 +14459,7 @@ document.addEventListener("click", async event => {
       <div class="add-friends-invite">
         <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
+        <button class="send-invite-button" data-send-app-invite aria-label="Send invite link">${cardShareIcon}<span>Send</span></button>
       </div>
       <label class="search-box social-search add-friends-search"><span>&#8981;</span><input data-add-friends-search placeholder="Search old friends or find new ones" aria-label="Search old friends or find new ones"></label>
       <div class="follow-list add-friends-results" data-add-friends-results>${peopleResults || `<p class="section-helper">No friend suggestions right now.</p>`}</div>
@@ -14454,6 +14477,21 @@ document.addEventListener("click", async event => {
       toast("Invite link copied");
     } catch {
       toast("Could not copy the invite link");
+    }
+  }
+  if (t.dataset.sendAppInvite !== undefined) {
+    mark();
+    const invite = { ...appInviteDetails(), channel: navigator.share ? "native-share" : "copy-fallback" };
+    const text = `Join me on Lokal: ${invite.url}`;
+    try {
+      if (navigator.share) await navigator.share({ title: "Join me on Lokal", text, url: invite.url });
+      else await copyText(text);
+      state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
+      localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
+      submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
+      toast(navigator.share ? "Share sheet opened" : "Invite copied");
+    } catch {
+      toast(navigator.share ? "Share canceled" : "Could not copy the invite");
     }
   }
   if (t.dataset.restart !== undefined) { replayWelcomeLetter(); }

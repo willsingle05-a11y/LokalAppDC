@@ -242,6 +242,7 @@ document.addEventListener("click", async event => {
       <div class="add-friends-invite">
         <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
+        <button class="send-invite-button" data-send-app-invite aria-label="Send invite link">${cardShareIcon}<span>Send</span></button>
       </div>
       <label class="search-box social-search add-friends-search"><span>&#8981;</span><input data-add-friends-search placeholder="Search old friends or find new ones" aria-label="Search old friends or find new ones"></label>
       <div class="follow-list add-friends-results" data-add-friends-results>${peopleResults || `<p class="section-helper">No friend suggestions right now.</p>`}</div>
@@ -259,6 +260,21 @@ document.addEventListener("click", async event => {
       toast("Invite link copied");
     } catch {
       toast("Could not copy the invite link");
+    }
+  }
+  if (t.dataset.sendAppInvite !== undefined) {
+    mark();
+    const invite = { ...appInviteDetails(), channel: navigator.share ? "native-share" : "copy-fallback" };
+    const text = `Join me on Lokal: ${invite.url}`;
+    try {
+      if (navigator.share) await navigator.share({ title: "Join me on Lokal", text, url: invite.url });
+      else await copyText(text);
+      state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
+      localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
+      submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
+      toast(navigator.share ? "Share sheet opened" : "Invite copied");
+    } catch {
+      toast(navigator.share ? "Share canceled" : "Could not copy the invite");
     }
   }
   if (t.dataset.restart !== undefined) { replayWelcomeLetter(); }

@@ -2201,7 +2201,7 @@ h3 { font-weight: 800; }
 }
 .add-friends-invite {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 10px;
   align-items: center;
   margin: 0 0 14px;
@@ -2253,6 +2253,27 @@ h3 { font-weight: 800; }
   padding: 11px 14px;
   border-radius: 999px;
   font-size: 11px;
+}
+.send-invite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 39px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #171C1A;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.send-invite-button svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.4;
 }
 .add-friends-sheet .friend-search-columns {
   grid-template-columns: 1fr;
@@ -2356,7 +2377,8 @@ h3 { font-weight: 800; }
   .add-friends-invite {
     grid-template-columns: 1fr;
   }
-  .add-friends-invite .wide-button {
+  .add-friends-invite .wide-button,
+  .send-invite-button {
     width: 100%;
   }
   .add-friends-sheet .friend-search-columns {
