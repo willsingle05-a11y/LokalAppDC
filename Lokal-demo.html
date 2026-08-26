@@ -6875,7 +6875,7 @@ function appInviteDetails() {
   return {
     code,
     url: url.toString(),
-    displayUrl: `LokalAppDC/#/${code}.invite`,
+    displayUrl: `https://LokalAppDC/#/${code}.invite`,
     inviterUserKey: typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "",
     inviterName: state.profile?.fullName || "",
     inviterUsername: state.profile?.username || ""
