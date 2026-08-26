@@ -2278,6 +2278,16 @@ h3 { font-weight: 800; }
 .add-friends-sheet .social-search input {
   font-size: 12px;
 }
+.add-friends-search {
+  margin: 0 0 10px;
+}
+.add-friends-results {
+  display: grid;
+  gap: 8px;
+  max-height: min(42dvh, 360px);
+  overflow-y: auto;
+  padding-right: 2px;
+}
 .add-friends-sheet .friend-search-column .follow-list {
   display: grid;
   gap: 7px;
