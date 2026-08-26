@@ -44,10 +44,6 @@ function recurringTimeWindowLabel(event) {
 
 // Single quotes inside the url() on purpose — this string lands in a double-
 // quoted style="" attribute, and a double quote here would close it early.
-function heroImageSrcBackdrop(src) {
-  return src ? `--detail-hero-backdrop: url('${String(src).replace(/['"\\]/g, encodeURIComponent)}');` : "";
-}
-
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
   if (!e) return;
@@ -83,9 +79,7 @@ function openDetail(id, opts = {}) {
   const logoHeroImage = eventImageShouldPadAsLogo(e) || knockoutHeroImage;
   const fallbackHeroImage = eventFallbackImageSrc(e);
   const heroImageSrc = hasDisplayHeroImage ? eventCardImageSrc(e) : fallbackHeroImage;
-  // A blurred copy of the artwork fills the frame behind the image, so photos
-  // read edge-to-edge while venue logos still show whole instead of cropping.
-  const heroStyle = `background-color: #f7fafc;${logoHeroImage ? "" : heroImageSrcBackdrop(hasDisplayHeroImage ? eventCardImageSrc(e) : fallbackHeroImage)}`;
+  const heroStyle = "background-color: #f7fafc;";
   const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasDisplayHeroImage ? "" : " is-fallback-image"}${logoHeroImage ? " is-logo-image" : ""}${knockoutHeroImage ? " is-knockout-image" : ""}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image','is-knockout-image');this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
   // Price lives in the Date and time card now, so it is not repeated here.

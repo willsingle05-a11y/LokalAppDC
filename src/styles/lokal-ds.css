@@ -1850,21 +1850,10 @@ body[data-route="profile"] .topbar {
 
 #modal-root .event-detail-sheet .detail-hero { position: relative; min-height: 0; height: 216px; padding: 0; overflow: hidden; }
 #modal-root .event-detail-sheet .detail-hero.has-image { min-height: 0; height: 216px; }
-/* Blurred, scaled copy of the same artwork fills the frame; the sharp image on
-   top stays contained so venue logos are never cropped. */
 .event-detail-sheet .detail-hero.has-image::after {
-  content: "";
-  display: block;
-  position: absolute;
-  inset: -24px;
-  z-index: 0;
-  background-image: var(--detail-hero-backdrop);
-  background-position: center;
-  background-size: cover;
-  filter: blur(22px) saturate(1.15) brightness(.9);
-  transform: scale(1.08);
+  content: none;
 }
-.event-detail-sheet .detail-hero-img { z-index: 1; object-fit: contain; background: transparent; }
+.event-detail-sheet .detail-hero-img { z-index: 1; object-fit: contain; background: #f7fafc; }
 
 #modal-root .event-detail-sheet .detail-body {
   display: grid;
