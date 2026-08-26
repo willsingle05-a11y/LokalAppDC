@@ -1854,6 +1854,10 @@ body[data-route="profile"] .topbar {
   content: none;
 }
 .event-detail-sheet .detail-hero-img { z-index: 1; object-fit: contain; background: #f7fafc; }
+.event-detail-sheet .detail-hero.has-knockout-image,
+.event-detail-sheet .detail-hero-img.is-knockout-image {
+  background: #111715;
+}
 
 #modal-root .event-detail-sheet .detail-body {
   display: grid;
