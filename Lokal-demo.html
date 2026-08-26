@@ -9300,6 +9300,7 @@ async function syncSupabaseVenueImages() {
 }
 
 function normalizeSupabaseEvent(row, index) {
+  row = normalizeSupabaseEventCorrections(row);
   const category = normalizeImportedCategory(row);
   const tags = normalizeSupabaseTags(row, category);
   return {
@@ -9324,6 +9325,36 @@ function normalizeSupabaseEvent(row, index) {
     image: rawEventApiImage(row) || venueImageForRow(row),
     friends: Array.isArray(row.friends) ? row.friends : [],
     desc: normalizeSupabaseDescription(row)
+  };
+}
+
+function normalizeSupabaseEventCorrections(row) {
+  const title = String(row?.title || "").toLowerCase();
+  const venue = String(row?.venue_name || row?.venue || "").toLowerCase();
+  const externalId = String(row?.external_id || "");
+  const isGeorgetownLafayetteFootball =
+    externalId === "ticketmaster_Z7r9jZ1A7-OAU"
+    || (
+      String(row?.source || "").toLowerCase() === "ticketmaster"
+      && title.includes("georgetown hoyas football")
+      && title.includes("lafayette")
+      && venue.includes("cooper field")
+    );
+  if (!isGeorgetownLafayetteFootball) return row;
+  return {
+    ...row,
+    date: "2026-08-27",
+    time: "7:00 PM",
+    starts_at: "2026-08-27T19:00:00-04:00",
+    ends_at: row.ends_at || "2026-08-27T22:00:00-04:00",
+    ticket_url: "https://am.ticketmaster.com/guhoyas/buy/footballtickets",
+    external_url: "https://guhoyas.com/sports/football/schedule",
+    url: "https://guhoyas.com/sports/football/schedule",
+    neighborhood: row.neighborhood || "Georgetown",
+    venue_address: row.venue_address || "Cooper Field, 1401 West Road NW, Washington, DC 20057",
+    price: row.price || "$33+",
+    price_min: row.price_min || 33,
+    is_free: false
   };
 }
 
