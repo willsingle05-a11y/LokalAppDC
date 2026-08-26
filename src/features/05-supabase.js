@@ -191,6 +191,22 @@ async function saveEventInteraction(eventId, kind = "save", active = true) {
     category: event?.cat || "",
     tags: event?.tags || []
   };
+  if (typeof recordAppAction === "function") {
+    const actionName = dbType === "going"
+      ? (active ? "event_rsvped" : "event_rsvp_removed")
+      : dbType === "unsave" || !active
+        ? "event_unsaved"
+        : "event_saved";
+    recordAppAction(actionName, {
+      eventId: event?.id || "",
+      supabaseEventId,
+      title: event?.title || "",
+      category: event?.cat || "",
+      venue: event?.venue || "",
+      neighborhood: event?.neighborhood || "",
+      active
+    });
+  }
   try {
     const existing = await existingEventInteraction(record.user_id, record.event_id);
     if (active && !existing) {
@@ -268,6 +284,11 @@ async function submitOnboardingProfile(profile) {
     body: JSON.stringify([record])
   });
   if (!response.ok) throw new Error(`Onboarding submission returned ${response.status}`);
+  if (typeof recordAppAction === "function") recordAppAction("onboarding_submitted", {
+    accountType: record.account_type,
+    eventInterestCount: record.event_interests.length,
+    areaInterestCount: record.area_interests.length
+  });
   return record;
 }
 
@@ -326,6 +347,7 @@ function recordAppAction(actionType, payload = {}) {
     account_type: state.profile?.accountType || "person",
     payload
   };
+  if (typeof trackAppEvent === "function") trackAppEvent(actionType, record);
   fetch(`${supabaseConfig.url}/rest/v1/app_action_events`, {
     method: "POST",
     headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
@@ -1506,6 +1528,17 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
   if (data.access_token) {
     persistSupabaseSession(data.access_token);
     await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+    if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+      email,
+      username,
+      full_name: fullName,
+      account_type: accountType
+    });
+    if (typeof recordAppAction === "function") recordAppAction("signup_completed", {
+      accountType,
+      eventInterestCount: eventInterests.length,
+      areaInterestCount: areaInterests.length
+    });
     return data;
   }
   // Supabase returns no session when the project requires email confirmation.
@@ -1518,6 +1551,17 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
     if (session.access_token) {
       persistSupabaseSession(session.access_token);
       await syncSupabaseSignupProfile(session.access_token, state.pendingSignupProfile);
+      if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+        email,
+        username,
+        full_name: fullName,
+        account_type: accountType
+      });
+      if (typeof recordAppAction === "function") recordAppAction("signup_completed", {
+        accountType,
+        eventInterestCount: eventInterests.length,
+        areaInterestCount: areaInterests.length
+      });
     }
   } catch (sessionError) {
     console.warn("[supabase] signup did not return a session", sessionError);
@@ -1708,6 +1752,11 @@ async function loginLokalUser({ identifier, password }) {
   // is pending or the network is flaky.
   if (await localCredentialMatch(value, password)) {
     restoreLocalSession(value);
+    if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+      account_type: state.profile?.accountType || "person",
+      full_name: state.profile?.fullName || ""
+    });
+    if (typeof recordAppAction === "function") recordAppAction("login_completed", { method: "local" });
     return { local: true };
   }
   // Otherwise (new device, or credentials not stored here) authenticate against Supabase.
@@ -1720,6 +1769,12 @@ async function loginLokalUser({ identifier, password }) {
   localStorage.setItem("lokalAccountCreated", "true");
   localStorage.setItem("lokalHasAccount", "true");
   localStorage.setItem("lokalLastIdentifier", value);
+  if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+    account_type: state.profile?.accountType || "person",
+    full_name: state.profile?.fullName || "",
+    email: state.profile?.email || ""
+  });
+  if (typeof recordAppAction === "function") recordAppAction("login_completed", { method: "supabase" });
   return data;
 }
 

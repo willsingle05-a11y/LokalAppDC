@@ -39,6 +39,11 @@ function queueDiscoverSearch(input) {
       if (results) { results.hidden = true; results.innerHTML = ""; }
       const feed = document.querySelector(".feed-section");
       const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
+      if (query && typeof recordAppAction === "function") recordAppAction("search_performed", {
+        query,
+        eventResultCount: visible,
+        venueResultCount: venueMatches
+      });
       if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
       if (!query) {
         const nextInput = document.querySelector("[data-discover-search]");
@@ -83,6 +88,14 @@ document.addEventListener("click", async event => {
       eventId: t.dataset.eventId || "",
       groupName: t.dataset.groupName || "",
       friendName: t.dataset.friendName || ""
+    });
+  }
+  const filterActionKeys = ["homeFilter", "openFilter", "toggleWhat", "toggleWhere", "toggleWhen", "applyWhen", "clearAllFilters", "discoverCategory", "categoryGenre", "feedMode", "neighborhood", "daytime", "applyDate", "clearDate", "applyTime", "clearTime", "applyFilters"];
+  const filterKey = filterActionKeys.find(key => t.dataset[key] !== undefined);
+  if (filterKey && typeof recordAppAction === "function") {
+    recordAppAction(`ui_${filterKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
+      value: t.dataset[filterKey] || "",
+      route: state.route || ""
     });
   }
   // Slide direction follows the tab bar: moving left plays the reverse slide.
@@ -221,7 +234,30 @@ document.addEventListener("click", async event => {
       .slice(0, 10)
       .map(friend => friendCard(friend, "add"))
       .join("");
-    openSimpleSheet("Add friends", "Share your Lokal invite link, search your current friends, or find new people to add.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><div class="friend-search-columns"><section class="friend-search-column"><p class="eyebrow group-divider">Search your friends</p><label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Search friends you already have" aria-label="Search friends you already have"></label><div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div><p class="search-empty" data-existing-friend-empty>No current friends match that search.</p></section><section class="friend-search-column"><p class="eyebrow group-divider">Find new friends</p><label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="Search people to add" aria-label="Search people to add"></label><div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-new-friend-empty>No new people match that search.</p></section></div>`);
+    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet add-friends-sheet" role="dialog" aria-modal="true" aria-label="Add friends"><button class="modal-close" aria-label="Close add friends">&times;</button>
+      <p class="eyebrow">Lokal</p>
+      <h2>Add friends</h2>
+      <p class="lede">Share your invite, search people you know, or add someone new.</p>
+      <div class="add-friends-invite">
+        <span class="add-friends-badge">Invite</span>
+        <div class="add-friends-url"><small>App invite URL</small><b>https://lokal.app/join</b></div>
+        <button class="wide-button" data-copy-app-invite>Copy invite link</button>
+      </div>
+      <div class="friend-search-columns">
+        <section class="friend-search-column">
+          <p class="eyebrow group-divider">Search your friends</p>
+          <label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Friends you already have" aria-label="Search friends you already have"></label>
+          <div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div>
+          <p class="search-empty" data-existing-friend-empty>No current friends match that search.</p>
+        </section>
+        <section class="friend-search-column">
+          <p class="eyebrow group-divider">Find new friends</p>
+          <label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="People to add" aria-label="Search people to add"></label>
+          <div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div>
+          <p class="search-empty" data-new-friend-empty>No new people match that search.</p>
+        </section>
+      </div>
+    </section></div>`;
   }
   if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1; localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent)); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
   if (t.dataset.restart !== undefined) { replayWelcomeLetter(); }

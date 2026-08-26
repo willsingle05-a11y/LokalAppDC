@@ -2021,13 +2021,26 @@ h3 { font-weight: 800; }
 
 .event-card-media {
   position: relative;
-  height: auto;
-  min-height: 0;
+  aspect-ratio: 1 / .92;
+  min-height: 138px;
   border-radius: 16px;
   overflow: hidden;
   background-color: #eef1ef;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
-.event-card-media .event-card-img { display: block; width: 100%; height: auto; }
+.event-card-media .event-card-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: transparent;
+}
+.event-card-media .event-card-img.is-fallback-image {
+  object-fit: contain;
+  padding: 8px;
+}
 .event-card-media .event-card-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
 
 /* Glassy overlay pills (category top-left, social proof top-right) */
@@ -2149,6 +2162,139 @@ h3 { font-weight: 800; }
 .event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; overflow: hidden; }
 
 .event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
+
+.add-friends-sheet {
+  max-height: min(86dvh, 720px);
+  padding-bottom: max(22px, env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+.add-friends-sheet h2 {
+  margin-bottom: 5px;
+  font-size: 34px;
+  line-height: .92;
+}
+.add-friends-sheet .lede {
+  margin: 0 44px 14px 0;
+  color: #5d645f;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.add-friends-invite {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid rgba(23, 28, 26, .1);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 95% 10%, rgba(0, 201, 167, .18), transparent 42%),
+    #fff;
+  box-shadow: 0 8px 20px rgba(23, 28, 26, .06);
+}
+.add-friends-badge {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #0E7C66;
+  background: rgba(0, 201, 167, .12);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.add-friends-url {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.add-friends-url small {
+  color: #8b918b;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.add-friends-url b {
+  overflow: hidden;
+  color: #171C1A;
+  font-size: 16px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.add-friends-invite .wide-button {
+  width: auto;
+  min-width: 150px;
+  padding: 11px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+.add-friends-sheet .friend-search-columns {
+  gap: 10px;
+  margin-top: 8px;
+}
+.add-friends-sheet .friend-search-column {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.add-friends-sheet .friend-search-column .group-divider {
+  margin: 0;
+}
+.add-friends-sheet .social-search {
+  padding: 9px 11px;
+  border-radius: 14px;
+}
+.add-friends-sheet .social-search input {
+  font-size: 12px;
+}
+.add-friends-sheet .friend-search-column .follow-list {
+  display: grid;
+  gap: 7px;
+  max-height: 230px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.add-friends-sheet .friend-directory-card {
+  min-height: 0;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(23, 28, 26, .04);
+}
+.add-friends-sheet .friend-card-main {
+  gap: 9px;
+  padding: 9px;
+}
+.add-friends-sheet .friend-card-main .avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  font-size: 10px;
+}
+.add-friends-sheet .friend-card-main b {
+  font-size: 15px;
+  line-height: 1.05;
+}
+.add-friends-sheet .friend-card-main small,
+.add-friends-sheet .friend-card-main em {
+  font-size: 11px;
+}
+
+@media (max-width: 520px) {
+  .add-friends-invite {
+    grid-template-columns: 1fr;
+  }
+  .add-friends-invite .wide-button {
+    width: 100%;
+  }
+  .add-friends-sheet .friend-search-column .follow-list {
+    max-height: 185px;
+  }
+}
 
 .top-week-section {
   position: relative;

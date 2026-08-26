@@ -501,7 +501,7 @@ function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it wil
     <div class="cal-weekdays" aria-hidden="true">${weekdays.map(day => `<span>${day}</span>`).join("")}</div>
     <div class="cal-grid">${grid}</div>
     ${upcoming.length ? `<div class="planner-next">${upcoming.map(event => `<button class="top-ten-row" data-event="${event.id}">
-      <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
+      <span class="tt-thumb"><img src="${escapeHtml(eventCardImageSrc(event))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(event))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy"></span>
       <span class="tt-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
     </button>`).join("")}</div>` : ""}
   </div>`;

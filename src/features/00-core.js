@@ -314,6 +314,14 @@ function eventFallbackImageSrc(event) {
   return match ? match[1] : art;
 }
 
+function eventImageFallbackStyle(imageUrl) {
+  const safeUrl = String(imageUrl || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, "%22")
+    .replace(/\n/g, "");
+  return safeUrl ? `background-image: url("${safeUrl}");` : "";
+}
+
 function eventImageLooksLogoLike(imageUrl) {
   const value = String(imageUrl || "").trim();
   if (!value) return false;
@@ -1002,9 +1010,11 @@ function eventRow(event, variant = "", opts = {}) {
   // "Late Set", "Interactive") rather than anything true about the event. The
   // category pill on the artwork carries the only label worth showing here.
   const fallbackImage = eventFallbackImageSrc(event);
+  const imageSrc = eventCardImageSrc(event);
+  const fallbackStyle = eventImageFallbackStyle(fallbackImage);
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <div class="event-card-media cat-${eventVisualCategory(event)}">
-      <img class="event-card-img" src="${eventCardImageSrc(event)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">
+    <div class="event-card-media cat-${eventVisualCategory(event)}" style="${escapeHtml(fallbackStyle)}">
+      <img class="event-card-img" src="${escapeHtml(imageSrc)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" onload="if(!this.classList.contains('is-fallback-image')&&(this.naturalWidth<24||this.naturalHeight<24)){this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
       <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>

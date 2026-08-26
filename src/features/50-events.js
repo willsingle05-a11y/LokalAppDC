@@ -51,6 +51,16 @@ function heroImageSrcBackdrop(src) {
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
   if (!e) return;
+  if (typeof recordAppAction === "function") recordAppAction("event_viewed", {
+    eventId: e.id,
+    supabaseEventId: e.sourceId || "",
+    title: e.title || "",
+    category: e.cat || "",
+    venue: e.venue || "",
+    neighborhood: e.neighborhood || "",
+    source: e.source || "",
+    context: opts.backToTopWeek ? "top_week" : "event_detail"
+  });
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const recurrence = eventRecurrence(e);
   // Three levels, most informative first: compact repeat cadence, then the text
@@ -155,7 +165,7 @@ function openGoingConfirmation(id) {
     <h2>You're going</h2>
     <p class="lede">It's in Your Plans. We'll nudge you an hour before doors.</p>
     <div class="going-card">
-      <span class="gc-thumb"><img src="${eventCardImageSrc(e)}" alt="" loading="lazy"></span>
+      <span class="gc-thumb"><img src="${escapeHtml(eventCardImageSrc(e))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(e))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy"></span>
       <span><b>${escapeHtml(eventDisplayTitle(e))}</b><small>${escapeHtml(eventMetaLine(e))}</small></span>
     </div>
     <div class="going-actions">

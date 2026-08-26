@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f5f7fa" />
     <title>Lokal DC</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -447,6 +447,9 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 .settings-sheet { padding: 21px 18px 25px; }
 .settings-sheet h2 { margin-bottom: 12px; font-size: 31px; }
 .settings-avatar { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+.settings-avatar-id { display: grid; gap: 2px; }
+.settings-avatar-id b { font-size: 16px; }
+.settings-avatar-id span { color: var(--muted); font-size: 12px; }
 .settings-field { display: grid; gap: 5px; margin-top: 9px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
 .settings-field input, .account-fields input { padding: 11px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: var(--paper); font: inherit; font-size: 12px; }
 .settings-label { margin: 20px 0 0; color: var(--steel); font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
@@ -1266,11 +1269,11 @@ h1, h2, h3, .brand b { color: #326f91; }
   align-items: center;
   justify-content: space-between;
   gap: 13px;
-  margin: 14px 0 2px;
+  margin-top: 8px;
   padding: 12px;
-  border: 1px solid rgba(58, 124, 165, .16);
-  border-radius: 13px;
-  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--paper);
 }
 .privacy-toggle span { display: grid; gap: 3px; }
 .privacy-toggle b { font-size: 12px; }
@@ -4024,13 +4027,26 @@ h3 { font-weight: 800; }
 
 .event-card-media {
   position: relative;
-  height: auto;
-  min-height: 0;
+  aspect-ratio: 1 / .92;
+  min-height: 138px;
   border-radius: 16px;
   overflow: hidden;
   background-color: #eef1ef;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
-.event-card-media .event-card-img { display: block; width: 100%; height: auto; }
+.event-card-media .event-card-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: transparent;
+}
+.event-card-media .event-card-img.is-fallback-image {
+  object-fit: contain;
+  padding: 8px;
+}
 .event-card-media .event-card-hit { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; background: transparent; }
 
 /* Glassy overlay pills (category top-left, social proof top-right) */
@@ -4152,6 +4168,139 @@ h3 { font-weight: 800; }
 .event-card-bottom2 .event-card-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; overflow: hidden; }
 
 .event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
+
+.add-friends-sheet {
+  max-height: min(86dvh, 720px);
+  padding-bottom: max(22px, env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+.add-friends-sheet h2 {
+  margin-bottom: 5px;
+  font-size: 34px;
+  line-height: .92;
+}
+.add-friends-sheet .lede {
+  margin: 0 44px 14px 0;
+  color: #5d645f;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.add-friends-invite {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid rgba(23, 28, 26, .1);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 95% 10%, rgba(0, 201, 167, .18), transparent 42%),
+    #fff;
+  box-shadow: 0 8px 20px rgba(23, 28, 26, .06);
+}
+.add-friends-badge {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #0E7C66;
+  background: rgba(0, 201, 167, .12);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.add-friends-url {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.add-friends-url small {
+  color: #8b918b;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.add-friends-url b {
+  overflow: hidden;
+  color: #171C1A;
+  font-size: 16px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.add-friends-invite .wide-button {
+  width: auto;
+  min-width: 150px;
+  padding: 11px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+.add-friends-sheet .friend-search-columns {
+  gap: 10px;
+  margin-top: 8px;
+}
+.add-friends-sheet .friend-search-column {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.add-friends-sheet .friend-search-column .group-divider {
+  margin: 0;
+}
+.add-friends-sheet .social-search {
+  padding: 9px 11px;
+  border-radius: 14px;
+}
+.add-friends-sheet .social-search input {
+  font-size: 12px;
+}
+.add-friends-sheet .friend-search-column .follow-list {
+  display: grid;
+  gap: 7px;
+  max-height: 230px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.add-friends-sheet .friend-directory-card {
+  min-height: 0;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(23, 28, 26, .04);
+}
+.add-friends-sheet .friend-card-main {
+  gap: 9px;
+  padding: 9px;
+}
+.add-friends-sheet .friend-card-main .avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  font-size: 10px;
+}
+.add-friends-sheet .friend-card-main b {
+  font-size: 15px;
+  line-height: 1.05;
+}
+.add-friends-sheet .friend-card-main small,
+.add-friends-sheet .friend-card-main em {
+  font-size: 11px;
+}
+
+@media (max-width: 520px) {
+  .add-friends-invite {
+    grid-template-columns: 1fr;
+  }
+  .add-friends-invite .wide-button {
+    width: 100%;
+  }
+  .add-friends-sheet .friend-search-column .follow-list {
+    max-height: 185px;
+  }
+}
 
 .top-week-section {
   position: relative;
@@ -6500,7 +6649,6 @@ let events = [...demoEvents];
 let venueDirectory = [];
 const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
-const tasteOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 const defaultReceipts = [];
 function profileAgeFromBirthdate(birthdate) {
   const birthday = new Date(`${birthdate || ""}T12:00:00`);
@@ -6755,6 +6903,14 @@ function eventFallbackImageSrc(event) {
   const art = genericEventArt(event);
   const match = art.match(/^url\(['"]?([\s\S]*?)['"]?\)$/);
   return match ? match[1] : art;
+}
+
+function eventImageFallbackStyle(imageUrl) {
+  const safeUrl = String(imageUrl || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, "%22")
+    .replace(/\n/g, "");
+  return safeUrl ? `background-image: url("${safeUrl}");` : "";
 }
 
 function eventImageLooksLogoLike(imageUrl) {
@@ -7445,9 +7601,11 @@ function eventRow(event, variant = "", opts = {}) {
   // "Late Set", "Interactive") rather than anything true about the event. The
   // category pill on the artwork carries the only label worth showing here.
   const fallbackImage = eventFallbackImageSrc(event);
+  const imageSrc = eventCardImageSrc(event);
+  const fallbackStyle = eventImageFallbackStyle(fallbackImage);
   return `<article class="event-card${variant ? " event-card-" + variant : ""}${eventHasUsablePhoto(event) ? " has-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
-    <div class="event-card-media cat-${eventVisualCategory(event)}">
-      <img class="event-card-img" src="${eventCardImageSrc(event)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy">
+    <div class="event-card-media cat-${eventVisualCategory(event)}" style="${escapeHtml(fallbackStyle)}">
+      <img class="event-card-img" src="${escapeHtml(imageSrc)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" onload="if(!this.classList.contains('is-fallback-image')&&(this.naturalWidth<24||this.naturalHeight<24)){this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
       ${showBadge ? `<span class="event-card-pill event-card-pill-cat">${escapeHtml(catLabel)}</span>` : ""}
       <span class="event-card-actions"><button class="card-icon-btn card-share" data-share="${event.id}" aria-label="Share ${escapeHtml(displayTitle)}">${cardShareIcon}</button></span>
@@ -8277,6 +8435,22 @@ async function saveEventInteraction(eventId, kind = "save", active = true) {
     category: event?.cat || "",
     tags: event?.tags || []
   };
+  if (typeof recordAppAction === "function") {
+    const actionName = dbType === "going"
+      ? (active ? "event_rsvped" : "event_rsvp_removed")
+      : dbType === "unsave" || !active
+        ? "event_unsaved"
+        : "event_saved";
+    recordAppAction(actionName, {
+      eventId: event?.id || "",
+      supabaseEventId,
+      title: event?.title || "",
+      category: event?.cat || "",
+      venue: event?.venue || "",
+      neighborhood: event?.neighborhood || "",
+      active
+    });
+  }
   try {
     const existing = await existingEventInteraction(record.user_id, record.event_id);
     if (active && !existing) {
@@ -8354,6 +8528,11 @@ async function submitOnboardingProfile(profile) {
     body: JSON.stringify([record])
   });
   if (!response.ok) throw new Error(`Onboarding submission returned ${response.status}`);
+  if (typeof recordAppAction === "function") recordAppAction("onboarding_submitted", {
+    accountType: record.account_type,
+    eventInterestCount: record.event_interests.length,
+    areaInterestCount: record.area_interests.length
+  });
   return record;
 }
 
@@ -8412,6 +8591,7 @@ function recordAppAction(actionType, payload = {}) {
     account_type: state.profile?.accountType || "person",
     payload
   };
+  if (typeof trackAppEvent === "function") trackAppEvent(actionType, record);
   fetch(`${supabaseConfig.url}/rest/v1/app_action_events`, {
     method: "POST",
     headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
@@ -9592,6 +9772,17 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
   if (data.access_token) {
     persistSupabaseSession(data.access_token);
     await syncSupabaseSignupProfile(data.access_token, state.pendingSignupProfile);
+    if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+      email,
+      username,
+      full_name: fullName,
+      account_type: accountType
+    });
+    if (typeof recordAppAction === "function") recordAppAction("signup_completed", {
+      accountType,
+      eventInterestCount: eventInterests.length,
+      areaInterestCount: areaInterests.length
+    });
     return data;
   }
   // Supabase returns no session when the project requires email confirmation.
@@ -9604,6 +9795,17 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
     if (session.access_token) {
       persistSupabaseSession(session.access_token);
       await syncSupabaseSignupProfile(session.access_token, state.pendingSignupProfile);
+      if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+        email,
+        username,
+        full_name: fullName,
+        account_type: accountType
+      });
+      if (typeof recordAppAction === "function") recordAppAction("signup_completed", {
+        accountType,
+        eventInterestCount: eventInterests.length,
+        areaInterestCount: areaInterests.length
+      });
     }
   } catch (sessionError) {
     console.warn("[supabase] signup did not return a session", sessionError);
@@ -9794,6 +9996,11 @@ async function loginLokalUser({ identifier, password }) {
   // is pending or the network is flaky.
   if (await localCredentialMatch(value, password)) {
     restoreLocalSession(value);
+    if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+      account_type: state.profile?.accountType || "person",
+      full_name: state.profile?.fullName || ""
+    });
+    if (typeof recordAppAction === "function") recordAppAction("login_completed", { method: "local" });
     return { local: true };
   }
   // Otherwise (new device, or credentials not stored here) authenticate against Supabase.
@@ -9806,6 +10013,12 @@ async function loginLokalUser({ identifier, password }) {
   localStorage.setItem("lokalAccountCreated", "true");
   localStorage.setItem("lokalHasAccount", "true");
   localStorage.setItem("lokalLastIdentifier", value);
+  if (typeof identifyAppUser === "function") identifyAppUser(currentInteractionUserId(), {
+    account_type: state.profile?.accountType || "person",
+    full_name: state.profile?.fullName || "",
+    email: state.profile?.email || ""
+  });
+  if (typeof recordAppAction === "function") recordAppAction("login_completed", { method: "supabase" });
   return data;
 }
 
@@ -10585,7 +10798,7 @@ function noResultsScreen() {
   const closestBlock = closest
     ? `<div class="no-results-closest"><p class="eyebrow">Closest match</p>
         <button class="top-ten-row" data-event="${closest.id}">
-          <span class="tt-thumb"><img src="${eventCardImageSrc(closest)}" alt="" loading="lazy"></span>
+          <span class="tt-thumb"><img src="${escapeHtml(eventCardImageSrc(closest))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(closest))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy"></span>
           <span class="tt-copy"><b>${escapeHtml(closest.title)}</b><small>${escapeHtml(eventMetaLine(closest))}</small></span>
         </button></div>`
     : "";
@@ -10668,7 +10881,7 @@ function openTopWeekEvents() {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet top-week-sheet" role="dialog" aria-modal="true" aria-label="Top 10 events this week"><button class="modal-close" aria-label="Close top 10">&times;</button>
     <p class="eyebrow">Discovered by Lokal</p><h2>Top 10 events this week</h2>
     <p class="lede">A ranked mix of the week across DC, balancing category variety with saves, RSVPs, shares, venue quality, and timing.</p>
-    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-top-week-event="${event.id}" aria-label="Open ${escapeHtml(eventDisplayTitle(event))}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-thumb"><img src="${escapeHtml(topWeekThumbSrc(event))}" alt="" loading="lazy"></span><span class="top-week-row-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
+    <div class="top-week-list">${picks.map((event, index) => `<button class="top-week-row" data-top-week-event="${event.id}" aria-label="Open ${escapeHtml(eventDisplayTitle(event))}"><span class="top-week-row-rank">${index + 1}</span><span class="top-week-row-thumb"><img src="${escapeHtml(topWeekThumbSrc(event))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(event))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy"></span><span class="top-week-row-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(cleanLocationPart(event.venue) || eventLocationLine(event))}</small><em>${escapeHtml(eventDisplayTime(event))} / ${escapeHtml(discoverCategoryLabel(event.cat || "community"))}</em></span></button>`).join("") || `<p class="section-helper">No ranked events are available yet.</p>`}</div>
   </section></div>`;
 }
 
@@ -12045,7 +12258,7 @@ function pastAttendanceSection() {
   const receipts = typeof profileReceipts === "function" ? profileReceipts() : [];
   const rows = receipts.slice(0, 6).map((receipt, index) => attendanceRow(receipt, index)).join("");
   const helper = receipts.length
-    ? `<p class="section-helper">These are events you marked as attended. They also appear on your Profile and count toward Lokal score.</p>`
+    ? `<p class="section-helper">These are events you marked as attended. They also appear on your Profile.</p>`
     : `<p class="section-helper">When you mark a past saved event as "I went," it will show up here and on your Profile.</p>`;
   const more = receipts.length > 6 ? `<button class="text-button view-all-receipts" data-profile-list="attended">View all ${receipts.length}</button>` : "";
   return `<section class="section saved-plans-section past-events-section"><div class="section-heading"><div><p class="eyebrow">Previous events</p><h2>Actually attended</h2></div></div>${helper}${rows ? `<div class="attend-list">${rows}</div>${more}` : ""}</section>`;
@@ -12217,7 +12430,7 @@ function plannerCalendar(plans, emptyText = "Save or RSVP to an event and it wil
     <div class="cal-weekdays" aria-hidden="true">${weekdays.map(day => `<span>${day}</span>`).join("")}</div>
     <div class="cal-grid">${grid}</div>
     ${upcoming.length ? `<div class="planner-next">${upcoming.map(event => `<button class="top-ten-row" data-event="${event.id}">
-      <span class="tt-thumb"><img src="${eventCardImageSrc(event)}" alt="" loading="lazy"></span>
+      <span class="tt-thumb"><img src="${escapeHtml(eventCardImageSrc(event))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(event))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy"></span>
       <span class="tt-copy"><b>${escapeHtml(eventDisplayTitle(event))}</b><small>${escapeHtml(eventMetaLine(event))}</small></span>
     </button>`).join("")}</div>` : ""}
   </div>`;
@@ -12271,32 +12484,6 @@ function openFriend(name) {
   </section></div>`;
 }
 
-
-const LOKAL_SCORE_LEVELS = [
-  { name: "New in Town", min: 0, next: 200 },
-  { name: "Explorer", min: 200, next: 275 },
-  { name: "District Scout", min: 275, next: 350 },
-  { name: "Neighborhood Regular", min: 350, next: 450 },
-  { name: "Plan Maker", min: 450, next: 575 },
-  { name: "Ward Wanderer", min: 575, next: 725 },
-  { name: "Metro Connector", min: 725, next: 900 },
-  { name: "District Insider", min: 900, next: 1100 },
-  { name: "Downtown Regular", min: 1100, next: 1350 },
-  { name: "Capital Connector", min: 1350, next: 1650 },
-  { name: "DC Tastemaker", min: 1650, next: 2000 },
-  { name: "Certified Lokal", min: 2000, next: 2400 },
-  { name: "District Icon", min: 2400, next: 2900 },
-  { name: "Lokal Legend", min: 2900, next: 3600 },
-  { name: "DC Hall of Fame", min: 3600, next: null }
-];
-
-function scoreLevel(score) {
-  return LOKAL_SCORE_LEVELS.slice().reverse().find(level => score >= level.min) || LOKAL_SCORE_LEVELS[0];
-}
-
-function nextLevelName(level) {
-  return LOKAL_SCORE_LEVELS.find(item => item.min === level.next)?.name || "";
-}
 
 function tasteColor(taste) {
   const category = typeof categoryFromTaste === "function" ? categoryFromTaste(taste) : "";
@@ -12432,8 +12619,7 @@ function profileTasteIconStrip() {
 function userTasteSection(tastePills) {
   return `<p class="eyebrow">Your top tastes</p>
     <p class="section-subnote">Tap the ones you want more of. These shape your recommendations.</p>
-    ${tasteCategoryGrid()}
-    <button class="text-button taste-more-link" data-edit-tastes>More</button>`;
+    ${tasteCategoryGrid()}`;
 }
 
 function profileInsightPanel() {
@@ -12483,16 +12669,6 @@ function profileListRows() {
   return `<div class="profile-list-rows">${rows.map(([kind, label, count, icon]) => `<button class="profile-list-row" data-profile-list="${kind}">${icon}<b>${label}</b><span class="plr-count">${count}</span><span class="plr-caret">&rsaquo;</span></button>`).join("")}</div>`;
 }
 
-function profileScoreSection(score, level, progress, toNext) {
-  return `<section class="section compact-profile-section profile-score-section">
-    <button class="score-block compact-score-block" data-score-activity>
-      <span><p class="eyebrow">Lokal score</p><b>${score}</b><small>${escapeHtml(level.name)}</small></span>
-      <span class="score-mini-progress"><i style="width:${Math.round(progress * 100)}%"></i></span>
-      <em>${level.next ? `${toNext} pts to ${escapeHtml(nextLevelName(level))}` : "Top level reached"}</em>
-    </button>
-  </section>`;
-}
-
 function profileTastesSection(content) {
   return `<section class="section compact-profile-section">${content}</section>`;
 }
@@ -12514,10 +12690,6 @@ function renderProfile() {
   const venueDescription = state.profile.venueDescription || "Add a venue description so people know the kind of nights, crowds, and events you host.";
   const venueImage = currentVenueImage();
   const venueOwnerName = state.profile.ownerName || state.profile.fullName || "";
-  const score = lokalScore();
-  const level = scoreLevel(score);
-  const progress = level.next ? Math.min(1, (score - level.min) / (level.next - level.min)) : 1;
-  const toNext = level.next ? Math.max(0, level.next - score) : 0;
   const tastePills = state.tastes.map(taste => `<span class="taste-pill" style="--c:${tasteColor(taste)}">${escapeHtml(taste)}</span>`).join("");
   app.innerHTML = `<section class="page profile-page">
     <div class="discover-heading"><div><h1>${escapeHtml(isVenueProfile ? venueName : state.profile.fullName)}</h1></div><div class="profile-top-actions"><button class="filter-button" data-share-profile="${escapeHtml(state.profile.username)}">Share</button><button class="filter-button" data-settings>Edit</button></div></div>
@@ -12528,7 +12700,6 @@ function renderProfile() {
       ${isVenueProfile ? "" : profileTasteIconStrip()}
       <p class="pid-since">${isVenueProfile ? `${hasApprovedVenueProfile() ? "Verified venue account" : "Venue verification pending"}${venueOwnerName ? ` / Managed by ${escapeHtml(venueOwnerName)}` : ""}` : (state.privateAccount ? "Private account" : "Public account")}</p>
     </div>
-    ${isVenueProfile ? "" : profileScoreSection(score, level, progress, toNext)}
     ${profileSummaryStrip(isVenueProfile)}
     ${profileTastesSection(isVenueProfile ? venueFocusSection() : userTasteSection(tastePills))}
     ${isVenueProfile ? venueVerificationPanel() : ""}
@@ -12546,35 +12717,6 @@ function fullFriendName(initials) {
   return ({ AL: "Ana Lopez", MR: "Marcus Reed", DV: "Dev Shah", JS: "Jules Kim", PL: "Priya Lee" }[initials] || friendNames[initials] || initials);
 }
 
-function lokalScore() {
-  return scoreBreakdown().total;
-}
-
-function cappedScore(value, multiplier, cap) {
-  return Math.min(value * multiplier, cap);
-}
-
-function uniqueUserTexts(messages) {
-  return Array.from(new Set(messages
-    .filter(message => message?.type === "text" && String(message.text || "").trim().length >= 8)
-    .map(message => String(message.text).trim().toLowerCase())));
-}
-
-function socialActivityUnits() {
-  const groupTexts = Object.values(state.groupMessages || {}).flatMap(uniqueUserTexts);
-  const groupEventShares = Object.entries(state.groupMessages || {}).flatMap(([group, messages]) =>
-    messages.filter(message => message?.type === "event" && message.eventId).map(message => `${group}:${message.eventId}`)
-  );
-  const directTexts = Object.values(state.directMessages || {}).flatMap(messages =>
-    messages.filter(message => message?.from === "You" && String(message.text || "").trim().length >= 8).map(message => String(message.text).trim().toLowerCase())
-  );
-  return new Set([...groupTexts, ...groupEventShares, ...directTexts]).size;
-}
-
-function receiptFriendUnits(receipts) {
-  return receipts.reduce((sum, receipt) => sum + new Set(receipt.friends || []).size, 0);
-}
-
 function receiptEventKey(receipt) {
   return String(receipt?.eventId || receipt?.id || `${receipt?.title || ""}|${receipt?.venue || ""}|${receipt?.time || ""}`).toLowerCase();
 }
@@ -12589,88 +12731,6 @@ function sameTimeAttendanceCount(event) {
   const key = attendanceTimeKey(event);
   if (!key) return 0;
   return profileReceipts().filter(receipt => attendanceTimeKey(receipt) === key).length;
-}
-
-function scoreBreakdown() {
-  const receipts = profileReceipts();
-  const rsvpCount = Array.from(state.rsvps || []).filter(id => !state.removedPlans?.has(id)).length;
-  const savedOnlyCount = Array.from(state.saved || []).filter(id => !state.rsvps.has(id) && !state.removedPlans?.has(id)).length;
-  const followCount = (state.follows?.size || 0) + rsvpCount;
-  const inviteCount = Number(state.inviteLinksSent || 0);
-  const friendSignupCount = state.friendSignupCredits?.size || 0;
-  const breakdown = [
-    { label: "New in Town", value: 100, detail: "100 starting points for creating a profile and joining Lokal." },
-    { label: "Verified attendance", value: receipts.length * 15, detail: `${receipts.length} unique event receipt${receipts.length === 1 ? "" : "s"} - 15 each - no lifetime cap.` },
-    { label: "Went with friends", value: receiptFriendUnits(receipts) * 5, detail: "5 points for each friend attached to an attended event receipt. It grows with real group plans, not random friend adds." },
-    { label: "Upcoming plans", value: cappedScore(rsvpCount, 3, 30), detail: `${rsvpCount} RSVP${rsvpCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
-    { label: "Saved ideas", value: cappedScore(savedOnlyCount, 1, 20), detail: `${savedOnlyCount} saved event${savedOnlyCount === 1 ? "" : "s"} not already RSVP'd - 1 each - capped at 20.` },
-    { label: "Following events & venues", value: cappedScore(followCount, 1, 25), detail: `${followCount} followed event or venue signal${followCount === 1 ? "" : "s"} - 1 each - capped at 25.` },
-    { label: "Friends", value: cappedScore(state.friends.size, 1, 30), detail: `${state.friends.size} friend${state.friends.size === 1 ? "" : "s"} - 1 each - capped at 30.` },
-    { label: "Invite links sent", value: cappedScore(inviteCount, 1, 10), detail: `${inviteCount} invite link${inviteCount === 1 ? "" : "s"} sent - 1 each - capped at 10.` },
-    { label: "Friend signups", value: cappedScore(friendSignupCount, 3, 30), detail: `${friendSignupCount} friend signup credit${friendSignupCount === 1 ? "" : "s"} - 3 each - capped at 30.` },
-    { label: "Conversation activity", value: cappedScore(socialActivityUnits(), 1, 30), detail: "Counts unique meaningful direct messages and event shares, not repeated short spam." }
-  ];
-  return { total: breakdown.reduce((sum, item) => sum + item.value, 0), items: breakdown };
-}
-
-function scoreActionDateLabel(value) {
-  const date = value ? new Date(value) : null;
-  if (!date || Number.isNaN(date.getTime())) return "Recently";
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function scoreActivityItems() {
-  const items = [];
-  profileReceipts().forEach(receipt => items.push({
-    at: receipt.attendedAt || receipt.startSort || Date.now(),
-    title: `Attended ${receipt.title}`,
-    detail: [receipt.venue, receipt.cat].filter(Boolean).join(" / "),
-    points: 15
-  }));
-  Array.from(state.rsvps || []).forEach(id => {
-    const event = events.find(item => item.id === Number(id));
-    if (!event || state.removedPlans?.has(event.id)) return;
-    items.push({ at: event.startSort || Date.now(), title: `RSVP'd to ${event.title}`, detail: eventLocationLine(event), points: 3 });
-  });
-  Array.from(state.saved || []).forEach(id => {
-    if (state.rsvps.has(id)) return;
-    const event = events.find(item => item.id === Number(id));
-    if (!event || state.removedPlans?.has(event.id)) return;
-    items.push({ at: event.startSort || Date.now(), title: `Saved ${event.title}`, detail: eventLocationLine(event), points: 1 });
-  });
-  Array.from(state.follows || []).forEach(value => {
-    const text = String(value || "");
-    items.push({ at: Date.now() - 60000, title: text.startsWith("venue:") ? `Followed ${text.replace(/^venue:/, "")}` : `Followed ${text}`, detail: text.startsWith("venue:") ? "Venue follow" : "Event follow", points: 1 });
-  });
-  if (state.friends?.size) items.push({ at: Date.now() - 120000, title: `Connected with ${state.friends.size} friend${state.friends.size === 1 ? "" : "s"}`, detail: "Friend activity", points: Math.min(state.friends.size, 30) });
-  if (Number(state.inviteLinksSent || 0) > 0) items.push({ at: Date.now() - 180000, title: `Sent ${state.inviteLinksSent} invite link${state.inviteLinksSent === 1 ? "" : "s"}`, detail: "Invite activity", points: Math.min(Number(state.inviteLinksSent || 0), 10) });
-  if (state.friendSignupCredits?.size) items.push({ at: Date.now() - 240000, title: `${state.friendSignupCredits.size} friend signup credit${state.friendSignupCredits.size === 1 ? "" : "s"}`, detail: "Referral activity", points: Math.min(state.friendSignupCredits.size * 3, 30) });
-  if (socialActivityUnits() > 0) items.push({ at: Date.now() - 300000, title: "Shared or messaged about plans", detail: "Social activity", points: Math.min(socialActivityUnits(), 30) });
-  return items
-    .filter(item => item.points > 0)
-    .sort((a, b) => (b.at || 0) - (a.at || 0))
-    .slice(0, 12);
-}
-
-function openScoreActivitySheet() {
-  const score = lokalScore();
-  const level = scoreLevel(score);
-  const items = scoreActivityItems().slice(0, 3);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score activity"><button class="modal-close" aria-label="Close score activity">&times;</button>
-    <p class="eyebrow">Lokal score</p><h2>Recent score activity</h2>
-    <p class="lede">${score} points / ${escapeHtml(level.name)}</p>
-    ${items.length ? `<div class="score-breakdown score-activity-list">${items.map(item => `<div class="score-row score-activity-row"><span><b>${escapeHtml(item.title)}</b><small>${escapeHtml(scoreActionDateLabel(item.at))}${item.detail ? ` / ${escapeHtml(item.detail)}` : ""}</small></span><strong>+${item.points}</strong></div>`).join("")}</div>` : `<p class="section-helper">No score-changing actions yet. Save, RSVP, follow, invite friends, or mark past events as attended to build your activity.</p>`}
-  </section></div>`;
-}
-
-function openScoreGuideSheet() {
-  const breakdown = scoreBreakdown();
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Lokal score guide"><button class="modal-close" aria-label="Close score guide">&times;</button>
-    <p class="eyebrow">Settings</p><h2>Lokal score guide</h2>
-    <div class="score-safeguard"><b>Is there a max Lokal score?</b><p>No. There is no lifetime max score. The score can keep growing as someone attends more unique events. Lower-confidence actions like saves, RSVPs, follows, and messages are limited so they cannot be spammed.</p></div>
-    <div class="score-breakdown">${breakdown.items.map(item => `<div class="score-row"><span><b>${escapeHtml(item.label)}</b><small>${escapeHtml(item.detail)}</small></span><strong>+${item.value}</strong></div>`).join("")}</div>
-    <div class="score-safeguard"><b>How do you prevent cheating?</b><p>Each event can only count once, future events cannot be marked attended, repeated saves or RSVPs are deduped, and short duplicate messages do not inflate the score. In a real app, higher-value attendance would also use check-ins, ticket scans, organizer confirmation, or friend verification.</p></div>
-  </section></div>`;
 }
 
 function openFaqSheet() {
@@ -12734,7 +12794,7 @@ function markEventAttended(id) {
   localStorage.setItem("lokalAttended", JSON.stringify(Array.from(state.attended)));
   localStorage.setItem("lokalReceipts", JSON.stringify(state.receipts));
   if (typeof submitAttendanceReceipt === "function") submitAttendanceReceipt(receipt);
-  return { ok: true, message: "Receipt, score, and best friends updated" };
+  return { ok: true, message: "Receipt and best friends updated" };
 }
 
 function openReceipt(id) {
@@ -12745,13 +12805,27 @@ function openReceipt(id) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="${escapeHtml(event.title)} receipt"><button class="modal-close" aria-label="Close receipt">&times;</button><p class="eyebrow">Event receipt</p><h2>${escapeHtml(event.title)}</h2><p class="event-meta">${escapeHtml(eventMetaLine(event))}</p><h3>${escapeHtml(eventLocationLine(event))}</h3><p class="lede">${escapeHtml(event.desc || "You marked this event as attended.")}</p><div class="attendee-line">${avatarStack(receipt?.friends || [])}<span>You went with ${escapeHtml(people)}.</span></div>${eventButton}</section></div>`;
 }
 
-function openTasteEditor() {
-  const selected = new Set(state.tastes);
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet" role="dialog" aria-modal="true" aria-label="Edit tastes"><button class="modal-close" aria-label="Close tastes">&times;</button>
-    <p class="eyebrow">Profile</p><h2>Edit tastes</h2><p class="lede">Pick up to 5 so Lokal can shape your feed without making it feel boxed in.</p>
-    <div class="taste-limit" data-taste-count>${selected.size}/5 selected</div>
-    <div class="taste-choice-grid">${tasteOptions.map(taste => `<button class="taste-choice ${selected.has(taste) ? "selected" : ""}" data-taste-choice="${escapeHtml(taste)}">${escapeHtml(taste)}</button>`).join("")}</div>
-    <button class="wide-button" data-save-tastes>Save tastes</button>
+const NOTIFICATION_PREF_OPTIONS = [
+  { key: "friendRequests", label: "Friend requests", detail: "Someone sends you a friend request or adds you to a group." },
+  { key: "eventRecommendations", label: "Event recommendations", detail: "New events picked for your tastes and neighborhoods." },
+  { key: "savedEventReminders", label: "Saved-event reminders", detail: "A heads-up before events you've saved or RSVP'd to." }
+];
+
+function notificationPrefs() {
+  let stored = {};
+  try { stored = JSON.parse(localStorage.getItem("lokalNotificationPrefs") || "{}"); } catch { stored = {}; }
+  const prefs = {};
+  NOTIFICATION_PREF_OPTIONS.forEach(option => { prefs[option.key] = stored[option.key] !== false; });
+  return prefs;
+}
+
+function openNotificationSettingsSheet() {
+  const prefs = notificationPrefs();
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Notification settings"><button class="modal-close" aria-label="Close notification settings">&times;</button>
+    <p class="eyebrow">Settings</p><h2>Notification settings</h2>
+    <p class="lede">Choose which updates you receive.</p>
+    ${NOTIFICATION_PREF_OPTIONS.map(option => `<label class="privacy-toggle"><span><b>${escapeHtml(option.label)}</b><small>${escapeHtml(option.detail)}</small></span><input data-notification-pref="${option.key}" type="checkbox" ${prefs[option.key] ? "checked" : ""}></label>`).join("")}
+    <button class="wide-button" data-save-notification-prefs>Save changes</button>
   </section></div>`;
 }
 
@@ -12761,7 +12835,10 @@ function openSettings() {
   const venueImage = currentVenueImage();
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal settings-sheet" role="dialog" aria-modal="true" aria-label="Profile settings"><button class="modal-close" aria-label="Close settings">&times;</button>
     <p class="eyebrow">Profile and account</p><h2>Settings</h2>
-    <div class="settings-avatar"><div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div></div>
+    <div class="settings-avatar">
+      <div class="profile-avatar">${(isVenueProfile ? venueImage : state.profile.avatarUrl) ? `<img src="${escapeHtml(isVenueProfile ? venueImage : state.profile.avatarUrl)}" alt="">` : escapeHtml(isVenueProfile ? currentAccountInitials() : state.profile.initials)}</div>
+      <div class="settings-avatar-id"><b>${escapeHtml(isVenueProfile ? currentAccountDisplayName() : state.profile.fullName)}</b><span>@${escapeHtml(state.profile.username)}</span></div>
+    </div>
     <p class="settings-group-label">Account</p>
     <label class="settings-field">${isVenueProfile ? "Venue name" : "Name"}<input value="${escapeHtml(isVenueProfile ? currentAccountDisplayName() : state.profile.fullName)}" readonly></label>
     <label class="settings-field">Public username<input value="@${escapeHtml(state.profile.username)}" readonly></label>
@@ -12773,13 +12850,16 @@ function openSettings() {
     <label class="settings-field">Age<input data-age-input type="number" min="13" max="120" value="${state.age}"></label>
     <button class="share-group" data-settings-page="notifications"><span class="share-group-copy"><h3>Notification settings</h3><p>Friend requests, event recommendations, and saved-event reminders</p></span></button>
     <button class="share-group" data-settings-page="privacy"><span class="share-group-copy"><h3>Privacy and blocked accounts</h3><p>Control visibility and manage blocks</p></span></button>
-    ${isVenueProfile ? "" : `<button class="share-group" data-settings-page="score-guide"><span class="share-group-copy"><h3>Lokal score guide</h3><p>See what types of activity affect your score</p></span></button>`}
     <hr class="settings-divider">
     <p class="settings-group-label">App</p>
     <label class="settings-field">Phone number<input value="${escapeHtml(formatDisplayPhone(state.profile.phone))}" readonly></label>
     ${isVenueProfile ? `<button class="share-group" data-venue-verify><span class="share-group-copy"><h3>Verify a venue</h3><p>Request owner access to post venue events</p></span></button>` : ""}
     <button class="share-group" data-settings-page="faq"><span class="share-group-copy"><h3>FAQ</h3><p>Get help with Lokal</p></span></button>
     <button class="wide-button" data-save-settings>Save changes</button>
+        <hr class="settings-divider">
+    <p class="settings-group-label">Legal</p>
+    <a class="share-group" href="https://willsingle05-a11y.github.io/LokalAppDC/legal/terms.html" target="_blank" rel="noreferrer"><span class="share-group-copy"><h3>Terms of Service</h3><p>The rules for using Lokal</p></span></a>
+    <a class="share-group" href="https://willsingle05-a11y.github.io/LokalAppDC/legal/privacy.html" target="_blank" rel="noreferrer"><span class="share-group-copy"><h3>Privacy Policy</h3><p>How we handle your information</p></span></a>
     <div class="settings-danger"><button class="settings-minor" data-signout>Sign out</button><button class="settings-minor danger" data-deactivate>Delete account</button></div>
   </section></div>`;
 }
@@ -13101,6 +13181,16 @@ function heroImageSrcBackdrop(src) {
 function openDetail(id, opts = {}) {
   const e = events.find(event => event.id === Number(id));
   if (!e) return;
+  if (typeof recordAppAction === "function") recordAppAction("event_viewed", {
+    eventId: e.id,
+    supabaseEventId: e.sourceId || "",
+    title: e.title || "",
+    category: e.cat || "",
+    venue: e.venue || "",
+    neighborhood: e.neighborhood || "",
+    source: e.source || "",
+    context: opts.backToTopWeek ? "top_week" : "event_detail"
+  });
   const otherOccurrences = occurrencesForEvent(e).filter(occurrence => occurrence.id !== e.id);
   const recurrence = eventRecurrence(e);
   // Three levels, most informative first: compact repeat cadence, then the text
@@ -13205,7 +13295,7 @@ function openGoingConfirmation(id) {
     <h2>You're going</h2>
     <p class="lede">It's in Your Plans. We'll nudge you an hour before doors.</p>
     <div class="going-card">
-      <span class="gc-thumb"><img src="${eventCardImageSrc(e)}" alt="" loading="lazy"></span>
+      <span class="gc-thumb"><img src="${escapeHtml(eventCardImageSrc(e))}" data-fallback-src="${escapeHtml(eventFallbackImageSrc(e))}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.add('is-fallback-image');" alt="" loading="lazy"></span>
       <span><b>${escapeHtml(eventDisplayTitle(e))}</b><small>${escapeHtml(eventMetaLine(e))}</small></span>
     </div>
     <div class="going-actions">
@@ -13649,6 +13739,27 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
+// "Restart walkthrough" (demo sidebar) replays the welcome-letter animation for
+// show, without touching the visitor's saved account/session. Unlike a real
+// first run, closing it (via the Ã— or either CTA) just returns to wherever they
+// were â€” it never wipes localStorage or starts real onboarding.
+function replayWelcomeLetter() {
+  document.querySelector(".onboarding")?.remove();
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">
+    <button class="modal-close" aria-label="Close walkthrough" data-close-replay>&times;</button>
+    ${welcomeLetterMarkup()}
+  </div>`);
+  const screen = document.querySelector(".onboard-letter-screen");
+  const close = () => screen.remove();
+  screen.querySelector("[data-close-replay]")?.addEventListener("click", close, { once: true });
+  screen.querySelectorAll("[data-onboard-start]").forEach(button => button.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    close();
+  }, { once: true }));
+  playWelcomeLetter();
+}
+
 function startOnboardingFlow() {
   state.signupDraft = { accountType: "person" };
   state.onboardStep = 1;
@@ -13679,7 +13790,6 @@ function renderOnboarding() {
   let inner = "";
   if (step === 1) {
     inner = `<h1 class="onboard-title">First, what should we call you?</h1>
-      <p class="lede">So your friends know it's really you.</p>
       <div class="onboard-fields">
         <label class="float-field"><span>First name</span><input data-onboard-first value="${escapeHtml(d.firstName || "")}" autocomplete="given-name" placeholder="Alex"></label>
         <label class="float-field"><span>Last name</span><input data-onboard-last value="${escapeHtml(d.lastName || "")}" autocomplete="family-name" placeholder="Rivera"></label>
@@ -13688,7 +13798,6 @@ function renderOnboarding() {
       <button class="wide-button" data-onboard-name>Continue</button>`;
   } else if (step === 2) {
     inner = `<h1 class="onboard-title">Let's set up your login.</h1>
-      <p class="lede">This is how you'll get back in and keep your plans in sync â€” even on a new phone.</p>
       <div class="onboard-fields">
         <label class="float-field"><span>Email</span><input data-onboard-email type="email" value="${escapeHtml(d.email || "")}" autocomplete="email" placeholder="you@email.com"></label>
         <label class="float-field"><span>Phone number</span><input data-onboard-phone type="tel" inputmode="numeric" maxlength="14" value="${escapeHtml(d.phone || "")}" autocomplete="tel" placeholder="(202) 555-0100"></label>
@@ -13707,11 +13816,10 @@ function renderOnboarding() {
     const interests = new Set((d.interests || []).filter(option => interestOptions.includes(option)));
     const areas = new Set(d.areas || []);
     inner = `<h1 class="onboard-title">What are you into?</h1>
-      <p class="lede">Pick a few â€” we'll tune your feed to match.</p>
       ${onboardInterestTiles(interestOptions, interests)}
-      <p class="settings-label">Where do you work (optional)</p>
-      <p class="section-subnote">So we can also surface events close to your job, not just home.</p>
-      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>
+      <p class="settings-label">Which neighborhoods do you want to explore?</p>
+      <p class="section-subnote">Pick as many as you like â€” we'll use these to surface events beyond just your home area.</p>
+      <div class="select-grid preference-grid compact-select-grid onboard-tiles">${ONBOARD_AREA_OPTIONS.map(o => `<button class="select-tile${areas.has(o) ? " selected" : ""}" data-signup-area="${escapeHtml(o)}" data-area-multi>${escapeHtml(o)}</button>`).join("")}</div>
       <p class="account-error" data-account-error></p>
       <button class="wide-button" data-onboard-finish>Enter Lokal</button>`;
   }
@@ -13774,6 +13882,9 @@ function setRoute(route) {
   const routeChanged = state.route !== route;
   state.route = route;
   document.body.dataset.route = route;
+  if (routeChanged && typeof trackAppPageView === "function") trackAppPageView(route, {
+    account_type: state.profile?.accountType || "person"
+  });
   if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();
   // Bo leans on the wordmark in the topbar; give the main pages their own
   // little posture so Saved and Profile do not feel like cloned headers.
@@ -13879,6 +13990,11 @@ function queueDiscoverSearch(input) {
       if (results) { results.hidden = true; results.innerHTML = ""; }
       const feed = document.querySelector(".feed-section");
       const venueMatches = query ? venueSearchMatches(query, 8).length : 0;
+      if (query && typeof recordAppAction === "function") recordAppAction("search_performed", {
+        query,
+        eventResultCount: visible,
+        venueResultCount: venueMatches
+      });
       if (feed) feed.classList.toggle("search-empty-feed", Boolean(query) && visible === 0 && venueMatches === 0);
       if (!query) {
         const nextInput = document.querySelector("[data-discover-search]");
@@ -13915,7 +14031,7 @@ document.addEventListener("click", async event => {
   }
   let handled = t.classList.contains("modal-close") || Object.keys(t.dataset).length > 0;
   const mark = () => { handled = true; };
-  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveTastes", "acceptRequest", "declineRequest"];
+  const loggedActionKeys = ["postStory", "shareProfile", "groupShare", "addFriendsLink", "copyAppInvite", "location", "saveGroup", "copyInvite", "addInvite", "invitePeopleOption", "groupFriendOption", "addAdventure", "joinGroup", "pinGroup", "leaveGroup", "profileLeaveGroup", "removePlan", "sendMessage", "manageFollowing", "follow", "followVenue", "attended", "planAttended", "dismissVenueVerification", "messageFriend", "sendDirectMessage", "confirmInviteGroup", "feedback", "submitFeedback", "signout", "confirmSignout", "saveSettings", "saveNotificationPrefs", "acceptRequest", "declineRequest"];
   const loggedKey = loggedActionKeys.find(key => t.dataset[key] !== undefined);
   if (loggedKey && typeof recordAppAction === "function") {
     recordAppAction(`ui_${loggedKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
@@ -13923,6 +14039,14 @@ document.addEventListener("click", async event => {
       eventId: t.dataset.eventId || "",
       groupName: t.dataset.groupName || "",
       friendName: t.dataset.friendName || ""
+    });
+  }
+  const filterActionKeys = ["homeFilter", "openFilter", "toggleWhat", "toggleWhere", "toggleWhen", "applyWhen", "clearAllFilters", "discoverCategory", "categoryGenre", "feedMode", "neighborhood", "daytime", "applyDate", "clearDate", "applyTime", "clearTime", "applyFilters"];
+  const filterKey = filterActionKeys.find(key => t.dataset[key] !== undefined);
+  if (filterKey && typeof recordAppAction === "function") {
+    recordAppAction(`ui_${filterKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, {
+      value: t.dataset[filterKey] || "",
+      route: state.route || ""
     });
   }
   // Slide direction follows the tab bar: moving left plays the reverse slide.
@@ -14061,10 +14185,33 @@ document.addEventListener("click", async event => {
       .slice(0, 10)
       .map(friend => friendCard(friend, "add"))
       .join("");
-    openSimpleSheet("Add friends", "Share your Lokal invite link, search your current friends, or find new people to add.", `<label class="settings-field">App invite URL<input value="https://lokal.app/join" readonly></label><button class="wide-button" data-copy-app-invite>Copy invite link</button><div class="friend-search-columns"><section class="friend-search-column"><p class="eyebrow group-divider">Search your friends</p><label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Search friends you already have" aria-label="Search friends you already have"></label><div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div><p class="search-empty" data-existing-friend-empty>No current friends match that search.</p></section><section class="friend-search-column"><p class="eyebrow group-divider">Find new friends</p><label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="Search people to add" aria-label="Search people to add"></label><div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div><p class="search-empty" data-new-friend-empty>No new people match that search.</p></section></div>`);
+    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal list-sheet add-friends-sheet" role="dialog" aria-modal="true" aria-label="Add friends"><button class="modal-close" aria-label="Close add friends">&times;</button>
+      <p class="eyebrow">Lokal</p>
+      <h2>Add friends</h2>
+      <p class="lede">Share your invite, search people you know, or add someone new.</p>
+      <div class="add-friends-invite">
+        <span class="add-friends-badge">Invite</span>
+        <div class="add-friends-url"><small>App invite URL</small><b>https://lokal.app/join</b></div>
+        <button class="wide-button" data-copy-app-invite>Copy invite link</button>
+      </div>
+      <div class="friend-search-columns">
+        <section class="friend-search-column">
+          <p class="eyebrow group-divider">Search your friends</p>
+          <label class="search-box social-search"><span>&#8981;</span><input data-existing-friend-search placeholder="Friends you already have" aria-label="Search friends you already have"></label>
+          <div class="follow-list" data-existing-friend-list>${existingFriends || `<p class="section-helper">You have not added friends yet.</p>`}</div>
+          <p class="search-empty" data-existing-friend-empty>No current friends match that search.</p>
+        </section>
+        <section class="friend-search-column">
+          <p class="eyebrow group-divider">Find new friends</p>
+          <label class="search-box social-search"><span>&#8981;</span><input data-new-friend-search placeholder="People to add" aria-label="Search people to add"></label>
+          <div class="follow-list" data-new-friend-list>${suggestions || `<p class="section-helper">No new friend suggestions right now.</p>`}</div>
+          <p class="search-empty" data-new-friend-empty>No new people match that search.</p>
+        </section>
+      </div>
+    </section></div>`;
   }
   if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1; localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent)); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
-  if (t.dataset.restart !== undefined) { localStorage.removeItem("lokalAccountCreated"); state.onboardStep = 0; document.querySelector(".onboarding")?.remove(); renderOnboarding(); }
+  if (t.dataset.restart !== undefined) { replayWelcomeLetter(); }
   if (t.dataset.notifications !== undefined) openNotifications();
   if (t.dataset.moreFilters !== undefined) openFilters();
   if (t.dataset.refreshEvents !== undefined) syncSupabaseEvents(true);
@@ -14198,28 +14345,7 @@ document.addEventListener("click", async event => {
   // Date is committed live by the calendar, so it is skipped here.
   if (t.dataset.applyFilters !== undefined) { document.querySelectorAll("[data-filter-option].selected").forEach(option => { const key = option.dataset.filterKey; const value = option.dataset.filterValue; if (key === "highlight") state.highlightedOnly = value === "Highlighted only"; else if (key !== "date") state.filter[key] = value; }); modalRoot.innerHTML = ""; renderHome(); toast("Feed updated"); }
   if (t.dataset.profileList) openProfileList(t.dataset.profileList);
-  if (t.dataset.scoreActivity !== undefined) { mark(); openScoreActivitySheet(); }
   if (t.dataset.toggleReceipts !== undefined) { mark(); state.profileReceiptsExpanded = !state.profileReceiptsExpanded; renderProfile(); }
-  if (t.dataset.editTastes !== undefined) { mark(); openTasteEditor(); }
-  if (t.dataset.tasteChoice) {
-    mark();
-    const selected = [...document.querySelectorAll("[data-taste-choice].selected")];
-    if (!t.classList.contains("selected") && selected.length >= 5) { toast("Choose up to 5 tastes"); return; }
-    t.classList.toggle("selected");
-    const count = document.querySelector("[data-taste-count]");
-    if (count) count.textContent = `${document.querySelectorAll("[data-taste-choice].selected").length}/5 selected`;
-  }
-  if (t.dataset.saveTastes !== undefined) {
-    mark();
-    const choices = [...document.querySelectorAll("[data-taste-choice].selected")].map(button => button.dataset.tasteChoice);
-    if (!choices.length) { toast("Pick at least one taste"); return; }
-    state.tastes = choices;
-    state.profile = { ...state.profile, tastes: choices };
-    localStorage.setItem("lokalProfile", JSON.stringify(state.profile));
-    modalRoot.innerHTML = "";
-    renderProfile();
-    toast("Tastes updated");
-  }
   if (t.dataset.acceptRequest) { const request = state.pendingRequests.find(item => item.id === t.dataset.acceptRequest); state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.acceptRequest); if (request?.type === "group" && !state.leftGroups.has(request.name)) { state.joinedGroups.add(request.name); submitGroupMembership(request.name, "You", "active", "request"); openGroup(request.name); } else if (request?.type === "friend") { acceptFriendship(request.name); if (state.route === "social") renderSocial(); openFriend(request.name); } toast(request?.type === "friend" ? `${request.name} is now your friend` : "Request accepted"); }
   if (t.dataset.declineRequest) { state.pendingRequests = state.pendingRequests.filter(item => item.id !== t.dataset.declineRequest); openNotifications(); toast("Request declined"); }
   if (t.dataset.notificationProfile !== undefined) { modalRoot.innerHTML = ""; setRoute("profile"); toast("Profile activity opened"); }
@@ -14251,7 +14377,15 @@ document.addEventListener("click", async event => {
       console.warn("[supabase] feedback submission failed", feedbackError);
     }
   }
-  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "score-guide") { openScoreGuideSheet(); } else { const pages = { notifications:["Notification settings","Choose which updates you receive: friend requests, event recommendations, and saved-event reminders."], verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.settingsPage) { mark(); if (t.dataset.settingsPage === "faq") { openFaqSheet(); } else if (t.dataset.settingsPage === "notifications") { openNotificationSettingsSheet(); } else { const pages = { verification:["Become a Lokal","Apply for a manually verified curator profile to publish local lists and recommendations."], privacy:["Privacy and blocked accounts","Manage who can see your profile and review accounts you have blocked."] }; openSimpleSheet(...pages[t.dataset.settingsPage]); } }
+  if (t.dataset.saveNotificationPrefs !== undefined) {
+    mark();
+    const prefs = {};
+    document.querySelectorAll("[data-notification-pref]").forEach(input => { prefs[input.dataset.notificationPref] = input.checked; });
+    localStorage.setItem("lokalNotificationPrefs", JSON.stringify(prefs));
+    modalRoot.innerHTML = "";
+    toast("Notification settings updated");
+  }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
@@ -14294,10 +14428,16 @@ document.addEventListener("click", async event => {
     const draft = (state.signupDraft = state.signupDraft || {});
     const key = t.dataset.signupInterest ? "interests" : "areas";
     const value = t.dataset.signupInterest || t.dataset.signupArea;
-    if (key === "areas") {
-      // Single-select: one neighborhood (venue location, or person's work
-      // neighborhood) rather than a multi-pick list. Tapping the selected tile
-      // again clears it â€” for a person account this field is optional.
+    if (key === "areas" && t.dataset.areaMulti !== undefined) {
+      // Multi-select: person's "neighborhoods to explore" step.
+      t.classList.toggle("selected");
+      if (t.hasAttribute("aria-pressed")) t.setAttribute("aria-pressed", String(t.classList.contains("selected")));
+      const chosen = new Set(draft.areas || []);
+      chosen.has(value) ? chosen.delete(value) : chosen.add(value);
+      draft.areas = [...chosen];
+    } else if (key === "areas") {
+      // Single-select: venue's one primary neighborhood. Tapping the selected
+      // tile again clears it.
       const wasSelected = t.classList.contains("selected");
       t.closest(".onboard-tiles")?.querySelectorAll("[data-signup-area]").forEach(button => button.classList.remove("selected"));
       if (wasSelected) {
