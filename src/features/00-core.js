@@ -205,7 +205,8 @@ function currentReferralCode() {
 
 function captureIncomingReferral() {
   const params = new URLSearchParams(location.search);
-  const code = params.get("ref") || params.get("invite") || params.get("r");
+  const hashInvite = decodeURIComponent(location.hash || "").match(/#\/?([a-z0-9-]+)\.invite/i)?.[1] || "";
+  const code = params.get("ref") || params.get("invite") || params.get("r") || hashInvite;
   if (!code) return;
   localStorage.setItem("lokalIncomingReferralCode", code);
   localStorage.setItem("lokalIncomingInviterKey", params.get("inviter") || "");
@@ -215,13 +216,11 @@ function captureIncomingReferral() {
 function appInviteDetails() {
   const code = currentReferralCode();
   const url = new URL(publicAppBaseUrl());
-  url.searchParams.set("ref", code);
-  url.searchParams.set("inviter", typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "");
-  url.searchParams.set("from", state.profile?.username || state.profile?.fullName || "lokal");
+  url.hash = `/${code}.invite`;
   return {
     code,
     url: url.toString(),
-    inviterUserKey: url.searchParams.get("inviter"),
+    inviterUserKey: typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "",
     inviterName: state.profile?.fullName || "",
     inviterUsername: state.profile?.username || ""
   };

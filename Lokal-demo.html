@@ -4261,7 +4261,7 @@ h3 { font-weight: 800; }
   font-size: 11px;
 }
 .add-friends-sheet .friend-search-columns {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
   margin-top: 8px;
 }
@@ -4294,6 +4294,11 @@ h3 { font-weight: 800; }
   overflow-y: auto;
   padding-right: 2px;
 }
+.add-friends-sheet .follow-card {
+  width: 100%;
+  min-height: 64px;
+  padding: 0;
+}
 .add-friends-sheet .friend-search-column .follow-list {
   display: grid;
   gap: 7px;
@@ -4304,7 +4309,7 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-directory-card {
   display: flex;
   align-items: stretch;
-  min-height: 0;
+  min-height: 64px;
   overflow: hidden;
   border-radius: 14px;
   box-shadow: 0 3px 10px rgba(23, 28, 26, .04);
@@ -4312,8 +4317,9 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-card-main {
   min-width: 0;
   flex: 1 1 auto;
+  align-items: center;
   gap: 9px;
-  padding: 9px;
+  padding: 10px;
 }
 .add-friends-sheet .friend-card-main > span:last-child {
   display: grid;
@@ -4329,7 +4335,7 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-card-main b {
   display: block;
   font-size: 15px;
-  line-height: 1.05;
+  line-height: 1.15;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4338,7 +4344,7 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-card-main em {
   display: block;
   font-size: 11px;
-  line-height: 1.12;
+  line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -6854,7 +6860,8 @@ function currentReferralCode() {
 
 function captureIncomingReferral() {
   const params = new URLSearchParams(location.search);
-  const code = params.get("ref") || params.get("invite") || params.get("r");
+  const hashInvite = decodeURIComponent(location.hash || "").match(/#\/?([a-z0-9-]+)\.invite/i)?.[1] || "";
+  const code = params.get("ref") || params.get("invite") || params.get("r") || hashInvite;
   if (!code) return;
   localStorage.setItem("lokalIncomingReferralCode", code);
   localStorage.setItem("lokalIncomingInviterKey", params.get("inviter") || "");
@@ -6864,13 +6871,11 @@ function captureIncomingReferral() {
 function appInviteDetails() {
   const code = currentReferralCode();
   const url = new URL(publicAppBaseUrl());
-  url.searchParams.set("ref", code);
-  url.searchParams.set("inviter", typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "");
-  url.searchParams.set("from", state.profile?.username || state.profile?.fullName || "lokal");
+  url.hash = `/${code}.invite`;
   return {
     code,
     url: url.toString(),
-    inviterUserKey: url.searchParams.get("inviter"),
+    inviterUserKey: typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "",
     inviterName: state.profile?.fullName || "",
     inviterUsername: state.profile?.username || ""
   };
@@ -8699,14 +8704,24 @@ async function submitAppInviteShare(invite = {}) {
   return record;
 }
 
+async function lookupReferralInvite(inviteCode) {
+  if (!inviteCode) return null;
+  const url = `${supabaseConfig.url}/rest/v1/app_invites?select=inviter_user_key,inviter_name,inviter_username&invite_code=eq.${encodeURIComponent(inviteCode)}&order=created_at.desc&limit=1`;
+  const response = await fetch(url, { headers: supabaseJsonHeaders() });
+  if (!response.ok) return null;
+  const rows = await response.json();
+  return rows[0] || null;
+}
+
 async function submitReferralJoin(profile = {}) {
   const inviteCode = localStorage.getItem("lokalIncomingReferralCode");
-  const inviterUserKey = localStorage.getItem("lokalIncomingInviterKey");
+  const inviteRecord = await lookupReferralInvite(inviteCode);
+  const inviterUserKey = localStorage.getItem("lokalIncomingInviterKey") || inviteRecord?.inviter_user_key || "";
   if (!inviteCode || !inviterUserKey || inviterUserKey === currentInteractionUserId()) return null;
   const record = {
     invite_code: inviteCode,
     inviter_user_key: inviterUserKey,
-    inviter_name: localStorage.getItem("lokalIncomingInviterName") || "",
+    inviter_name: localStorage.getItem("lokalIncomingInviterName") || inviteRecord?.inviter_name || "",
     invited_user_key: currentInteractionUserId(),
     invited_name: profile.fullName || state.profile?.fullName || "",
     invited_username: profile.username || state.profile?.username || "",

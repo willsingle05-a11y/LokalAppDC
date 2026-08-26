@@ -2255,7 +2255,7 @@ h3 { font-weight: 800; }
   font-size: 11px;
 }
 .add-friends-sheet .friend-search-columns {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
   margin-top: 8px;
 }
@@ -2288,6 +2288,11 @@ h3 { font-weight: 800; }
   overflow-y: auto;
   padding-right: 2px;
 }
+.add-friends-sheet .follow-card {
+  width: 100%;
+  min-height: 64px;
+  padding: 0;
+}
 .add-friends-sheet .friend-search-column .follow-list {
   display: grid;
   gap: 7px;
@@ -2298,7 +2303,7 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-directory-card {
   display: flex;
   align-items: stretch;
-  min-height: 0;
+  min-height: 64px;
   overflow: hidden;
   border-radius: 14px;
   box-shadow: 0 3px 10px rgba(23, 28, 26, .04);
@@ -2306,8 +2311,9 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-card-main {
   min-width: 0;
   flex: 1 1 auto;
+  align-items: center;
   gap: 9px;
-  padding: 9px;
+  padding: 10px;
 }
 .add-friends-sheet .friend-card-main > span:last-child {
   display: grid;
@@ -2323,7 +2329,7 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-card-main b {
   display: block;
   font-size: 15px;
-  line-height: 1.05;
+  line-height: 1.15;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2332,7 +2338,7 @@ h3 { font-weight: 800; }
 .add-friends-sheet .friend-card-main em {
   display: block;
   font-size: 11px;
-  line-height: 1.12;
+  line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

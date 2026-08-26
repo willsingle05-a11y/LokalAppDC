@@ -315,14 +315,24 @@ async function submitAppInviteShare(invite = {}) {
   return record;
 }
 
+async function lookupReferralInvite(inviteCode) {
+  if (!inviteCode) return null;
+  const url = `${supabaseConfig.url}/rest/v1/app_invites?select=inviter_user_key,inviter_name,inviter_username&invite_code=eq.${encodeURIComponent(inviteCode)}&order=created_at.desc&limit=1`;
+  const response = await fetch(url, { headers: supabaseJsonHeaders() });
+  if (!response.ok) return null;
+  const rows = await response.json();
+  return rows[0] || null;
+}
+
 async function submitReferralJoin(profile = {}) {
   const inviteCode = localStorage.getItem("lokalIncomingReferralCode");
-  const inviterUserKey = localStorage.getItem("lokalIncomingInviterKey");
+  const inviteRecord = await lookupReferralInvite(inviteCode);
+  const inviterUserKey = localStorage.getItem("lokalIncomingInviterKey") || inviteRecord?.inviter_user_key || "";
   if (!inviteCode || !inviterUserKey || inviterUserKey === currentInteractionUserId()) return null;
   const record = {
     invite_code: inviteCode,
     inviter_user_key: inviterUserKey,
-    inviter_name: localStorage.getItem("lokalIncomingInviterName") || "",
+    inviter_name: localStorage.getItem("lokalIncomingInviterName") || inviteRecord?.inviter_name || "",
     invited_user_key: currentInteractionUserId(),
     invited_name: profile.fullName || state.profile?.fullName || "",
     invited_username: profile.username || state.profile?.username || "",
