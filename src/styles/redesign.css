@@ -2189,7 +2189,7 @@ h3 { font-weight: 800; }
   overscroll-behavior: contain;
 }
 .add-friends-sheet h2 {
-  margin-bottom: 4px;
+  margin-bottom: 12px;
   font-size: clamp(28px, 4vw, 38px);
   line-height: .95;
 }
