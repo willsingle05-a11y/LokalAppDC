@@ -241,7 +241,7 @@ document.addEventListener("click", async event => {
       <h2>Add friends</h2>
       <div class="add-friends-invite">
         <span class="add-friends-badge">Invite</span>
-        <div class="add-friends-url"><small>Your invite URL</small><b>${escapeHtml(invite.url)}</b></div>
+        <div class="add-friends-url"><small>Your invite URL</small><b>${escapeHtml(invite.displayUrl)}</b></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
       </div>
       <label class="search-box social-search add-friends-search"><span>&#8981;</span><input data-add-friends-search placeholder="Search old friends or find new ones" aria-label="Search old friends or find new ones"></label>
