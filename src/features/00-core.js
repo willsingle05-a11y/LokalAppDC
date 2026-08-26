@@ -75,6 +75,7 @@ const modalRoot = document.querySelector("#modal-root");
 state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) };
 state.friendEventInterests = new Map();
 state.friendEventInterestsLoaded = false;
+state.pointNotifications = JSON.parse(localStorage.getItem("lokalPointNotifications") || "[]");
 // Persisted saves/RSVPs by stable source id (runtime event ids change each sync),
 // reconciled back onto the loaded events so a user's data survives reloads and
 // shapes what they see.
@@ -228,6 +229,23 @@ function appInviteDetails() {
 }
 
 captureIncomingReferral();
+
+function savePointNotifications() {
+  localStorage.setItem("lokalPointNotifications", JSON.stringify((state.pointNotifications || []).slice(0, 30)));
+}
+
+function recordLokalPoints(points, action, key = "") {
+  const amount = Number(points) || 0;
+  if (!amount || !action) return null;
+  const id = key || `${Date.now()}-${String(action).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  state.pointNotifications = state.pointNotifications || [];
+  if (state.pointNotifications.some(item => item.id === id)) return null;
+  const item = { id, points: amount, action, createdAt: Date.now() };
+  state.pointNotifications = [item, ...state.pointNotifications].slice(0, 30);
+  savePointNotifications();
+  if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();
+  return item;
+}
 
 function avatarStack(friends) {
   if (!friends.length) return "";

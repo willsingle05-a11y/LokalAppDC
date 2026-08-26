@@ -559,11 +559,23 @@ function notificationPlanReminders() {
     .slice(0, 6);
 }
 
+function notificationPointItems() {
+  return (state.pointNotifications || [])
+    .slice(0, 12)
+    .map(item => ({
+      id: `points-${item.id}`,
+      points: item.points,
+      title: `+${item.points}`,
+      body: item.action,
+      meta: item.createdAt ? new Date(item.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Just now"
+    }));
+}
+
 function notificationItems() {
   const requests = (state.pendingRequests || [])
     .filter(request => request.type === "friend")
     .map(request => ({ id: request.id, request }));
-  return [...requests, ...notificationPlanReminders()];
+  return [...notificationPointItems(), ...requests, ...notificationPlanReminders()];
 }
 
 function notificationSignature() {
@@ -584,10 +596,17 @@ function refreshNotificationBadge() {
   });
 }
 
-function openNotifications() {
+function openNotifications(skipSync = false) {
+  if (!skipSync && typeof syncReferralPointNotifications === "function") {
+    syncReferralPointNotifications().then(() => {
+      if (document.querySelector(".notification-sheet")) openNotifications(true);
+    });
+  }
   const items = notificationItems();
   const cards = items.map(item => item.request
     ? `<div class="notification-card request-notification"><b>${escapeHtml(item.request.from)} sent you a friend request</b><p>${escapeHtml(item.request.detail)}</p><small>${escapeHtml(item.request.time)}</small><div class="request-actions"><button data-accept-request="${item.request.id}">Accept</button><button data-decline-request="${item.request.id}">Decline</button></div></div>`
+    : item.points
+    ? `<div class="notification-card points-notification"><span class="points-badge">+${escapeHtml(item.points)}</span><span><b>${escapeHtml(item.body)}</b><p>Lokal points earned</p><small>${escapeHtml(item.meta)}</small></span></div>`
     : `<button class="notification-card" data-event="${item.eventId}"><b>${escapeHtml(item.title)}</b><p>${escapeHtml(item.body)}</p><small>${escapeHtml(item.meta)}</small></button>`).join("");
   const empty = `<div class="notification-empty"><b>You're all caught up</b><p>Friend requests and reminders for events you've saved or RSVP'd to will show up here.</p></div>`;
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${cards || empty}</section></div>`;

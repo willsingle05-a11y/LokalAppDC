@@ -163,6 +163,7 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     saveEventInteraction(id, "save", isSaved);
+    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`);
     if (state.route === "social") renderSocial(); else if (state.route === "home") renderHome();
     toast(isSaved ? "Saved for later" : "Removed from saved");
     return;
@@ -174,6 +175,7 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     saveEventInteraction(id, "save", isSaved);
+    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`);
     // Every Save control for this event at once: the card hearts, the list rows,
     // and the detail sheet's decide bar. The detail button carries a written
     // label as well as a state class, and the old code refreshed it by
@@ -257,6 +259,7 @@ document.addEventListener("click", async event => {
       state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
       localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
       submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
+      recordLokalPoints(1, "Copied an invite link", `invite-copy-${Date.now()}`);
       toast("Invite link copied");
     } catch {
       toast("Could not copy the invite link");
@@ -272,6 +275,7 @@ document.addEventListener("click", async event => {
       state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
       localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
       submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
+      recordLokalPoints(1, "Sent an invite link", `invite-send-${Date.now()}`);
       toast(navigator.share ? "Share sheet opened" : "Invite copied");
     } catch {
       toast(navigator.share ? "Share canceled" : "Could not copy the invite");
@@ -321,7 +325,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.sendMessage !== undefined) { mark(); const input = document.querySelector("[data-message]"); const group = t.dataset.groupName; if (input?.value.trim()) { const text = input.value.trim(); state.groupMessages[group] = [{ type: "text", text }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "text", text }); openGroup(group); toast("Message sent"); } else toast("Type a message first"); }
   if (t.dataset.manageFollowing !== undefined) { mark(); openFollowingManager(); }
   if (t.dataset.follow) { state.follows.has(t.dataset.follow) ? state.follows.delete(t.dataset.follow) : state.follows.add(t.dataset.follow); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); const inManager = Boolean(t.closest(".modal")); ({ home: renderHome, social: renderSocial, profile: renderProfile }[state.route] || renderSocial)(); if (inManager) openFollowingManager(); toast(state.follows.has(t.dataset.follow) ? "Added to your feed" : "Removed from your feed"); }
-  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); const inFollowedVenuesSheet = Boolean(t.closest(".followed-venues-sheet")); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : inFollowedVenuesSheet ? "profile_following" : "venue_page"); t.classList.toggle("selected", on); const followLabel = t.closest(".event-detail-sheet") || t.classList.contains("detail-follow-venue") ? (on ? "Following venue ✓" : "Follow venue") : inFollowedVenuesSheet ? "Unfollow venue" : (on ? "Following" : "Follow"); /* In the detail sheet the follow control is a whole row — a label, the venue name and a link — so writing textContent onto the button erased the address. Only the link inside it changes; everywhere else the button is its own label. */ (t.querySelector(".detail-group-link") || t).textContent = followLabel; if (inFollowedVenuesSheet && typeof openFollowedVenuesList === "function") openFollowedVenuesList(document.querySelector("[data-followed-venue-search]")?.value || ""); if (state.route === "home") renderHome(); if (state.route === "profile") renderProfile(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
+  if (t.dataset.followVenue) { mark(); const key = t.dataset.followVenue; const venueName = key.replace(/^venue:/, ""); const on = !state.follows.has(key); const inFollowedVenuesSheet = Boolean(t.closest(".followed-venues-sheet")); on ? state.follows.add(key) : state.follows.delete(key); localStorage.setItem("lokalFollows", JSON.stringify(Array.from(state.follows))); if (typeof submitVenueFollow === "function") submitVenueFollow(venueName, on, t.classList.contains("detail-follow-venue") ? "event_detail" : inFollowedVenuesSheet ? "profile_following" : "venue_page"); if (on) recordLokalPoints(1, `Followed ${venueName}`, `follow-venue-${key}`); t.classList.toggle("selected", on); const followLabel = t.closest(".event-detail-sheet") || t.classList.contains("detail-follow-venue") ? (on ? "Following venue ✓" : "Follow venue") : inFollowedVenuesSheet ? "Unfollow venue" : (on ? "Following" : "Follow"); /* In the detail sheet the follow control is a whole row — a label, the venue name and a link — so writing textContent onto the button erased the address. Only the link inside it changes; everywhere else the button is its own label. */ (t.querySelector(".detail-group-link") || t).textContent = followLabel; if (inFollowedVenuesSheet && typeof openFollowedVenuesList === "function") openFollowedVenuesList(document.querySelector("[data-followed-venue-search]")?.value || ""); if (state.route === "home") renderHome(); if (state.route === "profile") renderProfile(); toast(on ? `Following ${venueName}` : "Unfollowed venue"); }
   if (t.dataset.venueEvents) { mark(); openVenueEvents(t.dataset.venueEvents); }
   if (t.dataset.dismissVenueVerification !== undefined) {
     mark();
@@ -674,6 +678,7 @@ document.addEventListener("click", async event => {
     document.querySelector(".onboarding")?.remove();
     state.onboardStep = 0;
     state.signupDraft = {};
+    recordLokalPoints(100, "Joined Lokal", "joined-lokal");
     renderHome();
     toast(supabaseSynced ? "Welcome to Lokal" : "Profile saved locally. Supabase sync needs attention.");
     showDiscoverHint();
@@ -700,6 +705,7 @@ document.addEventListener("click", async event => {
       document.querySelector(".onboarding").remove();
       finalizeLokalProfile(state.pendingSignupProfile);
       state.onboardStep++;
+      recordLokalPoints(100, "Joined Lokal", "joined-lokal");
       renderOnboarding();
       toast(result.access_token ? "100 Lokal points for joining" : "100 Lokal points for joining. Check your email to confirm it.");
     } catch (accountError) {
@@ -708,7 +714,7 @@ document.addEventListener("click", async event => {
     }
   }
   if (t.dataset.verifyPhone !== undefined) { const card = t.closest(".onboard-card"); const error = card.querySelector("[data-account-error]"); t.disabled = true; error.textContent = ""; try { await verifyLokalPhone(card.querySelector("[data-signup-code]").value); document.querySelector(".onboarding").remove(); state.onboardStep++; renderOnboarding(); toast("Phone number verified"); } catch (verificationError) { error.textContent = verificationError.message; t.disabled = false; } }
-  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); toast("100 Lokal points for joining"); showDiscoverHint(); } }
+  if (t.dataset.next !== undefined) { document.querySelector(".onboarding").remove(); state.onboardStep++; state.selections.clear(); if (state.onboardStep < 3) renderOnboarding(); else { localStorage.setItem("lokalAccountCreated","true"); recordLokalPoints(100, "Joined Lokal", "joined-lokal"); toast("100 Lokal points for joining"); showDiscoverHint(); } }
   if (t.dataset.showLogin !== undefined) { mark(); renderLogin(); }
   if (t.dataset.showForgot !== undefined) { mark(); renderForgotPassword(); }
   if (t.dataset.showSignup !== undefined) { mark(); document.querySelector(".onboarding")?.remove(); state.signupDraft = {}; state.onboardStep = 0; renderOnboarding(); }
@@ -1008,6 +1014,7 @@ updateProfileShortcut();
 syncSupabaseEvents();
 syncSupabaseProfiles();
 syncSupabaseGroups();
+if (typeof syncReferralPointNotifications === "function") syncReferralPointNotifications().then(() => refreshNotificationBadge());
 updateProfileShortcut();
 checkPhoneSignupStatus();
 showWelcomeBanner();

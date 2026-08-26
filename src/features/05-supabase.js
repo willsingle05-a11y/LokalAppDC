@@ -359,6 +359,25 @@ async function submitReferralJoin(profile = {}) {
   return record;
 }
 
+async function syncReferralPointNotifications() {
+  const userKey = currentInteractionUserId();
+  if (!userKey) return [];
+  const url = `${supabaseConfig.url}/rest/v1/app_referrals?select=id,invited_name,points_awarded,created_at&inviter_user_key=eq.${encodeURIComponent(userKey)}&order=created_at.desc&limit=20`;
+  try {
+    const response = await fetch(url, { headers: supabaseJsonHeaders() });
+    if (!response.ok) throw new Error(`Referral point lookup returned ${response.status}`);
+    const rows = await response.json();
+    rows.forEach(row => {
+      const name = row.invited_name || "Someone";
+      recordLokalPoints(row.points_awarded || 3, `${name} joined from your invite`, `referral-${row.id}`);
+    });
+    return rows;
+  } catch (error) {
+    console.warn("[supabase] referral points not synced", error);
+    return [];
+  }
+}
+
 async function submitAccountDeletionRequest(reason = "") {
   const record = {
     user_key: currentInteractionUserId(),
