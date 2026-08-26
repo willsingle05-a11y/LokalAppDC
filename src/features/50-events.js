@@ -79,13 +79,14 @@ function openDetail(id, opts = {}) {
   const displayTitle = eventDisplayTitle(e);
   const showRsvpHint = (Number(localStorage.getItem("lokalRsvpHintCount")) || 0) <= 3;
   const hasDisplayHeroImage = eventHasDisplayImage(e);
-  const containHeroImage = eventImageShouldContain(e);
+  const knockoutHeroImage = eventImageLooksKnockout(e.image);
+  const logoHeroImage = eventImageShouldPadAsLogo(e) || knockoutHeroImage;
   const fallbackHeroImage = eventFallbackImageSrc(e);
   const heroImageSrc = hasDisplayHeroImage ? eventCardImageSrc(e) : fallbackHeroImage;
   // A blurred copy of the artwork fills the frame behind the image, so photos
   // read edge-to-edge while venue logos still show whole instead of cropping.
-  const heroStyle = `background-color: #f7fafc;${containHeroImage ? "" : heroImageSrcBackdrop(hasDisplayHeroImage ? eventCardImageSrc(e) : fallbackHeroImage)}`;
-  const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasDisplayHeroImage ? "" : " is-fallback-image"}${containHeroImage ? " is-logo-image" : ""}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image');this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
+  const heroStyle = `background-color: #f7fafc;${logoHeroImage ? "" : heroImageSrcBackdrop(hasDisplayHeroImage ? eventCardImageSrc(e) : fallbackHeroImage)}`;
+  const heroImg = heroImageSrc ? `<img class="detail-hero-img${hasDisplayHeroImage ? "" : " is-fallback-image"}${logoHeroImage ? " is-logo-image" : ""}${knockoutHeroImage ? " is-knockout-image" : ""}" src="${escapeHtml(heroImageSrc)}" data-fallback-src="${escapeHtml(fallbackHeroImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image','is-knockout-image');this.classList.add('is-fallback-image');" alt="" loading="lazy">` : "";
   const priceLabel = eventPriceLabel(e);
   // Price lives in the Date and time card now, so it is not repeated here.
   const detailDescription = String(e.desc || "");
@@ -110,7 +111,7 @@ function openDetail(id, opts = {}) {
       </div>
     </div>
     <div class="detail-scroll">
-      <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}" style="${heroStyle}">${heroImg}</div>
+      <div class="detail-hero cat-${e.cat}${heroImg ? " has-image" : ""}${knockoutHeroImage ? " has-knockout-image" : ""}" style="${heroStyle}">${heroImg}</div>
       <div class="detail-body">
         <div class="detail-title-block">
           ${categoryLabel ? `<p class="event-meta">${escapeHtml(categoryLabel)}</p>` : ""}

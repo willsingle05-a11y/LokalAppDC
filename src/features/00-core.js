@@ -325,6 +325,7 @@ function eventImageFallbackStyle(imageUrl) {
 function eventImageLooksLogoLike(imageUrl) {
   const value = String(imageUrl || "").trim();
   if (!value) return false;
+  if (/^data:image\//i.test(value)) return true;
   let path = value.toLowerCase();
   try {
     const parsed = new URL(value);
@@ -336,18 +337,34 @@ function eventImageLooksLogoLike(imageUrl) {
     || /\btr=w-(?:\d{1,2}|1\d\d)\b/.test(path);
 }
 
+function eventImageLooksKnockout(imageUrl) {
+  const value = String(imageUrl || "").trim();
+  if (!value || /^data:image\//i.test(value)) return false;
+  let path = value.toLowerCase();
+  try {
+    const parsed = new URL(value);
+    path = `${parsed.pathname} ${parsed.search}`.toLowerCase();
+  } catch (_) {}
+  try { path = decodeURIComponent(path); } catch (_) {}
+  return /(?:^|[\s._+-])(white|reverse|reversed|inverted|invert|knockout)(?:[\s._+-]|$)/.test(path.replace(/\+/g, " "));
+}
+
 function eventHasDisplayImage(event) {
   const image = String(event?.image || "").trim();
   return Boolean(image) && /^(https?:|data:image\/)/i.test(image);
 }
 
 function eventImageShouldContain(event) {
+  return eventHasDisplayImage(event);
+}
+
+function eventImageShouldPadAsLogo(event) {
   return eventHasDisplayImage(event)
-    && (event.imageFit === "contain" || event.imageKind === "logo" || eventImageLooksLogoLike(event.image));
+    && (event.imageKind === "logo" || eventImageLooksLogoLike(event.image));
 }
 
 function eventHasUsablePhoto(event) {
-  return eventHasDisplayImage(event) && !eventImageShouldContain(event);
+  return eventHasDisplayImage(event) && !eventImageShouldPadAsLogo(event);
 }
 
 function seededPerformingArtsFallbackTags(seedText) {
@@ -1022,10 +1039,11 @@ function eventRow(event, variant = "", opts = {}) {
   const fallbackImage = eventFallbackImageSrc(event);
   const imageSrc = eventCardImageSrc(event);
   const hasDisplayImage = eventHasDisplayImage(event);
-  const containImage = eventImageShouldContain(event);
-  const imageClass = `event-card-img${hasDisplayImage ? "" : " is-fallback-image"}${containImage ? " is-logo-image" : ""}`;
+  const knockoutImage = eventImageLooksKnockout(event.image);
+  const logoImage = eventImageShouldPadAsLogo(event) || knockoutImage;
+  const imageClass = `event-card-img${hasDisplayImage ? "" : " is-fallback-image"}${logoImage ? " is-logo-image" : ""}${knockoutImage ? " is-knockout-image" : ""}`;
   const fallbackStyle = hasDisplayImage ? "" : eventImageFallbackStyle(fallbackImage);
-  return `<article class="event-card${variant ? " event-card-" + variant : ""}${hasDisplayImage ? " has-image" : ""}${containImage ? " has-logo-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
+  return `<article class="event-card${variant ? " event-card-" + variant : ""}${hasDisplayImage ? " has-image" : ""}${logoImage ? " has-logo-image" : ""}${knockoutImage ? " has-knockout-image" : ""}" data-event-card data-search-text="${`${event.title} ${event.venue} ${event.area} ${event.cat} ${tags.join(" ")}`.toLowerCase()}">
     <div class="event-card-media cat-${eventVisualCategory(event)}" style="${escapeHtml(fallbackStyle)}">
       <img class="${imageClass}" src="${escapeHtml(imageSrc)}" data-fallback-src="${escapeHtml(fallbackImage)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image');this.classList.add('is-fallback-image');this.closest('.event-card')?.classList.remove('has-logo-image');this.closest('.event-card-media')?.style.setProperty('background-image','url('+this.dataset.fallbackSrc+')');" onload="if(!this.classList.contains('is-fallback-image')&&(this.naturalWidth<24||this.naturalHeight<24)){this.src=this.dataset.fallbackSrc;this.classList.remove('is-logo-image');this.classList.add('is-fallback-image');this.closest('.event-card')?.classList.remove('has-logo-image');this.closest('.event-card-media')?.style.setProperty('background-image','url('+this.dataset.fallbackSrc+')');}" alt="" loading="lazy">
       <button class="event-card-hit" data-event="${event.id}" aria-label="Open ${escapeHtml(displayTitle)}"></button>
