@@ -178,6 +178,57 @@ async function copyText(value) {
   return copied;
 }
 
+function publicAppBaseUrl() {
+  const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+  if (isLocal) return "https://willsingle05-a11y.github.io/LokalAppDC/";
+  const url = new URL(location.href);
+  url.search = "";
+  url.hash = "";
+  return url.toString();
+}
+
+function stableHash(value) {
+  return Array.from(String(value || "")).reduce((hash, character) => ((hash << 5) - hash + character.charCodeAt(0)) | 0, 0);
+}
+
+function currentReferralCode() {
+  const stored = localStorage.getItem("lokalReferralCode");
+  if (stored) return stored;
+  const name = state.profile?.username || state.profile?.fullName || "lokal";
+  const userKey = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : localStorage.getItem("lokalDemoInteractionUserId") || name;
+  const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 12) || "lokal";
+  const suffix = Math.abs(stableHash(userKey)).toString(36).slice(0, 6) || "invite";
+  const code = `${slug}-${suffix}`;
+  localStorage.setItem("lokalReferralCode", code);
+  return code;
+}
+
+function captureIncomingReferral() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("ref") || params.get("invite") || params.get("r");
+  if (!code) return;
+  localStorage.setItem("lokalIncomingReferralCode", code);
+  localStorage.setItem("lokalIncomingInviterKey", params.get("inviter") || "");
+  localStorage.setItem("lokalIncomingInviterName", params.get("from") || "");
+}
+
+function appInviteDetails() {
+  const code = currentReferralCode();
+  const url = new URL(publicAppBaseUrl());
+  url.searchParams.set("ref", code);
+  url.searchParams.set("inviter", typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "");
+  url.searchParams.set("from", state.profile?.username || state.profile?.fullName || "lokal");
+  return {
+    code,
+    url: url.toString(),
+    inviterUserKey: url.searchParams.get("inviter"),
+    inviterName: state.profile?.fullName || "",
+    inviterUsername: state.profile?.username || ""
+  };
+}
+
+captureIncomingReferral();
+
 function avatarStack(friends) {
   if (!friends.length) return "";
   return `<span class="avatars">${friends.map(f => `<span class="avatar">${f}</span>`).join("")}</span>`;

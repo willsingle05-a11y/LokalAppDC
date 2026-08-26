@@ -4189,20 +4189,21 @@ h3 { font-weight: 800; }
 .event-card-info .event-card-reason { align-self: start; margin-bottom: 3px; }
 
 .add-friends-sheet {
+  width: min(92vw, 900px);
   max-height: min(86dvh, 720px);
-  padding-bottom: max(22px, env(safe-area-inset-bottom));
+  padding: 22px 24px max(22px, env(safe-area-inset-bottom));
   overscroll-behavior: contain;
 }
 .add-friends-sheet h2 {
-  margin-bottom: 5px;
-  font-size: 34px;
-  line-height: .92;
+  margin-bottom: 4px;
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: .95;
 }
 .add-friends-sheet .lede {
-  margin: 0 44px 14px 0;
+  margin: 0 44px 12px 0;
   color: #5d645f;
-  font-size: 15px;
-  line-height: 1.35;
+  font-size: 14px;
+  line-height: 1.3;
 }
 .add-friends-invite {
   display: grid;
@@ -4260,13 +4261,18 @@ h3 { font-weight: 800; }
   font-size: 11px;
 }
 .add-friends-sheet .friend-search-columns {
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin-top: 8px;
 }
 .add-friends-sheet .friend-search-column {
   display: grid;
   gap: 8px;
   min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(23, 28, 26, .08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .82);
 }
 .add-friends-sheet .friend-search-column .group-divider {
   margin: 0;
@@ -4286,13 +4292,23 @@ h3 { font-weight: 800; }
   padding-right: 2px;
 }
 .add-friends-sheet .friend-directory-card {
+  display: flex;
+  align-items: stretch;
   min-height: 0;
+  overflow: hidden;
   border-radius: 14px;
   box-shadow: 0 3px 10px rgba(23, 28, 26, .04);
 }
 .add-friends-sheet .friend-card-main {
+  min-width: 0;
+  flex: 1 1 auto;
   gap: 9px;
   padding: 9px;
+}
+.add-friends-sheet .friend-card-main > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
 }
 .add-friends-sheet .friend-card-main .avatar {
   width: 34px;
@@ -4301,12 +4317,29 @@ h3 { font-weight: 800; }
   font-size: 10px;
 }
 .add-friends-sheet .friend-card-main b {
+  display: block;
   font-size: 15px;
   line-height: 1.05;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .add-friends-sheet .friend-card-main small,
 .add-friends-sheet .friend-card-main em {
+  display: block;
   font-size: 11px;
+  line-height: 1.12;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.add-friends-sheet .friend-directory-card > .follow-button {
+  flex: 0 0 42px;
+  width: 42px;
+  min-width: 42px;
+  padding: 0;
+  border-radius: 0;
+  font-size: 14px;
 }
 
 @media (max-width: 520px) {
@@ -4315,6 +4348,9 @@ h3 { font-weight: 800; }
   }
   .add-friends-invite .wide-button {
     width: 100%;
+  }
+  .add-friends-sheet .friend-search-columns {
+    grid-template-columns: 1fr;
   }
   .add-friends-sheet .friend-search-column .follow-list {
     max-height: 185px;
@@ -6781,6 +6817,57 @@ async function copyText(value) {
   return copied;
 }
 
+function publicAppBaseUrl() {
+  const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+  if (isLocal) return "https://willsingle05-a11y.github.io/LokalAppDC/";
+  const url = new URL(location.href);
+  url.search = "";
+  url.hash = "";
+  return url.toString();
+}
+
+function stableHash(value) {
+  return Array.from(String(value || "")).reduce((hash, character) => ((hash << 5) - hash + character.charCodeAt(0)) | 0, 0);
+}
+
+function currentReferralCode() {
+  const stored = localStorage.getItem("lokalReferralCode");
+  if (stored) return stored;
+  const name = state.profile?.username || state.profile?.fullName || "lokal";
+  const userKey = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : localStorage.getItem("lokalDemoInteractionUserId") || name;
+  const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 12) || "lokal";
+  const suffix = Math.abs(stableHash(userKey)).toString(36).slice(0, 6) || "invite";
+  const code = `${slug}-${suffix}`;
+  localStorage.setItem("lokalReferralCode", code);
+  return code;
+}
+
+function captureIncomingReferral() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("ref") || params.get("invite") || params.get("r");
+  if (!code) return;
+  localStorage.setItem("lokalIncomingReferralCode", code);
+  localStorage.setItem("lokalIncomingInviterKey", params.get("inviter") || "");
+  localStorage.setItem("lokalIncomingInviterName", params.get("from") || "");
+}
+
+function appInviteDetails() {
+  const code = currentReferralCode();
+  const url = new URL(publicAppBaseUrl());
+  url.searchParams.set("ref", code);
+  url.searchParams.set("inviter", typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "");
+  url.searchParams.set("from", state.profile?.username || state.profile?.fullName || "lokal");
+  return {
+    code,
+    url: url.toString(),
+    inviterUserKey: url.searchParams.get("inviter"),
+    inviterName: state.profile?.fullName || "",
+    inviterUsername: state.profile?.username || ""
+  };
+}
+
+captureIncomingReferral();
+
 function avatarStack(friends) {
   if (!friends.length) return "";
   return `<span class="avatars">${friends.map(f => `<span class="avatar">${f}</span>`).join("")}</span>`;
@@ -8576,6 +8663,63 @@ async function submitOnboardingProfile(profile) {
     eventInterestCount: record.event_interests.length,
     areaInterestCount: record.area_interests.length
   });
+  return record;
+}
+
+async function submitAppInviteShare(invite = {}) {
+  const record = {
+    inviter_user_key: currentInteractionUserId(),
+    inviter_name: invite.inviterName || state.profile?.fullName || "",
+    inviter_username: invite.inviterUsername || state.profile?.username || "",
+    invite_code: invite.code || currentReferralCode(),
+    invite_url: invite.url || appInviteDetails().url,
+    channel: invite.channel || "copy"
+  };
+  if (typeof recordAppAction === "function") recordAppAction("app_invite_shared", {
+    inviteCode: record.invite_code,
+    inviteUrl: record.invite_url,
+    channel: record.channel
+  });
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/app_invites`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Invite share returned ${response.status}`);
+  return record;
+}
+
+async function submitReferralJoin(profile = {}) {
+  const inviteCode = localStorage.getItem("lokalIncomingReferralCode");
+  const inviterUserKey = localStorage.getItem("lokalIncomingInviterKey");
+  if (!inviteCode || !inviterUserKey || inviterUserKey === currentInteractionUserId()) return null;
+  const record = {
+    invite_code: inviteCode,
+    inviter_user_key: inviterUserKey,
+    inviter_name: localStorage.getItem("lokalIncomingInviterName") || "",
+    invited_user_key: currentInteractionUserId(),
+    invited_name: profile.fullName || state.profile?.fullName || "",
+    invited_username: profile.username || state.profile?.username || "",
+    invited_email: profile.email || state.profile?.email || "",
+    status: "joined",
+    points_awarded: 3
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/app_referrals?on_conflict=invite_code,invited_user_key`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Referral join returned ${response.status}`);
+  recordAppAction("referral_joined", {
+    inviteCode,
+    inviterUserKey,
+    invitedUserKey: record.invited_user_key,
+    invitedName: record.invited_name,
+    points: 3
+  });
+  localStorage.removeItem("lokalIncomingReferralCode");
+  localStorage.removeItem("lokalIncomingInviterKey");
+  localStorage.removeItem("lokalIncomingInviterName");
   return record;
 }
 
@@ -14250,6 +14394,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
   if (t.dataset.addFriendsLink !== undefined) {
     mark();
+    const invite = appInviteDetails();
     const existingFriends = friendDirectory
       .filter(friend => state.friends.has(friend[1]))
       .map(friend => friendCard(friend))
@@ -14265,7 +14410,7 @@ document.addEventListener("click", async event => {
       <p class="lede">Share your invite, search people you know, or add someone new.</p>
       <div class="add-friends-invite">
         <span class="add-friends-badge">Invite</span>
-        <div class="add-friends-url"><small>App invite URL</small><b>https://lokal.app/join</b></div>
+        <div class="add-friends-url"><small>Your invite URL</small><b>${escapeHtml(invite.url)}</b></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
       </div>
       <div class="friend-search-columns">
@@ -14284,7 +14429,19 @@ document.addEventListener("click", async event => {
       </div>
     </section></div>`;
   }
-  if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1; localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent)); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
+  if (t.dataset.copyAppInvite !== undefined) {
+    mark();
+    const invite = { ...appInviteDetails(), channel: "copy" };
+    try {
+      await copyText(invite.url);
+      state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
+      localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
+      submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
+      toast("Invite link copied");
+    } catch {
+      toast("Could not copy the invite link");
+    }
+  }
   if (t.dataset.restart !== undefined) { replayWelcomeLetter(); }
   if (t.dataset.notifications !== undefined) openNotifications();
   if (t.dataset.moreFilters !== undefined) openFilters();
@@ -14668,6 +14825,8 @@ document.addEventListener("click", async event => {
     }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
+    try { await submitReferralJoin(onboardingProfile); }
+    catch (error) { console.warn("[supabase] referral join failed", error); }
     localStorage.setItem("lokalAccountCreated", "true");
     // Mark that an account now exists on this device, so a later logout returns the
     // user to the login screen (not the first-run welcome letter).

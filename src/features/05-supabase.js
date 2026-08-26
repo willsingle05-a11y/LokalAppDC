@@ -292,6 +292,63 @@ async function submitOnboardingProfile(profile) {
   return record;
 }
 
+async function submitAppInviteShare(invite = {}) {
+  const record = {
+    inviter_user_key: currentInteractionUserId(),
+    inviter_name: invite.inviterName || state.profile?.fullName || "",
+    inviter_username: invite.inviterUsername || state.profile?.username || "",
+    invite_code: invite.code || currentReferralCode(),
+    invite_url: invite.url || appInviteDetails().url,
+    channel: invite.channel || "copy"
+  };
+  if (typeof recordAppAction === "function") recordAppAction("app_invite_shared", {
+    inviteCode: record.invite_code,
+    inviteUrl: record.invite_url,
+    channel: record.channel
+  });
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/app_invites`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Invite share returned ${response.status}`);
+  return record;
+}
+
+async function submitReferralJoin(profile = {}) {
+  const inviteCode = localStorage.getItem("lokalIncomingReferralCode");
+  const inviterUserKey = localStorage.getItem("lokalIncomingInviterKey");
+  if (!inviteCode || !inviterUserKey || inviterUserKey === currentInteractionUserId()) return null;
+  const record = {
+    invite_code: inviteCode,
+    inviter_user_key: inviterUserKey,
+    inviter_name: localStorage.getItem("lokalIncomingInviterName") || "",
+    invited_user_key: currentInteractionUserId(),
+    invited_name: profile.fullName || state.profile?.fullName || "",
+    invited_username: profile.username || state.profile?.username || "",
+    invited_email: profile.email || state.profile?.email || "",
+    status: "joined",
+    points_awarded: 3
+  };
+  const response = await fetch(`${supabaseConfig.url}/rest/v1/app_referrals?on_conflict=invite_code,invited_user_key`, {
+    method: "POST",
+    headers: supabaseJsonHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+    body: JSON.stringify([record])
+  });
+  if (!response.ok) throw new Error(`Referral join returned ${response.status}`);
+  recordAppAction("referral_joined", {
+    inviteCode,
+    inviterUserKey,
+    invitedUserKey: record.invited_user_key,
+    invitedName: record.invited_name,
+    points: 3
+  });
+  localStorage.removeItem("lokalIncomingReferralCode");
+  localStorage.removeItem("lokalIncomingInviterKey");
+  localStorage.removeItem("lokalIncomingInviterName");
+  return record;
+}
+
 async function submitAccountDeletionRequest(reason = "") {
   const record = {
     user_key: currentInteractionUserId(),

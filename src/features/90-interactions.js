@@ -225,6 +225,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
   if (t.dataset.addFriendsLink !== undefined) {
     mark();
+    const invite = appInviteDetails();
     const existingFriends = friendDirectory
       .filter(friend => state.friends.has(friend[1]))
       .map(friend => friendCard(friend))
@@ -240,7 +241,7 @@ document.addEventListener("click", async event => {
       <p class="lede">Share your invite, search people you know, or add someone new.</p>
       <div class="add-friends-invite">
         <span class="add-friends-badge">Invite</span>
-        <div class="add-friends-url"><small>App invite URL</small><b>https://lokal.app/join</b></div>
+        <div class="add-friends-url"><small>Your invite URL</small><b>${escapeHtml(invite.url)}</b></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
       </div>
       <div class="friend-search-columns">
@@ -259,7 +260,19 @@ document.addEventListener("click", async event => {
       </div>
     </section></div>`;
   }
-  if (t.dataset.copyAppInvite !== undefined) { mark(); try { await copyText("https://lokal.app/join"); state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1; localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent)); toast("App invite link copied"); } catch { toast("Could not copy the invite link"); } }
+  if (t.dataset.copyAppInvite !== undefined) {
+    mark();
+    const invite = { ...appInviteDetails(), channel: "copy" };
+    try {
+      await copyText(invite.url);
+      state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
+      localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
+      submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
+      toast("Invite link copied");
+    } catch {
+      toast("Could not copy the invite link");
+    }
+  }
   if (t.dataset.restart !== undefined) { replayWelcomeLetter(); }
   if (t.dataset.notifications !== undefined) openNotifications();
   if (t.dataset.moreFilters !== undefined) openFilters();
@@ -643,6 +656,8 @@ document.addEventListener("click", async event => {
     }
     try { await submitOnboardingProfile(onboardingProfile); }
     catch (error) { supabaseSynced = false; console.warn("[supabase] onboarding submission failed", error); }
+    try { await submitReferralJoin(onboardingProfile); }
+    catch (error) { console.warn("[supabase] referral join failed", error); }
     localStorage.setItem("lokalAccountCreated", "true");
     // Mark that an account now exists on this device, so a later logout returns the
     // user to the login screen (not the first-run welcome letter).
