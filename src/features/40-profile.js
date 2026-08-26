@@ -560,7 +560,9 @@ function notificationPlanReminders() {
 }
 
 function notificationPointItems() {
+  const hiddenPointActions = new Set(["Copied an invite link", "Sent an invite link"]);
   return (state.pointNotifications || [])
+    .filter(item => !hiddenPointActions.has(item.action))
     .slice(0, 12)
     .map(item => ({
       id: `points-${item.id}`,

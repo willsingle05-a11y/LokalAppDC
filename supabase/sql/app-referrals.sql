@@ -45,9 +45,16 @@ create table if not exists public.app_referrals (
   invited_username text,
   invited_email text,
   status text not null default 'joined',
-  points_awarded integer not null default 3,
+  points_awarded integer not null default 5,
   created_at timestamptz not null default now()
 );
+
+alter table public.app_referrals
+  alter column points_awarded set default 5;
+
+update public.app_referrals
+  set points_awarded = 5
+  where points_awarded = 3;
 
 create unique index if not exists app_referrals_invite_invited_user_idx
   on public.app_referrals(invite_code, invited_user_key);

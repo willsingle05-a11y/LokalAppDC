@@ -259,7 +259,6 @@ document.addEventListener("click", async event => {
       state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
       localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
       submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
-      recordLokalPoints(1, "Copied an invite link", `invite-copy-${Date.now()}`);
       toast("Invite link copied");
     } catch {
       toast("Could not copy the invite link");
@@ -275,7 +274,6 @@ document.addEventListener("click", async event => {
       state.inviteLinksSent = Number(state.inviteLinksSent || 0) + 1;
       localStorage.setItem("lokalInviteLinksSent", String(state.inviteLinksSent));
       submitAppInviteShare(invite).catch(error => console.warn("[supabase] invite share not recorded", error));
-      recordLokalPoints(1, "Sent an invite link", `invite-send-${Date.now()}`);
       toast(navigator.share ? "Share sheet opened" : "Invite copied");
     } catch {
       toast(navigator.share ? "Share canceled" : "Could not copy the invite");

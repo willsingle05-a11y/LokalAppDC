@@ -338,7 +338,7 @@ async function submitReferralJoin(profile = {}) {
     invited_username: profile.username || state.profile?.username || "",
     invited_email: profile.email || state.profile?.email || "",
     status: "joined",
-    points_awarded: 3
+    points_awarded: 5
   };
   const response = await fetch(`${supabaseConfig.url}/rest/v1/app_referrals?on_conflict=invite_code,invited_user_key`, {
     method: "POST",
@@ -351,8 +351,15 @@ async function submitReferralJoin(profile = {}) {
     inviterUserKey,
     invitedUserKey: record.invited_user_key,
     invitedName: record.invited_name,
-    points: 3
+    points: 5
   });
+  submitFriendRelationshipForUser(record.inviter_user_key, record.invited_name, "accepted", "referral").catch(error => console.warn("[supabase] inviter friendship not recorded", error));
+  submitFriendRelationshipForUser(record.invited_user_key, record.inviter_name, "accepted", "referral").catch(error => console.warn("[supabase] invited friendship not recorded", error));
+  if (record.inviter_name) {
+    state.friends.add(record.inviter_name);
+    state.friendSignupCredits.add(record.inviter_name);
+    localStorage.setItem("lokalFriendSignupCredits", JSON.stringify(Array.from(state.friendSignupCredits)));
+  }
   localStorage.removeItem("lokalIncomingReferralCode");
   localStorage.removeItem("lokalIncomingInviterKey");
   localStorage.removeItem("lokalIncomingInviterName");
@@ -369,7 +376,7 @@ async function syncReferralPointNotifications() {
     const rows = await response.json();
     rows.forEach(row => {
       const name = row.invited_name || "Someone";
-      recordLokalPoints(row.points_awarded || 3, `${name} joined from your invite`, `referral-${row.id}`);
+      recordLokalPoints(row.points_awarded || 5, `${name} joined from your invite`, `referral-${row.id}`);
     });
     return rows;
   } catch (error) {
@@ -462,6 +469,16 @@ function submitFriendRelationship(friendName, status = "accepted", source = "dem
   if (!friendName) return;
   return socialUpsert("friend_relationships", "user_key,friend_name", {
     user_key: currentInteractionUserId(),
+    friend_name: friendName,
+    status,
+    source
+  });
+}
+
+function submitFriendRelationshipForUser(userKey, friendName, status = "accepted", source = "referral") {
+  if (!userKey || !friendName) return Promise.resolve();
+  return socialUpsert("friend_relationships", "user_key,friend_name", {
+    user_key: userKey,
     friend_name: friendName,
     status,
     source
