@@ -119,7 +119,7 @@ function acceptFriendship(name) {
   state.friends.add(name);
   state.friendSignupCredits.add(name);
   localStorage.setItem("lokalFriendSignupCredits", JSON.stringify(Array.from(state.friendSignupCredits)));
-  recordLokalPoints(1, `Added ${name} as a friend`, `friend-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+  recordLokalPoints(1, `Added ${name} as a friend`, `friend-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, { weeklyCapKey: "friend-follow", weeklyCapLimit: 5 });
   if (!state.friendConnections[you]) state.friendConnections[you] = [];
   if (!state.friendConnections[name]) state.friendConnections[name] = [];
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);

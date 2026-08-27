@@ -163,7 +163,7 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     saveEventInteraction(id, "save", isSaved);
-    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`);
+    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`, { weeklyCapKey: "event-plan", weeklyCapLimit: 7 });
     if (state.route === "social") renderSocial(); else if (state.route === "home") renderHome();
     toast(isSaved ? "Saved for later" : "Removed from saved");
     return;
@@ -175,7 +175,7 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     saveEventInteraction(id, "save", isSaved);
-    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`);
+    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`, { weeklyCapKey: "event-plan", weeklyCapLimit: 7 });
     // Every Save control for this event at once: the card hearts, the list rows,
     // and the detail sheet's decide bar. The detail button carries a written
     // label as well as a state class, and the old code refreshed it by
@@ -205,6 +205,7 @@ document.addEventListener("click", async event => {
     else openDetail(id);
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);
+    if (isRsvp) recordLokalPoints(1, "RSVP'd to an event", `rsvp-event-${events.find(item => item.id === id)?.sourceId || id}`, { weeklyCapKey: "event-plan", weeklyCapLimit: 7 });
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
   }
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await copyText(lokalEventShareUrl(shareEvent)); } catch { toast("Could not copy the link"); return; } const original = t.textContent; t.textContent = "Link copied ✓"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }

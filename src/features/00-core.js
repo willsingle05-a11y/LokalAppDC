@@ -76,6 +76,7 @@ state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) 
 state.friendEventInterests = new Map();
 state.friendEventInterestsLoaded = false;
 state.pointNotifications = JSON.parse(localStorage.getItem("lokalPointNotifications") || "[]");
+state.pointAwardLedger = JSON.parse(localStorage.getItem("lokalPointAwardLedger") || "[]");
 // Persisted saves/RSVPs by stable source id (runtime event ids change each sync),
 // reconciled back onto the loaded events so a user's data survives reloads and
 // shapes what they see.
@@ -234,13 +235,44 @@ function savePointNotifications() {
   localStorage.setItem("lokalPointNotifications", JSON.stringify((state.pointNotifications || []).slice(0, 30)));
 }
 
-function recordLokalPoints(points, action, key = "") {
+function savePointAwardLedger() {
+  localStorage.setItem("lokalPointAwardLedger", JSON.stringify((state.pointAwardLedger || []).slice(0, 120)));
+}
+
+function pointWeekStart(timestamp = Date.now()) {
+  const date = new Date(timestamp);
+  const day = date.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + mondayOffset).getTime();
+}
+
+function pointCapKeyForAction(action) {
+  const text = String(action || "").toLowerCase();
+  if (text.includes("saved an event") || text.includes("rsvp")) return "event-plan";
+  if (text.includes("as a friend")) return "friend-follow";
+  return "";
+}
+
+function weeklyPointCount(capKey, weekStart = pointWeekStart()) {
+  if (!capKey) return 0;
+  return (state.pointAwardLedger || state.pointNotifications || [])
+    .filter(item => (item.capKey || pointCapKeyForAction(item.action)) === capKey && (item.weekStart || pointWeekStart(item.createdAt)) === weekStart)
+    .length;
+}
+
+function recordLokalPoints(points, action, key = "", options = {}) {
   const amount = Number(points) || 0;
   if (!amount || !action) return null;
   const id = key || `${Date.now()}-${String(action).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   state.pointNotifications = state.pointNotifications || [];
   if (state.pointNotifications.some(item => item.id === id)) return null;
-  const item = { id, points: amount, action, createdAt: Date.now() };
+  const weekStart = pointWeekStart();
+  if (options.weeklyCapKey && weeklyPointCount(options.weeklyCapKey, weekStart) >= Number(options.weeklyCapLimit || 0)) {
+    return null;
+  }
+  const item = { id, points: amount, action, createdAt: Date.now(), capKey: options.weeklyCapKey || "", weekStart };
+  state.pointAwardLedger = [item, ...(state.pointAwardLedger || []).filter(entry => entry.id !== id)].slice(0, 120);
+  savePointAwardLedger();
   state.pointNotifications = [item, ...state.pointNotifications].slice(0, 30);
   savePointNotifications();
   if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();

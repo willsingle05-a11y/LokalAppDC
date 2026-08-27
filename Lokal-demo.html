@@ -6783,6 +6783,7 @@ state.friendConnections = { [state.profile.fullName]: Array.from(state.friends) 
 state.friendEventInterests = new Map();
 state.friendEventInterestsLoaded = false;
 state.pointNotifications = JSON.parse(localStorage.getItem("lokalPointNotifications") || "[]");
+state.pointAwardLedger = JSON.parse(localStorage.getItem("lokalPointAwardLedger") || "[]");
 // Persisted saves/RSVPs by stable source id (runtime event ids change each sync),
 // reconciled back onto the loaded events so a user's data survives reloads and
 // shapes what they see.
@@ -6941,13 +6942,44 @@ function savePointNotifications() {
   localStorage.setItem("lokalPointNotifications", JSON.stringify((state.pointNotifications || []).slice(0, 30)));
 }
 
-function recordLokalPoints(points, action, key = "") {
+function savePointAwardLedger() {
+  localStorage.setItem("lokalPointAwardLedger", JSON.stringify((state.pointAwardLedger || []).slice(0, 120)));
+}
+
+function pointWeekStart(timestamp = Date.now()) {
+  const date = new Date(timestamp);
+  const day = date.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + mondayOffset).getTime();
+}
+
+function pointCapKeyForAction(action) {
+  const text = String(action || "").toLowerCase();
+  if (text.includes("saved an event") || text.includes("rsvp")) return "event-plan";
+  if (text.includes("as a friend")) return "friend-follow";
+  return "";
+}
+
+function weeklyPointCount(capKey, weekStart = pointWeekStart()) {
+  if (!capKey) return 0;
+  return (state.pointAwardLedger || state.pointNotifications || [])
+    .filter(item => (item.capKey || pointCapKeyForAction(item.action)) === capKey && (item.weekStart || pointWeekStart(item.createdAt)) === weekStart)
+    .length;
+}
+
+function recordLokalPoints(points, action, key = "", options = {}) {
   const amount = Number(points) || 0;
   if (!amount || !action) return null;
   const id = key || `${Date.now()}-${String(action).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   state.pointNotifications = state.pointNotifications || [];
   if (state.pointNotifications.some(item => item.id === id)) return null;
-  const item = { id, points: amount, action, createdAt: Date.now() };
+  const weekStart = pointWeekStart();
+  if (options.weeklyCapKey && weeklyPointCount(options.weeklyCapKey, weekStart) >= Number(options.weeklyCapLimit || 0)) {
+    return null;
+  }
+  const item = { id, points: amount, action, createdAt: Date.now(), capKey: options.weeklyCapKey || "", weekStart };
+  state.pointAwardLedger = [item, ...(state.pointAwardLedger || []).filter(entry => entry.id !== id)].slice(0, 120);
+  savePointAwardLedger();
   state.pointNotifications = [item, ...state.pointNotifications].slice(0, 30);
   savePointNotifications();
   if (typeof refreshNotificationBadge === "function") refreshNotificationBadge();
@@ -12402,7 +12434,7 @@ function acceptFriendship(name) {
   state.friends.add(name);
   state.friendSignupCredits.add(name);
   localStorage.setItem("lokalFriendSignupCredits", JSON.stringify(Array.from(state.friendSignupCredits)));
-  recordLokalPoints(1, `Added ${name} as a friend`, `friend-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+  recordLokalPoints(1, `Added ${name} as a friend`, `friend-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, { weeklyCapKey: "friend-follow", weeklyCapLimit: 5 });
   if (!state.friendConnections[you]) state.friendConnections[you] = [];
   if (!state.friendConnections[name]) state.friendConnections[name] = [];
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
@@ -14487,7 +14519,7 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     saveEventInteraction(id, "save", isSaved);
-    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`);
+    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`, { weeklyCapKey: "event-plan", weeklyCapLimit: 7 });
     if (state.route === "social") renderSocial(); else if (state.route === "home") renderHome();
     toast(isSaved ? "Saved for later" : "Removed from saved");
     return;
@@ -14499,7 +14531,7 @@ document.addEventListener("click", async event => {
     const isSaved = state.saved.has(id);
     setPlanSource("saved", id, isSaved);
     saveEventInteraction(id, "save", isSaved);
-    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`);
+    if (isSaved) recordLokalPoints(1, "Saved an event", `save-event-${events.find(item => item.id === id)?.sourceId || id}`, { weeklyCapKey: "event-plan", weeklyCapLimit: 7 });
     // Every Save control for this event at once: the card hearts, the list rows,
     // and the detail sheet's decide bar. The detail button carries a written
     // label as well as a state class, and the old code refreshed it by
@@ -14529,6 +14561,7 @@ document.addEventListener("click", async event => {
     else openDetail(id);
     if (isRsvp) document.querySelector(`[data-rsvp="${id}"]`)?.classList.add("btn-pop");
     saveEventInteraction(id, "rsvp", isRsvp);
+    if (isRsvp) recordLokalPoints(1, "RSVP'd to an event", `rsvp-event-${events.find(item => item.id === id)?.sourceId || id}`, { weeklyCapKey: "event-plan", weeklyCapLimit: 7 });
     toast(isRsvp ? "You're going! Added to Your Plans." : "RSVP removed");
   }
   if (t.dataset.copyDetailLink !== undefined) { mark(); const shareEvent = events.find(item => item.id === Number(t.dataset.copyDetailLink)); try { await copyText(lokalEventShareUrl(shareEvent)); } catch { toast("Could not copy the link"); return; } const original = t.textContent; t.textContent = "Link copied âœ“"; setTimeout(() => { t.textContent = original; }, 2000); toast("Link copied"); }
