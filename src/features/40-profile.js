@@ -615,7 +615,7 @@ function openNotifications(skipSync = false) {
     ? `<div class="notification-card points-notification"><span class="points-badge">+${escapeHtml(item.points)}</span><span><b>${escapeHtml(item.body)}</b><p>Lokal points earned</p><small>${escapeHtml(item.meta)}</small></span></div>`
     : `<button class="notification-card" data-event="${item.eventId}"><b>${escapeHtml(item.title)}</b><p>${escapeHtml(item.body)}</p><small>${escapeHtml(item.meta)}</small></button>`).join("");
   const empty = `<div class="notification-empty"><b>You're all caught up</b><p>Friend requests and reminders for events you've saved or RSVP'd to will show up here.</p></div>`;
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><p class="eyebrow">Updates</p><h2>Notifications</h2>${cards || empty}</section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal notification-sheet" role="dialog" aria-modal="true" aria-label="Notifications"><button class="modal-close" aria-label="Close notifications">&times;</button><h2>Notifications</h2>${cards || empty}</section></div>`;
   localStorage.setItem(NOTIFICATION_SEEN_KEY, notificationSignature());
   refreshNotificationBadge();
 }
