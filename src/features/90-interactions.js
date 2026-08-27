@@ -242,7 +242,7 @@ document.addEventListener("click", async event => {
       <p class="eyebrow">Lokal</p>
       <h2>Add friends</h2>
       <div class="add-friends-invite">
-        <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b></div>
+        <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b><span class="invite-points-preview">+5 if they join</span></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
         <button class="send-invite-button" data-send-app-invite aria-label="Send invite link">${cardShareIcon}</button>
       </div>

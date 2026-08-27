@@ -4253,6 +4253,16 @@ h3 { font-weight: 800; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.invite-points-preview {
+  justify-self: start;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #007F67;
+  background: rgba(0, 201, 167, .14);
+  font-size: 11px;
+  font-weight: 900;
+}
 .add-friends-invite .wide-button {
   width: auto;
   min-width: 150px;
@@ -14555,7 +14565,7 @@ document.addEventListener("click", async event => {
       <p class="eyebrow">Lokal</p>
       <h2>Add friends</h2>
       <div class="add-friends-invite">
-        <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b></div>
+        <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b><span class="invite-points-preview">+5 if they join</span></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
         <button class="send-invite-button" data-send-app-invite aria-label="Send invite link">${cardShareIcon}</button>
       </div>
