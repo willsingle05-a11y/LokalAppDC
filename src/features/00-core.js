@@ -249,7 +249,7 @@ function pointWeekStart(timestamp = Date.now()) {
 function pointCapKeyForAction(action) {
   const text = String(action || "").toLowerCase();
   if (text.includes("saved an event") || text.includes("rsvp")) return "event-plan";
-  if (text.includes("as a friend")) return "friend-follow";
+  if (text.includes("followed")) return "venue-follow";
   return "";
 }
 
