@@ -561,7 +561,7 @@ function notificationPlanReminders() {
 
 function notificationPointItems() {
   const hiddenPointActions = new Set(["Copied an invite link", "Sent an invite link"]);
-  return (state.pointNotifications || [])
+  const items = (state.pointNotifications || [])
     .filter(item => !hiddenPointActions.has(item.action))
     .slice(0, 12)
     .map(item => ({
@@ -571,6 +571,10 @@ function notificationPointItems() {
       body: item.action,
       meta: item.createdAt ? new Date(item.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Just now"
     }));
+  if (!items.some(item => item.body === "Your friend joined Lokal")) {
+    items.unshift({ id: "points-referral-preview", points: 5, title: "+5", body: "Your friend joined Lokal", meta: "Preview" });
+  }
+  return items;
 }
 
 function notificationItems() {

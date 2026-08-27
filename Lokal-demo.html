@@ -8836,7 +8836,7 @@ async function syncReferralPointNotifications() {
     const rows = await response.json();
     rows.forEach(row => {
       const name = row.invited_name || "Someone";
-      recordLokalPoints(row.points_awarded || 5, `${name} joined from your invite`, `referral-${row.id}`);
+      recordLokalPoints(row.points_awarded || 5, "Your friend joined Lokal", `referral-${row.id}`);
     });
     return rows;
   } catch (error) {
@@ -13403,7 +13403,7 @@ function notificationPlanReminders() {
 
 function notificationPointItems() {
   const hiddenPointActions = new Set(["Copied an invite link", "Sent an invite link"]);
-  return (state.pointNotifications || [])
+  const items = (state.pointNotifications || [])
     .filter(item => !hiddenPointActions.has(item.action))
     .slice(0, 12)
     .map(item => ({
@@ -13413,6 +13413,10 @@ function notificationPointItems() {
       body: item.action,
       meta: item.createdAt ? new Date(item.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Just now"
     }));
+  if (!items.some(item => item.body === "Your friend joined Lokal")) {
+    items.unshift({ id: "points-referral-preview", points: 5, title: "+5", body: "Your friend joined Lokal", meta: "Preview" });
+  }
+  return items;
 }
 
 function notificationItems() {
@@ -14565,7 +14569,7 @@ document.addEventListener("click", async event => {
       <p class="eyebrow">Lokal</p>
       <h2>Add friends</h2>
       <div class="add-friends-invite">
-        <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b><span class="invite-points-preview">+5 if they join</span></div>
+        <div class="add-friends-url"><b>${escapeHtml(invite.displayUrl)}</b><span class="invite-points-preview">+5 your friend joined Lokal</span></div>
         <button class="wide-button" data-copy-app-invite>Copy invite link</button>
         <button class="send-invite-button" data-send-app-invite aria-label="Send invite link">${cardShareIcon}</button>
       </div>

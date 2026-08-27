@@ -376,7 +376,7 @@ async function syncReferralPointNotifications() {
     const rows = await response.json();
     rows.forEach(row => {
       const name = row.invited_name || "Someone";
-      recordLokalPoints(row.points_awarded || 5, `${name} joined from your invite`, `referral-${row.id}`);
+      recordLokalPoints(row.points_awarded || 5, "Your friend joined Lokal", `referral-${row.id}`);
     });
     return rows;
   } catch (error) {
