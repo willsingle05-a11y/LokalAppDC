@@ -13414,7 +13414,7 @@ function notificationPointItems() {
       meta: item.createdAt ? new Date(item.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Just now"
     }));
   if (!items.some(item => item.body === "Your friend joined Lokal")) {
-    items.unshift({ id: "points-referral-preview", points: 5, title: "+5", body: "Your friend joined Lokal", meta: "Preview" });
+    items.unshift({ id: "points-referral-preview", points: 5, title: "+5", body: "Your friend joined Lokal", meta: "Just now" });
   }
   return items;
 }
