@@ -811,7 +811,24 @@ function recurringCardScheduleParts(event) {
   return { days: weekdayListLabel(days), detail };
 }
 
+function isHappyHourEvent(event) {
+  return String(event?.cat || event?.category || "").toLowerCase() === "happy-hours";
+}
+
+function happyHourPreviewTime(event) {
+  if (!isHappyHourEvent(event)) return "";
+  const today = localDateKey(new Date());
+  const todayOccurrence = occurrencesForEvent(event)
+    .find(item => {
+      const date = eventDateValue(item);
+      return date && localDateKey(date) === today;
+    });
+  return todayOccurrence ? recurringOccurrenceTimeLabel(todayOccurrence) : "";
+}
+
 function eventCardTimeLine(event) {
+  const happyHourTime = happyHourPreviewTime(event);
+  if (happyHourTime) return happyHourTime;
   const recurring = recurringCardScheduleParts(event);
   if (recurring) return recurring.detail ? `${recurring.days} | ${recurring.detail}` : recurring.days;
   const time = compactEventTimeLabel(event);
@@ -822,6 +839,8 @@ function eventCardTimeLine(event) {
 }
 
 function eventCardTimeHtml(event) {
+  const happyHourTime = happyHourPreviewTime(event);
+  if (happyHourTime) return `<strong>${escapeHtml(happyHourTime)}</strong>`;
   const recurring = recurringCardScheduleParts(event);
   if (recurring) {
     return recurring.detail
