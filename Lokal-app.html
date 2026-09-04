@@ -36,13 +36,13 @@ body {
 }
 button { border: 0; color: inherit; cursor: pointer; font: inherit; }
 button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
-.demo-stage { min-height: 100vh; }
-.demo-sidebar { display: none; }
-.production-app .demo-stage {
+.app-stage { min-height: 100vh; }
+.app-sidebar { display: none; }
+.production-app .app-stage {
   display: block;
   padding: 0;
 }
-.production-app .demo-sidebar { display: none !important; }
+.production-app .app-sidebar { display: none !important; }
 .app-shell {
   position: relative;
   width: min(100%, 620px);
@@ -497,9 +497,9 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
 
 @media (min-width: 1040px) {
   body { background: #e6ddd0; }
-  .demo-stage { display: grid; grid-template-columns: 330px 620px; justify-content: center; gap: 44px; padding: 24px 38px; }
-  .demo-sidebar { display: block; align-self: center; }
-  .demo-sidebar h1 { margin: 24px 0 15px; font-size: 54px; }
+  .app-stage { display: grid; grid-template-columns: 330px 620px; justify-content: center; gap: 44px; padding: 24px 38px; }
+  .app-sidebar { display: block; align-self: center; }
+  .app-sidebar h1 { margin: 24px 0 15px; font-size: 54px; }
   .sidebar-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 49px; font-size: 18px; letter-spacing: 3px; }
   .sidebar-note { margin-top: 31px; padding: 17px; border-left: 3px solid var(--steel); background: rgba(255,253,248,.55); }
   .sidebar-note p:last-child { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
@@ -508,7 +508,7 @@ h3 { margin-bottom: 5px; font-size: 15px; line-height: 1.15; }
   .bottom-nav { right: auto; left: calc(50% - 113px); bottom: 34px; width: 600px; }
   .modal { margin-bottom: 24px; }
   .production-app body { background: #e7edf2; }
-  .production-app .demo-stage { display: block; padding: 0; }
+  .production-app .app-stage { display: block; padding: 0; }
   .production-app .app-shell { margin: 0 auto; min-height: 100vh; }
 }
 
@@ -2833,7 +2833,7 @@ h3 { font-weight: 700; }
 
 /* Warm surfaces + near-black green ink */
 html, body { color: var(--ink-green); background: #ece7df; }
-.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream-warm); }
+.app-shell, .page, main, .onboarding, .app-stage { background: var(--cream-warm); }
 .topbar { background: rgba(248, 246, 242, .92); border-bottom-color: rgba(23, 28, 26, .08); }
 .bottom-nav { background: rgba(248, 246, 242, .96); }
 
@@ -5900,9 +5900,9 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 }
 #modal-root .detail-action { padding: 8px 10px; }
 
-/* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
+/* App canvas is pure white. redesign.css paints .page/main/.app-stage with a
    warm cream, so those are overridden here alongside the shell. */
-.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream); }
+.app-shell, .page, main, .onboarding, .app-stage { background: var(--cream); }
 .topbar, .bottom-nav { background: var(--paper); }
 /* Cards are white on white now, so the hard offset shadow does the separating
    and gets a hairline to sit on. */
@@ -6325,7 +6325,7 @@ body[data-route="profile"] .topbar {
   .bottom-nav { bottom: calc(25px + 22px); }
 }
 @media (min-width: 1040px) {
-  .demo-stage { grid-template-columns: 330px var(--shell-max); }
+  .app-stage { grid-template-columns: 330px var(--shell-max); }
   .app-shell { width: var(--shell-max); }
   .bottom-nav { left: auto; width: calc(var(--shell-max) - 20px); }
 }
@@ -6661,20 +6661,12 @@ main { padding-bottom: calc(var(--nav-row) + var(--safe-bottom) + 22px); }
     </style>
   </head>
   <body>
-    <div class="demo-stage">
-      <aside class="demo-sidebar">
+    <div class="app-stage">
+      <aside class="app-sidebar" aria-label="About Lokal">
         <div class="sidebar-brand"><b>LOKAL</b></div>
         <p class="eyebrow">DC event discovery</p>
         <h1>Good plans,<br>closer to home.</h1>
         <p class="lede">A social discovery app for the full landscape of what is happening around the city, including the things ticketing apps miss.</p>
-        <div class="sidebar-note">
-          <p class="eyebrow">90-second demo</p>
-          <p>Open <b>Skyline Social</b>, share it with <b>Friday crew</b>, then check notifications and your profile activity.</p>
-        </div>
-        <div class="sidebar-actions">
-          <button class="secondary" data-copy-link>Copy demo link</button>
-          <button class="text-button" data-restart>Restart walkthrough</button>
-        </div>
       </aside>
 
       <div class="app-shell">
@@ -6687,7 +6679,7 @@ main { padding-bottom: calc(var(--nav-row) + var(--safe-bottom) + 22px); }
             <button class="header-icon" data-add-friends-link aria-label="Add friends"><span data-icon="user-plus"></span></button>
             <button class="header-icon" aria-label="Notifications" data-notifications><span data-icon="bell"></span><i></i></button>
             <button class="icon-button" id="profile-shortcut" data-route="profile" aria-label="Open profile">
-              <span class="avatar avatar-me">JM</span>
+              <span class="avatar avatar-me">L</span>
             </button>
           </div>
         </header>
@@ -6748,20 +6740,7 @@ const categoryArt = {
 
 const categoryArtOptions = ["Live music", "Food & drink", "Sports", "Comedy", "Visual arts", "Performing arts", "Museums", "Markets", "Happy hours", "Trivia", "Kids", "Community", "Nightlife", "Culture"];
 
-const demoEvents = [
-  { id: 1, title: "Jazz on the Hill", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Tonight, 7:30 PM", price: "$18", cat: "music", tag: "Live music", friends: [], desc: "A warm, unhurried set from DC's new guard of jazz players. The room is small, the sound is close, and you will want to get there before the first pour." },
-  { id: 2, title: "After Hours: New Forms", venue: "Transformer Gallery", area: "Logan Circle", time: "Tonight, 6:00 PM", price: "Free", cat: "art", tag: "Art opening", friends: [], desc: "A compact group show of vivid mixed-media work, with the artists in the room and a neighborhood wine bar waiting around the corner." },
-  { id: 3, title: "Sunset Miles", venue: "Meridian Hill Park", area: "U Street", time: "Tonight, 6:30 PM", price: "Free", cat: "fitness", tag: "Run club", friends: [], desc: "A friendly four-mile loop with no pace pressure. Stay after for the picnic blanket hang and a rotating neighborhood snack stop." },
-  { id: 4, title: "Skyline Social", venue: "The Viceroy Rooftop", area: "Logan Circle", time: "Friday, 8:00 PM", price: "$15", cat: "nightlife", tag: "Rooftop", friends: [], desc: "Golden hour turns into a low-key rooftop party with disco edits, a sharp little drinks menu, and just enough room to actually talk. A reliable Friday reset." },
-  { id: 5, title: "Little Food Market", venue: "The Roost Courtyard", area: "Shaw", time: "Saturday, 12:00 PM", price: "Free", cat: "food", tag: "Food pop-up", friends: [], desc: "Six DC makers, one sunny courtyard, and an excellent excuse to order something you have never tried before." },
-  { id: 6, title: "No Kings: Vinyl Night", venue: "The Crown & Crow", area: "Logan Circle", time: "Saturday, 9:00 PM", price: "$10", cat: "nightlife", tag: "DJ set", friends: [], desc: "A deep crate evening with soul, funk, and house selections in a room that always feels a little hidden." },
-  { id: 7, title: "Porchlight Sessions", venue: "The Atlantis", area: "U Street", time: "Sunday, 7:00 PM", price: "$22", cat: "music", tag: "Live music", friends: [], desc: "Three local songwriters trade songs and stories in an intimate Sunday night round." },
-  { id: 8, title: "Fresh Air Cinema", venue: "Alethia Tanner Park", area: "Shaw", time: "Sunday, 8:15 PM", price: "Free", cat: "art", tag: "Outdoor film", friends: [], desc: "Bring a blanket and settle in for a neighborhood screening under the string lights." },
-  { id: 9, title: "Portrait Gallery After Five", venue: "Smithsonian American Art Museum", area: "Penn Quarter", time: "Friday, 5:30 PM", price: "Free", cat: "art", tag: "Museum night", friends: [], desc: "A relaxed early evening at the museum with a gallery talk, a small bar, and enough time to wander before dinner." },
-  { id: 10, title: "Atlas Local Stage", venue: "Atlas Performing Arts Center", area: "H Street", time: "Saturday, 7:00 PM", price: "$20", cat: "music", tag: "Local showcase", friends: [], desc: "A three-act local showcase in a neighborhood theater that makes a good anchor for a Saturday on H Street." },
-  { id: 11, title: "Songbyrd Patio Set", venue: "Songbyrd Music House", area: "Adams Morgan", time: "Saturday, 4:00 PM", price: "Free", cat: "music", tag: "Patio set", friends: [], desc: "An easy afternoon patio set with a short local lineup and room to stop by without making the whole day revolve around it." }
-];
-let events = [...demoEvents];
+let events = [];
 let venueDirectory = [];
 const friendNames = {};
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
@@ -6775,7 +6754,7 @@ function profileAgeFromBirthdate(birthdate) {
   return age;
 }
 const savedProfileAge = profileAgeFromBirthdate(savedProfile?.birthdate) || savedProfile?.age || 27;
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: {}, directMessages: {}, pendingRequests: [] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "", tastes: savedProfile?.tastes || [], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Lokal user", username: "lokaluser", phone: "", birthdate: "", age: 27, initials: "L", tastes: [], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Loading DC events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: {}, directMessages: {}, pendingRequests: [] };
 state.profile = { ...state.profile, accountType: "person", ownerName: "", venueName: "", venueAddress: "", venueWebsite: "", venueImageUrl: "", venueDescription: "" };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
@@ -6904,7 +6883,7 @@ function currentReferralCode() {
   const stored = localStorage.getItem("lokalReferralCode");
   if (stored) return stored;
   const name = state.profile?.username || state.profile?.fullName || "lokal";
-  const userKey = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : localStorage.getItem("lokalDemoInteractionUserId") || name;
+  const userKey = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : localStorage.getItem("lokalInteractionUserId") || name;
   const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 12) || "lokal";
   const suffix = Math.abs(stableHash(userKey)).toString(36).slice(0, 6) || "invite";
   const code = `${slug}-${suffix}`;
@@ -8389,8 +8368,6 @@ function filterChips(active, scope) {
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 
-const demoProfileSeeds = [];
-
 function profileToFriendRow(profile) {
   const initials = profile.initials || profile.avatar_initials || profileInitials(profile.fullName || profile.full_name || profile.display_name || "");
   const fullName = profile.fullName || profile.full_name || profile.display_name || "";
@@ -8480,12 +8457,11 @@ const supabaseConfig = {
   publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH",
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlnbHpjanRrbHJ5YXBtY3B5b2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNDI0ODgsImV4cCI6MjA5NTkxODQ4OH0.oxugfaHmc7Jvq5nay5U7eRaKYYlW5rexv2UIfcM4hvo"
 };
-const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
 const supabaseStorageKeys = {
   accessToken: "lokalSupabaseAccessToken",
   refreshToken: "lokalSupabaseRefreshToken",
   userId: "lokalSupabaseUserId",
-  demoUserId: "lokalDemoInteractionUserId",
+  interactionUserId: "lokalInteractionUserId",
   pendingInteractions: "lokalPendingEventInteractions",
   pendingVenueFollows: "lokalPendingVenueFollows"
 };
@@ -8595,10 +8571,10 @@ function persistSupabaseSession(accessToken) {
 }
 
 function fallbackInteractionUserId() {
-  let userId = localStorage.getItem(supabaseStorageKeys.demoUserId);
+  let userId = localStorage.getItem(supabaseStorageKeys.interactionUserId);
   if (!userId) {
     userId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-4000-8000-000000000000";
-    localStorage.setItem(supabaseStorageKeys.demoUserId, userId);
+    localStorage.setItem(supabaseStorageKeys.interactionUserId, userId);
   }
   return userId;
 }
@@ -8942,7 +8918,7 @@ function socialInsert(table, record) {
   }).catch(error => console.warn(`[supabase] ${table} not recorded`, error));
 }
 
-function submitFriendRelationship(friendName, status = "accepted", source = "demo") {
+function submitFriendRelationship(friendName, status = "accepted", source = "app") {
   if (!friendName) return;
   return socialUpsert("friend_relationships", "user_key,friend_name", {
     user_key: currentInteractionUserId(),
@@ -8962,7 +8938,7 @@ function submitFriendRelationshipForUser(userKey, friendName, status = "accepted
   });
 }
 
-function submitGroupMembership(groupName, memberName = "You", status = "active", source = "demo", role = "member") {
+function submitGroupMembership(groupName, memberName = "You", status = "active", source = "app", role = "member") {
   if (!groupName || !memberName) return;
   return socialUpsert("group_memberships", "user_key,group_name,member_name", {
     user_key: currentInteractionUserId(),
@@ -9747,14 +9723,14 @@ async function syncSupabaseEvents(showToast = false) {
       events = discoveryWindowEvents;
       state.eventSync = { status: "synced", label: `${events.length} upcoming DC event${events.length === 1 ? "" : "s"}` };
     } else {
-      events = [...demoEvents];
+      events = [];
       state.todayStoryEvents = [];
-      state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
+      state.eventSync = { status: "empty", label: "No upcoming DC events found yet" };
     }
   } catch {
-    events = [...demoEvents];
+    events = [];
     state.todayStoryEvents = [];
-    state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
+    state.eventSync = { status: "error", label: "Events could not load" };
   }
   // The venue name clusters are derived from the loaded events, so they have to
   // be rebuilt whenever the event set is replaced.
@@ -9809,14 +9785,6 @@ function mergeSupabaseGroups(rows) {
 }
 
 async function syncSupabaseGroups() {
-  try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/demo_groups?select=name,type,member_count,member_count_label,note,icon,style,description,is_demo&is_demo=eq.true&order=name.asc`, {
-      headers: { apikey: supabaseConfig.publishableKey }
-    });
-    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
-    const rows = await response.json();
-    if (rows.length) mergeSupabaseGroups(rows);
-  } catch {}
   if (state.route === "social") renderSocial();
 }
 
@@ -9831,14 +9799,14 @@ function normalizeSupabaseProfile(row) {
     birthdate: row.birthdate || "",
     mutuals: row.mutuals || `${2 + (String(fullName || row.username || "").length % 7)} mutual friends`,
     bio: row.bio || row.home_city || (Array.isArray(row.neighborhoods) ? row.neighborhoods.join(", ") : "") || "Washington, DC",
-    is_demo: row.is_demo === true
+    isSeeded: row.is_demo === true
   };
 }
 
 function mergeFriendDirectory(profiles) {
   const currentUserId = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "";
   const rows = profiles
-    .filter(profile => profile && profile.id && profile.is_demo !== true)
+    .filter(profile => profile && profile.id && profile.isSeeded !== true)
     .map(profileToFriendRow)
     .filter(friend => friend[5] && String(friend[5]) !== String(currentUserId));
   friendDirectory = rows.filter((friend, index, all) => all.findIndex(item => item[5] === friend[5] || item[1] === friend[1]) === index);
@@ -10123,7 +10091,6 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
   if (await emailAlreadyRegistered(email)) throw new Error("That email already has a Lokal account. Log in instead, or use a different address.");
   state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests, accountType, ownerName, venueName, venueAddress, venueWebsite, venueImageUrl, venueDescription };
   state.pendingSignupPhone = formattedPhone;
-  if (demoAuthConfig.useMockOtp) return { demoOtp: true };
   const data = await supabaseAuthRequest("signup", {
     email,
     password,
@@ -10201,11 +10168,6 @@ async function checkPhoneSignupStatus() {
 
 async function verifyLokalPhone(token) {
   if (!token.trim()) throw new Error("Enter the verification code.");
-  if (demoAuthConfig.useMockOtp) {
-    if (token.trim() !== demoAuthConfig.mockOtp) throw new Error("For demo profiles, use verification code 123456.");
-    finalizeLokalProfile(state.pendingSignupProfile);
-    return { demoOtp: true };
-  }
   const data = await supabaseAuthRequest("verify", { phone: state.pendingSignupPhone, token: token.trim(), type: "sms" });
   if (data.access_token) {
     persistSupabaseSession(data.access_token);
@@ -12309,33 +12271,12 @@ function activityCard(initials, copy, time) {
 
 let friendDirectory = [];
 
-const publicGroupMeta = {
-  "Skyline Social": { count: "12 members", note: "Single-event group / Friday", icon: "S", style: "run", description: "A public group for Skyline Social so interested people can coordinate before Friday." },
-  "District Book Club": { count: "326 members", note: "Next meetup: June 8", icon: "B", style: "book", description: "A public group for upcoming reads, meetups, and book-friendly plans around DC." },
-  "DC Trivia Nights": { count: "684 members", note: "Three events this week", icon: "D", style: "art", description: "A public group for finding trivia nights and building teams around the city." },
-  "DC Pickleball Crew": { count: "948 members", note: "Beginner games this weekend", icon: "P", style: "run", description: "A public group for finding casual pickleball games and open courts around DC." },
-  "Capital Film Club": { count: "412 members", note: "Outdoor screenings + indies", icon: "F", style: "art", description: "A public group for film screenings, festivals, and low-key movie nights around the city." },
-  "Volunteer DC": { count: "2.3k members", note: "Five ways to help this week", icon: "V", style: "book", description: "A public group for finding local volunteer projects and meeting people while helping out." },
-  "H Street Food Walks": { count: "537 members", note: "New tasting route posted", icon: "H", style: "art", description: "A public group for casual food walks, new openings, and neighborhood recommendations." }
-};
+const publicGroupMeta = {};
 
-const groupCategoryHints = {
-  "District Book Club": ["community"],
-  "DC Trivia Nights": ["nightlife", "community"],
-  "DC Pickleball Crew": ["sports", "fitness"],
-  "Capital Film Club": ["performing-arts"],
-  "Volunteer DC": ["community"],
-  "H Street Food Walks": ["festivals", "nightlife"],
-  "Culture club": ["performing-arts", "museums"],
-  "Gallery hopping": ["performing-arts", "museums"],
-  "Sunday coffee walk": ["community", "festivals"],
-  "Skyline Social": ["nightlife"],
-  "Friday crew": ["nightlife", "concerts"],
-  "Capitol picnic crew": ["community", "festivals"]
-};
+const groupCategoryHints = {};
 
 function publicDirectoryNames() {
-  return Object.keys(publicGroupMeta).filter(name => name !== "Skyline Social" && !state.joinedGroups.has(name) && !state.leftGroups.has(name));
+  return Object.keys(publicGroupMeta).filter(name => !state.joinedGroups.has(name) && !state.leftGroups.has(name));
 }
 
 function groupRecord(name) {
@@ -12359,7 +12300,7 @@ function friendCard(friend, action = "profile") {
 }
 
 function userGroupNames() {
-  return ["Friday crew", "Culture club", ...Array.from(state.joinedGroups), ...state.newGroups.map(group => group.name)].filter((name, index, groups) => !state.leftGroups.has(name) && groups.indexOf(name) === index);
+  return [...Array.from(state.joinedGroups), ...state.newGroups.map(group => group.name)].filter((name, index, groups) => !state.leftGroups.has(name) && groups.indexOf(name) === index);
 }
 
 function friendInitials(name) {
@@ -12416,7 +12357,7 @@ function groupSharePicker(name) {
 }
 
 function currentUserName() {
-  return state.profile.fullName || "Jordan Miller";
+  return state.profile.fullName || "Lokal user";
 }
 
 function acceptFriendship(name) {
@@ -12434,7 +12375,7 @@ function acceptFriendship(name) {
   if (!state.friendConnections[name]) state.friendConnections[name] = [];
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
   if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
-  submitFriendRelationship(name, "accepted", "demo");
+  submitFriendRelationship(name, "accepted", "friend");
   return true;
 }
 
@@ -12447,14 +12388,12 @@ function groupContent() {
   };
   const group = (name, type, detail, note, icon, style = "") => ({ name, type, detail, note, icon, style });
   const renderGroup = item => card(item.name, item.type, item.detail, item.note, item.icon, item.style);
-  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => name !== "Skyline Social" && !state.leftGroups.has(name) && publicGroupMeta[name]).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
-  const baseGroups = [group("Friday crew","Private","6 members","Ready to start chatting","F"), ...state.newGroups.map(item => group(item.name,item.type,item.type === "Public" ? "1 member" : "Created just now",item.type === "Event chat" ? "Attach an event and invite people" : "Invite people to get started",item.name[0].toUpperCase())), group("Culture club","Private","8 members","Ready to start chatting","C","art"), group("Skyline Social","Public","12 members","Single-event group / Friday","S","run"), ...joinedPublicGroups, group("Capitol picnic crew","Private","5 members","Last active Monday","P"), group("Gallery hopping","Private","4 members","Last active May 24","G","art"), group("Sunday coffee walk","Private","7 members","Last active May 18","S","run")];
+  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => !state.leftGroups.has(name) && publicGroupMeta[name]).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
+  const baseGroups = [...state.newGroups.map(item => group(item.name,item.type,item.type === "Public" ? "1 member" : "Created just now",item.type === "Event chat" ? "Attach an event and invite people" : "Invite people to get started",item.name[0].toUpperCase())), ...joinedPublicGroups];
   const pinnedGroups = baseGroups.filter(item => state.pinnedGroups.has(item.name)).sort((a, b) => Number(a.type === "Public") - Number(b.type === "Public"));
-  const recentGroups = baseGroups.filter(item => !state.pinnedGroups.has(item.name) && !["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name));
-  const archivedGroups = baseGroups.filter(item => ["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name) && !state.pinnedGroups.has(item.name));
-  const moreGroups = state.showAllGroups ? archivedGroups.map(renderGroup).join("") : "";
+  const recentGroups = baseGroups.filter(item => !state.pinnedGroups.has(item.name));
   const publicCatalog = publicDirectoryNames().slice(0, 3).map(name => { const meta = publicGroupMeta[name]; return card(name,"Public",meta.count,meta.note,meta.icon,meta.style); }).join("");
-  return `<label class="search-box social-search"><span>&#8981;</span><input data-group-search placeholder="Search private or public groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("")}${moreGroups}</div><button class="text-button view-more-groups" data-view-more-groups>${state.showAllGroups ? "Show fewer groups" : "View more groups"}</button><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">You have joined all suggested public groups.</p>`}</div><button class="text-button see-more-public" data-see-more-public-groups>See more public groups</button><p class="search-empty" data-group-empty>No groups match that search.</p>`;
+  return `<label class="search-box social-search"><span>&#8981;</span><input data-group-search placeholder="Search groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("") || `<p class="section-helper">Create a group when you want to coordinate plans with friends.</p>`}</div><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">Public groups will appear here when real communities are available.</p>`}</div><p class="search-empty" data-group-empty>No groups match that search.</p>`;
 }
 
 function publicDirectoryCard(name) {
@@ -12501,7 +12440,7 @@ function openGroup(name) {
   </section></div>`;
 }
 
-function openInvite(name = "Friday crew") {
+function openInvite(name = "your group") {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal invite-sheet" role="dialog" aria-modal="true" aria-label="Invite people"><button class="modal-close" aria-label="Close invite">&times;</button><button class="text-button" data-back-group="${name}">&larr; Back to group</button><p class="eyebrow">Invite people</p><h2>Share ${name}.</h2><label class="settings-field">Invite URL<input value="https://lokal.app/join/${slug}" readonly></label><button class="wide-button" data-copy-invite>Copy invite link</button><label class="search-box social-search"><span>&#8981;</span><input data-invite-people-search data-group-name="${name}" placeholder="Search friends" aria-label="Search invite friends"></label><div class="autocomplete invite-autocomplete" data-invite-people-results hidden></div><div class="selected-group-friends" data-selected-invite-people></div></section></div>`;
 }
@@ -12516,16 +12455,25 @@ function openCreateGroup() {
 }
 
 function rankingContent() {
-  const ranking = [
-    { id: 4, score: 94, trend: "+12 this week", note: "Popular with Lokal users", badge: "Friday favorite" },
-    { id: 8, score: 86, trend: "+8 this week", note: "Saved by Lokal users", badge: "Free pick" },
-    { id: 3, score: 79, trend: "+6 this week", note: "Neighborhood buzz", badge: "Neighborhood buzz" },
-    { id: 7, score: 71, trend: "+4 this week", note: "Rising this week", badge: "Rising" }
-  ];
+  const ranking = displayableDcEvents()
+    .map(event => {
+      const friendCount = interestedFriendsForEvent(event).length;
+      const score = event.lokalScore || friendCount * 12 || 50;
+      return {
+        event,
+        score,
+        trend: friendCount ? `${friendCount} friend${friendCount === 1 ? "" : "s"} interested` : "Rising in DC",
+        note: friendCount ? "People you know are interested" : "Popular with Lokal users",
+        badge: primaryEventTag(event) || "Trending"
+      };
+    })
+    .sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event))
+    .slice(0, 4);
+  if (!ranking.length) return `<div class="ranking-intro"><p class="eyebrow">Your circle's pulse</p><h2>Trending with friends</h2><p>Once real events and friend activity load, the strongest plans will appear here.</p></div>`;
   return `<div class="ranking-intro"><p class="eyebrow">Your circle's pulse</p><h2>Trending with friends</h2><p>Ranked by saves, RSVPs, and the plans your groups keep talking about.</p></div>
   <div class="ranking-list">${ranking.map((item, index) => {
-    const event = events.find(e => e.id === item.id);
-    const hyped = state.hype.has(item.id);
+    const event = item.event;
+    const hyped = state.hype.has(event.id);
     return `<article class="ranking-card">
       <button class="rank-main" data-event="${event.id}">
         <span class="rank-number">${index + 1}</span>
@@ -12568,11 +12516,9 @@ function openAllFriends() {
 }
 
 function followingContent() {
-  const accounts = [["songbyrd","S","Songbyrd Music House","Venue","Concerts, DJ nights, and neighborhood picks"],["dcafterdark","D","@dcafterdark","Local curator","Late-night lists and weekend roundups"],["smithsonian","M","Smithsonian After Hours","Venue collection","Museum events worth planning around"],["eaterdc","E","@eater_dc","Food curator","Pop-ups, openings, and neighborhood food guides"]];
-  const followedAccounts = accounts.filter(account => state.follows.has(account[0]));
   // The venue's own artwork stands in for the letter disc wherever we have it.
   const followedVenues = followedVenueNames().map(name => ["venue:" + name, venueAvatarHtml(name, "group-icon"), name, "Venue", "Followed from Discover"]);
-  const visible = [...followedVenues, ...followedAccounts.map(account => [account[0], `<span class="group-icon">${escapeHtml(account[1])}</span>`, account[2], account[3], account[4]])];
+  const visible = [...followedVenues];
   if (!visible.length) return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues from Discover to build this page. Once you follow one, it will show here and shape your feed.</p></div><p class="section-helper">You are not following any venues or curators yet.</p>`;
   return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues, public groups, and curators to shape what shows up in Discover.</p></div>
   <div class="follow-list">${visible.map(account => `<div class="follow-card">${account[1]}<span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button selected" data-follow="${account[0]}">Following</button></div>`).join("")}</div>`;
@@ -13127,7 +13073,7 @@ function openFeedbackSheet() {
 }
 
 function profileReceipts() {
-  const legacyDemoReceiptIds = new Set(["receipt-songbyrd", "receipt-open-streets", "receipt-hirshhorn"]);
+  const legacySeedReceiptIds = new Set(["receipt-songbyrd", "receipt-open-streets", "receipt-hirshhorn"]);
   const stored = state.receipts || [];
   const attendedRows = Array.from(state.attended || []).map(id => {
     const event = events.find(item => item.id === Number(id));
@@ -13135,7 +13081,7 @@ function profileReceipts() {
     return { id: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now(), startSort: event.startSort || 0 };
   }).filter(Boolean);
   return [...stored, ...attendedRows]
-    .filter(receipt => !legacyDemoReceiptIds.has(String(receipt?.id || "")))
+    .filter(receipt => !legacySeedReceiptIds.has(String(receipt?.id || "")))
     .filter((receipt, index, all) => all.findIndex(item => receiptEventKey(item) === receiptEventKey(receipt)) === index)
     .sort((a, b) => (b.attendedAt || 0) - (a.attendedAt || 0));
 }
@@ -13783,8 +13729,6 @@ function openShareSheet(id) {
 function lokalEventShareUrl(event) {
   const base = location.protocol.startsWith("http") ? `${location.origin}${location.pathname}` : "https://willsingle05-a11y.github.io/LokalAppDC/";
   const url = new URL(base);
-  const existing = new URLSearchParams(location.search);
-  if (existing.get("bypassSignup")) url.searchParams.set("bypassSignup", existing.get("bypassSignup"));
   url.searchParams.set("event", String(event.sourceId || event.id));
   url.searchParams.set("openEvent", "1");
   return url.toString();
@@ -14136,10 +14080,8 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
-// "Restart walkthrough" (demo sidebar) replays the welcome-letter animation for
-// show, without touching the visitor's saved account/session. Unlike a real
-// first run, closing it (via the Ã— or either CTA) just returns to wherever they
-// were â€” it never wipes localStorage or starts real onboarding.
+// Replays the welcome-letter animation without touching the visitor's saved
+// account/session. Closing it returns to wherever they were.
 function replayWelcomeLetter() {
   document.querySelector(".onboarding")?.remove();
   document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">
@@ -14230,7 +14172,7 @@ function renderOnboarding() {
 }
 
 function renderPhoneVerification() {
-  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">VERIFY YOUR NUMBER</p><h1>${demoAuthConfig.useMockOtp ? "Demo verification." : "Check your messages."}</h1><p class="lede">${demoAuthConfig.useMockOtp ? `This shareable demo does not send texts. Use code <b>${demoAuthConfig.mockOtp}</b> for the mock profile tied to ${state.pendingSignupPhone}.` : `Enter the verification code sent to ${state.pendingSignupPhone}.`}</p><div class="account-fields"><input data-signup-code inputmode="numeric" autocomplete="one-time-code" placeholder="Verification code" aria-label="Verification code"><p class="account-error" data-account-error></p></div><button class="wide-button" data-verify-phone>Verify phone number</button></section></div>`);
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">VERIFY YOUR NUMBER</p><h1>Check your messages.</h1><p class="lede">Enter the verification code sent to ${state.pendingSignupPhone}.</p><div class="account-fields"><input data-signup-code inputmode="numeric" autocomplete="one-time-code" placeholder="Verification code" aria-label="Verification code"><p class="account-error" data-account-error></p></div><button class="wide-button" data-verify-phone>Verify phone number</button></section></div>`);
 }
 
 function toast(message) {
@@ -14330,7 +14272,7 @@ function resetAppScroll() {
     document.scrollingElement,
     document.documentElement,
     document.body,
-    document.querySelector(".demo-stage"),
+    document.querySelector(".app-stage"),
     document.querySelector(".app-shell"),
     document.querySelector("#app")
   ].filter(Boolean);
@@ -14573,7 +14515,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.postStory) { mark(); const eventId = Number(t.dataset.postStory); state.storyPosts = [{ eventId, postedAt: Date.now(), source: "user" }, ...state.storyPosts.filter(post => post.eventId !== eventId)].slice(0, 12); localStorage.setItem("lokalStoryPosts", JSON.stringify(state.storyPosts)); modalRoot.innerHTML = ""; if (state.route === "home") renderHome(); toast("Added to your story"); }
   if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await copyText(profileUrl); toast("Profile link copied"); } catch { toast("Could not copy the profile link"); } }
   if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "event", eventId }); openGroup(group); toast(`Event sent to ${group}`); }
-  if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
+  if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("App link copied"); } catch { toast("Could not copy the app link"); } }
   if (t.dataset.addFriendsLink !== undefined) {
     mark();
     const invite = appInviteDetails();
@@ -14806,7 +14748,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
-  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
+  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
   if (t.dataset.saveSettings !== undefined) {
     const input = document.querySelector("[data-age-input]");
@@ -15331,7 +15273,7 @@ const startupAccountType = String(startupParams.get("account") || "").toLowerCas
 const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalCredentials", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
-  state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
+  state.profile = { fullName: "Lokal user", username: "lokaluser", phone: "", birthdate: "", age: 27, initials: "L", tastes: [], privateAccount: false, accountType: "person", venueName: "" };
   state.signupDraft = {};
   state.onboardStep = 0;
   state.verifiedVenues = new Set();
@@ -15340,10 +15282,6 @@ if (startupParams.has("newUser") || startupAccountType === "person" || startupAc
   state.venueVerificationDismissed = false;
   state.privateAccount = false;
   if (!forceOnboarding) history.replaceState(null, "", location.pathname);
-}
-if (startupParams.has("bypassSignup") && !forceOnboarding) {
-  localStorage.setItem("lokalAccountCreated", "true");
-  history.replaceState(null, "", location.pathname);
 }
 // Boot routing: an active local session enters the app (auto sign-in); a returning
 // user who logged out sees the login screen; a brand-new device sees the welcome letter.

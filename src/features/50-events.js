@@ -252,8 +252,6 @@ function openShareSheet(id) {
 function lokalEventShareUrl(event) {
   const base = location.protocol.startsWith("http") ? `${location.origin}${location.pathname}` : "https://willsingle05-a11y.github.io/LokalAppDC/";
   const url = new URL(base);
-  const existing = new URLSearchParams(location.search);
-  if (existing.get("bypassSignup")) url.searchParams.set("bypassSignup", existing.get("bypassSignup"));
   url.searchParams.set("event", String(event.sourceId || event.id));
   url.searchParams.set("openEvent", "1");
   return url.toString();

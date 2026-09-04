@@ -3,12 +3,11 @@ const supabaseConfig = {
   publishableKey: "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH",
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlnbHpjanRrbHJ5YXBtY3B5b2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNDI0ODgsImV4cCI6MjA5NTkxODQ4OH0.oxugfaHmc7Jvq5nay5U7eRaKYYlW5rexv2UIfcM4hvo"
 };
-const demoAuthConfig = { useMockOtp: false, mockOtp: "123456" };
 const supabaseStorageKeys = {
   accessToken: "lokalSupabaseAccessToken",
   refreshToken: "lokalSupabaseRefreshToken",
   userId: "lokalSupabaseUserId",
-  demoUserId: "lokalDemoInteractionUserId",
+  interactionUserId: "lokalInteractionUserId",
   pendingInteractions: "lokalPendingEventInteractions",
   pendingVenueFollows: "lokalPendingVenueFollows"
 };
@@ -118,10 +117,10 @@ function persistSupabaseSession(accessToken) {
 }
 
 function fallbackInteractionUserId() {
-  let userId = localStorage.getItem(supabaseStorageKeys.demoUserId);
+  let userId = localStorage.getItem(supabaseStorageKeys.interactionUserId);
   if (!userId) {
     userId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-4000-8000-000000000000";
-    localStorage.setItem(supabaseStorageKeys.demoUserId, userId);
+    localStorage.setItem(supabaseStorageKeys.interactionUserId, userId);
   }
   return userId;
 }
@@ -465,7 +464,7 @@ function socialInsert(table, record) {
   }).catch(error => console.warn(`[supabase] ${table} not recorded`, error));
 }
 
-function submitFriendRelationship(friendName, status = "accepted", source = "demo") {
+function submitFriendRelationship(friendName, status = "accepted", source = "app") {
   if (!friendName) return;
   return socialUpsert("friend_relationships", "user_key,friend_name", {
     user_key: currentInteractionUserId(),
@@ -485,7 +484,7 @@ function submitFriendRelationshipForUser(userKey, friendName, status = "accepted
   });
 }
 
-function submitGroupMembership(groupName, memberName = "You", status = "active", source = "demo", role = "member") {
+function submitGroupMembership(groupName, memberName = "You", status = "active", source = "app", role = "member") {
   if (!groupName || !memberName) return;
   return socialUpsert("group_memberships", "user_key,group_name,member_name", {
     user_key: currentInteractionUserId(),
@@ -1270,14 +1269,14 @@ async function syncSupabaseEvents(showToast = false) {
       events = discoveryWindowEvents;
       state.eventSync = { status: "synced", label: `${events.length} upcoming DC event${events.length === 1 ? "" : "s"}` };
     } else {
-      events = [...demoEvents];
+      events = [];
       state.todayStoryEvents = [];
-      state.eventSync = { status: "fallback", label: "Shared table connected / showing sample events until rows are added" };
+      state.eventSync = { status: "empty", label: "No upcoming DC events found yet" };
     }
   } catch {
-    events = [...demoEvents];
+    events = [];
     state.todayStoryEvents = [];
-    state.eventSync = { status: "fallback", label: "Showing sample events / shared table unavailable" };
+    state.eventSync = { status: "error", label: "Events could not load" };
   }
   // The venue name clusters are derived from the loaded events, so they have to
   // be rebuilt whenever the event set is replaced.
@@ -1332,14 +1331,6 @@ function mergeSupabaseGroups(rows) {
 }
 
 async function syncSupabaseGroups() {
-  try {
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/demo_groups?select=name,type,member_count,member_count_label,note,icon,style,description,is_demo&is_demo=eq.true&order=name.asc`, {
-      headers: { apikey: supabaseConfig.publishableKey }
-    });
-    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
-    const rows = await response.json();
-    if (rows.length) mergeSupabaseGroups(rows);
-  } catch {}
   if (state.route === "social") renderSocial();
 }
 
@@ -1354,14 +1345,14 @@ function normalizeSupabaseProfile(row) {
     birthdate: row.birthdate || "",
     mutuals: row.mutuals || `${2 + (String(fullName || row.username || "").length % 7)} mutual friends`,
     bio: row.bio || row.home_city || (Array.isArray(row.neighborhoods) ? row.neighborhoods.join(", ") : "") || "Washington, DC",
-    is_demo: row.is_demo === true
+    isSeeded: row.is_demo === true
   };
 }
 
 function mergeFriendDirectory(profiles) {
   const currentUserId = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "";
   const rows = profiles
-    .filter(profile => profile && profile.id && profile.is_demo !== true)
+    .filter(profile => profile && profile.id && profile.isSeeded !== true)
     .map(profileToFriendRow)
     .filter(friend => friend[5] && String(friend[5]) !== String(currentUserId));
   friendDirectory = rows.filter((friend, index, all) => all.findIndex(item => item[5] === friend[5] || item[1] === friend[1]) === index);
@@ -1646,7 +1637,6 @@ async function createLokalAccount({ fullName, email, phone, username, birthdate,
   if (await emailAlreadyRegistered(email)) throw new Error("That email already has a Lokal account. Log in instead, or use a different address.");
   state.pendingSignupProfile = { fullName, email, phone: formattedPhone, username, birthdate, eventInterests, areaInterests, accountType, ownerName, venueName, venueAddress, venueWebsite, venueImageUrl, venueDescription };
   state.pendingSignupPhone = formattedPhone;
-  if (demoAuthConfig.useMockOtp) return { demoOtp: true };
   const data = await supabaseAuthRequest("signup", {
     email,
     password,
@@ -1724,11 +1714,6 @@ async function checkPhoneSignupStatus() {
 
 async function verifyLokalPhone(token) {
   if (!token.trim()) throw new Error("Enter the verification code.");
-  if (demoAuthConfig.useMockOtp) {
-    if (token.trim() !== demoAuthConfig.mockOtp) throw new Error("For demo profiles, use verification code 123456.");
-    finalizeLokalProfile(state.pendingSignupProfile);
-    return { demoOtp: true };
-  }
   const data = await supabaseAuthRequest("verify", { phone: state.pendingSignupPhone, token: token.trim(), type: "sms" });
   if (data.access_token) {
     persistSupabaseSession(data.access_token);

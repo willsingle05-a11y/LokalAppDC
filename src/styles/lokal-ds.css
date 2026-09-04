@@ -1335,9 +1335,9 @@ body[data-route="profile"] .topbar .account-label { display: none; }
 }
 #modal-root .detail-action { padding: 8px 10px; }
 
-/* App canvas is pure white. redesign.css paints .page/main/.demo-stage with a
+/* App canvas is pure white. redesign.css paints .page/main/.app-stage with a
    warm cream, so those are overridden here alongside the shell. */
-.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream); }
+.app-shell, .page, main, .onboarding, .app-stage { background: var(--cream); }
 .topbar, .bottom-nav { background: var(--paper); }
 /* Cards are white on white now, so the hard offset shadow does the separating
    and gets a hairline to sit on. */
@@ -1760,7 +1760,7 @@ body[data-route="profile"] .topbar {
   .bottom-nav { bottom: calc(25px + 22px); }
 }
 @media (min-width: 1040px) {
-  .demo-stage { grid-template-columns: 330px var(--shell-max); }
+  .app-stage { grid-template-columns: 330px var(--shell-max); }
   .app-shell { width: var(--shell-max); }
   .bottom-nav { left: auto; width: calc(var(--shell-max) - 20px); }
 }

@@ -5,8 +5,8 @@ $src = Join-Path $root "src"
 $htmlPath = Join-Path $src "index.html"
 $stylesPath = Join-Path $src "styles"
 $featuresPath = Join-Path $src "features"
-$outputPath = Join-Path $root "Lokal-demo.html"
-$zipPath = Join-Path $root "Lokal-demo-standalone.zip"
+$outputPath = Join-Path $root "Lokal-app.html"
+$zipPath = Join-Path $root "Lokal-app-standalone.zip"
 
 $html = Get-Content -Raw -LiteralPath $htmlPath
 

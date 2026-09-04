@@ -168,10 +168,8 @@ function onboardProgressDots(active) {
   return `<div class="onboard-progress" aria-label="Step ${active} of 3">${[1, 2, 3].map(n => `<span class="${n <= active ? "on" : ""}"></span>`).join("")}</div>`;
 }
 
-// "Restart walkthrough" (demo sidebar) replays the welcome-letter animation for
-// show, without touching the visitor's saved account/session. Unlike a real
-// first run, closing it (via the × or either CTA) just returns to wherever they
-// were — it never wipes localStorage or starts real onboarding.
+// Replays the welcome-letter animation without touching the visitor's saved
+// account/session. Closing it returns to wherever they were.
 function replayWelcomeLetter() {
   document.querySelector(".onboarding")?.remove();
   document.body.insertAdjacentHTML("beforeend", `<div class="onboarding onboard-letter-screen">
@@ -262,7 +260,7 @@ function renderOnboarding() {
 }
 
 function renderPhoneVerification() {
-  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">VERIFY YOUR NUMBER</p><h1>${demoAuthConfig.useMockOtp ? "Demo verification." : "Check your messages."}</h1><p class="lede">${demoAuthConfig.useMockOtp ? `This shareable demo does not send texts. Use code <b>${demoAuthConfig.mockOtp}</b> for the mock profile tied to ${state.pendingSignupPhone}.` : `Enter the verification code sent to ${state.pendingSignupPhone}.`}</p><div class="account-fields"><input data-signup-code inputmode="numeric" autocomplete="one-time-code" placeholder="Verification code" aria-label="Verification code"><p class="account-error" data-account-error></p></div><button class="wide-button" data-verify-phone>Verify phone number</button></section></div>`);
+  document.body.insertAdjacentHTML("beforeend", `<div class="onboarding"><section class="onboard-card"><div class="onboard-logo">LOKAL</div><p class="step-count">VERIFY YOUR NUMBER</p><h1>Check your messages.</h1><p class="lede">Enter the verification code sent to ${state.pendingSignupPhone}.</p><div class="account-fields"><input data-signup-code inputmode="numeric" autocomplete="one-time-code" placeholder="Verification code" aria-label="Verification code"><p class="account-error" data-account-error></p></div><button class="wide-button" data-verify-phone>Verify phone number</button></section></div>`);
 }
 
 function toast(message) {
@@ -362,7 +360,7 @@ function resetAppScroll() {
     document.scrollingElement,
     document.documentElement,
     document.body,
-    document.querySelector(".demo-stage"),
+    document.querySelector(".app-stage"),
     document.querySelector(".app-shell"),
     document.querySelector("#app")
   ].filter(Boolean);

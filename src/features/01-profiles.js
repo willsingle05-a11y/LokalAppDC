@@ -1,5 +1,3 @@
-const demoProfileSeeds = [];
-
 function profileToFriendRow(profile) {
   const initials = profile.initials || profile.avatar_initials || profileInitials(profile.fullName || profile.full_name || profile.display_name || "");
   const fullName = profile.fullName || profile.full_name || profile.display_name || "";

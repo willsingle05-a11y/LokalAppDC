@@ -1,7 +1,7 @@
--- Remove seeded/demo friend accounts and their fake social proof.
+-- Remove seeded friend accounts and their fake social proof.
 -- Real user profiles have is_demo = false/null and are preserved.
 
-with demo_names(full_name) as (
+with seeded_names(full_name) as (
   values
     ('Ana Lopez'),
     ('Marcus Reed'),
@@ -33,21 +33,21 @@ with demo_names(full_name) as (
     ('Mina Hughes'),
     ('Kai Thomas'),
     ('Lena Scott')
-), demo_profile_ids as (
+), seeded_profile_ids as (
   select id::text as id
   from public.profiles
   where is_demo = true
-     or full_name in (select full_name from demo_names)
+     or full_name in (select full_name from seeded_names)
   union
   select id::text as id
   from public."Profiles"
   where is_demo = true
-     or display_name in (select full_name from demo_names)
+     or display_name in (select full_name from seeded_names)
 )
 delete from public.event_interactions
-where user_id::text in (select id from demo_profile_ids);
+where user_id::text in (select id from seeded_profile_ids);
 
-with demo_names(full_name) as (
+with seeded_names(full_name) as (
   values
     ('Ana Lopez'), ('Marcus Reed'), ('Jules Kim'), ('Dev Shah'), ('Elena Torres'),
     ('Priya Lee'), ('Nia Williams'), ('Chris Bennett'), ('Sofia Kim'), ('Avery Morgan'),
@@ -57,10 +57,10 @@ with demo_names(full_name) as (
     ('Jonah Patel'), ('Riley Ochoa'), ('Mina Hughes'), ('Kai Thomas'), ('Lena Scott')
 )
 delete from public.friend_relationships
-where friend_name in (select full_name from demo_names)
+where friend_name in (select full_name from seeded_names)
    or source = 'demo';
 
-with demo_names(full_name) as (
+with seeded_names(full_name) as (
   values
     ('Ana Lopez'), ('Marcus Reed'), ('Jules Kim'), ('Dev Shah'), ('Elena Torres'),
     ('Priya Lee'), ('Nia Williams'), ('Chris Bennett'), ('Sofia Kim'), ('Avery Morgan'),
@@ -70,7 +70,7 @@ with demo_names(full_name) as (
     ('Jonah Patel'), ('Riley Ochoa'), ('Mina Hughes'), ('Kai Thomas'), ('Lena Scott')
 )
 delete from public.group_memberships
-where member_name in (select full_name from demo_names)
+where member_name in (select full_name from seeded_names)
    or source = 'demo';
 
 delete from public.profiles

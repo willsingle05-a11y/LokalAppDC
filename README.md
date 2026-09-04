@@ -1,4 +1,4 @@
-# Lokal Demo
+# Lokal App
 
 ## Edit the prototype
 
@@ -7,7 +7,7 @@ The maintainable source files live in `src`:
 - `src/index.html` - app shell and navigation
 - `src/styles/base.css` - shared visual system
 - `src/styles/round2.css` - current palette, font, and feature overrides
-- `src/features/00-core.js` - demo state, event data, and shared helpers
+- `src/features/00-core.js` - app state and shared helpers
 - `src/features/10-discover.js` - Discover feed and filters
 - `src/features/30-social.js` - groups, friends, invites, messages, and follows
 - `src/features/40-profile.js` - Profile, settings, notifications, and lists
@@ -55,15 +55,15 @@ npm.cmd run build:standalone
 
 This regenerates:
 
-- `Lokal-demo.html` - single-file interactive demo
-- `Lokal-demo-standalone.zip` - sendable archive
+- `Lokal-app.html` - single-file interactive app
+- `Lokal-app-standalone.zip` - sendable archive
 
 Edit files in `src`. Treat the generated standalone HTML as the share artifact.
 
 ## Sync real DC events from an event API
 
 1. Run `supabase/events.sql` in the Supabase SQL editor. This creates/updates
-   the `events` table that the demo already reads from, including the `tags`
+   the `events` table that the app already reads from, including the `tags`
    array used for multi-tag event cards and future tag filtering.
 2. Get an event API token and set it in your shell.
 3. Run the sync script:
@@ -98,12 +98,12 @@ the same process with Node.
 
 ## Auto-sync events with Supabase
 
-The demo now includes a Supabase Edge Function at:
+The app includes a Supabase Edge Function at:
 
 - `supabase/functions/sync-predicthq-events/index.ts`
 
 That function pulls current DC events, cleans them up, and writes them into the
-same `events` table the demo already reads from. Imported rows include a single
+same `events` table the app already reads from. Imported rows include a single
 primary `tag` plus a multi-value `tags` array inferred from API labels,
 category, title/description keywords, time of day, free/price signals, and
 local activity patterns.
@@ -159,28 +159,6 @@ Run this file in the Supabase SQL editor:
 
 It schedules the sync every morning. After that, the Lokal app will pick up new
 events from Supabase whenever the app opens or refreshes.
-
-## Seed demo profiles
-
-The app includes 30 demo Lokal profiles in:
-
-- `src/features/01-demo-profiles.js`
-
-To make those profiles real rows in Supabase:
-
-1. Run `supabase/profiles.sql` in the Supabase SQL editor. This creates the
-   demo-safe public read policy for rows where `is_demo = true`.
-2. In PowerShell, set your service role key and run the seed script:
-
-```powershell
-$env:SUPABASE_URL="https://iglzcjtklryapmcpyoam.supabase.co"
-$env:SERVICE_ROLE_KEY="your_supabase_service_role_key"
-node .\tools\seed-demo-profiles.mjs
-```
-
-The script creates confirmed Auth users with `@demo.lokal.app` emails and
-upserts their matching `public.profiles` rows. The frontend then merges those
-profiles into the Friends search/list automatically when the app opens.
 
 ## Happy-hour data
 

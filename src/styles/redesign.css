@@ -827,7 +827,7 @@ h3 { font-weight: 700; }
 
 /* Warm surfaces + near-black green ink */
 html, body { color: var(--ink-green); background: #ece7df; }
-.app-shell, .page, main, .onboarding, .demo-stage { background: var(--cream-warm); }
+.app-shell, .page, main, .onboarding, .app-stage { background: var(--cream-warm); }
 .topbar { background: rgba(248, 246, 242, .92); border-bottom-color: rgba(23, 28, 26, .08); }
 .bottom-nav { background: rgba(248, 246, 242, .96); }
 

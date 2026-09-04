@@ -19,19 +19,22 @@ alter table public.venue_follows enable row level security;
 grant select, insert, update on public.venue_follows to anon, authenticated;
 
 drop policy if exists "venue_follows_select_demo" on public.venue_follows;
-create policy "venue_follows_select_demo"
+drop policy if exists "venue_follows_select_app" on public.venue_follows;
+create policy "venue_follows_select_app"
   on public.venue_follows for select
   to anon, authenticated
   using (true);
 
 drop policy if exists "venue_follows_insert_demo" on public.venue_follows;
-create policy "venue_follows_insert_demo"
+drop policy if exists "venue_follows_insert_app" on public.venue_follows;
+create policy "venue_follows_insert_app"
   on public.venue_follows for insert
   to anon, authenticated
   with check (true);
 
 drop policy if exists "venue_follows_update_demo" on public.venue_follows;
-create policy "venue_follows_update_demo"
+drop policy if exists "venue_follows_update_app" on public.venue_follows;
+create policy "venue_follows_update_app"
   on public.venue_follows for update
   to anon, authenticated
   using (true)

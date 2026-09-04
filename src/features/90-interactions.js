@@ -225,7 +225,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.postStory) { mark(); const eventId = Number(t.dataset.postStory); state.storyPosts = [{ eventId, postedAt: Date.now(), source: "user" }, ...state.storyPosts.filter(post => post.eventId !== eventId)].slice(0, 12); localStorage.setItem("lokalStoryPosts", JSON.stringify(state.storyPosts)); modalRoot.innerHTML = ""; if (state.route === "home") renderHome(); toast("Added to your story"); }
   if (t.dataset.shareProfile) { mark(); const profileUrl = `https://lokal.app/${String(t.dataset.shareProfile).toLowerCase().replace(/[^a-z0-9]+/g, "")}`; try { await copyText(profileUrl); toast("Profile link copied"); } catch { toast("Could not copy the profile link"); } }
   if (t.dataset.groupShare) { const group = t.dataset.groupShare; const eventId = Number(t.dataset.eventId); state.groupMessages[group] = [{ type: "event", eventId }, ...(state.groupMessages[group] || [])]; submitGroupMessage(group, { type: "event", eventId }); openGroup(group); toast(`Event sent to ${group}`); }
-  if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("Demo link copied"); } catch { toast("Could not copy the demo link"); } }
+  if (t.dataset.copyLink !== undefined) { mark(); try { await copyText(location.href); toast("App link copied"); } catch { toast("Could not copy the app link"); } }
   if (t.dataset.addFriendsLink !== undefined) {
     mark();
     const invite = appInviteDetails();
@@ -458,7 +458,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
   if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
-  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed for demo"); }
+  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed"); }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
   if (t.dataset.saveSettings !== undefined) {
     const input = document.querySelector("[data-age-input]");
@@ -983,7 +983,7 @@ const startupAccountType = String(startupParams.get("account") || "").toLowerCas
 const forceOnboarding = startupParams.has("newUser") || startupParams.get("fresh") === "onboarding" || startupParams.get("reset") === "onboarding";
 if (startupParams.has("newUser") || startupAccountType === "person" || startupAccountType === "local") {
   ["lokalAccountCreated", "lokalHasAccount", "lokalLastIdentifier", "lokalCredentials", "lokalProfile", "lokalAttended", "lokalReceipts", "lokalVerifiedVenues", "lokalVerifiedVenueNames", "lokalPendingVenueRequests", "lokalVenueVerificationDismissed"].forEach(key => localStorage.removeItem(key));
-  state.profile = { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food", "Art", "Patios"], privateAccount: false, accountType: "person", venueName: "" };
+  state.profile = { fullName: "Lokal user", username: "lokaluser", phone: "", birthdate: "", age: 27, initials: "L", tastes: [], privateAccount: false, accountType: "person", venueName: "" };
   state.signupDraft = {};
   state.onboardStep = 0;
   state.verifiedVenues = new Set();
@@ -992,10 +992,6 @@ if (startupParams.has("newUser") || startupAccountType === "person" || startupAc
   state.venueVerificationDismissed = false;
   state.privateAccount = false;
   if (!forceOnboarding) history.replaceState(null, "", location.pathname);
-}
-if (startupParams.has("bypassSignup") && !forceOnboarding) {
-  localStorage.setItem("lokalAccountCreated", "true");
-  history.replaceState(null, "", location.pathname);
 }
 // Boot routing: an active local session enters the app (auto sign-in); a returning
 // user who logged out sees the login screen; a brand-new device sees the welcome letter.

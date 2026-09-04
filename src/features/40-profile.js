@@ -262,7 +262,7 @@ function openFeedbackSheet() {
 }
 
 function profileReceipts() {
-  const legacyDemoReceiptIds = new Set(["receipt-songbyrd", "receipt-open-streets", "receipt-hirshhorn"]);
+  const legacySeedReceiptIds = new Set(["receipt-songbyrd", "receipt-open-streets", "receipt-hirshhorn"]);
   const stored = state.receipts || [];
   const attendedRows = Array.from(state.attended || []).map(id => {
     const event = events.find(item => item.id === Number(id));
@@ -270,7 +270,7 @@ function profileReceipts() {
     return { id: event.id, title: event.title, time: event.time, venue: eventLocationLine(event), price: event.price, cat: event.cat, desc: event.desc, friends: event.friends || [], attendedAt: event.startSort || Date.now(), startSort: event.startSort || 0 };
   }).filter(Boolean);
   return [...stored, ...attendedRows]
-    .filter(receipt => !legacyDemoReceiptIds.has(String(receipt?.id || "")))
+    .filter(receipt => !legacySeedReceiptIds.has(String(receipt?.id || "")))
     .filter((receipt, index, all) => all.findIndex(item => receiptEventKey(item) === receiptEventKey(receipt)) === index)
     .sort((a, b) => (b.attendedAt || 0) - (a.attendedAt || 0));
 }

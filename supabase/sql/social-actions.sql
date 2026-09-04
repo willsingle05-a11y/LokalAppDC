@@ -3,7 +3,7 @@ create table if not exists public.friend_relationships (
   user_key text not null,
   friend_name text not null,
   status text not null default 'accepted',
-  source text not null default 'demo',
+  source text not null default 'app',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -18,7 +18,7 @@ create table if not exists public.group_memberships (
   member_name text not null,
   role text not null default 'member',
   status text not null default 'active',
-  source text not null default 'demo',
+  source text not null default 'app',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -62,51 +62,59 @@ grant select, insert on public.group_messages to anon, authenticated;
 grant select, insert on public.direct_messages to anon, authenticated;
 
 drop policy if exists "friend_relationships_insert_demo" on public.friend_relationships;
-create policy "friend_relationships_insert_demo"
+drop policy if exists "friend_relationships_insert_app" on public.friend_relationships;
+create policy "friend_relationships_insert_app"
   on public.friend_relationships for insert
   to anon, authenticated
   with check (true);
 
 drop policy if exists "friend_relationships_select_demo" on public.friend_relationships;
-create policy "friend_relationships_select_demo"
+drop policy if exists "friend_relationships_select_app" on public.friend_relationships;
+create policy "friend_relationships_select_app"
   on public.friend_relationships for select
   to anon, authenticated
   using (true);
 
 drop policy if exists "friend_relationships_update_demo" on public.friend_relationships;
-create policy "friend_relationships_update_demo"
+drop policy if exists "friend_relationships_update_app" on public.friend_relationships;
+create policy "friend_relationships_update_app"
   on public.friend_relationships for update
   to anon, authenticated
   using (true)
   with check (true);
 
 drop policy if exists "group_memberships_insert_demo" on public.group_memberships;
-create policy "group_memberships_insert_demo"
+drop policy if exists "group_memberships_insert_app" on public.group_memberships;
+create policy "group_memberships_insert_app"
   on public.group_memberships for insert
   to anon, authenticated
   with check (true);
 
 drop policy if exists "group_memberships_select_demo" on public.group_memberships;
-create policy "group_memberships_select_demo"
+drop policy if exists "group_memberships_select_app" on public.group_memberships;
+create policy "group_memberships_select_app"
   on public.group_memberships for select
   to anon, authenticated
   using (true);
 
 drop policy if exists "group_memberships_update_demo" on public.group_memberships;
-create policy "group_memberships_update_demo"
+drop policy if exists "group_memberships_update_app" on public.group_memberships;
+create policy "group_memberships_update_app"
   on public.group_memberships for update
   to anon, authenticated
   using (true)
   with check (true);
 
 drop policy if exists "group_messages_insert_demo" on public.group_messages;
-create policy "group_messages_insert_demo"
+drop policy if exists "group_messages_insert_app" on public.group_messages;
+create policy "group_messages_insert_app"
   on public.group_messages for insert
   to anon, authenticated
   with check (true);
 
 drop policy if exists "direct_messages_insert_demo" on public.direct_messages;
-create policy "direct_messages_insert_demo"
+drop policy if exists "direct_messages_insert_app" on public.direct_messages;
+create policy "direct_messages_insert_app"
   on public.direct_messages for insert
   to anon, authenticated
   with check (true);

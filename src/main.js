@@ -4,7 +4,7 @@ import "./styles/redesign.css";
 import "./styles/lokal-ds.css";
 
 import coreSource from "./features/00-core.js?raw";
-import demoProfilesSource from "./features/01-demo-profiles.js?raw";
+import profilesSource from "./features/01-profiles.js?raw";
 import boMascotSource from "./features/02-bo-mascot.js?raw";
 import supabaseSource from "./features/05-supabase.js?raw";
 import scoringSource from "./features/06-scoring.js?raw";
@@ -64,7 +64,7 @@ const posthogSeenUsers = new Set();
 
 function posthogDirectCapture(name, properties = {}) {
   if (!posthogKey || !name) return;
-  const distinctId = properties.user_key || properties.userId || properties.user_id || localStorage.getItem("lokalDemoInteractionUserId") || "lokal-anonymous";
+  const distinctId = properties.user_key || properties.userId || properties.user_id || localStorage.getItem("lokalInteractionUserId") || "lokal-anonymous";
   const payload = JSON.stringify({
     api_key: posthogKey,
     event: name,
@@ -151,7 +151,7 @@ window.addEventListener("pagehide", () => trackAppSessionDuration("pagehide"));
 
 const featureScripts = [
   ["00-core.js", coreSource],
-  ["01-demo-profiles.js", demoProfilesSource],
+  ["01-profiles.js", profilesSource],
   ["02-bo-mascot.js", boMascotSource],
   ["05-supabase.js", supabaseSource],
   ["06-scoring.js", scoringSource],

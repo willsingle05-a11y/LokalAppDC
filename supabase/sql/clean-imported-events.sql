@@ -1,4 +1,4 @@
--- Live demo cleanup for event rows already in Supabase.
+-- Launch cleanup for event rows already in Supabase.
 -- Keeps one primary category, enriches multi-value tags, and hides rows outside Washington, DC.
 
 with normalized as (

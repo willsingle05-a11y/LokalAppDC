@@ -4,33 +4,12 @@ function activityCard(initials, copy, time) {
 
 let friendDirectory = [];
 
-const publicGroupMeta = {
-  "Skyline Social": { count: "12 members", note: "Single-event group / Friday", icon: "S", style: "run", description: "A public group for Skyline Social so interested people can coordinate before Friday." },
-  "District Book Club": { count: "326 members", note: "Next meetup: June 8", icon: "B", style: "book", description: "A public group for upcoming reads, meetups, and book-friendly plans around DC." },
-  "DC Trivia Nights": { count: "684 members", note: "Three events this week", icon: "D", style: "art", description: "A public group for finding trivia nights and building teams around the city." },
-  "DC Pickleball Crew": { count: "948 members", note: "Beginner games this weekend", icon: "P", style: "run", description: "A public group for finding casual pickleball games and open courts around DC." },
-  "Capital Film Club": { count: "412 members", note: "Outdoor screenings + indies", icon: "F", style: "art", description: "A public group for film screenings, festivals, and low-key movie nights around the city." },
-  "Volunteer DC": { count: "2.3k members", note: "Five ways to help this week", icon: "V", style: "book", description: "A public group for finding local volunteer projects and meeting people while helping out." },
-  "H Street Food Walks": { count: "537 members", note: "New tasting route posted", icon: "H", style: "art", description: "A public group for casual food walks, new openings, and neighborhood recommendations." }
-};
+const publicGroupMeta = {};
 
-const groupCategoryHints = {
-  "District Book Club": ["community"],
-  "DC Trivia Nights": ["nightlife", "community"],
-  "DC Pickleball Crew": ["sports", "fitness"],
-  "Capital Film Club": ["performing-arts"],
-  "Volunteer DC": ["community"],
-  "H Street Food Walks": ["festivals", "nightlife"],
-  "Culture club": ["performing-arts", "museums"],
-  "Gallery hopping": ["performing-arts", "museums"],
-  "Sunday coffee walk": ["community", "festivals"],
-  "Skyline Social": ["nightlife"],
-  "Friday crew": ["nightlife", "concerts"],
-  "Capitol picnic crew": ["community", "festivals"]
-};
+const groupCategoryHints = {};
 
 function publicDirectoryNames() {
-  return Object.keys(publicGroupMeta).filter(name => name !== "Skyline Social" && !state.joinedGroups.has(name) && !state.leftGroups.has(name));
+  return Object.keys(publicGroupMeta).filter(name => !state.joinedGroups.has(name) && !state.leftGroups.has(name));
 }
 
 function groupRecord(name) {
@@ -54,7 +33,7 @@ function friendCard(friend, action = "profile") {
 }
 
 function userGroupNames() {
-  return ["Friday crew", "Culture club", ...Array.from(state.joinedGroups), ...state.newGroups.map(group => group.name)].filter((name, index, groups) => !state.leftGroups.has(name) && groups.indexOf(name) === index);
+  return [...Array.from(state.joinedGroups), ...state.newGroups.map(group => group.name)].filter((name, index, groups) => !state.leftGroups.has(name) && groups.indexOf(name) === index);
 }
 
 function friendInitials(name) {
@@ -111,7 +90,7 @@ function groupSharePicker(name) {
 }
 
 function currentUserName() {
-  return state.profile.fullName || "Jordan Miller";
+  return state.profile.fullName || "Lokal user";
 }
 
 function acceptFriendship(name) {
@@ -129,7 +108,7 @@ function acceptFriendship(name) {
   if (!state.friendConnections[name]) state.friendConnections[name] = [];
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
   if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
-  submitFriendRelationship(name, "accepted", "demo");
+  submitFriendRelationship(name, "accepted", "friend");
   return true;
 }
 
@@ -142,14 +121,12 @@ function groupContent() {
   };
   const group = (name, type, detail, note, icon, style = "") => ({ name, type, detail, note, icon, style });
   const renderGroup = item => card(item.name, item.type, item.detail, item.note, item.icon, item.style);
-  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => name !== "Skyline Social" && !state.leftGroups.has(name) && publicGroupMeta[name]).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
-  const baseGroups = [group("Friday crew","Private","6 members","Ready to start chatting","F"), ...state.newGroups.map(item => group(item.name,item.type,item.type === "Public" ? "1 member" : "Created just now",item.type === "Event chat" ? "Attach an event and invite people" : "Invite people to get started",item.name[0].toUpperCase())), group("Culture club","Private","8 members","Ready to start chatting","C","art"), group("Skyline Social","Public","12 members","Single-event group / Friday","S","run"), ...joinedPublicGroups, group("Capitol picnic crew","Private","5 members","Last active Monday","P"), group("Gallery hopping","Private","4 members","Last active May 24","G","art"), group("Sunday coffee walk","Private","7 members","Last active May 18","S","run")];
+  const joinedPublicGroups = Array.from(state.joinedGroups).filter(name => !state.leftGroups.has(name) && publicGroupMeta[name]).map(name => group(name,"Public",publicGroupMeta[name].count,"Joined public group",publicGroupMeta[name].icon,publicGroupMeta[name].style));
+  const baseGroups = [...state.newGroups.map(item => group(item.name,item.type,item.type === "Public" ? "1 member" : "Created just now",item.type === "Event chat" ? "Attach an event and invite people" : "Invite people to get started",item.name[0].toUpperCase())), ...joinedPublicGroups];
   const pinnedGroups = baseGroups.filter(item => state.pinnedGroups.has(item.name)).sort((a, b) => Number(a.type === "Public") - Number(b.type === "Public"));
-  const recentGroups = baseGroups.filter(item => !state.pinnedGroups.has(item.name) && !["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name));
-  const archivedGroups = baseGroups.filter(item => ["Capitol picnic crew","Gallery hopping","Sunday coffee walk"].includes(item.name) && !state.pinnedGroups.has(item.name));
-  const moreGroups = state.showAllGroups ? archivedGroups.map(renderGroup).join("") : "";
+  const recentGroups = baseGroups.filter(item => !state.pinnedGroups.has(item.name));
   const publicCatalog = publicDirectoryNames().slice(0, 3).map(name => { const meta = publicGroupMeta[name]; return card(name,"Public",meta.count,meta.note,meta.icon,meta.style); }).join("");
-  return `<label class="search-box social-search"><span>&#8981;</span><input data-group-search placeholder="Search private or public groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("")}${moreGroups}</div><button class="text-button view-more-groups" data-view-more-groups>${state.showAllGroups ? "Show fewer groups" : "View more groups"}</button><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">You have joined all suggested public groups.</p>`}</div><button class="text-button see-more-public" data-see-more-public-groups>See more public groups</button><p class="search-empty" data-group-empty>No groups match that search.</p>`;
+  return `<label class="search-box social-search"><span>&#8981;</span><input data-group-search placeholder="Search groups" aria-label="Search groups"></label><p class="eyebrow">Pinned groups</p><div class="group-list">${pinnedGroups.map(renderGroup).join("") || `<p class="section-helper">Pin a group to keep it at the top.</p>`}</div><p class="eyebrow group-divider">Recent groups</p><div class="group-list">${recentGroups.map(renderGroup).join("") || `<p class="section-helper">Create a group when you want to coordinate plans with friends.</p>`}</div><p class="eyebrow group-divider">Suggested public groups</p><div class="community-grid">${publicCatalog || `<p class="section-helper">Public groups will appear here when real communities are available.</p>`}</div><p class="search-empty" data-group-empty>No groups match that search.</p>`;
 }
 
 function publicDirectoryCard(name) {
@@ -196,7 +173,7 @@ function openGroup(name) {
   </section></div>`;
 }
 
-function openInvite(name = "Friday crew") {
+function openInvite(name = "your group") {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal invite-sheet" role="dialog" aria-modal="true" aria-label="Invite people"><button class="modal-close" aria-label="Close invite">&times;</button><button class="text-button" data-back-group="${name}">&larr; Back to group</button><p class="eyebrow">Invite people</p><h2>Share ${name}.</h2><label class="settings-field">Invite URL<input value="https://lokal.app/join/${slug}" readonly></label><button class="wide-button" data-copy-invite>Copy invite link</button><label class="search-box social-search"><span>&#8981;</span><input data-invite-people-search data-group-name="${name}" placeholder="Search friends" aria-label="Search invite friends"></label><div class="autocomplete invite-autocomplete" data-invite-people-results hidden></div><div class="selected-group-friends" data-selected-invite-people></div></section></div>`;
 }
@@ -211,16 +188,25 @@ function openCreateGroup() {
 }
 
 function rankingContent() {
-  const ranking = [
-    { id: 4, score: 94, trend: "+12 this week", note: "Popular with Lokal users", badge: "Friday favorite" },
-    { id: 8, score: 86, trend: "+8 this week", note: "Saved by Lokal users", badge: "Free pick" },
-    { id: 3, score: 79, trend: "+6 this week", note: "Neighborhood buzz", badge: "Neighborhood buzz" },
-    { id: 7, score: 71, trend: "+4 this week", note: "Rising this week", badge: "Rising" }
-  ];
+  const ranking = displayableDcEvents()
+    .map(event => {
+      const friendCount = interestedFriendsForEvent(event).length;
+      const score = event.lokalScore || friendCount * 12 || 50;
+      return {
+        event,
+        score,
+        trend: friendCount ? `${friendCount} friend${friendCount === 1 ? "" : "s"} interested` : "Rising in DC",
+        note: friendCount ? "People you know are interested" : "Popular with Lokal users",
+        badge: primaryEventTag(event) || "Trending"
+      };
+    })
+    .sort((a, b) => b.score - a.score || sortEventsByStart(a.event, b.event))
+    .slice(0, 4);
+  if (!ranking.length) return `<div class="ranking-intro"><p class="eyebrow">Your circle's pulse</p><h2>Trending with friends</h2><p>Once real events and friend activity load, the strongest plans will appear here.</p></div>`;
   return `<div class="ranking-intro"><p class="eyebrow">Your circle's pulse</p><h2>Trending with friends</h2><p>Ranked by saves, RSVPs, and the plans your groups keep talking about.</p></div>
   <div class="ranking-list">${ranking.map((item, index) => {
-    const event = events.find(e => e.id === item.id);
-    const hyped = state.hype.has(item.id);
+    const event = item.event;
+    const hyped = state.hype.has(event.id);
     return `<article class="ranking-card">
       <button class="rank-main" data-event="${event.id}">
         <span class="rank-number">${index + 1}</span>
@@ -263,11 +249,9 @@ function openAllFriends() {
 }
 
 function followingContent() {
-  const accounts = [["songbyrd","S","Songbyrd Music House","Venue","Concerts, DJ nights, and neighborhood picks"],["dcafterdark","D","@dcafterdark","Local curator","Late-night lists and weekend roundups"],["smithsonian","M","Smithsonian After Hours","Venue collection","Museum events worth planning around"],["eaterdc","E","@eater_dc","Food curator","Pop-ups, openings, and neighborhood food guides"]];
-  const followedAccounts = accounts.filter(account => state.follows.has(account[0]));
   // The venue's own artwork stands in for the letter disc wherever we have it.
   const followedVenues = followedVenueNames().map(name => ["venue:" + name, venueAvatarHtml(name, "group-icon"), name, "Venue", "Followed from Discover"]);
-  const visible = [...followedVenues, ...followedAccounts.map(account => [account[0], `<span class="group-icon">${escapeHtml(account[1])}</span>`, account[2], account[3], account[4]])];
+  const visible = [...followedVenues];
   if (!visible.length) return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues from Discover to build this page. Once you follow one, it will show here and shape your feed.</p></div><p class="section-helper">You are not following any venues or curators yet.</p>`;
   return `<div class="ranking-intro"><p class="eyebrow">Public following</p><h2>Your local feed</h2><p>Follow venues, public groups, and curators to shape what shows up in Discover.</p></div>
   <div class="follow-list">${visible.map(account => `<div class="follow-card">${account[1]}<span><b>${account[2]}</b><small>${account[3]}</small><em>${account[4]}</em></span><button class="follow-button selected" data-follow="${account[0]}">Following</button></div>`).join("")}</div>`;
