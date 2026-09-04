@@ -6763,7 +6763,7 @@ const demoEvents = [
 ];
 let events = [...demoEvents];
 let venueDirectory = [];
-const friendNames = { AL: "Ana", MR: "Marcus", DV: "Dev", JS: "Jules", PL: "Priya", ET: "Elena", NW: "Nia", CB: "Chris" };
+const friendNames = {};
 const savedProfile = JSON.parse(localStorage.getItem("lokalProfile") || "null");
 const defaultReceipts = [];
 function profileAgeFromBirthdate(birthdate) {
@@ -6775,7 +6775,7 @@ function profileAgeFromBirthdate(birthdate) {
   return age;
 }
 const savedProfileAge = profileAgeFromBirthdate(savedProfile?.birthdate) || savedProfile?.age || 27;
-const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(["Friday crew"]), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(["Ana Lopez", "Marcus Reed", "Jules Kim", "Dev Shah", "Elena Torres"]), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: { "Friday crew": ["You","Ana Lopez","Marcus Reed","Dev Shah","Jules Kim","Priya Lee"], "Culture club": ["You","Priya Lee","Jules Kim","Ana Lopez","Elena Torres"], "Capitol picnic crew": ["You","Marcus Reed","Nia Williams","Chris Bennett"], "Gallery hopping": ["You","Dev Shah","Priya Lee","Elena Torres"], "Sunday coffee walk": ["You","Ana Lopez","Sofia Kim","Nia Williams"] }, directMessages: { "Ana Lopez": [{ from: "Ana", text: "Want to check out the Songbyrd show this week?" }], "Marcus Reed": [{ from: "Marcus", text: "I sent the run club details. It looks relaxed." }] }, pendingRequests: [] };
+const state = { route: "home", socialTab: "saved", plannerWeekOffset: 0, homeFilter: "all", discoverCategoryView: "", mapFilter: "all", mapZoom: 1, mapSearch: "", mapCenter: { x: 50, y: 50 }, discoverGenreFilter: "", age: savedProfileAge, bio: savedProfile?.bio || "Always looking for a good live show, a new restaurant, and an excuse to get outside.", tastes: savedProfile?.tastes || ["Live music", "Food & drink", "Sports", "Happy hours"], profile: savedProfile ? { ...savedProfile, age: savedProfileAge } : { fullName: "Jordan Miller", username: "jordanindc", phone: "(202) 555-0148", birthdate: "", age: 27, initials: "JM", tastes: ["Live music", "Food & drink", "Sports", "Happy hours"], privateAccount: false }, privateAccount: Boolean(savedProfile?.privateAccount), filter: {}, highlightedOnly: false, eventSync: { status: "loading", label: "Checking shared events..." }, todayStoryEvents: [], pendingSignupPhone: "", pendingSignupProfile: null, verifiedVenues: new Set(JSON.parse(localStorage.getItem("lokalVerifiedVenues") || "[]")), verifiedVenueNames: JSON.parse(localStorage.getItem("lokalVerifiedVenueNames") || "[]"), pendingVenueRequests: JSON.parse(localStorage.getItem("lokalPendingVenueRequests") || "[]"), venueVerificationDismissed: localStorage.getItem("lokalVenueVerificationDismissed") === "1", joinedGroups: new Set(), pinnedGroups: new Set(), leftGroups: new Set(), hype: new Set(), follows: new Set(JSON.parse(localStorage.getItem("lokalFollows") || "[]")), friends: new Set(), inviteLinksSent: Number(localStorage.getItem("lokalInviteLinksSent") || "0"), friendSignupCredits: new Set(JSON.parse(localStorage.getItem("lokalFriendSignupCredits") || "[]")), saved: new Set(), rsvps: new Set(), calendarAdds: new Set(JSON.parse(localStorage.getItem("lokalCalendarAdds") || "[]")), attended: new Set(JSON.parse(localStorage.getItem("lokalAttended") || "[]")), receipts: JSON.parse(localStorage.getItem("lokalReceipts") || JSON.stringify(defaultReceipts)), storyPosts: JSON.parse(localStorage.getItem("lokalStoryPosts") || "[]"), newGroups: [], groupType: "private", onboardStep: 0, selections: new Set(), showAllGroups: false, groupMessages: {}, privateGroupMembers: {}, directMessages: {}, pendingRequests: [] };
 state.profile = { ...state.profile, accountType: "person", ownerName: "", venueName: "", venueAddress: "", venueWebsite: "", venueImageUrl: "", venueDescription: "" };
 const app = document.querySelector("#app");
 const modalRoot = document.querySelector("#modal-root");
@@ -6997,10 +6997,7 @@ function interestedFriendsForEvent(event) {
   const fromLive = live
     .filter(friend => state.friends.has(friend.name))
     .map(friend => friend.initials || friendInitials(friend.name));
-  const explicit = state.friendEventInterestsLoaded
-    ? []
-    : (Array.isArray(event.friends) ? event.friends : []).filter(friend => friendNames[friend]);
-  return [...fromLive, ...explicit].filter((friend, index, all) => friend && all.indexOf(friend) === index).slice(0, 2);
+  return fromLive.filter((friend, index, all) => friend && all.indexOf(friend) === index).slice(0, 2);
 }
 
 function eventInterestSignal(event, detail = false) {
@@ -8392,46 +8389,15 @@ function filterChips(active, scope) {
   return items.map(([value, label]) => `<button class="${scope === "home" ? "chip" : "filter-chip"} ${active === value ? "active" : ""}" data-${scope}-filter="${value}">${label}</button>`).join("");
 }
 
-const demoProfileSeeds = [
-  { initials: "AL", fullName: "Ana Lopez", username: "analopes", phone: "+12025550101", birthdate: "1998-04-18", mutuals: "8 mutual friends", bio: "New to DC / Live music + food" },
-  { initials: "MR", fullName: "Marcus Reed", username: "marcusdc", phone: "+12025550102", birthdate: "1995-09-03", mutuals: "5 mutual friends", bio: "DC local / Fitness + markets" },
-  { initials: "JS", fullName: "Jules Kim", username: "julesk", phone: "+12025550103", birthdate: "1999-01-27", mutuals: "6 mutual friends", bio: "DC local / Music + nightlife" },
-  { initials: "DV", fullName: "Dev Shah", username: "devaroundtown", phone: "+12025550104", birthdate: "1997-07-14", mutuals: "3 mutual friends", bio: "Exploring DC / Art + film" },
-  { initials: "ET", fullName: "Elena Torres", username: "elenaarounddc", phone: "+12025550105", birthdate: "1996-11-21", mutuals: "7 mutual friends", bio: "Capitol Hill / Patios + galleries" },
-  { initials: "PL", fullName: "Priya Lee", username: "priyaleedc", phone: "+12025550106", birthdate: "2000-05-09", mutuals: "4 mutual friends", bio: "New to DC / Food + art" },
-  { initials: "NW", fullName: "Nia Williams", username: "nianights", phone: "+12025550107", birthdate: "1998-08-12", mutuals: "2 mutual friends", bio: "Shaw / Comedy, dancing, and late-night food" },
-  { initials: "CB", fullName: "Chris Bennett", username: "chrisb", phone: "+12025550108", birthdate: "1994-12-30", mutuals: "5 mutual friends", bio: "Navy Yard / Sports, rooftops, and trivia" },
-  { initials: "SK", fullName: "Sofia Kim", username: "sofiak", phone: "+12025550109", birthdate: "2001-03-05", mutuals: "3 mutual friends", bio: "Adams Morgan / Coffee walks + shows" },
-  { initials: "AM", fullName: "Avery Morgan", username: "averymoves", phone: "+12025550110", birthdate: "1997-02-16", mutuals: "6 mutual friends", bio: "Logan Circle / Run clubs and low-key hangs" },
-  { initials: "TH", fullName: "Theo Harris", username: "theohdc", phone: "+12025550111", birthdate: "1995-06-22", mutuals: "4 mutual friends", bio: "H Street / DJs, pop-ups, and soccer bars" },
-  { initials: "MK", fullName: "Maya Kapoor", username: "mayainthecity", phone: "+12025550112", birthdate: "1999-10-02", mutuals: "7 mutual friends", bio: "Dupont / Museums, wine bars, and book clubs" },
-  { initials: "LB", fullName: "Leo Brooks", username: "leobrooks", phone: "+12025550113", birthdate: "1996-01-19", mutuals: "2 mutual friends", bio: "Brookland / Community events and farmers markets" },
-  { initials: "GT", fullName: "Grace Turner", username: "gracetdc", phone: "+12025550114", birthdate: "1998-07-08", mutuals: "5 mutual friends", bio: "Georgetown / Gallery openings and live jazz" },
-  { initials: "RJ", fullName: "Ryan James", username: "ryanrounddc", phone: "+12025550115", birthdate: "1993-04-25", mutuals: "3 mutual friends", bio: "U Street / Concerts, comedy, and pickup games" },
-  { initials: "IC", fullName: "Isabel Cruz", username: "isabelcruzdc", phone: "+12025550116", birthdate: "2000-09-18", mutuals: "4 mutual friends", bio: "Columbia Heights / Food halls and dance nights" },
-  { initials: "OA", fullName: "Owen Adams", username: "owenout", phone: "+12025550117", birthdate: "1997-12-11", mutuals: "6 mutual friends", bio: "NoMa / Outdoor movies, markets, and patios" },
-  { initials: "ZH", fullName: "Zara Hassan", username: "zaralokal", phone: "+12025550118", birthdate: "1999-05-28", mutuals: "8 mutual friends", bio: "Mount Pleasant / Art, volunteering, and coffee" },
-  { initials: "BM", fullName: "Ben Miller", username: "benindc", phone: "+12025550119", birthdate: "1994-03-31", mutuals: "2 mutual friends", bio: "Capitol Riverfront / Nats games and rooftops" },
-  { initials: "CW", fullName: "Camila Wright", username: "camilaw", phone: "+12025550120", birthdate: "1998-11-04", mutuals: "5 mutual friends", bio: "Petworth / Trivia, karaoke, and street fairs" },
-  { initials: "SN", fullName: "Sam Nguyen", username: "samfinds", phone: "+12025550121", birthdate: "1996-08-29", mutuals: "7 mutual friends", bio: "Union Market / New restaurants and design events" },
-  { initials: "HK", fullName: "Harper King", username: "harpergoes", phone: "+12025550122", birthdate: "2001-02-07", mutuals: "3 mutual friends", bio: "Tenleytown / College events and free concerts" },
-  { initials: "EP", fullName: "Eli Parker", username: "eliparker", phone: "+12025550123", birthdate: "1995-10-14", mutuals: "4 mutual friends", bio: "Southwest / Theater, waterfront walks, and jazz" },
-  { initials: "QD", fullName: "Quinn Davis", username: "quinndc", phone: "+12025550124", birthdate: "1999-06-06", mutuals: "5 mutual friends", bio: "Ivy City / DJs, breweries, and bike rides" },
-  { initials: "FT", fullName: "Fatima Thompson", username: "fatimathompson", phone: "+12025550125", birthdate: "1997-09-20", mutuals: "6 mutual friends", bio: "Woodley Park / Wellness, parks, and museums" },
-  { initials: "JP", fullName: "Jonah Patel", username: "jonahp", phone: "+12025550126", birthdate: "1994-01-10", mutuals: "2 mutual friends", bio: "Downtown / Networking, sports, and happy hours" },
-  { initials: "RO", fullName: "Riley Ochoa", username: "rileyo", phone: "+12025550127", birthdate: "2000-12-02", mutuals: "3 mutual friends", bio: "Anacostia / Community markets and live music" },
-  { initials: "MH", fullName: "Mina Hughes", username: "minahughes", phone: "+12025550128", birthdate: "1998-05-17", mutuals: "5 mutual friends", bio: "Cleveland Park / Book clubs and gallery days" },
-  { initials: "KT", fullName: "Kai Thomas", username: "kaithomas", phone: "+12025550129", birthdate: "1996-07-26", mutuals: "4 mutual friends", bio: "Takoma / Festivals, yoga, and volunteer days" },
-  { initials: "LS", fullName: "Lena Scott", username: "lenascott", phone: "+12025550130", birthdate: "1999-03-13", mutuals: "6 mutual friends", bio: "Bloomingdale / Brunch, patios, and local shows" }
-];
+const demoProfileSeeds = [];
 
 function profileToFriendRow(profile) {
-  const initials = profile.initials || profileInitials(profile.fullName || profile.full_name || "");
-  const fullName = profile.fullName || profile.full_name || "Lokal Friend";
+  const initials = profile.initials || profile.avatar_initials || profileInitials(profile.fullName || profile.full_name || profile.display_name || "");
+  const fullName = profile.fullName || profile.full_name || profile.display_name || "";
   const username = String(profile.username || "").replace(/^@/, "");
-  const mutuals = profile.mutuals || `${2 + (fullName.length % 7)} mutual friends`;
-  const bio = profile.bio || "Washington, DC";
-  return [initials, fullName, `@${username}`, mutuals, bio, profile.id || profile.user_id || ""];
+  const mutuals = profile.mutuals || "";
+  const bio = profile.bio || profile.home_city || (Array.isArray(profile.neighborhoods) ? profile.neighborhoods.join(", ") : "") || "Washington, DC";
+  return [initials, fullName, username ? `@${username}` : "", mutuals, bio, profile.id || profile.user_id || ""];
 }
 
 // Bo the Bear â€” the Lokal mascot, taken from the "Lokal Bear Mascot" canvas.
@@ -8866,7 +8832,7 @@ async function submitReferralJoin(profile = {}) {
   });
   submitFriendRelationshipForUser(record.inviter_user_key, record.invited_name, "accepted", "referral").catch(error => console.warn("[supabase] inviter friendship not recorded", error));
   submitFriendRelationshipForUser(record.invited_user_key, record.inviter_name, "accepted", "referral").catch(error => console.warn("[supabase] invited friendship not recorded", error));
-  if (record.inviter_name) {
+  if (record.inviter_name && friendDirectory.some(friend => friend[1] === record.inviter_name && friend[5])) {
     state.friends.add(record.inviter_name);
     state.friendSignupCredits.add(record.inviter_name);
     localStorage.setItem("lokalFriendSignupCredits", JSON.stringify(Array.from(state.friendSignupCredits)));
@@ -9864,14 +9830,19 @@ function normalizeSupabaseProfile(row) {
     phone: row.phone || "",
     birthdate: row.birthdate || "",
     mutuals: row.mutuals || `${2 + (String(fullName || row.username || "").length % 7)} mutual friends`,
-    bio: row.bio || row.home_city || (Array.isArray(row.neighborhoods) ? row.neighborhoods.join(", ") : "") || "Washington, DC"
+    bio: row.bio || row.home_city || (Array.isArray(row.neighborhoods) ? row.neighborhoods.join(", ") : "") || "Washington, DC",
+    is_demo: row.is_demo === true
   };
 }
 
 function mergeFriendDirectory(profiles) {
-  const rows = profiles.map(profileToFriendRow);
-  const merged = [...friendDirectory, ...rows];
-  friendDirectory = merged.filter((friend, index, all) => all.findIndex(item => item[1] === friend[1]) === index);
+  const currentUserId = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "";
+  const rows = profiles
+    .filter(profile => profile && profile.id && profile.is_demo !== true)
+    .map(profileToFriendRow)
+    .filter(friend => friend[5] && String(friend[5]) !== String(currentUserId));
+  friendDirectory = rows.filter((friend, index, all) => all.findIndex(item => item[5] === friend[5] || item[1] === friend[1]) === index);
+  state.friends = new Set(Array.from(state.friends || []).filter(name => friendDirectory.some(friend => friend[1] === name && friend[5])));
 }
 
 function currentFriendProfiles() {
@@ -9933,12 +9904,12 @@ async function syncSupabaseFriendInterests() {
 
 async function syncSupabaseProfiles() {
   try {
-    let response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&is_demo=eq.true&order=full_name.asc`, {
+    let response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&or=(is_demo.is.false,is_demo.is.null)&order=full_name.asc`, {
       headers: { apikey: supabaseConfig.publishableKey }
     });
     let rows = response.ok ? await response.json() : [];
     if (!response.ok || !rows.length) {
-      response = await fetch(`${supabaseConfig.url}/rest/v1/Profiles?select=id,username,display_name,birthdate,bio,avatar_initials,taste_tags,neighborhoods,is_demo&is_demo=eq.true&order=display_name.asc`, {
+      response = await fetch(`${supabaseConfig.url}/rest/v1/Profiles?select=id,username,display_name,birthdate,bio,avatar_initials,taste_tags,neighborhoods,is_demo&or=(is_demo.is.false,is_demo.is.null)&order=display_name.asc`, {
         headers: { apikey: supabaseConfig.publishableKey }
       });
       rows = response.ok ? await response.json() : [];
@@ -9946,7 +9917,7 @@ async function syncSupabaseProfiles() {
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
     if (rows.length) mergeFriendDirectory(rows.map(normalizeSupabaseProfile));
   } catch {
-    mergeFriendDirectory(demoProfileSeeds);
+    friendDirectory = [];
   }
   await syncSupabaseFriendInterests();
   if (state.route === "home") renderHome();
@@ -11237,7 +11208,7 @@ function topWeekEventScore(event) {
   const interactionScore =
     (state.saved?.has(event.id) ? 8 : 0)
     + (state.rsvps?.has(event.id) ? 10 : 0)
-    + (event.friends?.length || 0) * 3;
+    + (interestedFriendsForEvent(event).length || 0) * 3;
   const imageScore = String(event.image || "").trim() ? 4 : 0;
   return eventPopularityScore(event) + interactionScore + imageScore;
 }
@@ -12336,7 +12307,7 @@ function activityCard(initials, copy, time) {
   return `<div class="activity-card"><span class="avatar">${initials}</span><div><p>${copy}</p><span class="activity-time">${time}</span></div></div>`;
 }
 
-let friendDirectory = demoProfileSeeds.map(profileToFriendRow);
+let friendDirectory = [];
 
 const publicGroupMeta = {
   "Skyline Social": { count: "12 members", note: "Single-event group / Friday", icon: "S", style: "run", description: "A public group for Skyline Social so interested people can coordinate before Friday." },
@@ -12449,6 +12420,11 @@ function currentUserName() {
 }
 
 function acceptFriendship(name) {
+  const profile = friendDirectory.find(friend => friend[1] === name && friend[5]);
+  if (!profile) {
+    toast("That profile is not linked to a real Lokal user yet");
+    return false;
+  }
   const you = currentUserName();
   state.friends.add(name);
   state.friendSignupCredits.add(name);
@@ -12459,6 +12435,7 @@ function acceptFriendship(name) {
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
   if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
   submitFriendRelationship(name, "accepted", "demo");
+  return true;
 }
 
 function groupContent() {
@@ -12504,7 +12481,7 @@ function openGroup(name) {
   const type = groupTypeLabel(name);
   const isPublic = type === "Public";
   const isEventChat = type === "Event chat";
-  const members = state.privateGroupMembers[name] || ["You", "Ana Lopez", "Marcus Reed"];
+  const members = state.privateGroupMembers[name] || ["You"];
   const description = publicMeta?.description || (isEventChat ? "A single-plan thread for deciding who is going, sharing tickets, and keeping the event details in one place." : "A group thread for choosing plans, sharing events, and coordinating with people you know.");
   const count = publicMeta?.count || (isPublic ? "1 member" : `${members.length} members`);
   const eventList = groupEventList(name);
@@ -12540,10 +12517,10 @@ function openCreateGroup() {
 
 function rankingContent() {
   const ranking = [
-    { id: 4, score: 94, trend: "+12 this week", note: "3 friends are going", badge: "Friday favorite" },
-    { id: 8, score: 86, trend: "+8 this week", note: "Ana + Dev saved it", badge: "Free pick" },
-    { id: 3, score: 79, trend: "+6 this week", note: "2 friends are going", badge: "Neighborhood buzz" },
-    { id: 7, score: 71, trend: "+4 this week", note: "Jules saved it", badge: "Rising" }
+    { id: 4, score: 94, trend: "+12 this week", note: "Popular with Lokal users", badge: "Friday favorite" },
+    { id: 8, score: 86, trend: "+8 this week", note: "Saved by Lokal users", badge: "Free pick" },
+    { id: 3, score: 79, trend: "+6 this week", note: "Neighborhood buzz", badge: "Neighborhood buzz" },
+    { id: 7, score: 71, trend: "+4 this week", note: "Rising this week", badge: "Rising" }
   ];
   return `<div class="ranking-intro"><p class="eyebrow">Your circle's pulse</p><h2>Trending with friends</h2><p>Ranked by saves, RSVPs, and the plans your groups keep talking about.</p></div>
   <div class="ranking-list">${ranking.map((item, index) => {
@@ -12864,20 +12841,15 @@ function friendInterestEvents(name, limit = 4) {
       .sort(sortEventsByStart)
       .slice(0, limit);
   }
-  const profile = friendDirectory.find(friend => friend[1] === name);
-  const seed = `${name} ${profile?.[4] || ""}`.toLowerCase();
-  const preferred = events.filter(event => {
-    const text = `${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
-    if (/ana|priya|jules/.test(seed)) return /concert|music|museum|art|gallery|food|market|nightlife/.test(text);
-    if (/marcus|dev/.test(seed)) return /sports|run|fitness|nightlife|concert|food/.test(text);
-    if (/elena|sofia|nia/.test(seed)) return /museum|arts|comedy|food|festival|community/.test(text);
-    return /concert|food|museum|nightlife/.test(text);
-  });
-  return [...preferred, ...events].filter((event, index, all) => all.findIndex(item => item.id === event.id) === index).sort(sortEventsByStart).slice(0, limit);
+  return [];
 }
 
 function openFriend(name) {
-  const profile = friendDirectory.find(friend => friend[1] === name) || ["FR", name, "@lokalfriend", "0 mutual friends", "Washington, DC"];
+  const profile = friendDirectory.find(friend => friend[1] === name);
+  if (!profile) {
+    openSimpleSheet("Friend unavailable", "This profile is not linked to a real Lokal user yet.");
+    return;
+  }
   const isFriend = state.friends.has(name);
   const theirEvents = friendInterestEvents(name);
   const tastes = theirEvents.flatMap(eventTags).filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index).slice(0, 5);
@@ -13120,7 +13092,8 @@ function profileFriendRows(limit = 5) {
 }
 
 function fullFriendName(initials) {
-  return ({ AL: "Ana Lopez", MR: "Marcus Reed", DV: "Dev Shah", JS: "Jules Kim", PL: "Priya Lee" }[initials] || friendNames[initials] || initials);
+  const profile = friendDirectory.find(friend => friend[0] === initials || friend[1] === initials);
+  return profile?.[1] || initials;
 }
 
 function receiptEventKey(receipt) {
@@ -13176,7 +13149,7 @@ function receiptRow(receipt) {
 }
 
 function bestFriendsList() {
-  const base = { "Ana Lopez": 18, "Marcus Reed": 14, "Dev Shah": 11, "Jules Kim": 9, "Priya Lee": 7 };
+  const base = {};
   profileReceipts().forEach(receipt => (receipt.friends || []).forEach(initials => {
     const name = fullFriendName(initials);
     base[name] = (base[name] || 0) + 1;
@@ -14681,7 +14654,7 @@ document.addEventListener("click", async event => {
   if (t.dataset.addInvite !== undefined) { mark(); t.textContent = "Added"; t.classList.add("selected"); toast("Friend invited"); }
   if (t.dataset.invitePeopleOption) { const group = t.dataset.groupName; addFriendToPrivateGroup(group, t.dataset.invitePeopleOption); if (state.route === "social") renderSocial(); const selected = document.querySelector("[data-selected-invite-people]"); const input = document.querySelector("[data-invite-people-search]"); if (selected && !selected.textContent.includes(t.dataset.invitePeopleOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.invitePeopleOption}</span>`); if (input) input.value = ""; const results = document.querySelector("[data-invite-people-results]"); if (results) { results.hidden = true; results.innerHTML = ""; } toast(`${t.dataset.invitePeopleOption} added to ${group}`); }
   if (t.dataset.groupFriendOption) { const selected = document.querySelector("[data-selected-group-friends]"); const input = document.querySelector("[data-create-friends]"); if (selected && !selected.textContent.includes(t.dataset.groupFriendOption)) selected.insertAdjacentHTML("beforeend", `<span>${t.dataset.groupFriendOption}</span>`); if (input) input.value = ""; const autocomplete = document.querySelector("[data-autocomplete]"); if (autocomplete) { autocomplete.hidden = true; autocomplete.innerHTML = ""; } toast(`${t.dataset.groupFriendOption} added to group`); }
-  if (t.dataset.addAdventure) { const name = t.dataset.addAdventure; acceptFriendship(name); t.textContent = "Add to group"; t.setAttribute("aria-label", `Add ${name} to group`); t.dataset.inviteFriend = name; delete t.dataset.addAdventure; t.classList.add("selected"); toast(`${name} added as friend`); return; }
+  if (t.dataset.addAdventure) { const name = t.dataset.addAdventure; if (!acceptFriendship(name)) return; t.textContent = "Add to group"; t.setAttribute("aria-label", `Add ${name} to group`); t.dataset.inviteFriend = name; delete t.dataset.addAdventure; t.classList.add("selected"); toast(`${name} added as friend`); return; }
   if (t.dataset.seeAllFriends !== undefined) openAllFriends();
   if (t.dataset.viewMoreGroups !== undefined) { state.showAllGroups = !state.showAllGroups; renderSocial(); }
   if (t.dataset.schedule !== undefined) { mark(); openSimpleSheet("Schedule an event", "Add an event for the group and let members know when it is happening.", `<label class="settings-field">Event name<input placeholder="Event name"></label><label class="settings-field">Date and time<input type="datetime-local"></label><button class="wide-button" data-confirm-schedule>Schedule event</button>`); }

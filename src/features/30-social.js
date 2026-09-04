@@ -2,7 +2,7 @@ function activityCard(initials, copy, time) {
   return `<div class="activity-card"><span class="avatar">${initials}</span><div><p>${copy}</p><span class="activity-time">${time}</span></div></div>`;
 }
 
-let friendDirectory = demoProfileSeeds.map(profileToFriendRow);
+let friendDirectory = [];
 
 const publicGroupMeta = {
   "Skyline Social": { count: "12 members", note: "Single-event group / Friday", icon: "S", style: "run", description: "A public group for Skyline Social so interested people can coordinate before Friday." },
@@ -115,6 +115,11 @@ function currentUserName() {
 }
 
 function acceptFriendship(name) {
+  const profile = friendDirectory.find(friend => friend[1] === name && friend[5]);
+  if (!profile) {
+    toast("That profile is not linked to a real Lokal user yet");
+    return false;
+  }
   const you = currentUserName();
   state.friends.add(name);
   state.friendSignupCredits.add(name);
@@ -125,6 +130,7 @@ function acceptFriendship(name) {
   if (!state.friendConnections[you].includes(name)) state.friendConnections[you].push(name);
   if (!state.friendConnections[name].includes(you)) state.friendConnections[name].push(you);
   submitFriendRelationship(name, "accepted", "demo");
+  return true;
 }
 
 function groupContent() {
@@ -170,7 +176,7 @@ function openGroup(name) {
   const type = groupTypeLabel(name);
   const isPublic = type === "Public";
   const isEventChat = type === "Event chat";
-  const members = state.privateGroupMembers[name] || ["You", "Ana Lopez", "Marcus Reed"];
+  const members = state.privateGroupMembers[name] || ["You"];
   const description = publicMeta?.description || (isEventChat ? "A single-plan thread for deciding who is going, sharing tickets, and keeping the event details in one place." : "A group thread for choosing plans, sharing events, and coordinating with people you know.");
   const count = publicMeta?.count || (isPublic ? "1 member" : `${members.length} members`);
   const eventList = groupEventList(name);
@@ -206,10 +212,10 @@ function openCreateGroup() {
 
 function rankingContent() {
   const ranking = [
-    { id: 4, score: 94, trend: "+12 this week", note: "3 friends are going", badge: "Friday favorite" },
-    { id: 8, score: 86, trend: "+8 this week", note: "Ana + Dev saved it", badge: "Free pick" },
-    { id: 3, score: 79, trend: "+6 this week", note: "2 friends are going", badge: "Neighborhood buzz" },
-    { id: 7, score: 71, trend: "+4 this week", note: "Jules saved it", badge: "Rising" }
+    { id: 4, score: 94, trend: "+12 this week", note: "Popular with Lokal users", badge: "Friday favorite" },
+    { id: 8, score: 86, trend: "+8 this week", note: "Saved by Lokal users", badge: "Free pick" },
+    { id: 3, score: 79, trend: "+6 this week", note: "Neighborhood buzz", badge: "Neighborhood buzz" },
+    { id: 7, score: 71, trend: "+4 this week", note: "Rising this week", badge: "Rising" }
   ];
   return `<div class="ranking-intro"><p class="eyebrow">Your circle's pulse</p><h2>Trending with friends</h2><p>Ranked by saves, RSVPs, and the plans your groups keep talking about.</p></div>
   <div class="ranking-list">${ranking.map((item, index) => {
@@ -530,20 +536,15 @@ function friendInterestEvents(name, limit = 4) {
       .sort(sortEventsByStart)
       .slice(0, limit);
   }
-  const profile = friendDirectory.find(friend => friend[1] === name);
-  const seed = `${name} ${profile?.[4] || ""}`.toLowerCase();
-  const preferred = events.filter(event => {
-    const text = `${event.title} ${event.venue} ${event.area} ${event.cat} ${event.tag} ${eventTags(event).join(" ")}`.toLowerCase();
-    if (/ana|priya|jules/.test(seed)) return /concert|music|museum|art|gallery|food|market|nightlife/.test(text);
-    if (/marcus|dev/.test(seed)) return /sports|run|fitness|nightlife|concert|food/.test(text);
-    if (/elena|sofia|nia/.test(seed)) return /museum|arts|comedy|food|festival|community/.test(text);
-    return /concert|food|museum|nightlife/.test(text);
-  });
-  return [...preferred, ...events].filter((event, index, all) => all.findIndex(item => item.id === event.id) === index).sort(sortEventsByStart).slice(0, limit);
+  return [];
 }
 
 function openFriend(name) {
-  const profile = friendDirectory.find(friend => friend[1] === name) || ["FR", name, "@lokalfriend", "0 mutual friends", "Washington, DC"];
+  const profile = friendDirectory.find(friend => friend[1] === name);
+  if (!profile) {
+    openSimpleSheet("Friend unavailable", "This profile is not linked to a real Lokal user yet.");
+    return;
+  }
   const isFriend = state.friends.has(name);
   const theirEvents = friendInterestEvents(name);
   const tastes = theirEvents.flatMap(eventTags).filter((tag, index, all) => all.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index).slice(0, 5);

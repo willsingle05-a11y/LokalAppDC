@@ -461,7 +461,7 @@ function topWeekEventScore(event) {
   const interactionScore =
     (state.saved?.has(event.id) ? 8 : 0)
     + (state.rsvps?.has(event.id) ? 10 : 0)
-    + (event.friends?.length || 0) * 3;
+    + (interestedFriendsForEvent(event).length || 0) * 3;
   const imageScore = String(event.image || "").trim() ? 4 : 0;
   return eventPopularityScore(event) + interactionScore + imageScore;
 }

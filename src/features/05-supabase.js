@@ -355,7 +355,7 @@ async function submitReferralJoin(profile = {}) {
   });
   submitFriendRelationshipForUser(record.inviter_user_key, record.invited_name, "accepted", "referral").catch(error => console.warn("[supabase] inviter friendship not recorded", error));
   submitFriendRelationshipForUser(record.invited_user_key, record.inviter_name, "accepted", "referral").catch(error => console.warn("[supabase] invited friendship not recorded", error));
-  if (record.inviter_name) {
+  if (record.inviter_name && friendDirectory.some(friend => friend[1] === record.inviter_name && friend[5])) {
     state.friends.add(record.inviter_name);
     state.friendSignupCredits.add(record.inviter_name);
     localStorage.setItem("lokalFriendSignupCredits", JSON.stringify(Array.from(state.friendSignupCredits)));
@@ -1353,14 +1353,19 @@ function normalizeSupabaseProfile(row) {
     phone: row.phone || "",
     birthdate: row.birthdate || "",
     mutuals: row.mutuals || `${2 + (String(fullName || row.username || "").length % 7)} mutual friends`,
-    bio: row.bio || row.home_city || (Array.isArray(row.neighborhoods) ? row.neighborhoods.join(", ") : "") || "Washington, DC"
+    bio: row.bio || row.home_city || (Array.isArray(row.neighborhoods) ? row.neighborhoods.join(", ") : "") || "Washington, DC",
+    is_demo: row.is_demo === true
   };
 }
 
 function mergeFriendDirectory(profiles) {
-  const rows = profiles.map(profileToFriendRow);
-  const merged = [...friendDirectory, ...rows];
-  friendDirectory = merged.filter((friend, index, all) => all.findIndex(item => item[1] === friend[1]) === index);
+  const currentUserId = typeof currentInteractionUserId === "function" ? currentInteractionUserId() : "";
+  const rows = profiles
+    .filter(profile => profile && profile.id && profile.is_demo !== true)
+    .map(profileToFriendRow)
+    .filter(friend => friend[5] && String(friend[5]) !== String(currentUserId));
+  friendDirectory = rows.filter((friend, index, all) => all.findIndex(item => item[5] === friend[5] || item[1] === friend[1]) === index);
+  state.friends = new Set(Array.from(state.friends || []).filter(name => friendDirectory.some(friend => friend[1] === name && friend[5])));
 }
 
 function currentFriendProfiles() {
@@ -1422,12 +1427,12 @@ async function syncSupabaseFriendInterests() {
 
 async function syncSupabaseProfiles() {
   try {
-    let response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&is_demo=eq.true&order=full_name.asc`, {
+    let response = await fetch(`${supabaseConfig.url}/rest/v1/profiles?select=id,username,full_name,birthdate,phone,bio,home_city,is_demo&or=(is_demo.is.false,is_demo.is.null)&order=full_name.asc`, {
       headers: { apikey: supabaseConfig.publishableKey }
     });
     let rows = response.ok ? await response.json() : [];
     if (!response.ok || !rows.length) {
-      response = await fetch(`${supabaseConfig.url}/rest/v1/Profiles?select=id,username,display_name,birthdate,bio,avatar_initials,taste_tags,neighborhoods,is_demo&is_demo=eq.true&order=display_name.asc`, {
+      response = await fetch(`${supabaseConfig.url}/rest/v1/Profiles?select=id,username,display_name,birthdate,bio,avatar_initials,taste_tags,neighborhoods,is_demo&or=(is_demo.is.false,is_demo.is.null)&order=display_name.asc`, {
         headers: { apikey: supabaseConfig.publishableKey }
       });
       rows = response.ok ? await response.json() : [];
@@ -1435,7 +1440,7 @@ async function syncSupabaseProfiles() {
     if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
     if (rows.length) mergeFriendDirectory(rows.map(normalizeSupabaseProfile));
   } catch {
-    mergeFriendDirectory(demoProfileSeeds);
+    friendDirectory = [];
   }
   await syncSupabaseFriendInterests();
   if (state.route === "home") renderHome();

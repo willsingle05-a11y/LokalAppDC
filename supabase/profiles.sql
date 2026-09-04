@@ -26,10 +26,11 @@ alter table public.profiles add column if not exists is_demo boolean default fal
 alter table public.profiles enable row level security;
 
 drop policy if exists "Demo visitors can view demo profiles" on public.profiles;
-create policy "Demo visitors can view demo profiles"
+drop policy if exists "Anon visitors can view real public profiles" on public.profiles;
+create policy "Anon visitors can view real public profiles"
 on public.profiles for select
 to anon
-using (is_demo = true);
+using (coalesce(is_demo, false) = false);
 
 drop policy if exists "Signed-in users can view profiles" on public.profiles;
 create policy "Signed-in users can view profiles"

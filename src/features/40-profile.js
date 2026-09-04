@@ -227,7 +227,8 @@ function profileFriendRows(limit = 5) {
 }
 
 function fullFriendName(initials) {
-  return ({ AL: "Ana Lopez", MR: "Marcus Reed", DV: "Dev Shah", JS: "Jules Kim", PL: "Priya Lee" }[initials] || friendNames[initials] || initials);
+  const profile = friendDirectory.find(friend => friend[0] === initials || friend[1] === initials);
+  return profile?.[1] || initials;
 }
 
 function receiptEventKey(receipt) {
@@ -283,7 +284,7 @@ function receiptRow(receipt) {
 }
 
 function bestFriendsList() {
-  const base = { "Ana Lopez": 18, "Marcus Reed": 14, "Dev Shah": 11, "Jules Kim": 9, "Priya Lee": 7 };
+  const base = {};
   profileReceipts().forEach(receipt => (receipt.friends || []).forEach(initials => {
     const name = fullFriendName(initials);
     base[name] = (base[name] || 0) + 1;
