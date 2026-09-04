@@ -8486,6 +8486,11 @@ function formatSupabaseDateAndTime(dateValue, timeValue) {
   return [date, time].filter(Boolean).join(", ") || "Date to be announced";
 }
 
+function formatSupabaseDateWithTbaTime(row) {
+  const value = row?.date || String(row?.starts_at || row?.start_time || row?.start_at || "").slice(0, 10);
+  return [formatSupabaseDate(value), "Time TBA"].filter(Boolean).join(", ") || "Time TBA";
+}
+
 function rowIsExplicitlyFree(row) {
   const tags = Array.isArray(row.tags) ? row.tags.join(" ") : "";
   const text = `${row.price || ""} ${row.price_label || ""} ${row.title || ""} ${row.description || ""} ${tags} ${row.raw_json?.description || ""} ${Array.isArray(row.raw_json?.labels) ? row.raw_json.labels.join(" ") : ""}`.toLowerCase();
@@ -9239,6 +9244,13 @@ function normalizeSupabaseDescription(row) {
 function hasReliableSupabaseStart(row) {
   // Discovery should only show events with a real scheduled start. Date-only
   // rows are kept in Supabase, but they should not appear in the app feed.
+  const category = normalizeImportedCategory(row);
+  const hasClockText = /(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i.test(String(row.time || ""));
+  const source = row.starts_at || row.start_time || row.start_at;
+  if (category === "sports" && source && !hasClockText) {
+    const parts = eventStartTimePartsFromRow(row);
+    if (parts && parts.hour === 0 && parts.minute === 0) return false;
+  }
   if (row.starts_at || row.start_time || row.start_at) return Number.isFinite(eventStartSortFromRow(row));
   return Boolean(row.date && eventStartTimePartsFromRow(row));
 }
@@ -9617,6 +9629,7 @@ function normalizeSupabaseEvent(row, index) {
   const tags = normalizeSupabaseTags(row, category);
   const eventImage = rawEventApiImage(row);
   const venueImage = venueImageForRow(row);
+  const hasReliableStart = hasReliableSupabaseStart(row);
   return {
     id: 1000 + index,
     sourceId: row.id,
@@ -9626,11 +9639,11 @@ function normalizeSupabaseEvent(row, index) {
     venue: normalizeSupabaseVenue(row),
     venueAddress: row.venue_address || row.address || rawEventApiAddress(row) || "",
     area: normalizeSupabaseArea(row),
-    time: hasReliableSupabaseStart(row) ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : "Ongoing / time varies",
+    time: hasReliableStart ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : (category === "sports" ? formatSupabaseDateWithTbaTime(row) : "Ongoing / time varies"),
     startDate: row.date || "",
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),
-    hasPreciseStart: hasReliableSupabaseStart(row) && Boolean(row.starts_at || row.start_time || row.start_at),
+    hasPreciseStart: hasReliableStart && Boolean(row.starts_at || row.start_time || row.start_at),
     isRecurring: Boolean(row.is_recurring),
     price: ["happy-hours", "trivia-nights", "museums"].includes(category) ? "" : normalizeSupabasePriceFromRow(row),
     cat: category,
@@ -9656,28 +9669,60 @@ function normalizeSupabaseEventCorrections(row) {
     { opponent: "bucknell", date: "2026-10-10", time: "12:30 PM", start: "2026-10-10T12:30:00-04:00", end: "2026-10-10T15:30:00-04:00" },
     { opponent: "holy cross", date: "2026-11-07", time: "12:30 PM", start: "2026-11-07T12:30:00-04:00", end: "2026-11-07T15:30:00-04:00" }
   ];
+  const howardHomeFootballSchedule = [
+    { opponent: "richmond", date: "2026-09-05", time: "6:00 PM", start: "2026-09-05T18:00:00-04:00", end: "2026-09-05T21:00:00-04:00", venue: "Greene Stadium", area: "Shaw", address: "Greene Stadium, Washington, DC" },
+    { opponent: "hampton", date: "2026-10-03", time: "3:00 PM", start: "2026-10-03T15:00:00-04:00", end: "2026-10-03T18:00:00-04:00", venue: "Audi Field", area: "Navy Yard", address: "Audi Field, 100 Potomac Ave SW, Washington, DC 20024" },
+    { opponent: "morehouse", date: "2026-10-17", time: "3:30 PM", start: "2026-10-17T15:30:00-04:00", end: "2026-10-17T18:30:00-04:00", venue: "Greene Stadium", area: "Shaw", address: "Greene Stadium, Washington, DC" },
+    { opponent: "south carolina state", date: "2026-11-05", time: "5:00 PM", start: "2026-11-05T17:00:00-04:00", end: "2026-11-05T20:00:00-04:00", venue: "Greene Stadium", area: "Shaw", address: "Greene Stadium, Washington, DC" },
+    { opponent: "delaware state", date: "2026-11-14", time: "1:00 PM", start: "2026-11-14T13:00:00-05:00", end: "2026-11-14T16:00:00-05:00", venue: "Greene Stadium", area: "Shaw", address: "Greene Stadium, Washington, DC" }
+  ];
+  const source = String(row?.source || "").toLowerCase();
   const isGeorgetownFootball = (
     title.includes("georgetown hoyas football")
     || title.includes("georgetown football")
-    || String(row?.source || "").toLowerCase() === "guhoyas"
+    || source === "guhoyas"
   ) && venue.includes("cooper field");
-  if (!isGeorgetownFootball) return row;
-  const officialGame = georgetownHomeFootballSchedule.find(game => title.includes(game.opponent) || externalId.includes(`_${game.opponent.replace(/\s+/g, "_")}_`));
-  if (!officialGame) return row;
-  return {
-    ...row,
-    date: officialGame.date,
-    time: officialGame.time,
-    starts_at: officialGame.start,
-    ends_at: row.ends_at || officialGame.end,
-    status: officialGame.status || row.status,
-    ticket_url: "https://am.ticketmaster.com/guhoyas/buy/footballtickets",
-    external_url: "https://guhoyas.com/sports/football/schedule/2026",
-    url: "https://guhoyas.com/sports/football/schedule/2026",
-    neighborhood: row.neighborhood || "Georgetown",
-    venue_address: row.venue_address || "Cooper Field, 1401 West Road NW, Washington, DC 20057",
-    is_free: false
-  };
+  if (isGeorgetownFootball) {
+    const officialGame = georgetownHomeFootballSchedule.find(game => title.includes(game.opponent) || externalId.includes(`_${game.opponent.replace(/\s+/g, "_")}_`));
+    if (officialGame) {
+      return {
+        ...row,
+        date: officialGame.date,
+        time: officialGame.time,
+        starts_at: officialGame.start,
+        ends_at: row.ends_at || officialGame.end,
+        status: officialGame.status || row.status,
+        ticket_url: "https://am.ticketmaster.com/guhoyas/buy/footballtickets",
+        external_url: "https://guhoyas.com/sports/football/schedule/2026",
+        url: "https://guhoyas.com/sports/football/schedule/2026",
+        neighborhood: row.neighborhood || "Georgetown",
+        venue_address: row.venue_address || "Cooper Field, 1401 West Road NW, Washington, DC 20057",
+        is_free: false
+      };
+    }
+  }
+  const isHowardFootball = title.includes("howard") && title.includes("football");
+  if (isHowardFootball) {
+    const officialGame = howardHomeFootballSchedule.find(game => title.includes(game.opponent) || externalId.includes(`_${game.opponent.replace(/\s+/g, "_")}`));
+    if (officialGame) {
+      return {
+        ...row,
+        date: officialGame.date,
+        time: officialGame.time,
+        starts_at: officialGame.start,
+        ends_at: row.ends_at || officialGame.end,
+        ticket_url: "https://hubison.com/sports/football/schedule/2026",
+        external_url: "https://hubison.com/sports/football/schedule/2026",
+        url: "https://hubison.com/sports/football/schedule/2026",
+        venue_name: officialGame.venue,
+        venue: officialGame.venue,
+        neighborhood: officialGame.area,
+        venue_address: officialGame.address,
+        is_free: false
+      };
+    }
+  }
+  return row;
 }
 
 // PostgREST caps every response at 1000 rows regardless of the requested limit,
