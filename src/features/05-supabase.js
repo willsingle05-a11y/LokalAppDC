@@ -1194,28 +1194,34 @@ function normalizeSupabaseEventCorrections(row) {
   const title = String(row?.title || "").toLowerCase();
   const venue = String(row?.venue_name || row?.venue || "").toLowerCase();
   const externalId = String(row?.external_id || "");
-  const isGeorgetownLafayetteFootball =
-    externalId === "ticketmaster_Z7r9jZ1A7-OAU"
-    || (
-      String(row?.source || "").toLowerCase() === "ticketmaster"
-      && title.includes("georgetown hoyas football")
-      && title.includes("lafayette")
-      && venue.includes("cooper field")
-    );
-  if (!isGeorgetownLafayetteFootball) return row;
+  const georgetownHomeFootballSchedule = [
+    { opponent: "lafayette", date: "2026-08-27", time: "7:00 PM", start: "2026-08-27T19:00:00-04:00", end: "2026-08-27T22:00:00-04:00", status: "cancelled" },
+    { opponent: "lehigh", date: "2026-09-05", time: "12:30 PM", start: "2026-09-05T12:30:00-04:00", end: "2026-09-05T15:30:00-04:00" },
+    { opponent: "columbia", date: "2026-09-26", time: "12:30 PM", start: "2026-09-26T12:30:00-04:00", end: "2026-09-26T15:30:00-04:00" },
+    { opponent: "cornell", date: "2026-10-03", time: "12:30 PM", start: "2026-10-03T12:30:00-04:00", end: "2026-10-03T15:30:00-04:00" },
+    { opponent: "bucknell", date: "2026-10-10", time: "12:30 PM", start: "2026-10-10T12:30:00-04:00", end: "2026-10-10T15:30:00-04:00" },
+    { opponent: "holy cross", date: "2026-11-07", time: "12:30 PM", start: "2026-11-07T12:30:00-04:00", end: "2026-11-07T15:30:00-04:00" }
+  ];
+  const isGeorgetownFootball = (
+    title.includes("georgetown hoyas football")
+    || title.includes("georgetown football")
+    || String(row?.source || "").toLowerCase() === "guhoyas"
+  ) && venue.includes("cooper field");
+  if (!isGeorgetownFootball) return row;
+  const officialGame = georgetownHomeFootballSchedule.find(game => title.includes(game.opponent) || externalId.includes(`_${game.opponent.replace(/\s+/g, "_")}_`));
+  if (!officialGame) return row;
   return {
     ...row,
-    date: "2026-08-27",
-    time: "7:00 PM",
-    starts_at: "2026-08-27T19:00:00-04:00",
-    ends_at: row.ends_at || "2026-08-27T22:00:00-04:00",
+    date: officialGame.date,
+    time: officialGame.time,
+    starts_at: officialGame.start,
+    ends_at: row.ends_at || officialGame.end,
+    status: officialGame.status || row.status,
     ticket_url: "https://am.ticketmaster.com/guhoyas/buy/footballtickets",
-    external_url: "https://guhoyas.com/sports/football/schedule",
-    url: "https://guhoyas.com/sports/football/schedule",
+    external_url: "https://guhoyas.com/sports/football/schedule/2026",
+    url: "https://guhoyas.com/sports/football/schedule/2026",
     neighborhood: row.neighborhood || "Georgetown",
     venue_address: row.venue_address || "Cooper Field, 1401 West Road NW, Washington, DC 20057",
-    price: row.price || "$33+",
-    price_min: row.price_min || 33,
     is_free: false
   };
 }
