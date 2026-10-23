@@ -39,7 +39,7 @@ export const SOURCE_REGISTRY = [
   {id:"washingtonian",url:"https://portal.cityspark.com/PortalScripts/Washingtonian",kind:"cityspark"},
   {id:"Adams Morgan Partnership",url:"https://adamsmorgan.com/events/calendar",kind:"citycenter",neighborhood:"Adams Morgan",dcScoped:true},
   {id:"Dupont Circle BID",url:"https://dupontcirclebid.org/events/calendar",kind:"citycenter",neighborhood:"Dupont Circle",dcScoped:true},
-  {id:"Capitol Riverfront BID",url:"https://navyyarddc.org/events",kind:"structured",neighborhood:"Navy Yard",dcScoped:true,detailPattern:"/event/"},
+  {id:"Capitol Riverfront BID",url:"https://navyyarddc.org/events",kind:"webflow",neighborhood:"Navy Yard",dcScoped:true,detailPattern:"/event/"},
   {id:"Georgetown BID",url:"https://www.georgetowndc.com/events/",kind:"structured",neighborhood:"Georgetown",dcScoped:true,detailPattern:"/event/"},
   {id:"Mount Vernon Triangle CID",url:"https://www.mountvernontriangle.org/events/list/",kind:"structured",neighborhood:"Mount Vernon Triangle",dcScoped:true,detailPattern:"/event/"},
   {id:"Union Market District",url:"https://unionmarketdc.com/events/",kind:"structured",neighborhood:"Union Market",dcScoped:true,detailPattern:"/event/"},
@@ -51,6 +51,8 @@ export const SOURCE_REGISTRY = [
   {id:"edibledc",url:"https://edibledc.com/events/?ical=1",kind:"ical",category:"food"},
   {id:"eventsdc",url:"https://eventsdc.com/api/events",kind:"eventsdc",dcScoped:true},
   {id:"runguides",url:"https://www.runguides.com/washington-dc/runs/5k/all",kind:"runguides",category:"sports"},
+  {id:"thingstododc",url:"https://thingstododc.com/events/",kind:"embassy",category:"culture"},
+  {id:"Downtown DC BID",url:"https://www.downtowndc.org/events/?view=list",kind:"structured",neighborhood:"Downtown",dcScoped:true,detailPattern:"/events/"},
 ];
 
 export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
@@ -61,9 +63,9 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
     for(let attempt=0;attempt<3;attempt++) {
       try {
         const response=await fetchImpl(address,{headers:{"User-Agent":"LokalDC/1.0 (+Washington DC event discovery)"},signal:AbortSignal.timeout(25000)});
-        if(!response.ok)throw new Error(`HTTP ${response.status} from ${new URL(address).hostname}`);
+        if(!response.ok){const error=new Error(`HTTP ${response.status} from ${new URL(address).hostname}`);error.retryable=![403,404,429].includes(response.status);throw error;}
         return await response.text();
-      }catch(e){error=e;if(attempt<2)await new Promise(r=>setTimeout(r,500*(attempt+1)));}
+      }catch(e){error=e;if(e.retryable===false)break;if(attempt<2)await new Promise(r=>setTimeout(r,500*(attempt+1)));}
     }
     throw error;
   }
@@ -86,10 +88,12 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
     const venue=clean(place.name||event.venue_name||"");
     if(!isDc(address)&&source.dcScoped&&venue&&!/\b(?:MD|VA|online|virtual|zoom)\b/i.test(`${address} ${venue}`))address=[address,source.neighborhood,"Washington, DC"].filter(Boolean).join(", ");
     if(!isDc(address)||!venue)return null;
+    const timeUnknown=event.timeUnknown===true&&/^\d{4}-\d{2}-\d{2}$/.test(event.startDate||"");
     const start=instant(event.startDate),end=instant(event.endDate);
-    if(!start||!event.name)return null;
+    if((!start&&!timeUnknown)||!event.name)return null;
     const allDay=event.allDay===true;
-    if((Date.parse(start)<+now&&!(allDay&&end&&Date.parse(end)>+now))||Date.parse(start)>+now+days*DAY)return null;
+    if(timeUnknown){if(event.startDate<dateKey(now)||event.startDate>dateKey(new Date(+now+days*DAY)))return null;}
+    else if((Date.parse(start)<+now&&!(allDay&&end&&Date.parse(end)>+now))||Date.parse(start)>+now+days*DAY)return null;
     const link=url(event.url||event['@id'],source.url);
     if(!link)return null;
     const offers=Array.isArray(event.offers)?event.offers[0]:event.offers||{};
@@ -97,7 +101,7 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
     const price=priceValue!==undefined&&priceValue!==null&&priceValue!==""&&Number.isFinite(Number(priceValue))?Number(priceValue):null;
     const free=event.isAccessibleForFree===true||price===0;
     const image=Array.isArray(event.image)?event.image[0]:event.image;
-    return {source:source.id,external_id:String(event.external_id||event.identifier||`${link}#${start}`),title:clean(event.name),description:clean(event.description),category:inferCategory(`${clean(event.name)} ${clean(event.description).slice(0,500)}`,source.category),tag:source.category||"Local event",tags:[source.neighborhood,source.id==="smithsonian"?"Smithsonian":null].filter(Boolean),venue_name:venue,venue,venue_address:address,neighborhood:source.neighborhood||null,date:dateKey(start),time:allDay?"All day":new Intl.DateTimeFormat("en-US",{timeZone:TIMEZONE,hour:"numeric",minute:"2-digit"}).format(new Date(start)),starts_at:start,ends_at:end,timezone:TIMEZONE,is_free:free,price:free?"Free":price===null?null:`From $${price}`,price_min:price,price_max:offers.highPrice===undefined?null:Number(offers.highPrice)||null,ticket_url:url(offers.url||link,source.url),external_url:link,url:link,image_url:url(typeof image==="object"?image?.url||image?.contentUrl:image,source.url),latitude:Number(place.geo?.latitude)||null,longitude:Number(place.geo?.longitude)||null,status:"published",raw_json:{source_url:link,all_day:allDay,source_event:event},last_seen_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+    return {source:source.id,external_id:String(event.external_id||event.identifier||`${link}#${start||event.startDate}`),title:clean(event.name),description:clean(event.description),category:inferCategory(`${clean(event.name)} ${clean(event.description).slice(0,500)}`,source.category),tag:source.category||"Local event",tags:[source.neighborhood,source.id==="smithsonian"?"Smithsonian":null].filter(Boolean),venue_name:venue,venue,venue_address:address,neighborhood:source.neighborhood||null,date:timeUnknown?event.startDate:dateKey(start),time:timeUnknown?"Time TBA":allDay?"All day":new Intl.DateTimeFormat("en-US",{timeZone:TIMEZONE,hour:"numeric",minute:"2-digit"}).format(new Date(start)),starts_at:start,ends_at:end,timezone:TIMEZONE,is_free:free,price:free?"Free":price===null?null:`From $${price}`,price_min:price,price_max:offers.highPrice===undefined?null:Number(offers.highPrice)||null,ticket_url:url(offers.url||link,source.url),external_url:link,url:link,image_url:url(typeof image==="object"?image?.url||image?.contentUrl:image,source.url),latitude:Number(place.geo?.latitude)||null,longitude:Number(place.geo?.longitude)||null,status:"published",raw_json:{source_url:link,all_day:allDay,time_unknown:timeUnknown,source_event:event},last_seen_at:new Date().toISOString(),updated_at:new Date().toISOString()};
   }
   function structured(html, pageUrl) {
     const $=load(html), found=[];
@@ -124,7 +128,7 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
     return events;
   }
   async function collect(source, {now=new Date(),days=60,ticketmasterKey="",venues=[]}={}) {
-    let raw=[];let parsed=0;const errors=[];
+    let raw=[];let parsed=0;const errors=[];let emptyConfirmed=false;
     if(source.kind==="trumba")raw=trumba(JSON.parse(await get(`${source.url}?startdate=${dateKey(now).replaceAll("-","")}&days=${days}`)));
     else if(source.kind==="ticketmaster") {
       if(!ticketmasterKey)throw new Error("TICKETMASTER_API_KEY is missing");
@@ -135,18 +139,59 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
         if(page+1>=(data.page?.totalPages||1))break;
         if(page===4&&data.page.totalPages>5)throw new Error("Ticketmaster exceeds the 1,000-result API window; split the date range before importing");
       }
+    } else if(source.kind==="ical") {
+      if(!calendar)throw new Error("Calendar parser is unavailable");
+      const parsedCalendar=calendar.sync.parseICS(await get(source.url));
+      for(const event of Object.values(parsedCalendar)){
+        if(event.type!=="VEVENT"||event.status==="CANCELLED")continue;
+        const instances=calendar.expandRecurringEvent(event,{from:now,to:new Date(+now+days*DAY),expandOngoing:true});
+        for(const e of instances){const location=String(e.location||event.location||"");raw.push({external_id:`${event.uid}:${new Date(e.start).toISOString()}`,name:e.summary||event.summary,description:e.description||event.description,startDate:new Date(e.start).toISOString(),endDate:e.end?new Date(e.end).toISOString():undefined,allDay:e.isFullDay===true,location:{name:location.split(",")[0],address:location},url:e.url||event.url,image:event.attach?.val||event.attach?.[0]?.val});}
+      }
+    } else if(source.kind==="eventsdc") {
+      const format=d=>`${dateKey(d)} 00:00:00`;
+      const params=new URLSearchParams({field_end_date_value:format(now),field_start_date_value:format(new Date(+now+days*DAY))});
+      const events=JSON.parse(await get(`${source.url}?${params}`));
+      const known={"2":["Walter E. Washington Convention Center","801 Allen Y. Lew Place NW, Washington, DC"],"11":["Carnegie Library","801 K St NW, Washington, DC"],"12":["RFK Stadium","2400 East Capitol St SE, Washington, DC"],"13":["The Fields at RFK Campus","401 Oklahoma Ave NE, Washington, DC"],"14":["Festival Grounds at RFK Campus","2400 East Capitol St SE, Washington, DC"],"15":["Skate Park at RFK Campus","2400 East Capitol St SE, Washington, DC"],"16":["DC Armory","2001 East Capitol St SE, Washington, DC"],"17":["Nationals Park","1500 S Capitol St SE, Washington, DC"],"18":["CareFirst Arena","1100 Oak Dr SE, Washington, DC"],"19":["Gateway DC","2700 Martin Luther King Jr Ave SE, Washington, DC"],"20":["R.I.S.E. Demonstration Center","2730 Martin Luther King Jr Ave SE, Washington, DC"]};
+      for(const e of events){
+        const link=`https://eventsdc.com/node/${e.nid}`,html=await get(link),$=load(html),text=clean($("main").html());
+        const id=String(Array.isArray(e.field_venue)?e.field_venue[0]:e.field_venue||"");
+        const k=known[id];
+        const inferred=venues.filter(v=>v.name&&v.name.length>7&&text.toLowerCase().includes(v.name.toLowerCase())&&isDc(v.address)).sort((a,b)=>b.name.length-a.name.length)[0];
+        const place=k?{name:k[0],address:k[1]}:inferred?{name:inferred.name,address:inferred.address}:null;
+        if(!place){errors.push({url:link,error:"No verified event venue"});continue;}
+        raw.push({external_id:String(e.nid),name:e.title,description:$(".field--name-field-description").first().text()||$("meta[property='og:description']").attr("content"),startDate:e.field_start_date,endDate:e.field_end_date,location:place,url:$("link[rel='canonical']").attr("href")||link,image:$("meta[property='og:image']").attr("content"),offers:{url:$("main a").filter((_,a)=>/buy tickets|register now/i.test($(a).text())).first().attr("href")}});
+      }
+    } else if(source.kind==="runguides") {
+      const api="https://runguides-api-6dce8eac15ab.herokuapp.com";
+      const location=JSON.parse(await get(`${api}/api/v1/location_view_search?name=washington-dc`)).location_view;
+      if(!location?.id)throw new Error("RunGuides location payload changed");
+      for(let page=0;page<10;page++){
+        const params=new URLSearchParams({current_location_view_id:String(location.id),"geo_boundary[long1]":String(location.north_east_longitude),"geo_boundary[lat2]":String(location.south_west_latitude),"geo_boundary[long2]":String(location.south_west_longitude),"geo_boundary[lat1]":String(location.north_east_latitude),method:"redis",offset:String(page*50),limit:"50","category_ids[]":"4"});
+        const result=JSON.parse(await get(`${api}/events/search?${params}`)),events=[...(result.listings||[]),...(result.featured_listings||[])];
+        for(const e of events){if(e.is_virtual||e.covid_virtual||e.date_tbd)continue;const address=[e.listing_city||e.geocoded_city,e.listing_state||e.geocoded_state].filter(Boolean).join(", ");if(!isDc(address))continue;const day=String(e.listing_date||e.event_date||"").slice(0,10);raw.push({external_id:String(e.id),name:e.name||e.title,description:`${clean(e.race_info_text||e.tagline)} Start time has not been published by this calendar; confirm with the organizer.`,startDate:day,timeUnknown:true,location:{name:e.name||e.title,address},url:url(e.website||e.event_url,source.url),image:e.flyer||e.flyer_100||e.mobile_flyer});}
+        if(events.length<50||result.results_maxed===false)break;
+        if(page===9)throw new Error("RunGuides pagination exceeded safety limit");
+      }
     } else {
       const html=await get(source.url),$=load(html);
+      emptyConfirmed=source.id==="Shaw Main Streets"&&/Check back soon for upcoming events/i.test($("body").text());
       if(source.kind==="rdfa")raw=rdfa(html,source.url);
       else if(source.kind==="nuandroids") {
         const data=JSON.parse($("#__NEXT_DATA__").text());
         const events=data.props?.pageProps?.eventsProp;
         if(!Array.isArray(events))throw new Error("NuAndroids event payload changed");
-        for(const e of events){
+        for(const e of events.slice(0,30)){
           const detailUrl=e.externalUrl||url(`/event/${e.slug?.current}`,source.url);
           if(!detailUrl)continue;
-          try{const details=structured(await get(detailUrl),detailUrl);if(details.length)raw.push(...details.map(d=>({...d,external_id:String(e._id),image:d.image||e.image})));else errors.push({url:detailUrl,error:"No structured venue data on ticket page"});}catch(error){errors.push({url:detailUrl,error:error.message});}
+          try{const details=structured(await get(detailUrl),detailUrl);if(details.length)raw.push(...details.map(d=>({...d,external_id:String(e._id),image:d.image||e.image})));else errors.push({url:detailUrl,error:"No structured venue data on ticket page"});}catch(error){errors.push({url:detailUrl,error:error.message});if(/HTTP (403|429)/.test(error.message))break;}
         }
+      } else if(source.kind==="embassy") {
+        const links=[...new Set($(".event-list-row a[href]").map((_,e)=>url($(e).attr("href"),source.url)).get().filter(link=>link?.includes("/event/")))];
+        if(!links.length)throw new Error("Things To Do DC listing markup changed");
+        for(const link of links){const body=await get(link),$=load(body),top=$(".event-details-top");const href=top.find("a[href*='ical.php']").first().attr("href");if(!href){errors.push({url:link,error:"No source calendar date"});continue;}const params=new URL(href).searchParams;const convert=v=>{const m=String(v||"").trim().match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);return m?`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`:null;};const location=clean(top.find(".event-detail-row").eq(1).text());const venue=String(params.get("location")||"").split(",")[0].trim();raw.push({external_id:new URL(link).pathname.replace(/^\/event\//,"").replace(/\/$/,""),name:top.find("h1,h2,.event-detail-heading").first().text(),description:$(".event-description2").first().text(),startDate:convert(params.get("start_date")),endDate:convert(params.get("end_date")),location:{name:venue,address:location},url:link,image:$("meta[property='og:image']").attr("content"),offers:{price:undefined}});}
+      } else if(source.kind==="webflow") {
+        const links=[...new Set($("a[href*='/event/']").map((_,e)=>url($(e).attr("href"),source.url)).get())];
+        for(const link of links){const body=await get(link),$=load(body),main=$("main"),text=clean(main.html());const match=text.match(/(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s*([A-Z][a-z]+\s+\d{1,2},?\s+\d{4})\s*(\d{1,2}:\d{2}\s*[ap]m)\s*-\s*(\d{1,2}:\d{2}\s*[ap]m)/i);if(!match)continue;const date=new Date(`${match[1]} 12:00:00 GMT`).toISOString().slice(0,10);const clock=t=>{const m=t.match(/(\d+):(\d+)\s*([ap])m/i);return `${String(+m[1]%12+(m[3].toLowerCase()==="p"?12:0)).padStart(2,"0")}:${m[2]}:00`;};const blocks=main.find(".event_icon").map((_,e)=>clean($(e).parent().text())).get();const location=blocks.at(-1)||"";raw.push({name:main.find("h1").text(),description:main.find(".w-richtext").first().text()||main.find("p").first().text(),startDate:`${date}T${clock(match[2])}`,endDate:`${date}T${clock(match[3])}`,location:{name:location,address:`${location}, Washington, DC`},url:link,image:$("meta[property='og:image']").attr("content")});}
       } else if(source.kind==="cityspark") {
         const match=html.match(/var cSparkLocals\s*=\s*/);
         if(!match)throw new Error("Washingtonian calendar payload changed");
@@ -154,7 +199,9 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
         const candidates=[...(payload.Events||[]),...(payload.Promos||[])];
         for(const e of candidates){if(e.isVirtual)continue;for(const occurrence of e.Occurances?.length?e.Occurances:[{Start:e.StartUTC,End:e.EndUTC}])raw.push({name:e.Name,description:e.Description||e.Summary,external_id:`${e.Id}:${occurrence.Start}`,startDate:occurrence.Start,endDate:occurrence.End,allDay:e.AllDay===true,location:{name:e.Location||e.Venue||e.VenueName,address:[e.Address,e.CityState,e.Zip].filter(Boolean).join(", "),geo:{latitude:e.latitude,longitude:e.longitude}},url:e.PrimaryUrl||e.TicketUrl||`https://www.washingtonian.com/calendar/#/details/${e.Id}`,image:e.LargeImg,offers:{url:e.TicketUrl,price:e.Free?0:e.Price}});}
       } else if(source.kind==="citycenter") {
-        const detailLinks=[...new Set($("a[href*='/do/']").map((_,e)=>url($(e).attr("href"),source.url)).get())];
+        let listing=$;
+        if(!$("a[href*='/do/']").length){const endpoint=html.match(/https:\/\/xapi\.citylightstudio\.net\/_bbq\/_bbq_results\.php\?[^'"\s]+/)?.[0];if(endpoint)listing=load(await get(endpoint));}
+        const detailLinks=[...new Set(listing("a[href*='/do/']").map((_,e)=>url(listing(e).attr("href"),source.url)).get())];
         for(const link of detailLinks){try{const body=await get(link);raw.push(...citycenter(body,link,source));}catch(error){errors.push({url:link,error:error.message});}}
       } else if(source.kind==="markets") raw=markets(html,source,now,days);
       else if(source.kind==="music")raw=music(html,source,venues);
@@ -166,7 +213,7 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
     }
     parsed=raw.length;
     const rows=[...new Map(raw.map(e=>normalize(e,source,now,days)).filter(Boolean).map(e=>[e.external_id,e])).values()];
-    return {source:source.id,parsed,included:rows.length,rejected:parsed-rows.length,errors,rows};
+    return {source:source.id,parsed,included:rows.length,rejected:parsed-rows.length,errors,rows,emptyConfirmed};
   }
   function citycenter(html,link,source){
     const $=load(html),main=$("main");

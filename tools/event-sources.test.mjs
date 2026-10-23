@@ -37,3 +37,15 @@ test("official market schedules stop at season end and retain winter wall time",
   assert.equal(instant(rows[2].startDate),"2026-11-08T13:30:00.000Z");
   assert.ok(rows.every(r=>r.startDate.slice(0,10)<="2026-11-08"));
 });
+test("date-only races preserve an unknown start instead of inventing 8am",()=>{
+  const row=engine.normalize({name:"Race",external_id:"race-1",startDate:"2026-11-07",timeUnknown:true,location:{name:"Race site",address:"Washington, DC"},url:"https://example.com/race"},{id:"runguides",url:"https://example.com"},now);
+  assert.equal(row.starts_at,null);
+  assert.equal(row.date,"2026-11-07");
+  assert.equal(row.time,"Time TBA");
+  assert.equal(row.raw_json.time_unknown,true);
+});
+test("ongoing all-day exhibits keep their real start and end dates",()=>{
+  const row=engine.normalize({name:"Exhibition",startDate:"2026-10-01T00:00:00-04:00",endDate:"2026-11-01T00:00:00-04:00",allDay:true,location:{name:"Museum",address:"Washington, DC"},url:"https://example.com/exhibition"},{id:"museum",url:"https://example.com"},now);
+  assert.equal(row.starts_at,"2026-10-01T04:00:00.000Z");
+  assert.equal(row.time,"All day");
+});

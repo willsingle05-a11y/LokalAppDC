@@ -1,5 +1,6 @@
 // Deployed as rapid-function so the existing authenticated cron keeps working.
 import { load } from "npm:cheerio@1.2.0/slim";
+import calendar from "npm:node-ical@0.27.3";
 import { SOURCE_REGISTRY, createSourceTools } from "../../../tools/lib/event-sources.mjs";
 
 const base = Deno.env.get("SUPABASE_URL")!;
@@ -13,7 +14,7 @@ export async function handle(request: Request) {
   const requested = body.sources || ["ticketmaster", "smithsonian"];
   if (!Array.isArray(requested) || !requested.length || requested.length > SOURCE_REGISTRY.length || requested.some(id => !SOURCE_REGISTRY.some(s => s.id === id))) return json({ error: "Unknown source" }, 400);
   const days = Math.min(90, Math.max(21, Number(body.days) || 60));
-  const engine = createSourceTools(load);
+  const engine = createSourceTools(load, fetch, calendar);
   const directory = await fetch(`${base}/rest/v1/venues?select=name,address,neighborhood&limit=1000`, { headers });
   const venues = directory.ok ? await directory.json() : [];
   const results = [];
@@ -22,20 +23,25 @@ export async function handle(request: Request) {
     try {
       const source = SOURCE_REGISTRY.find(s => s.id === id)!;
       const result = await engine.collect(source, { days, venues, ticketmasterKey: Deno.env.get("TICKETMASTER_API_KEY") || "" });
-      if (!result.rows.length) throw new Error(`No valid upcoming events (${result.parsed} parsed, ${result.errors.length} detail failures). Existing events were preserved.`);
+      if (!result.rows.length && !result.emptyConfirmed) throw new Error(`No valid upcoming events (${result.parsed} parsed, ${result.errors.length} detail failures). Existing events were preserved. ${result.errors[0]?.error || ""}`);
       let upserted = 0;
       for (let offset = 0; offset < result.rows.length; offset += 100) {
-        const response = await fetch(`${base}/rest/v1/events?on_conflict=source,external_id`, { method: "POST", headers: { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(result.rows.slice(offset, offset + 100)) });
+        // The live schema stores whole-dollar filter bounds. Preserve exact
+        // source prices in price/raw_json and use conservative integer bounds.
+        const rows = result.rows.slice(offset, offset + 100).map(row => ({ ...row, price_min: row.price_min == null ? null : Math.floor(row.price_min), price_max: row.price_max == null ? null : Math.ceil(row.price_max) }));
+        const response = await fetch(`${base}/rest/v1/events?on_conflict=source,external_id`, { method: "POST", headers: { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows) });
         if (!response.ok) throw new Error(`Database upsert HTTP ${response.status}: ${(await response.text()).slice(0,400)}`);
         upserted += result.rows.slice(offset, offset + 100).length;
       }
-      results.push({ source: id, status: result.errors.length ? "partial" : "success", parsed: result.parsed, upserted, detailFailures: result.errors.length, duration_ms: Date.now() - started });
+      results.push({ source: id, status: result.emptyConfirmed ? "empty" : result.errors.length ? "partial" : "success", parsed: result.parsed, upserted, detailFailures: result.errors.length, duration_ms: Date.now() - started });
     } catch (error) {
       results.push({ source: id, status: "error", error: error instanceof Error ? error.message : String(error), duration_ms: Date.now() - started });
     }
   }
   // A failed write must never be reported as a successful sync.
-  const ok = results.every(result => result.status === "success");
+  const ok = results.every(result => ["success", "empty"].includes(result.status));
+  const monitoring = await fetch(`${base}/rest/v1/source_sync_runs`, { method: "POST", headers: { ...headers, Prefer: "return=minimal" }, body: JSON.stringify(results.map(result => ({ source: result.source, status: result.status, parsed: result.parsed || 0, upserted: result.upserted || 0, error: result.error || null, duration_ms: result.duration_ms }))) });
+  if (!monitoring.ok) console.error("Source monitoring write failed", monitoring.status);
   return json({ ok, results }, ok ? 200 : 502);
 }
 
