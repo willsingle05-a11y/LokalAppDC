@@ -1,5 +1,7 @@
 # Lokal launch audit — October 23, 2026
 
+> Historical morning audit. Production ingestion repairs were subsequently deployed. See [the repair report](ingestion-repair-2026-10-23.md) for current coverage, verification, and remaining limitations. Statements below about local-only changes and missing database access describe the earlier snapshot.
+
 **Verdict: the deployed app runs, but event coverage is not ready for launch.**
 
 Checked the local source, deployed GitHub Pages app, public Supabase events, GitHub Actions job steps, and four live source importers. The expected source inventory comes from repository importers and the 34 source names present in published database rows; no separate definitive source list was available. This is not a guarantee that every event on every source website has been captured.
