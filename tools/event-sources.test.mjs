@@ -61,3 +61,20 @@ test("the app keeps all-day events visible until their actual end",()=>{
 test("the app preserves exact source price labels",()=>{
   assert.equal(app.normalizeSupabasePrice("From $33.21"),"From $33.21");
 });
+
+test("music ingestion follows verified DC venue calendars beyond the homepage preview",async()=>{
+  const packed=events=>{
+    const values=[];
+    const encode=value=>{const index=values.length;values.push(null);values[index]=Array.isArray(value)?value.map(encode):value&&typeof value==="object"?Object.fromEntries(Object.entries(value).map(([key,v])=>[`_${encode(key)}`,encode(v)])):value;return index;};
+    encode(events);
+    return `<script>streamController.enqueue(${JSON.stringify(JSON.stringify(values))})</script>`;
+  };
+  const source=SOURCE_REGISTRY.find(s=>s.id==="dc-music-live"),requested=[];
+  const event={_id:"venue-show",title:"Venue calendar show",startDate:"2026-11-07T19:00:00Z",venueName:"Test Club",eventLink:"https://example.com/show"};
+  const fetcher=async address=>{requested.push(address);return new Response(address===source.url?`${packed([])}<a href="/venues/test">Test Club</a><a href="/venues/va">Virginia Club</a>`:packed([event]));};
+  const result=await createSourceTools(load,fetcher).collect(source,{now,venues:[{name:"Test Club",address:"123 H St NW, Washington, DC"},{name:"Virginia Club",address:"Arlington, VA"}]});
+  assert.equal(result.included,1);
+  assert.equal(result.rows[0].title,"Venue calendar show");
+  assert.deepEqual(requested,[source.url,"https://www.dcmusic.live/venues/test"]);
+  assert.deepEqual(result.errors,[]);
+});

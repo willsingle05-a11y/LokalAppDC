@@ -222,7 +222,28 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
         const detailLinks=[...new Set(listing("a[href*='/do/']").map((_,e)=>url(listing(e).attr("href"),source.url)).get())];
         for(const link of detailLinks){try{const body=await get(link);raw.push(...citycenter(body,link,source));}catch(error){errors.push({url:link,error:error.message});}}
       } else if(source.kind==="markets") raw=markets(html,source,now,days);
-      else if(source.kind==="music")raw=music(html,source,venues);
+      else if(source.kind==="music") {
+        raw=music(html,source,venues);
+        // The landing page is a small preview. Follow its published venue
+        // links to collect full schedules for verified DC venues as well.
+        const key=v=>String(v||"").toLowerCase().replace(/^the\s+/,"").replace(/[^a-z0-9]/g,"");
+        const dcVenues=venues.filter(v=>isDc(v.address));
+        const links=[...new Set($("a[href^='/venues/']").filter((_,e)=>dcVenues.some(v=>key(v.name)===key($(e).text()))).map((_,e)=>url($(e).attr("href"),source.url)).get())];
+        if(links.length>150)throw new Error("DC Music Live venue inventory exceeded safety limit");
+        for(let i=0;i<links.length;i+=2){
+          const results=await Promise.allSettled(links.slice(i,i+2).map(async link=>{
+            let body;
+            try{body=await get(link);}catch(error){
+              // This source intermittently returns 404 for published venue
+              // routes that succeed on a subsequent request. Retry once only.
+              if(!/HTTP 404/.test(error.message))throw error;
+              await new Promise(r=>setTimeout(r,500));body=await get(link);
+            }
+            return music(body,source,venues);
+          }));
+          results.forEach((result,index)=>{if(result.status==="fulfilled")raw.push(...result.value);else errors.push({url:links[i+index],error:result.reason.message});});
+        }
+      }
       else {
         raw=structured(html,source.url);
         const links=[...new Set($("a[href]").map((_,e)=>url($(e).attr("href"),source.url)).get().filter(link=>link&&new URL(link).hostname===new URL(source.url).hostname&&link.includes(source.detailPattern||"/event/")&&link!==source.url))];
