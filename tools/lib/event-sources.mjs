@@ -3,7 +3,7 @@ export const TIMEZONE = "America/New_York";
 const DAY = 86400000;
 export function instant(value, offset = "") {
   if (!value || !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(String(value))) return null;
-  let text = String(value);
+  let text = String(value).replace(/([+-])(\d):(\d{2})$/,(_,sign,hour,minute)=>`${sign}0${hour}:${minute}`);
   if (!/[zZ]$|[+-]\d{2}:?\d{2}$/.test(text)) {
     if (offset && /^[+-]\d{4}$/.test(offset)) text += `${offset.slice(0,3)}:${offset.slice(3)}`;
     else {
@@ -44,7 +44,7 @@ export const SOURCE_REGISTRY = [
   {id:"Mount Vernon Triangle CID",url:"https://www.mountvernontriangle.org/events/list/",kind:"structured",neighborhood:"Mount Vernon Triangle",dcScoped:true,detailPattern:"/event/"},
   {id:"Union Market District",url:"https://unionmarketdc.com/events/",kind:"structured",neighborhood:"Union Market",dcScoped:true,detailPattern:"/event/"},
   {id:"Southwest BID",url:"https://swbid.org/events/",kind:"structured",neighborhood:"Southwest",dcScoped:true,detailPattern:"/event/"},
-  {id:"Anacostia BID",url:"https://anacostiabizdir.com/event-calendar/",kind:"structured",neighborhood:"Anacostia",dcScoped:true,detailPattern:"/event/"},
+  {id:"Anacostia BID",url:"https://anacostiabizdir.com/event-calendar/",kind:"eventon",neighborhood:"Anacostia",dcScoped:true},
   {id:"Shaw Main Streets",url:"https://www.shawmainstreets.org/events",kind:"structured",neighborhood:"Shaw",dcScoped:true,detailPattern:"/events/"},
   {id:"farmers-markets",url:"https://www.freshfarm.org/markets",kind:"markets",category:"food"},
   {id:"dc-music-live",url:"https://www.dcmusic.live/",kind:"music",category:"live-music"},
@@ -52,7 +52,7 @@ export const SOURCE_REGISTRY = [
   {id:"eventsdc",url:"https://eventsdc.com/api/events",kind:"eventsdc",dcScoped:true},
   {id:"runguides",url:"https://www.runguides.com/washington-dc/runs/5k/all",kind:"runguides",category:"sports"},
   {id:"thingstododc",url:"https://thingstododc.com/events/",kind:"embassy",category:"culture"},
-  {id:"Downtown DC BID",url:"https://www.downtowndc.org/events/?view=list",kind:"structured",neighborhood:"Downtown",dcScoped:true,detailPattern:"/events/"},
+  {id:"Downtown DC BID",url:"https://www.downtowndc.org/events/?view=list",kind:"downtown",neighborhood:"Downtown",dcScoped:true,detailPattern:"/events/"},
 ];
 
 export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
@@ -157,8 +157,8 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
         const id=String(Array.isArray(e.field_venue)?e.field_venue[0]:e.field_venue||"");
         const k=known[id];
         const inferred=venues.filter(v=>v.name&&v.name.length>7&&text.toLowerCase().includes(v.name.toLowerCase())&&isDc(v.address)).sort((a,b)=>b.name.length-a.name.length)[0];
-        const place=k?{name:k[0],address:k[1]}:inferred?{name:inferred.name,address:inferred.address}:null;
-        if(!place){errors.push({url:link,error:"No verified event venue"});continue;}
+        const place=k?{name:k[0],address:k[1]}:inferred?{name:inferred.name,address:inferred.address}:/Gateway Pavilion at St\.? Elizabeths East/i.test(text)?{name:"Gateway DC",address:known["19"][1]}:null;
+        if(!place){raw.push({name:e.title,startDate:e.field_start_date,location:null,url:link});continue;}
         raw.push({external_id:String(e.nid),name:e.title,description:$(".field--name-field-description").first().text()||$("meta[property='og:description']").attr("content"),startDate:e.field_start_date,endDate:e.field_end_date,location:place,url:$("link[rel='canonical']").attr("href")||link,image:$("meta[property='og:image']").attr("content"),offers:{url:$("main a").filter((_,a)=>/buy tickets|register now/i.test($(a).text())).first().attr("href")}});
       }
     } else if(source.kind==="runguides") {
@@ -185,6 +185,20 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
           if(!detailUrl)continue;
           try{const details=structured(await get(detailUrl),detailUrl);if(details.length)raw.push(...details.map(d=>({...d,external_id:String(e._id),image:d.image||e.image})));else errors.push({url:detailUrl,error:"No structured venue data on ticket page"});}catch(error){errors.push({url:detailUrl,error:error.message});if(/HTTP (403|429)/.test(error.message))break;}
         }
+      } else if(source.kind==="eventon") {
+        const calendarNode=$(".ajde_evcal_calendar").first(),id=calendarNode.attr("id"),encoded=calendarNode.find("[data-sc]").attr("data-sc");
+        if(!id||!encoded)throw new Error("Anacostia calendar loader changed");
+        const sc=JSON.parse(encoded),body=new URLSearchParams();
+        sc.focus_start_date_range=String(Math.floor(+now/1000));sc.focus_end_date_range=String(Math.floor((+now+days*DAY)/1000));sc.number_of_months="3";sc.event_count="100";sc.hide_past="yes";
+        for(const [key,value]of Object.entries(sc))body.set(`cals[${id}][sc][${key}]`,String(value));
+        const response=await fetchImpl(new URL("/?evo-ajax=eventon_init_load",source.url),{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body,signal:AbortSignal.timeout(25000)});
+        if(!response.ok)throw new Error(`Anacostia calendar HTTP ${response.status}`);
+        const data=await response.json();if(!data.cals?.[id])throw new Error("Anacostia calendar response changed");
+        raw=structured(data.cals[id].html,source.url);
+        // Some EventON records retain an editor timestamp in their schema while
+        // the public description contains an explicit event-time range.
+        raw=raw.map(event=>{const text=clean(event.description),m=text.match(/\b(\d{1,2}:\d{2})\s*(am|pm)\s*[-–]\s*(\d{1,2}:\d{2})\s*(am|pm)\b/i);if(!m)return event;const clock=(time,period)=>{const[h,min]=time.split(":");return `${String(+h%12+(period.toLowerCase()==="pm"?12:0)).padStart(2,"0")}:${min}:00`;};const day=event.startDate?.slice(0,10);return {...event,sourceOriginalStart:event.startDate,startDate:`${day}T${clock(m[1],m[2])}`,endDate:`${day}T${clock(m[3],m[4])}`,time_source:"published description"};});
+        emptyConfirmed=!raw.length&&/no events/i.test(clean(data.cals[id].html));
       } else if(source.kind==="embassy") {
         const links=[...new Set($(".event-list-row a[href]").map((_,e)=>url($(e).attr("href"),source.url)).get().filter(link=>link?.includes("/event/")))];
         if(!links.length)throw new Error("Things To Do DC listing markup changed");
@@ -192,6 +206,10 @@ export function createSourceTools(load, fetchImpl = fetch, calendar = null) {
       } else if(source.kind==="webflow") {
         const links=[...new Set($("a[href*='/event/']").map((_,e)=>url($(e).attr("href"),source.url)).get())];
         for(const link of links){const body=await get(link),$=load(body),main=$("main"),text=clean(main.html());const match=text.match(/(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s*([A-Z][a-z]+\s+\d{1,2},?\s+\d{4})\s*(\d{1,2}:\d{2}\s*[ap]m)\s*-\s*(\d{1,2}:\d{2}\s*[ap]m)/i);if(!match)continue;const date=new Date(`${match[1]} 12:00:00 GMT`).toISOString().slice(0,10);const clock=t=>{const m=t.match(/(\d+):(\d+)\s*([ap])m/i);return `${String(+m[1]%12+(m[3].toLowerCase()==="p"?12:0)).padStart(2,"0")}:${m[2]}:00`;};const blocks=main.find(".event_icon").map((_,e)=>clean($(e).parent().text())).get();const location=blocks.at(-1)||"";raw.push({name:main.find("h1").text(),description:main.find(".w-richtext").first().text()||main.find("p").first().text(),startDate:`${date}T${clock(match[2])}`,endDate:`${date}T${clock(match[3])}`,location:{name:location,address:`${location}, Washington, DC`},url:link,image:$("meta[property='og:image']").attr("content")});}
+      } else if(source.kind==="downtown") {
+        if(!calendar)throw new Error("Calendar parser is unavailable");
+        const links=[...new Set($("a[href]").map((_,e)=>url($(e).attr("href"),source.url)).get().filter(link=>link&&new URL(link).pathname.startsWith("/events/")&&new URL(link).pathname!=="/events/"))];
+        for(const link of links.slice(0,50)){const body=await get(link),match=body.match(/var theme\s*=\s*/);if(!match)continue;const theme=readJsonValue(body,match.index+match[0].length);if(!theme.ajax_url||!theme.post_id)continue;const data=calendar.sync.parseICS(await get(`${theme.ajax_url}?action=generate_ics&post_id=${theme.post_id}`));for(const e of Object.values(data)){if(e.type!=="VEVENT"||!e.start)continue;for(const instance of calendar.expandRecurringEvent(e,{from:now,to:new Date(+now+days*DAY),expandOngoing:true})){raw.push({name:instance.summary||e.summary,description:instance.description||e.description,external_id:`${e.uid}:${new Date(instance.start).toISOString()}`,startDate:new Date(instance.start).toISOString(),endDate:instance.end?new Date(instance.end).toISOString():null,allDay:instance.isFullDay===true,location:{name:instance.location||e.location||"Downtown DC",address:instance.location||e.location||"Downtown, Washington, DC"},url:link,image:load(body)("meta[property='og:image']").attr("content")});}}}
       } else if(source.kind==="cityspark") {
         const match=html.match(/var cSparkLocals\s*=\s*/);
         if(!match)throw new Error("Washingtonian calendar payload changed");

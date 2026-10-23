@@ -330,7 +330,7 @@ Deno.serve(async (request) => {
       .map(convertEvent)
       .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")) || Number(b.lokal_score) - Number(a.lokal_score));
 
-    await clearExistingRows();
+    if (!rows.length) throw new Error("PredictHQ returned no valid events. Existing events were preserved.");
     await upsertRows(rows);
 
     return json({

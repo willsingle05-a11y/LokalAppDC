@@ -311,7 +311,6 @@ async function upsertSupabaseEvents(rows) {
     console.log("No PredictHQ events found for this window.");
     return;
   }
-  await clearExistingPredictHqEvents();
   const response = await fetch(`${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/events?on_conflict=source,external_id`, {
     method: "POST",
     headers: {

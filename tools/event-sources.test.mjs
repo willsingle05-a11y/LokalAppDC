@@ -11,6 +11,7 @@ test("Eastern timestamps preserve DST and explicit offsets",()=>{
   assert.equal(instant("2026-10-31T20:00:00"),"2026-11-01T00:00:00.000Z");
   assert.equal(instant("2026-11-07T20:00:00","-0500"),"2026-11-08T01:00:00.000Z");
   assert.equal(instant("2026-11-07"),null);
+  assert.equal(instant("2026-10-24T16:58-4:00"),"2026-10-24T20:58:00.000Z");
 });
 test("Smithsonian uses actual camelCase dates, IDs, images and source links",()=>{
   const source=SOURCE_REGISTRY.find(s=>s.id==="smithsonian");
