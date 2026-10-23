@@ -1,0 +1,473 @@
+{
+  "checkedAt": "2026-10-23T14:29:44.836Z",
+  "discoveryWindow": {
+    "start": "2026-10-23T14:29:44.836Z",
+    "end": "2026-11-14T04:59:59.999Z"
+  },
+  "totalPublished": 13119,
+  "upcomingPublished": 1443,
+  "weakLocationLine": 0,
+  "unmatchedBucket": 10,
+  "bucketCounts": {
+    "National Mall": 3,
+    "Downtown": 27,
+    "Dupont": 440,
+    "U Street / Shaw Area": 323,
+    "Adams Morgan": 328,
+    "Georgetown": 49,
+    "Capitol Hill / H Street Area": 476,
+    "NoMa / Union Market Area": 157,
+    "Navy Yard": 124,
+    "Wharf": 140,
+    "Upper Northwest": 19,
+    "Anacostia / Southeast": 0
+  },
+  "sourceCoverage": [
+    {
+      "source": "happy-hours",
+      "published": 2819,
+      "upcoming": 1040,
+      "latestEventDate": "2026-12-22",
+      "latestStartsAt": "2026-12-23T04:00:00+00:00",
+      "lastSeenAt": "2026-10-23T05:15:00.206107+00:00",
+      "updatedAt": "2026-10-23T05:15:00.206107+00:00"
+    },
+    {
+      "source": "trivia-nights",
+      "published": 563,
+      "upcoming": 195,
+      "latestEventDate": "2026-12-22",
+      "latestStartsAt": "2026-12-23T01:00:00+00:00",
+      "lastSeenAt": "2026-10-23T05:25:00.20307+00:00",
+      "updatedAt": "2026-10-23T05:25:00.20307+00:00"
+    },
+    {
+      "source": "dc-music-live",
+      "published": 1054,
+      "upcoming": 93,
+      "latestEventDate": "2026-12-30",
+      "latestStartsAt": "2026-12-30T23:00:00+00:00",
+      "lastSeenAt": "2026-06-25T15:54:19.77609+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "ticketmaster",
+      "published": 1185,
+      "upcoming": 65,
+      "latestEventDate": "2026-09-05",
+      "latestStartsAt": "2026-10-27T23:30:00+00:00",
+      "lastSeenAt": "2026-10-23T11:00:07.112705+00:00",
+      "updatedAt": "2026-10-23T11:00:07.112705+00:00"
+    },
+    {
+      "source": "desert_5_spot",
+      "published": 76,
+      "upcoming": 28,
+      "latestEventDate": "2026-12-20",
+      "latestStartsAt": "2026-12-20T21:00:00+00:00",
+      "lastSeenAt": "2026-10-23T05:35:00.109084+00:00",
+      "updatedAt": "2026-10-23T05:35:00.109084+00:00"
+    },
+    {
+      "source": "dc-events-csv-2026-07",
+      "published": 3049,
+      "upcoming": 14,
+      "latestEventDate": "2027-07-28",
+      "latestStartsAt": "2027-05-01T23:30:00+00:00",
+      "lastSeenAt": "2026-07-29T16:09:52.942095+00:00",
+      "updatedAt": "2026-08-11T22:29:41.907033+00:00"
+    },
+    {
+      "source": "nuandroids",
+      "published": 45,
+      "upcoming": 3,
+      "latestEventDate": "2026-11-21",
+      "latestStartsAt": "2026-11-22T01:00:00+00:00",
+      "lastSeenAt": "2026-08-11T23:17:32.634555+00:00",
+      "updatedAt": "2026-08-12T14:26:00.720975+00:00"
+    },
+    {
+      "source": "nightlife-2026-08",
+      "published": 36,
+      "upcoming": 2,
+      "latestEventDate": "2026-10-31",
+      "latestStartsAt": "2026-10-31T19:00:00+00:00",
+      "lastSeenAt": "2026-08-12T14:56:55.629639+00:00",
+      "updatedAt": "2026-08-12T16:41:53.985986+00:00"
+    },
+    {
+      "source": "guhoyas",
+      "published": 4,
+      "upcoming": 1,
+      "latestEventDate": "2026-11-07",
+      "latestStartsAt": "2026-11-07T17:30:00+00:00",
+      "lastSeenAt": "2026-09-04T16:25:49.425595+00:00",
+      "updatedAt": "2026-09-04T16:25:49.425595+00:00"
+    },
+    {
+      "source": "hubison",
+      "published": 4,
+      "upcoming": 1,
+      "latestEventDate": "2026-11-14",
+      "latestStartsAt": "2026-11-14T18:00:00+00:00",
+      "lastSeenAt": "2026-09-04T16:31:47.897478+00:00",
+      "updatedAt": "2026-09-04T16:31:47.897478+00:00"
+    },
+    {
+      "source": "runguides",
+      "published": 13,
+      "upcoming": 1,
+      "latestEventDate": "2027-04-03",
+      "latestStartsAt": "2027-04-03T12:00:00+00:00",
+      "lastSeenAt": "2026-08-02T00:15:28.242884+00:00",
+      "updatedAt": "2026-08-11T22:29:41.907033+00:00"
+    },
+    {
+      "source": "Adams Morgan Partnership",
+      "published": 24,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-26",
+      "latestStartsAt": "2026-08-26T21:00:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "Anacostia BID",
+      "published": 7,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-30",
+      "latestStartsAt": "2026-08-30T20:00:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-20T14:40:44.300038+00:00"
+    },
+    {
+      "source": "Capitol Riverfront BID",
+      "published": 14,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-22",
+      "latestStartsAt": "2026-08-15T12:30:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-29T15:44:17.102279+00:00"
+    },
+    {
+      "source": "combined-venues",
+      "published": 1568,
+      "upcoming": 0,
+      "latestEventDate": "2026-07-27",
+      "latestStartsAt": "2026-07-27T23:30:00+00:00",
+      "lastSeenAt": "2026-06-30T18:34:00.046618+00:00",
+      "updatedAt": "2026-07-29T15:44:17.102279+00:00"
+    },
+    {
+      "source": "dc-clubs",
+      "published": 68,
+      "upcoming": 0,
+      "latestEventDate": "2026-07-24",
+      "latestStartsAt": "2026-07-24T10:45:00+00:00",
+      "lastSeenAt": "2026-07-03T15:19:37.24062+00:00",
+      "updatedAt": "2026-07-29T15:44:17.102279+00:00"
+    },
+    {
+      "source": "Downtown DC BID",
+      "published": 37,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-31",
+      "latestStartsAt": "2026-08-31T16:00:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "Dupont Circle BID",
+      "published": 13,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-22",
+      "latestStartsAt": "2026-08-22T16:00:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "edibledc",
+      "published": 7,
+      "upcoming": 0,
+      "latestEventDate": "2026-09-18",
+      "latestStartsAt": "2026-09-18T22:00:00+00:00",
+      "lastSeenAt": "2026-07-29T01:21:45.603438+00:00",
+      "updatedAt": "2026-08-18T16:52:16.503667+00:00"
+    },
+    {
+      "source": "eventsdc",
+      "published": 27,
+      "upcoming": 0,
+      "latestEventDate": "2026-09-27",
+      "latestStartsAt": "2026-09-27T16:00:00+00:00",
+      "lastSeenAt": "2026-07-27T00:26:13.755502+00:00",
+      "updatedAt": "2026-07-29T15:44:17.102279+00:00"
+    },
+    {
+      "source": "farmers-markets",
+      "published": 206,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-05",
+      "latestStartsAt": "2026-08-05T19:30:00+00:00",
+      "lastSeenAt": "2026-07-02T16:52:52.246898+00:00",
+      "updatedAt": "2026-07-29T15:44:17.102279+00:00"
+    },
+    {
+      "source": "Georgetown BID",
+      "published": 14,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-04",
+      "latestStartsAt": "2026-08-04T22:00:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "Mount Vernon Triangle CID",
+      "published": 63,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-27",
+      "latestStartsAt": "2026-08-27T15:00:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "Resident Advisor",
+      "published": 5,
+      "upcoming": 0,
+      "latestEventDate": "2026-07-05",
+      "latestStartsAt": null,
+      "lastSeenAt": "2026-06-30T18:31:24.9673+00:00",
+      "updatedAt": "2026-07-03T16:27:45.491924+00:00"
+    },
+    {
+      "source": "Shaw Main Streets",
+      "published": 2,
+      "upcoming": 0,
+      "latestEventDate": "2026-09-12",
+      "latestStartsAt": "2026-09-12T23:00:00+00:00",
+      "lastSeenAt": "2026-07-10T14:54:48.131615+00:00",
+      "updatedAt": "2026-07-29T15:44:17.102279+00:00"
+    },
+    {
+      "source": "smithsonian",
+      "published": 1443,
+      "upcoming": 0,
+      "latestEventDate": null,
+      "latestStartsAt": "2026-10-23T11:00:08.862+00:00",
+      "lastSeenAt": "2026-10-23T11:00:09.093064+00:00",
+      "updatedAt": "2026-10-23T11:00:09.093064+00:00"
+    },
+    {
+      "source": "Southwest BID",
+      "published": 1,
+      "upcoming": 0,
+      "latestEventDate": "2026-08-09",
+      "latestStartsAt": "2026-08-09T20:00:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-20T14:40:44.300038+00:00"
+    },
+    {
+      "source": "The Wharf DC",
+      "published": 14,
+      "upcoming": 0,
+      "latestEventDate": "2026-07-22",
+      "latestStartsAt": "2026-07-22T23:00:00+00:00",
+      "lastSeenAt": "2026-07-10T14:54:48.131615+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "thingstododc",
+      "published": 21,
+      "upcoming": 0,
+      "latestEventDate": "2026-10-09",
+      "latestStartsAt": "2026-10-09T22:30:00+00:00",
+      "lastSeenAt": "2026-07-26T16:01:43.151787+00:00",
+      "updatedAt": "2026-07-29T15:44:17.102279+00:00"
+    },
+    {
+      "source": "Union Market District",
+      "published": 33,
+      "upcoming": 0,
+      "latestEventDate": "2026-07-31",
+      "latestStartsAt": "2026-07-31T22:30:00+00:00",
+      "lastSeenAt": "2026-07-20T14:40:44.300038+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    },
+    {
+      "source": "venue-scrape-2026-08",
+      "published": 612,
+      "upcoming": 0,
+      "latestEventDate": "2026-10-18",
+      "latestStartsAt": "2026-10-19T00:00:00+00:00",
+      "lastSeenAt": "2026-08-24T15:43:18.39122+00:00",
+      "updatedAt": "2026-08-24T15:43:18.39122+00:00"
+    },
+    {
+      "source": "washingtonian",
+      "published": 49,
+      "upcoming": 0,
+      "latestEventDate": "2026-07-27",
+      "latestStartsAt": "2026-07-22T22:30:00+00:00",
+      "lastSeenAt": "2026-07-02T17:28:01.393735+00:00",
+      "updatedAt": "2026-08-11T22:29:41.907033+00:00"
+    },
+    {
+      "source": "wharf",
+      "published": 23,
+      "upcoming": 0,
+      "latestEventDate": "2026-09-04",
+      "latestStartsAt": "2026-09-04T23:00:00+00:00",
+      "lastSeenAt": "2026-07-03T14:56:55.852899+00:00",
+      "updatedAt": "2026-08-18T16:52:16.503667+00:00"
+    },
+    {
+      "source": "world_cup_2026",
+      "published": 20,
+      "upcoming": 0,
+      "latestEventDate": "2026-07-14",
+      "latestStartsAt": "2026-07-14T19:00:00+00:00",
+      "lastSeenAt": "2026-07-14T14:31:42.092977+00:00",
+      "updatedAt": "2026-07-29T20:35:50.603381+00:00"
+    }
+  ],
+  "categoryCounts": {
+    "concerts": 51,
+    "live-music": 54,
+    "kids": 1,
+    "performing-arts": 4,
+    "nightlife": 25,
+    "culture": 2,
+    "sports": 3,
+    "Comedy": 8,
+    "happy-hours": 1040,
+    "trivia-nights": 195,
+    "food": 3,
+    "Miscellaneous": 17,
+    "Rock": 10,
+    "Basketball": 2,
+    "Undefined": 5,
+    "Blues": 2,
+    "Hip-Hop/Rap": 2,
+    "Pop": 8,
+    "Dance/Electronic": 5,
+    "Hockey": 1,
+    "Other": 2,
+    "Soccer": 2,
+    "Theatre": 1
+  },
+  "missingImages": 1204,
+  "missingSourceLinks": 338,
+  "unmatchedSample": [
+    {
+      "id": 486002,
+      "title": "Wizards v Raptors",
+      "source": "ticketmaster",
+      "category": "Basketball",
+      "venue_name": "Capital One Arena",
+      "venue": "Capital One Arena",
+      "neighborhood": null,
+      "venue_address": "601 F Street NW, Washington, DC",
+      "locationLine": "Capital One Arena"
+    },
+    {
+      "id": 486003,
+      "title": "Wizards VIP Packages: 10/23/2026",
+      "source": "ticketmaster",
+      "category": "Basketball",
+      "venue_name": "Capital One Arena",
+      "venue": "Capital One Arena",
+      "neighborhood": null,
+      "venue_address": "601 F Street NW, Washington, DC",
+      "locationLine": "Capital One Arena"
+    },
+    {
+      "id": 486006,
+      "title": "The Score (play)",
+      "source": "ticketmaster",
+      "category": "Undefined",
+      "venue_name": "Sidney Harman Hall",
+      "venue": "Sidney Harman Hall",
+      "neighborhood": null,
+      "venue_address": "610 F Street NW, Washington, DC",
+      "locationLine": "Sidney Harman Hall"
+    },
+    {
+      "id": 489929,
+      "title": "The Score (play)",
+      "source": "ticketmaster",
+      "category": "Undefined",
+      "venue_name": "Sidney Harman Hall",
+      "venue": "Sidney Harman Hall",
+      "neighborhood": null,
+      "venue_address": "610 F Street NW, Washington, DC",
+      "locationLine": "Sidney Harman Hall"
+    },
+    {
+      "id": 489933,
+      "title": "GLOW Block Party: The Chainsmokers",
+      "source": "ticketmaster",
+      "category": "Dance/Electronic",
+      "venue_name": "Pennsylvania Avenue",
+      "venue": "Pennsylvania Avenue",
+      "neighborhood": null,
+      "venue_address": "600 Pennsylvania Avenue NW, Washington, DC",
+      "locationLine": "Pennsylvania Avenue"
+    },
+    {
+      "id": 489945,
+      "title": "Washington Capitals vs. Buffalo Sabres",
+      "source": "ticketmaster",
+      "category": "Hockey",
+      "venue_name": "Capital One Arena",
+      "venue": "Capital One Arena",
+      "neighborhood": null,
+      "venue_address": "601 F Street NW, Washington, DC",
+      "locationLine": "Capital One Arena"
+    },
+    {
+      "id": 489948,
+      "title": "The Score (play)",
+      "source": "ticketmaster",
+      "category": "Undefined",
+      "venue_name": "Sidney Harman Hall",
+      "venue": "Sidney Harman Hall",
+      "neighborhood": null,
+      "venue_address": "610 F Street NW, Washington, DC",
+      "locationLine": "Sidney Harman Hall"
+    },
+    {
+      "id": 501461,
+      "title": "The Score (play)",
+      "source": "ticketmaster",
+      "category": "Undefined",
+      "venue_name": "Sidney Harman Hall",
+      "venue": "Sidney Harman Hall",
+      "neighborhood": null,
+      "venue_address": "610 F Street NW, Washington, DC",
+      "locationLine": "Sidney Harman Hall"
+    },
+    {
+      "id": 505281,
+      "title": "RUSH: Fifty Something",
+      "source": "ticketmaster",
+      "category": "Rock",
+      "venue_name": "Capital One Arena",
+      "venue": "Capital One Arena",
+      "neighborhood": null,
+      "venue_address": "601 F Street NW, Washington, DC",
+      "locationLine": "Capital One Arena"
+    },
+    {
+      "id": 505300,
+      "title": "RUSH: Fifty Something",
+      "source": "ticketmaster",
+      "category": "Rock",
+      "venue_name": "Capital One Arena",
+      "venue": "Capital One Arena",
+      "neighborhood": null,
+      "venue_address": "601 F Street NW, Washington, DC",
+      "locationLine": "Capital One Arena"
+    }
+  ],
+  "weakLocationSample": []
+}

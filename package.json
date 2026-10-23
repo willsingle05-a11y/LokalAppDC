@@ -6,7 +6,8 @@
     "scripts": {
         "dev": "vite --host 127.0.0.1 --port 5173",
         "build": "vite build",
-        "build:prod": "set VITE_APP_MODE=production&& vite build",
+        "build:prod": "node tools/build-production.mjs",
+        "test": "node --test tools/launch-readiness.test.mjs tools/event-sources.test.mjs",
         "preview": "vite preview --host 127.0.0.1 --port 4173",
         "build:standalone": "powershell -ExecutionPolicy Bypass -File ./build-standalone.ps1",
         "enrich:ticketmaster": "node tools/enrich-ticketmaster-events.mjs",
@@ -15,6 +16,10 @@
         "import:edibledc": "node tools/import-edibledc-events.mjs",
         "import:runguides": "node tools/import-runguides-races.mjs",
         "import:nuandroids": "node tools/import-nuandroids-events.mjs",
+        "import:thingstododc": "node tools/import-thingstododc-embassy-events.mjs",
+        "audit:events": "node tools/audit-location-coverage.mjs",
+        "audit:scrapers": "node tools/audit-scrapers.mjs",
+        "test:launch": "node --test tools/launch-readiness.test.mjs",
         "mobile:install": "npm.cmd install @capacitor/core @capacitor/cli @capacitor/ios --save-dev",
         "mobile:init": "npx cap add ios",
         "mobile:sync": "npm.cmd run build && npx cap sync ios",
@@ -25,6 +30,9 @@
         "@capacitor/cli": "^8.4.1",
         "@capacitor/core": "^8.4.1",
         "@capacitor/ios": "^8.4.1",
+        "cheerio": "^1.2.0",
+        "node-ical": "^0.27.3",
+        "pg": "^8.23.1",
         "vite": "^8.0.16"
     }
 }

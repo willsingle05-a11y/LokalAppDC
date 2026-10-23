@@ -5,6 +5,7 @@ const CATEGORY_URL = args.get("--url") || "https://thingstododc.com/events/embas
 const LOAD_MORE_URL = "https://thingstododc.com/wp-content/themes/thingstodo/load-more.php";
 const SOURCE = "thingstododc";
 const TIMEZONE = "America/New_York";
+process.env.TZ = TIMEZONE;
 const termId = args.get("--term") || "44";
 const firstLoadCount = Number(args.get("--count") || 11);
 const totalRowsHint = Number(args.get("--total") || 0);
@@ -112,7 +113,7 @@ function parseListingDate(label) {
   return {
     date,
     time: new Date(year, month - 1, day, hour, minute).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-    starts_at: `${date}T${pad(hour)}:${pad(minute)}:00-04:00`
+    starts_at: new Date(year, month - 1, day, hour, minute).toISOString()
   };
 }
 
@@ -133,7 +134,7 @@ function parseDetailDate(text) {
   return {
     date,
     time: new Date(year, month - 1, day, hour, minute).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-    starts_at: `${date}T${pad(hour)}:${pad(minute)}:00-04:00`
+    starts_at: new Date(year, month - 1, day, hour, minute).toISOString()
   };
 }
 

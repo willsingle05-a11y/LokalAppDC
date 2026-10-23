@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { load } from "cheerio";
+import { readFile } from "node:fs/promises";
+import { runInNewContext } from "node:vm";
 import { createSourceTools, instant, readJsonValue, SOURCE_REGISTRY, marketOccurrences } from "./lib/event-sources.mjs";
 const engine=createSourceTools(load);
 const now=new Date("2026-10-23T14:00:00Z");
@@ -48,4 +50,13 @@ test("ongoing all-day exhibits keep their real start and end dates",()=>{
   const row=engine.normalize({name:"Exhibition",startDate:"2026-10-01T00:00:00-04:00",endDate:"2026-11-01T00:00:00-04:00",allDay:true,location:{name:"Museum",address:"Washington, DC"},url:"https://example.com/exhibition"},{id:"museum",url:"https://example.com"},now);
   assert.equal(row.starts_at,"2026-10-01T04:00:00.000Z");
   assert.equal(row.time,"All day");
+});
+const app={};
+runInNewContext(await readFile(new URL("../src/features/05-supabase.js",import.meta.url),"utf8"),app);
+test("the app keeps all-day events visible until their actual end",()=>{
+  assert.equal(app.isEventInDiscoveryWindow({allDay:true,startSort:Date.now()-86400000,endSort:Date.now()+86400000}),true);
+  assert.equal(app.hasReliableSupabaseStart({raw_json:{all_day:true}}),false);
+});
+test("the app preserves exact source price labels",()=>{
+  assert.equal(app.normalizeSupabasePrice("From $33.21"),"From $33.21");
 });

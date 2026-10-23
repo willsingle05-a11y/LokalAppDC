@@ -1,0 +1,15 @@
+name: Import Things To Do DC Embassy Events
+
+on:
+  schedule:
+    - cron: "37 11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    uses: ./.github/workflows/sync-source.yml
+    with:
+      source: thingstododc

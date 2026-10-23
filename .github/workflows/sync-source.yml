@@ -1,0 +1,29 @@
+name: Sync source through Supabase
+on:
+  workflow_call:
+    inputs:
+      source:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Fetch and persist source events
+        env:
+          SOURCE_ID: ${{ inputs.source }}
+        run: node tools/trigger-source-sync.mjs "$SOURCE_ID"
+      - name: Preserve import results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-sync-${{ inputs.source }}-${{ github.run_id }}
+          path: .audit/production-sync-results.json
+          retention-days: 7

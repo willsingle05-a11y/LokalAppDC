@@ -457,8 +457,22 @@ document.addEventListener("click", async event => {
   }
   if (t.dataset.signout !== undefined) { mark(); openSimpleSheet("Log out", "You'll need your email/username and password to log back in.", `<button class="wide-button" data-confirm-signout>Log out</button>`); }
   if (t.dataset.confirmSignout !== undefined) { mark(); modalRoot.innerHTML = ""; logoutLokalUser(); renderLogin(); toast("You're logged out"); }
-  if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Delete account", "This would permanently remove your Lokal profile.", `<button class="danger-button" data-confirm-deactivate>Delete account</button>`); }
-  if (t.dataset.confirmDeactivate !== undefined) { mark(); modalRoot.innerHTML = ""; toast("Account deactivation confirmed"); }
+  if (t.dataset.deactivate !== undefined) { mark(); openSimpleSheet("Request account deletion", "Submit a request to delete your Lokal account and associated data. Your account remains active until the request is processed.", `<button class="danger-button" data-confirm-deactivate>Request deletion</button>`); }
+  if (t.dataset.confirmDeactivate !== undefined) {
+    mark();
+    if (t.disabled) return;
+    t.disabled = true;
+    t.textContent = "Submitting...";
+    try {
+      await submitAccountDeletionRequest();
+      modalRoot.innerHTML = "";
+      toast("Account deletion requested. Your request is pending.");
+    } catch (error) {
+      t.disabled = false;
+      t.textContent = "Request deletion";
+      toast("Deletion request could not be submitted. Please try again.");
+    }
+  }
   if (t.dataset.settings !== undefined || t.dataset.editProfile !== undefined) openSettings();
   if (t.dataset.saveSettings !== undefined) {
     const input = document.querySelector("[data-age-input]");

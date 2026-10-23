@@ -53,6 +53,7 @@ function formatTicketPrice(value) {
 function normalizeSupabasePrice(value, isMinimum = false, isExplicitlyFree = false) {
   if (value === null || value === undefined || value === "") return "Price unknown";
   if (String(value).toLowerCase() === "free") return "Free";
+  if (/^from\s+\$/i.test(String(value))) return String(value);
   if (Number(value) === 0) return isExplicitlyFree ? "Free" : "Price unknown";
   const price = Number.isFinite(Number(value)) ? formatTicketPrice(value) : (String(value).startsWith("$") ? String(value) : `$${value}`);
   return isMinimum ? `From ${price}` : price;
@@ -788,6 +789,7 @@ function normalizeSupabaseDescription(row) {
 }
 
 function hasReliableSupabaseStart(row) {
+  if (row.raw_json?.time_unknown || row.raw_json?.all_day) return false;
   // Discovery should only show events with a real scheduled start. Date-only
   // rows are kept in Supabase, but they should not appear in the app feed.
   const category = normalizeImportedCategory(row);
@@ -827,6 +829,8 @@ function eventStartHourFromRow(row) {
 }
 
 function eventStartSortFromRow(row) {
+  // A sorting anchor for date-only listings, never shown as a published time.
+  if (row.raw_json?.time_unknown && row.date) return new Date(`${row.date}T12:00:00`).getTime();
   const source = row.starts_at || row.start_time || row.start_at;
   if (source) {
     const date = new Date(source);
@@ -863,12 +867,15 @@ function discoveryWindowQueries() {
   const today = localDateKey(start);
   return [
     `${selectAndStatus}&date=gte.${today}&date=lte.${localDateKey(end)}`,
-    `${selectAndStatus}&starts_at=gte.${encodeURIComponent(start.toISOString())}&starts_at=lte.${encodeURIComponent(end.toISOString())}`
+    `${selectAndStatus}&starts_at=gte.${encodeURIComponent(start.toISOString())}&starts_at=lte.${encodeURIComponent(end.toISOString())}`,
+    `${selectAndStatus}&starts_at=lte.${encodeURIComponent(start.toISOString())}&ends_at=gte.${encodeURIComponent(start.toISOString())}&raw_json->>all_day=eq.true`
   ];
 }
 
 
 function isEventInDiscoveryWindow(event) {
+  if (event.timeUnknown && event.startDate) return event.startDate >= localDateKey(new Date()) && event.startDate <= localDateKey(new Date(endOfDiscoveryWindowSortValue()));
+  if (event.allDay && Number.isFinite(event.endSort) && event.endSort >= Date.now()) return event.startSort <= endOfDiscoveryWindowSortValue();
   if (!Number.isFinite(event.startSort) || event.startSort === Number.MAX_SAFE_INTEGER) return false;
   return event.startSort >= startOfDiscoveryWindowSortValue() && event.startSort <= endOfDiscoveryWindowSortValue();
 }
@@ -1185,7 +1192,10 @@ function normalizeSupabaseEvent(row, index) {
     venue: normalizeSupabaseVenue(row),
     venueAddress: row.venue_address || row.address || rawEventApiAddress(row) || "",
     area: normalizeSupabaseArea(row),
-    time: hasReliableStart ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : (category === "sports" ? formatSupabaseDateWithTbaTime(row) : "Ongoing / time varies"),
+    time: row.raw_json?.all_day ? `${formatSupabaseDate(row.date)}, All day` : row.raw_json?.time_unknown ? formatSupabaseDateWithTbaTime(row) : hasReliableStart ? (row.date && row.time ? formatSupabaseDateAndTime(row.date, row.time) : formatSupabaseTime(row.starts_at || row.start_time || row.start_at || row.date)) : (category === "sports" ? formatSupabaseDateWithTbaTime(row) : "Ongoing / time varies"),
+    allDay: Boolean(row.raw_json?.all_day),
+    timeUnknown: Boolean(row.raw_json?.time_unknown),
+    endSort: row.ends_at ? new Date(row.ends_at).getTime() : null,
     startDate: row.date || "",
     startHour: eventStartHourFromRow(row),
     startSort: eventStartSortFromRow(row),

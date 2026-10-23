@@ -1,5 +1,12 @@
+import { readFile, writeFile } from "node:fs/promises";
+import { runInNewContext } from "node:vm";
+
+process.env.TZ = "America/New_York";
 const SUPABASE_URL = "https://iglzcjtklryapmcpyoam.supabase.co";
 const SUPABASE_KEY = "sb_publishable_E4mdzzerAbcMxoVniRJcaQ_NuB98FvH";
+// Reuse the app's start-time and DC rules rather than estimating eligibility.
+const app = {};
+runInNewContext(await readFile(new URL("../src/features/05-supabase.js", import.meta.url), "utf8"), app);
 
 const CITY_SECTION_PATTERNS = [
   ["National Mall", /\bnational mall|federal triangle|ronald reagan building|international trade center|smithsonian|hirshhorn|renwick|national gallery|portrait gallery|saam|american art museum|air and space|natural history|american history|african american history|american indian|botanic garden|constitution ave|pennsylvania ave nw|madison dr|jefferson dr|independence ave|l'enfant plaza|the mall\b/i],
@@ -79,29 +86,23 @@ function endOfDiscoveryWindow() {
 }
 
 function inDiscoveryWindow(row) {
-  const start = startOfToday();
-  const end = endOfDiscoveryWindow();
-  if (row.date) {
-    const date = new Date(`${row.date}T12:00:00`);
-    if (!Number.isNaN(date.getTime()) && date >= start && date <= end) return true;
-  }
-  if (row.starts_at) {
-    const date = new Date(row.starts_at);
-    if (!Number.isNaN(date.getTime()) && date >= new Date() && date <= end) return true;
-  }
-  return false;
+  if (row.raw_json?.all_day && row.ends_at && Date.parse(row.ends_at) >= Date.now() && Date.parse(row.starts_at) <= endOfDiscoveryWindow().getTime()) return true;
+  if (row.raw_json?.time_unknown && row.date) return row.date >= app.localDateKey(new Date()) && row.date <= app.localDateKey(endOfDiscoveryWindow());
+  const start = app.eventStartSortFromRow(app.normalizeSupabaseEventCorrections(row));
+  return Number.isFinite(start) && start >= Date.now() && start <= endOfDiscoveryWindow().getTime();
 }
 
 async function fetchEvents() {
   const rows = [];
-  for (let offset = 0; offset < 10000; offset += 1000) {
+  for (let offset = 0; ; offset += 1000) {
     const url = new URL("/rest/v1/events", SUPABASE_URL);
     url.search = new URLSearchParams({
-      select: "id,title,source,status,category,venue_name,venue,neighborhood,venue_address,date,time,starts_at,description,latitude,longitude,lat,lng",
+      select: "*",
       status: "eq.published",
       order: "id.asc"
     }).toString();
     const response = await fetch(url, {
+      signal: AbortSignal.timeout(30000),
       headers: {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
@@ -118,7 +119,7 @@ async function fetchEvents() {
 }
 
 function auditRows(rows) {
-  const upcoming = rows.filter(row => isSupabaseEventInDc(row) && inDiscoveryWindow(row));
+  const upcoming = rows.filter(row => app.isSupabaseEventInDc(row) && inDiscoveryWindow(row));
   const bucketCounts = Object.fromEntries(CITY_SECTION_PATTERNS.map(([name]) => [name, 0]));
   const unmatched = [];
   const weakLocation = [];
@@ -148,12 +149,23 @@ function auditRows(rows) {
 
 const rows = await fetchEvents();
 const audit = auditRows(rows);
-console.log(JSON.stringify({
+const sourceCoverage = Object.entries(Object.groupBy(rows, row => row.source || "unknown")).map(([source, sourceRows]) => {
+  const upcoming = sourceRows.filter(row => app.isSupabaseEventInDc(row) && inDiscoveryWindow(row));
+  const latest = field => sourceRows.map(row => row[field]).filter(Boolean).sort().at(-1) || null;
+  return { source, published: sourceRows.length, upcoming: upcoming.length, latestEventDate: latest("date"), latestStartsAt: latest("starts_at"), lastSeenAt: latest("last_seen_at"), updatedAt: latest("updated_at") };
+}).sort((a, b) => b.upcoming - a.upcoming || a.source.localeCompare(b.source));
+const report = {
+  checkedAt: new Date().toISOString(),
+  discoveryWindow: { start: new Date().toISOString(), end: endOfDiscoveryWindow().toISOString() },
   totalPublished: audit.totalPublished,
   upcomingPublished: audit.upcoming.length,
   weakLocationLine: audit.weakLocation.length,
   unmatchedBucket: audit.unmatched.length,
   bucketCounts: audit.bucketCounts,
+  sourceCoverage,
+  categoryCounts: Object.fromEntries(Object.entries(Object.groupBy(audit.upcoming, row => row.category || "unknown")).map(([category, values]) => [category, values.length])),
+  missingImages: audit.upcoming.filter(row => !row.image_url).length,
+  missingSourceLinks: audit.upcoming.filter(row => !row.external_url && !row.ticket_url && !row.url).length,
   unmatchedSample: audit.unmatched.slice(0, 80).map(row => ({
     id: row.id,
     title: row.title,
@@ -176,4 +188,10 @@ console.log(JSON.stringify({
     venue_address: row.venue_address,
     locationLine: row.locationLine
   }))
-}, null, 2));
+};
+const output = process.argv.indexOf("--json");
+if (output !== -1) {
+  if (!process.argv[output + 1]) throw new Error("--json requires an output path");
+  await writeFile(process.argv[output + 1], JSON.stringify(report, null, 2) + "\n");
+}
+console.log(JSON.stringify(report, null, 2));

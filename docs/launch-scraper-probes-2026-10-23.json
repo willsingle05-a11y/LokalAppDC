@@ -1,0 +1,909 @@
+{
+  "checkedAt": "2026-10-23T14:27:03.939Z",
+  "results": [
+    {
+      "source": "eventsdc-events",
+      "status": "events-found",
+      "elapsedMs": 5526,
+      "apiRows": 16,
+      "includedRows": 7,
+      "excludedRows": 9,
+      "included": [
+        {
+          "title": "Washington Bridal & Wedding Expo Fall 2026",
+          "date": "2026-11-01",
+          "time": "12:30 PM",
+          "venue": "Walter E. Washington Convention Center",
+          "category": "expos",
+          "tags": [
+            "Conference",
+            "Expo",
+            "Convention",
+            "Convention center"
+          ],
+          "hasDescription": true,
+          "hasTicketUrl": true
+        },
+        {
+          "title": "Society for Neuroscience Annual Convention",
+          "date": "2026-11-14",
+          "time": "7:00 AM",
+          "venue": "Walter E. Washington Convention Center",
+          "category": "expos",
+          "tags": [
+            "Conference",
+            "Expo",
+            "Convention center"
+          ],
+          "hasDescription": true,
+          "hasTicketUrl": false
+        },
+        {
+          "title": "Capital City Go-Go vs  Raptors 905",
+          "date": "2026-11-14",
+          "time": "7:00 PM",
+          "venue": "CareFirst Arena",
+          "category": "community",
+          "tags": [
+            "Local event"
+          ],
+          "hasDescription": true,
+          "hasTicketUrl": true
+        },
+        {
+          "title": "Capital City Go-Go vs  Raptors 905",
+          "date": "2026-11-16",
+          "time": "2:00 PM",
+          "venue": "CareFirst Arena",
+          "category": "community",
+          "tags": [
+            "Local event"
+          ],
+          "hasDescription": true,
+          "hasTicketUrl": true
+        },
+        {
+          "title": "The Legends Ball",
+          "date": "2026-11-21",
+          "time": "4:00 PM",
+          "venue": "Walter E. Washington Convention Center",
+          "category": "community",
+          "tags": [
+            "Convention center"
+          ],
+          "hasDescription": true,
+          "hasTicketUrl": false
+        },
+        {
+          "title": "Capital City Go-Go vs Long Island Nets",
+          "date": "2026-11-24",
+          "time": "2:00 PM",
+          "venue": "CareFirst Arena",
+          "category": "community",
+          "tags": [
+            "Local event"
+          ],
+          "hasDescription": true,
+          "hasTicketUrl": true
+        },
+        {
+          "title": "Chris Paul HBCU Classic",
+          "date": "2026-12-04",
+          "time": "10:00 AM",
+          "venue": "CareFirst Arena",
+          "category": "sports",
+          "tags": [
+            "Sports event"
+          ],
+          "hasDescription": true,
+          "hasTicketUrl": true
+        }
+      ],
+      "excluded": [
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Soldiers' Angels Food Drive",
+          "nid": "147790"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Costume Carnival",
+          "nid": "149672"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Legends Game Night!",
+          "nid": "149768"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Legends Game Night!",
+          "nid": "149769"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Soldiers' Angels Food Drive",
+          "nid": "147791"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Legends Game Night!",
+          "nid": "149770"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Legends Game Night!",
+          "nid": "149771"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "The 2026 NWSL Championship ",
+          "nid": "149828"
+        },
+        {
+          "excluded": "missing Events DC venue id",
+          "title": "Soldiers' Angels Food Drive",
+          "nid": "147792"
+        }
+      ]
+    },
+    {
+      "source": "edibledc-events",
+      "status": "events-found",
+      "elapsedMs": 2118,
+      "feedEvents": 30,
+      "includedRows": 15,
+      "excludedRows": 15,
+      "included": [
+        {
+          "title": "Moo, Bah, Mah! The animal makes the cheese @ Each Peach Market",
+          "date": "2026-10-23",
+          "time": "6:00 PM",
+          "venue": "Each Peach Market",
+          "address": "3068 Mount Pleasant Street NW, Washington, DC, 20009, United States",
+          "category": "food",
+          "tags": [
+            "Market"
+          ],
+          "url": "https://edibledc.com/event/moo-bah-mah-the-animal-makes-the-cheese-each-peach-market/"
+        },
+        {
+          "title": "Give a Shuck: A Taste of The Wharf",
+          "date": "2026-10-23",
+          "time": "6:00 PM",
+          "venue": "The Wharf Dockmaster Building",
+          "address": "101 District Square Southwest, Washington, DC, 20024",
+          "category": "food",
+          "tags": [
+            "Community",
+            "Live entertainment"
+          ],
+          "url": "https://edibledc.com/event/give-a-shuck-a-taste-of-the-wharf/"
+        },
+        {
+          "title": "Mindfulness & Sketching in the Garden",
+          "date": "2026-10-24",
+          "time": "1:00 PM",
+          "venue": "The Kreeger Museum",
+          "address": "2401 Foxhall Rd NW, Washington, DC, 20007",
+          "category": "community",
+          "tags": [
+            "Outdoor"
+          ],
+          "url": "https://edibledc.com/event/mindfulness-sketching-in-the-garden/"
+        },
+        {
+          "title": "The U Street Halloween Bar Crawl",
+          "date": "2026-10-24",
+          "time": "2:00 PM",
+          "venue": "U Street",
+          "address": "",
+          "category": "nightlife",
+          "tags": [
+            "DJ Set"
+          ],
+          "url": "https://edibledc.com/event/the-u-street-halloween-bar-crawl/"
+        },
+        {
+          "title": "Sunday Jazz & Tea — Featuring Kemi Adegoroye",
+          "date": "2026-10-25",
+          "time": "1:00 PM",
+          "venue": "MD",
+          "address": "",
+          "category": "food",
+          "tags": [
+            "Food festival",
+            "Live entertainment",
+            "Outdoor"
+          ],
+          "url": "https://edibledc.com/event/sunday-jazz-tea-featuring-kemi-adegoroye/"
+        },
+        {
+          "title": "Candy, Cheese and Beer? Oh My! Paste & Rind Pairing Event",
+          "date": "2026-10-26",
+          "time": "7:00 PM",
+          "venue": "Henceforth",
+          "address": "1335 H Street Northeast, Washington, DC, 20002",
+          "category": "food",
+          "tags": [
+            "Food tasting"
+          ],
+          "url": "https://edibledc.com/event/candy-cheese-and-beer-oh-my-paste-rind-pairing-event/"
+        },
+        {
+          "title": "Community Work Day at the Farm",
+          "date": "2026-10-28",
+          "time": "9:00 AM",
+          "venue": "The Farm at Kelly Miller",
+          "address": "301 49th Street Northeast, Washington, DC, 20019, United States",
+          "category": "food",
+          "tags": [
+            "Local food",
+            "Community"
+          ],
+          "url": "https://edibledc.com/event/community-work-day-at-the-farm/"
+        },
+        {
+          "title": "Edible DC Salon Series: Dinner & Ideas",
+          "date": "2026-10-28",
+          "time": "6:30 PM",
+          "venue": "Poplar",
+          "address": "701 Kennedy St NW, Washington, DC, 20011",
+          "category": "food",
+          "tags": [
+            "Local food",
+            "Community"
+          ],
+          "url": "https://edibledc.com/event/edible-dc-salon-series-dinner-ideas/"
+        },
+        {
+          "title": "Spooky Cheeses @ Each Peach Market",
+          "date": "2026-10-30",
+          "time": "6:00 PM",
+          "venue": "Each Peach Market",
+          "address": "3068 Mount Pleasant Street NW, Washington, DC, 20009, United States",
+          "category": "food",
+          "tags": [
+            "Market"
+          ],
+          "url": "https://edibledc.com/event/spooky-cheeses-each-peach-market/"
+        },
+        {
+          "title": "Explorers Table @ The National Geographic Museum of Exploration",
+          "date": "2026-10-30",
+          "time": "7:00 PM",
+          "venue": "National Geographic Museum of Exploration – Explorers Eatery",
+          "address": "1600 M Street NW, Washington, DC",
+          "category": "food",
+          "tags": [
+            "Chef dinner",
+            "Community",
+            "International"
+          ],
+          "url": "https://edibledc.com/event/explorers-table-the-national-geographic-museum-of-exploration/"
+        },
+        {
+          "title": "Dreaming Out Loud Annual Fall Festival",
+          "date": "2026-10-31",
+          "time": "10:00 AM",
+          "venue": "The Farm at Kelly Miller",
+          "address": "301 49th Street Northeast, Washington, DC, 20019, United States",
+          "category": "food",
+          "tags": [
+            "Local food",
+            "Food festival",
+            "Community"
+          ],
+          "url": "https://edibledc.com/event/dreaming-out-loud-annual-fall-festival/"
+        },
+        {
+          "title": "Dupont Fall Festival, Pumpkin Patch, and Bluegrass Jamboree",
+          "date": "2026-10-31",
+          "time": "1:00 PM",
+          "venue": "Dupont Circle Park",
+          "address": "9 Dupont Circle NW, Washington, DC, 20009",
+          "category": "food",
+          "tags": [
+            "Food festival",
+            "Live entertainment"
+          ],
+          "url": "https://edibledc.com/event/dupont-fall-festival-pumpkin-patch-and-bluegrass-jamboree/"
+        },
+        {
+          "title": "SLY ROOFTOP : AFTER DARK HALLOWEEN PARTY",
+          "date": "2026-10-31",
+          "time": "7:00 PM",
+          "venue": "SLY Rooftop",
+          "address": "222M Street NE Morrow Hotel, Washington, DC, 20002",
+          "category": "food",
+          "tags": [
+            "DJ Set",
+            "Live entertainment"
+          ],
+          "url": "https://edibledc.com/event/sly-rooftop-after-dark-halloween-party/"
+        },
+        {
+          "title": "ELECTION NIGHT WATCH PARTY @ Teddy & The Bully Bar",
+          "date": "2026-11-03",
+          "time": "3:00 PM",
+          "venue": "MD",
+          "address": "",
+          "category": "food",
+          "tags": [
+            "Food tasting"
+          ],
+          "url": "https://edibledc.com/event/election-night-watch-party-teddy-the-bully-bar/"
+        },
+        {
+          "title": "Exploring Italy Through Cheese",
+          "date": "2026-11-06",
+          "time": "6:00 PM",
+          "venue": "Each Peach Market",
+          "address": "3068 Mount Pleasant Street NW, Washington, DC, 20009, United States",
+          "category": "food",
+          "tags": [
+            "Wine",
+            "Market"
+          ],
+          "url": "https://edibledc.com/event/exploring-italy-through-cheese/"
+        }
+      ],
+      "excluded": [
+        {
+          "title": "Fall Fest in Everedy Square & Shab Row",
+          "reason": "outside DC proper or virtual",
+          "location": "Everedy Square/Shab Row 112 N. East St., Frederick, MD, 21701"
+        },
+        {
+          "title": "Frederick FiberFest 2026",
+          "reason": "outside DC proper or virtual",
+          "location": "Frederick Fairgrounds – Home of The Great Frederick Fair 797 E Patrick St, Frederick, MD, 21701"
+        },
+        {
+          "title": "Adams Morgan Apple Festival 2026",
+          "reason": "outside DC proper or virtual",
+          "location": "Adams Morgan"
+        },
+        {
+          "title": "Third Annual Pickle & Grilled Cheese Festival",
+          "reason": "outside DC proper or virtual",
+          "location": "Fredericksburg Fairgrounds 2400 Airport Avenue, Fredericksburg, VA, 22401"
+        },
+        {
+          "title": "Wanderland - Maryland craft beer, wine and spirits together in one place",
+          "reason": "outside DC proper or virtual",
+          "location": "Merriweather Park at Symphony Woods 10431 Little Patuxent Pkwy, Columbia, MD, 21044"
+        },
+        {
+          "title": "Building Bridges—A Benefit for Sumatra",
+          "reason": "outside DC proper or virtual",
+          "location": "Artha Rini Indonesian Restuarant 10562 Metropolitan Ave, Kensington, MD, 20895"
+        },
+        {
+          "title": "Fall Funtacular @ the Arcadia Center",
+          "reason": "outside DC proper or virtual",
+          "location": "Arcadia Center 9000 Richmond Highway, Alexandria, VA, 22309"
+        },
+        {
+          "title": "A Spooky Shaw Halloween Crawl",
+          "reason": "outside DC proper or virtual",
+          "location": "Shaw Neighborhood"
+        },
+        {
+          "title": "Folklore & Folktales Exhibit / Closing Reception + Artist Happy Hour",
+          "reason": "outside DC proper or virtual",
+          "location": "AND Creative Studio 1851 McGuckian Street #Suite B, Annapolis, MD, 21401"
+        },
+        {
+          "title": "Live Jazz & Wine Tasting",
+          "reason": "outside DC proper or virtual",
+          "location": "402 N Howard St 402 N Howard St, Baltimore, MD, 21201"
+        },
+        {
+          "title": "HALLOWEEN HOT COCKTAILS @ REVALATION VINEYARDS!",
+          "reason": "outside DC proper or virtual",
+          "location": "Revalation Vineyards 2710 Hebron Valley Rd, Madison, VA, 22727, United States"
+        },
+        {
+          "title": "Mini Veg-Fest",
+          "reason": "outside DC proper or virtual",
+          "location": "12004 Cherry Hill Rd 12004 Cherry Hill Road, Silver Spring, MD, 20904"
+        },
+        {
+          "title": "Arlington Reads with Jessica B. Harris",
+          "reason": "outside DC proper or virtual",
+          "location": "Central Library – Arlington Public Library 1015 North Quincy Street, Arlington, VA, 22201"
+        },
+        {
+          "title": "Virginia African Restaurant Week 2026",
+          "reason": "outside DC proper or virtual",
+          "location": "MD"
+        },
+        {
+          "title": "AWARD WINNING MARYLAND WINE-Governor's Cup Winners Celebration",
+          "reason": "outside DC proper or virtual",
+          "location": "Windridge Vineyards 15700 Darnestown Road, Darnestown, MD, 20874"
+        }
+      ]
+    },
+    {
+      "source": "runguides-races",
+      "status": "events-found",
+      "elapsedMs": 1110,
+      "sourceUrl": "https://www.runguides.com/washington-dc/runs/5k/all",
+      "apiRows": 52,
+      "parsedRows": 51,
+      "includedRows": 11,
+      "excludedRows": 40,
+      "included": [
+        {
+          "title": "Laufvergnügen",
+          "date": "2026-10-24",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "10K",
+            "Half marathon",
+            "Trail"
+          ],
+          "url": "https://www.olddominionracing.com/laufvergnugen"
+        },
+        {
+          "title": "FONA Fall 5K",
+          "date": "2026-10-31",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "NoMa / Union Market Area",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "Road"
+          ],
+          "url": "https://runsignup.com/Race/DC/Washington/FriendsoftheNationalArboretum5K?rsus=500-400-65308845-d421-4f66-ba23-55e37d664e56"
+        },
+        {
+          "title": "Janney 5k",
+          "date": "2026-11-14",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Upper Northwest",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "1K",
+            "Road",
+            "Kids run"
+          ],
+          "url": "https://www.janney5k.org/"
+        },
+        {
+          "title": "BSS Bulldog 5K",
+          "date": "2026-11-14",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "Fun run",
+            "Road",
+            "Kids run"
+          ],
+          "url": "https://runsignup.com/Race/DC/Washington/BlessedSacramentBulldog5k"
+        },
+        {
+          "title": "Adrenaline Rush 5K",
+          "date": "2026-11-15",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "Trail"
+          ],
+          "url": "https://runsignup.com/Race/DC/Washington/AdrenalineRush5kDC"
+        },
+        {
+          "title": "Jingle Bell Run - Metro DC",
+          "date": "2026-12-06",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "Fun run",
+            "Road",
+            "Kids run"
+          ],
+          "url": "https://events.arthritis.org/jbrmetrodc"
+        },
+        {
+          "title": "Jingle 5K",
+          "date": "2026-12-13",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "Road"
+          ],
+          "url": "https://runsignup.com/Race/DC/Washington/DCJingle5K"
+        },
+        {
+          "title": "Rock 'n' Roll Washington DC",
+          "date": "2027-03-20",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "National Mall",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "Half marathon",
+            "Road"
+          ],
+          "url": "https://www.runrocknroll.com/washington-dc"
+        },
+        {
+          "title": "DC10 Track Meet",
+          "date": "2027-03-20",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "1 mile",
+            "5K",
+            "10K",
+            "Road",
+            "Kids run"
+          ],
+          "url": "https://lighthorsetrackclub.org/dc10"
+        },
+        {
+          "title": "Cherry Blossom 10-Mile & 5k",
+          "date": "2027-04-03",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "10 mile",
+            "Road",
+            "Kids run"
+          ],
+          "url": "https://www.cherryblossom.org/"
+        },
+        {
+          "title": "Race for Hope DC 5k Run/Walk",
+          "date": "2027-05-22",
+          "time": "8:00 AM",
+          "venue": "Washington, DC",
+          "neighborhood": "Washington DC",
+          "category": "sports",
+          "tags": [
+            "Running",
+            "5K",
+            "Road"
+          ],
+          "url": "https://braintumor.org/event/race-for-hope-dc/"
+        }
+      ],
+      "excluded": [
+        {
+          "title": "The Society of Prince George’s 5k",
+          "reason": "outside DC proper",
+          "location": "Upper Marlboro, Maryland"
+        },
+        {
+          "title": "Hot Cider Hustle - Washington, DC 5K, 10K & 15K",
+          "reason": "outside DC proper",
+          "location": "Fort Washington, Maryland"
+        },
+        {
+          "title": "Rockville 10K/5K",
+          "reason": "outside DC proper",
+          "location": "Rockville, Maryland"
+        },
+        {
+          "title": "The Jack T. Farrar, Jr. \"Fill the Shoes\" 5K",
+          "reason": "outside DC proper",
+          "location": "Franconia, Virginia"
+        },
+        {
+          "title": "Westminster School 5k",
+          "reason": "outside DC proper",
+          "location": "Annandale, Virginia"
+        },
+        {
+          "title": "Anime for Miles 5k",
+          "reason": "outside DC proper",
+          "location": "Lorton, Virginia"
+        },
+        {
+          "title": "Race to Feed the Hungry",
+          "reason": "outside DC proper",
+          "location": "Falls Church, Virginia"
+        },
+        {
+          "title": "Spend Yourself 5K Run/3K Walk",
+          "reason": "outside DC proper",
+          "location": "Falls Church, Virginia"
+        },
+        {
+          "title": "Saint Rita 5K & Fun Run",
+          "reason": "outside DC proper",
+          "location": "Alexandria, Virginia"
+        },
+        {
+          "title": "Tysons Rotary 5K Turkey Trot",
+          "reason": "outside DC proper",
+          "location": "Tysons, Virginia"
+        },
+        {
+          "title": " Salute to Veterans 5K/10K/Half Marathon - Metro Washington DC",
+          "reason": "outside DC proper",
+          "location": "Springfield, Virginia"
+        },
+        {
+          "title": "Great Falls Half",
+          "reason": "outside DC proper",
+          "location": "Potomac, Maryland"
+        },
+        {
+          "title": "Arlington Turkey Trot",
+          "reason": "outside DC proper",
+          "location": "Arlington, Virginia"
+        },
+        {
+          "title": "Downtown Columbia Turkey Trot 5K",
+          "reason": "outside DC proper",
+          "location": "Fulton, Maryland"
+        },
+        {
+          "title": "Jingle Bell Run - Montgomery County, MD",
+          "reason": "outside DC proper",
+          "location": "Germantown, Maryland"
+        },
+        {
+          "title": "Army Navy Game 5k & 10k",
+          "reason": "outside DC proper",
+          "location": "Alexandria, Virginia"
+        },
+        {
+          "title": "Little Patuxent River Half Marathon, 10K & 5K",
+          "reason": "outside DC proper",
+          "location": "Columbia, Maryland"
+        },
+        {
+          "title": "Cupid's Chase 5K - Silver Spring",
+          "reason": "outside DC proper",
+          "location": "Silver Spring, Maryland"
+        },
+        {
+          "title": "IDGA5K",
+          "reason": "outside DC proper",
+          "location": "College Park, Maryland"
+        },
+        {
+          "title": "Half Donkey",
+          "reason": "outside DC proper",
+          "location": "Alexandria, Virginia"
+        },
+        {
+          "title": "Brain Aneurysm Foundation 5K Run/Walk - Washington, DC",
+          "reason": "missing exact date"
+        },
+        {
+          "title": "FONA Flowering 5K",
+          "reason": "missing exact date"
+        },
+        {
+          "title": "Congressional Cemetery Cherry Blossom 5K",
+          "reason": "missing exact date"
+        },
+        {
+          "title": "Arlington Bunny Hop 5K",
+          "reason": "outside DC proper",
+          "location": "Arlington, Virginia"
+        },
+        {
+          "title": "Discover Downtown Columbia 5K & 10K",
+          "reason": "outside DC proper",
+          "location": "Columbia, Maryland"
+        },
+        {
+          "title": "Active for Autism 5K & Kids Dash",
+          "reason": "outside DC proper",
+          "location": "Alexandria, Virginia"
+        },
+        {
+          "title": "PNC Alexandria Half",
+          "reason": "outside DC proper",
+          "location": "Alexandria, Virginia"
+        },
+        {
+          "title": "Stride for Hope 5k Homecoming Festival",
+          "reason": "missing exact date"
+        },
+        {
+          "title": "Azalea Classic",
+          "reason": "outside DC proper",
+          "location": "University Park, Maryland"
+        },
+        {
+          "title": "Healthy Strides 5k, 10k & Kids Run",
+          "reason": "outside DC proper",
+          "location": "Fairfax County, Virginia"
+        },
+        {
+          "title": "BEST Kids 5K & Fun Run",
+          "reason": "outside DC proper",
+          "location": "Arlington, Virginia"
+        },
+        {
+          "title": "Lawyers Have Heart 10K, 5K & Fun Walk",
+          "reason": "missing exact date"
+        },
+        {
+          "title": "Run Aware XC 5K",
+          "reason": "outside DC proper",
+          "location": "Potomac, Maryland"
+        },
+        {
+          "title": "Down The Stretch Track Fest",
+          "reason": "outside DC proper",
+          "location": "George Mason, Virginia"
+        },
+        {
+          "title": "Hope Without Boundaries 5K Run/Walk",
+          "reason": "outside DC proper",
+          "location": "National Harbor, Maryland"
+        },
+        {
+          "title": "Maryland Half Marathon & 5K",
+          "reason": "outside DC proper",
+          "location": "Fulton, Maryland"
+        },
+        {
+          "title": "Steps Toward a Cure 5K",
+          "reason": "outside DC proper",
+          "location": "Fairfax, Virginia"
+        },
+        {
+          "title": "Run Unbridled Track Fest",
+          "reason": "outside DC proper",
+          "location": "Fairfax, Virginia"
+        },
+        {
+          "title": "Suds & Soles 5K",
+          "reason": "outside DC proper",
+          "location": "Rockville, Maryland"
+        },
+        {
+          "title": "Ocean City Running Festival",
+          "reason": "outside DC proper",
+          "location": "Ocean City, Maryland"
+        }
+      ]
+    },
+    {
+      "source": "thingstododc-embassy-events",
+      "status": "events-found",
+      "elapsedMs": 24644,
+      "listingRows": 7,
+      "includedRows": 5,
+      "excludedRows": 2,
+      "included": [
+        {
+          "title": "Evening at the New Embassy of ZAMBIA",
+          "date": "2026-10-23",
+          "time": "7:00 PM",
+          "venue": "Embassy of Zambia",
+          "address": "2419 Massachusetts Ave, NW",
+          "price": "$69",
+          "tags": [
+            "Embassy",
+            "Cultural",
+            "International",
+            "Cruise",
+            "Waterfront",
+            "Scavenger hunt"
+          ]
+        },
+        {
+          "title": "International Trick or Treating Embassy Row Walking Tour",
+          "date": "2026-10-31",
+          "time": "6:15 PM",
+          "venue": "Meet at the North Exit of DuPont Circle (Top of the Escalator)",
+          "address": "19th St NW",
+          "price": "$40",
+          "tags": [
+            "Embassy",
+            "Cultural",
+            "International",
+            "Cruise",
+            "Waterfront",
+            "Scavenger hunt"
+          ]
+        },
+        {
+          "title": "Evening at the Embassy of Saudi Arabia",
+          "date": "2026-11-06",
+          "time": "6:30 PM",
+          "venue": "The Royal Embassy of Saudi Arabia",
+          "address": "601 New Hampshire Avenue, NW",
+          "price": "$64",
+          "tags": [
+            "Embassy",
+            "Cultural",
+            "International",
+            "Cruise",
+            "Waterfront",
+            "Scavenger hunt"
+          ]
+        },
+        {
+          "title": "MEXICAN DAY OF THE DEAD MASQUERADE EMBASSY GALA",
+          "date": "2026-11-07",
+          "time": "8:00 PM",
+          "venue": "Mexican Cultural Institute (Embassy of Mexico)",
+          "address": "2829 16th Street, NW",
+          "price": "$99 - $159",
+          "tags": [
+            "Embassy",
+            "Cultural",
+            "International",
+            "Party",
+            "Rooftop",
+            "Cruise"
+          ]
+        },
+        {
+          "title": "Embassy of Portugal: Evening at the Residence of the Ambassador",
+          "date": "2026-11-19",
+          "time": "6:30 PM",
+          "venue": "Residence of the Ambassador from Portugal",
+          "address": "2125 Kalorama Rd NW",
+          "price": "$134",
+          "tags": [
+            "Embassy",
+            "Cultural",
+            "International",
+            "Cruise",
+            "Waterfront",
+            "Scavenger hunt"
+          ]
+        }
+      ],
+      "excluded": [
+        {
+          "title": "Virtual ON SITE Tour of Transylvania Romania",
+          "reason": "not DC physical venue: Online",
+          "url": "https://thingstododc.com/event/virtual-on-site-tour-of-transylvania-romania-3/"
+        },
+        {
+          "title": "HALLOWEEN GALA AT THE EMBASSY OF AUSTRIA (Limited Space Remains)",
+          "reason": "not DC physical venue: 3524 International Ct",
+          "url": "https://thingstododc.com/event/austriahalloween2026/"
+        }
+      ]
+    }
+  ]
+}
